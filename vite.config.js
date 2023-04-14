@@ -1,10 +1,10 @@
-import { defineConfig } from 'vite'
+// Plugins
 import vue from '@vitejs/plugin-vue'
-import vuetify from '@vuetify/vite-plugin'
+import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
 
-// reqire is node.js specific
-// eslint-disable-next-line no-undef
-const path = require('path')
+// Utilities
+import { defineConfig } from 'vite'
+import { fileURLToPath, URL } from 'node:url'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -12,7 +12,9 @@ export default defineConfig({
   base: './',
   // edu.
   plugins: [
-    vue(),
+    vue({
+      template: { transformAssetUrls }
+    }),
     // https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vite-plugin
     vuetify({
       autoImport: true,
@@ -21,13 +23,8 @@ export default defineConfig({
   define: { 'process.env': {} },
   resolve: {
     alias: {
-      // __dirname is a placeholder and will be replaced by vite
-      // eslint-disable-next-line no-undef
-      '@': path.resolve(__dirname, 'src'),
+      '@': fileURLToPath(new URL('./src', import.meta.url))
     },
-  },
-  /* remove the need to specify .vue files https://vitejs.dev/config/#resolve-extensions
-  resolve: {
     extensions: [
       '.js',
       '.json',
@@ -36,7 +33,9 @@ export default defineConfig({
       '.ts',
       '.tsx',
       '.vue',
-    ]
+    ],
   },
-  */
+  server: {
+    port: 3000,
+  },
 })

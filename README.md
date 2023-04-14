@@ -1,4 +1,4 @@
-# long-essay-corrector (Pilot Version)
+# long-essay-assessment-corrector (Pilot Version)
 
 Web app to correct long essays of an exam.
 Used by the [long-essay-assessment-service](https://github.com/EDUTIEK/long-essay-assessment-service).
@@ -21,10 +21,4 @@ npm run dev
 
 ```sh
 npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
 ```
