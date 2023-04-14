@@ -18,11 +18,10 @@ apiStore.init();
 <template>
     <v-app fill-height>
       <startup-content v-if="!apiStore.initialized" />
-
       <app-bar v-if="apiStore.initialized"/>
-      <state-bar v-if="apiStore.initialized"/>
       <nav-bar v-if="apiStore.initialized"/>
       <main-content v-if="apiStore.initialized"/>
+      <state-bar v-if="apiStore.initialized"/>
     </v-app>
 </template>
 
