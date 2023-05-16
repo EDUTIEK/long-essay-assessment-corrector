@@ -1,9 +1,17 @@
 <script setup>
   import {useEssayStore} from '@/store/essay';
   const essayStore = useEssayStore();
+
+  import TextHighlighter from '@/lib/highlight/TextHighlighter';
+
+  function init() {
+    var hltr = new TextHighlighter(document.getElementById('app-essay'));
+  }
+
 </script>
 
 <template>
+  <button @click = "init()">Init</button>
   <div id="app-essay" v-html="essayStore.text"></div>
 </template>
 
