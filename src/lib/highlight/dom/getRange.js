@@ -11,6 +11,7 @@ export default function (el) {
 
   if (selection.rangeCount > 0) {
     range = selection.getRangeAt(0);
+
   }
 
   return range;

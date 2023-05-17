@@ -1,21 +1,23 @@
 <script setup>
   import {useEssayStore} from '@/store/essay';
+  import TextMarker from '@/lib/highlight/TextMarker';
+  import {onMounted} from 'vue'
+
   const essayStore = useEssayStore();
 
-  import TextHighlighter from '@/lib/highlight/TextHighlighter';
+  var marker;
 
-  function init() {
-    var hltr = new TextHighlighter(document.getElementById('app-essay'));
-  }
+  onMounted(() => {
+    marker = new TextMarker(document.getElementById('app-essay'));
+  })
 
-</script>
+  </script>
 
 <template>
-  <button @click = "init()">Init</button>
   <div id="app-essay" v-html="essayStore.text"></div>
 </template>
 
-<style scoped>
+<style>
 
   @import '@/styles/content.css';
 
@@ -25,6 +27,19 @@
     border: 1px solid #cccccc;
     overflow-y: scroll;
   }
+
+  w-p.other {
+    background-color: aliceblue;
+  }
+
+  w-p.own {
+    background-color: skyblue;
+  }
+
+  w-p.active {
+    background-color: yellow!important;
+  }
+
 
 
 </style>

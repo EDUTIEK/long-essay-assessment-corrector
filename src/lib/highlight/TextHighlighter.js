@@ -79,7 +79,7 @@ class TextHighlighter {
       onAfterHighlight() { },
     });
 
-    this.highlightHandler = this.options.highlightHandler || this.doHighlight.bind(this);
+    this.highlightHandler = this.options.highlightHandler || this.defaultHighlightHandler.bind(this);
 
     addClass(this.el, this.options.contextClass);
 
@@ -110,6 +110,18 @@ class TextHighlighter {
   }
 
   /**
+   *
+   * @param event
+   */
+  defaultHighlightHandler (event)
+  {
+    console.log(event);
+    let range = getRange(this.el);
+    console.log(range);
+    this.doHighlight(range, false);
+  }
+
+  /**
    * Highlights current range.
    * @param {boolean} keepRange - Don't remove range after highlighting. Default: false.
    * @param {Range} range
@@ -132,7 +144,9 @@ class TextHighlighter {
       wrapper.setAttribute(TIMESTAMP_ATTR, timestamp);
 
       createdHighlights = this.highlightRange(range, wrapper);
+      console.log(createdHighlights);
       normalizedHighlights = normalizeHighlights(createdHighlights);
+      console.log(createdHighlights);
 
       this.options.onAfterHighlight(range, normalizedHighlights, timestamp);
     }
