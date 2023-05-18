@@ -9,7 +9,10 @@ import {useItemsStore} from "./items";
 import {useEssayStore} from "./essay";
 import {useSummaryStore} from "./summary";
 import {useLevelsStore} from "./levels";
+import {useCriteriaStore} from "./criteria";
 import {useCorrectorsStore} from "./correctors";
+import {useCommentsStore} from "@/store/comments";
+import {usePointsStore} from "@/store/points";
 import md5 from 'md5';
 
 /**
@@ -248,17 +251,23 @@ export const useApiStore = defineStore('api', {
             const taskStore = useTaskStore();
             const resourcesStore = useResourcesStore();
             const levelsStore = useLevelsStore();
+            const criteriaStore = useCriteriaStore();
             const layoutStore = useLayoutStore();
             const itemsStore = useItemsStore();
             const summaryStore = useSummaryStore();
+            const commentsStore = useCommentsStore();
+            const pointsStore = usePointsStore();
 
             await settingsStore.loadFromStorage();
             await taskStore.loadFromStorage();
             await resourcesStore.loadFromStorage();
             await levelsStore.loadFromStorage();
+            await criteriaStore.loadFromStorage();
             await layoutStore.loadFromStorage();
             await itemsStore.loadFromStorage();
             await summaryStore.loadFromStorage();
+            await commentsStore.loadFromStorage();
+            await pointsStore.loadFromStorage();
 
             return true;
         },
@@ -286,6 +295,7 @@ export const useApiStore = defineStore('api', {
             const settingsStore = useSettingsStore();
             const resourcesStore = useResourcesStore();
             const levelsStore = useLevelsStore();
+            const criteriaStore = useCriteriaStore();
             const layoutStore = useLayoutStore();
             const itemsStore = useItemsStore();
 
@@ -293,6 +303,7 @@ export const useApiStore = defineStore('api', {
             await settingsStore.loadFromData(response.data.settings);
             await resourcesStore.loadFromData(response.data.resources);
             await levelsStore.loadFromData(response.data.levels);
+            await criteriaStore.loadFromData(response.data.criteria);
             await itemsStore.loadFromData(response.data.items);
             await layoutStore.clearStorage();
 
@@ -328,19 +339,23 @@ export const useApiStore = defineStore('api', {
             const essayStore = useEssayStore();
             const correctorsStore = useCorrectorsStore();
             const summaryStore = useSummaryStore();
+            const commentsStore = useCommentsStore();
+            const pointsStore = usePointsStore();
 
             await taskStore.loadFromData(response.data.task);
             await essayStore.loadFromData(response.data.essay);
             await correctorsStore.loadFromData(response.data.correctors);
             await summaryStore.loadFromData(response.data.summary);
+            await commentsStore.loadFromData(response.data.comments);
+            await pointsStore.loadFromData(response.data.points);
 
-            this.itemKey = itemKey;
+          this.itemKey = itemKey;
             localStorage.setItem('itemKey', this.itemKey);
             return true;
         },
 
         /**
-         * Save the correction summars to the backend
+         * Save the correction summary to the backend
          */
         async saveSummaryToBackend(data) {
             let response = {};
@@ -357,7 +372,7 @@ export const useApiStore = defineStore('api', {
         },
 
         /**
-         * Save the correction summars to the backend
+         * Save the stitch descision to the backend
          */
         async saveStitchDecisionToBackend(data) {
             let response = {};

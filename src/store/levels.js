@@ -7,7 +7,7 @@ const storage = localForage.createInstance({
 });
 
 /**
- * Resources Store
+ * Levels Store
  */
 export const useLevelsStore = defineStore('levels',{
     state: () => {
