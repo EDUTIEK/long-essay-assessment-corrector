@@ -25,6 +25,10 @@ export const useCriteriaStore = defineStore('criteria',{
         getCriterion(state) {
             return (key) => state.criteria.find(element => element.key == key)
         },
+
+        getCriteria(state) {
+            return state.criteria;
+        }
     },
 
     actions: {

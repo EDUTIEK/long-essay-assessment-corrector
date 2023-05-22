@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia';
+import {defineStore} from 'pinia';
 import localForage from "localforage";
 import {useApiStore} from "./api";
 
@@ -12,13 +12,14 @@ const storage = localForage.createInstance({
  * Layout Store
  * Handles visibility of user interface components
  */
-export const useLayoutStore = defineStore('layout',{
+export const useLayoutStore = defineStore('layout', {
     state: () => {
         return {
             // saved in storage
             expandedColumn: 'none',         // left|right|none
-            leftContent: 'essay',    // instructions|resources|essay|correctors
-            rightContent: 'summary',        // summary
+            leftContent: 'essay',           // instructions|resources|essay|correctors
+            rightContent: 'marking',        // summary|marking
+            pointsExpanded: false
         }
     },
 
@@ -30,6 +31,7 @@ export const useLayoutStore = defineStore('layout',{
 
         isLeftExpanded: (state) => state.expandedColumn == 'left',
         isRightExpanded: (state) => state.expandedColumn == 'right',
+        isPointsExpanded: (state) => state.pointsExpanded,
 
         isLeftVisible: (state) => state.expandedColumn != 'right',
         isRightVisible: (state) => state.expandedColumn != 'left',
@@ -38,26 +40,27 @@ export const useLayoutStore = defineStore('layout',{
         isResourcesSelected: (state) => state.leftContent == 'resources',
         isCorrectorsSelected: (state) => {
             if (state.isForReviewOrStitch) {
-                return  state.rightContent == 'correctors'
-            }
-            else {
-                return  state.leftContent == 'correctors'
+                return state.rightContent == 'correctors'
+            } else {
+                return state.leftContent == 'correctors'
             }
         },
         isEssaySelected: (state) => state.leftContent == 'essay',
+        isSummarySelected: (state) => state.rightContent == 'summary',
+        isMarkingSelected: (state) => state.rightContent == 'marking',
 
         isInstructionsVisible: (state) => (state.expandedColumn != 'right' && state.leftContent == 'instructions'),
         isResourcesVisible: (state) => (state.expandedColumn != 'right' && state.leftContent == 'resources'),
         isCorrectorsVisible: (state) => {
             if (state.isForReviewOrStitch) {
                 return (state.expandedColumn != 'left' && state.rightContent == 'correctors')
-            }
-            else {
+            } else {
                 return (state.expandedColumn != 'right' && state.leftContent == 'correctors')
             }
         },
         isEssayVisible: (state) => (state.expandedColumn != 'right' && state.leftContent == 'essay'),
-        isSummaryVisible: (state) => (state.expandedColumn != 'left' && state.rightContent == 'summary')
+        isSummaryVisible: (state) => (state.expandedColumn != 'left' && state.rightContent == 'summary'),
+        isMarkingVisible: (state) => (state.expandedColumn != 'left' && state.rightContent == 'marking')
     },
 
     actions: {
@@ -65,8 +68,7 @@ export const useLayoutStore = defineStore('layout',{
         async clearStorage() {
             try {
                 await storage.clear();
-            }
-            catch (err) {
+            } catch (err) {
                 console.log(err);
             }
         },
@@ -118,8 +120,7 @@ export const useLayoutStore = defineStore('layout',{
             if (this.isForReviewOrStitch) {
                 this.setRightVisible();
                 this.rightContent = 'correctors';
-            }
-            else {
+            } else {
                 this.setLeftVisible();
                 this.leftContent = 'correctors';
             }
@@ -129,6 +130,12 @@ export const useLayoutStore = defineStore('layout',{
         showEssay() {
             this.setLeftVisible();
             this.leftContent = 'essay';
+            this.saveToStorage();
+        },
+
+        showMarking() {
+            this.setRightVisible();
+            this.rightContent = 'marking';
             this.saveToStorage();
         },
 
@@ -159,6 +166,11 @@ export const useLayoutStore = defineStore('layout',{
 
         setRightExpanded(expanded) {
             this.expandedColumn = expanded ? 'right' : 'none';
+            this.saveToStorage();
+        },
+
+        setPointsExpanded(expanded) {
+            this.pointsExpanded = !!expanded;
             this.saveToStorage();
         }
     }

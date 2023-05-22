@@ -25,9 +25,9 @@ export const useApiStore = defineStore('api', {
         return {
             // saved in storage
             backendUrl: '',                     // url to be used for REST calls
-            returnUrl: '',                      // url to be called when the wsriter is closed
-            userKey: '',                        // identifying key of the writing user
-            environmentKey: '',                 // identifying key of the writing envirnonment (defining the task)
+            returnUrl: '',                      // url to be called when the corrector is closed
+            userKey: '',                        // identifying key of the correctiong user
+            environmentKey: '',                 // identifying key of the correcting envirnonment (defining the task)
             itemKey: '',                        // identifying key of the correction item
             dataToken: '',                      // authentication token for transmission if data
             fileToken: '',                      // authentication token for loading files
@@ -209,6 +209,7 @@ export const useApiStore = defineStore('api', {
             this.showItemReplaceConfirmation = false;
             this.itemKey = localStorage.getItem('correctorItemKey');
             this.initialized = this.loadDataFromStorage();
+            this.initialized = this.loadItemFromStorage( this.itemKey);
             this.updateConfig();
         },
 
@@ -254,9 +255,6 @@ export const useApiStore = defineStore('api', {
             const criteriaStore = useCriteriaStore();
             const layoutStore = useLayoutStore();
             const itemsStore = useItemsStore();
-            const summaryStore = useSummaryStore();
-            const commentsStore = useCommentsStore();
-            const pointsStore = usePointsStore();
 
             await settingsStore.loadFromStorage();
             await taskStore.loadFromStorage();
@@ -265,16 +263,37 @@ export const useApiStore = defineStore('api', {
             await criteriaStore.loadFromStorage();
             await layoutStore.loadFromStorage();
             await itemsStore.loadFromStorage();
+
+            return true;
+        },
+
+        /**
+         * Load the data of a new correction item from storage
+         * This requires the itemKey to be set
+         */
+        async loadItemFromStorage(itemKey) {
+            console.log("loadItemFromStorage...");
+
+            const essayStore = useEssayStore();
+            const correctorsStore = useCorrectorsStore();
+            const summaryStore = useSummaryStore();
+            const commentsStore = useCommentsStore();
+            const pointsStore = usePointsStore();
+
+            // todo: make item dependent
+            await essayStore.loadFromStorage();
+            await correctorsStore.loadFromStorage();
             await summaryStore.loadFromStorage();
-            await commentsStore.loadFromStorage();
-            await pointsStore.loadFromStorage();
+
+            await commentsStore.loadFromStorage(itemKey);
+            await pointsStore.loadFromStorage(itemKey);
 
             return true;
         },
 
 
         /**
-         * Load all data from the backend
+         * Load common data from the backend
          */
         async loadDataFromBackend() {
             console.log("loadDataFromBackend...");
@@ -346,10 +365,11 @@ export const useApiStore = defineStore('api', {
             await essayStore.loadFromData(response.data.essay);
             await correctorsStore.loadFromData(response.data.correctors);
             await summaryStore.loadFromData(response.data.summary);
-            await commentsStore.loadFromData(response.data.comments);
-            await pointsStore.loadFromData(response.data.points);
 
-          this.itemKey = itemKey;
+            await commentsStore.loadFromData(response.data.comments, itemKey);
+            await pointsStore.loadFromData(response.data.points, itemKey);
+
+            this.itemKey = itemKey;
             localStorage.setItem('itemKey', this.itemKey);
             return true;
         },

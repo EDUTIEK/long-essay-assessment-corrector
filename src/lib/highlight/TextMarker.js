@@ -12,7 +12,7 @@ import { defaults } from './utils';
  * @param {HTMLElement} element - DOM element to which marker will be applied.
  * @param {object} [options] - additional options.
  * @param {boolean} options.bindEvents - bind the mouseup and touchend events to the selectionHandler of this class
- * @param {function} options.onSelection - function called when text is selected.
+ * @param {function} options.onSelection - function called when text is selected. Called with {firstWord: integer, lastWord: integer, parentNumber: integer}
  */
 class TextMarker {
 
@@ -24,9 +24,8 @@ class TextMarker {
     this.el = element;
     this.options = defaults(options, {
       bindEvents: true,
-      onSelection() { return true; },
+      onSelection() { return true; }
     });
-
 
     if (this.options.bindEvents) {
       this.bindEvents();
@@ -63,16 +62,16 @@ class TextMarker {
     console.log(words);
 
     if (words.firstWord > 0 && words.lastWord > 0) {
-      this.hideAllMarks('own');
-      this.showMark('own', words.firstWord, words.lastWord);
+      // this.hideAllMarks('own');
+      // this.showMark('own', words.firstWord, words.lastWord);
+      this.options.onSelection(words)
     }
     removeAllRanges(this.el);
   }
 
   /**
    * Get the selected words from a range
-   * @param {Range} range
-   * @return {object}  - {firstWord: integer, lastWord: integer}
+   * @return {object}  - {firstWord: integer, lastWord: integer, parentNumber: integer}
    */
   getSelectedWords() {
 
@@ -92,11 +91,14 @@ class TextMarker {
 
     let first = 0;
     let last = 0;
+    let parent = 0;
     ancestor.querySelectorAll('w-p').forEach(word => {
       if (selection.containsNode(word, true)) {
         let w = parseInt(word.getAttribute('w'));
+        let p = parseInt(word.getAttribute('p'));
         if (first == 0 || w < first) {
           first = w;
+          parent = p;
         }
         if (w > last) {
           last = w
@@ -104,7 +106,7 @@ class TextMarker {
       }
     })
 
-    return {firstWord: first, lastWord: last};
+    return {firstWord: first, lastWord: last, parentNumber: parent};
   }
 
   showMark(cssClass, firstWord, lastWord)

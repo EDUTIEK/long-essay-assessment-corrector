@@ -55,9 +55,13 @@ function getCorrectorIcon(corrector) {
                    :prepend-icon="layoutStore.isEssayVisible ? 'mdi-file': 'mdi-file-outline'"
                    title="Abgegebener Text">
       </v-list-item>
-      <v-list-item v-if="!layoutStore.isForReviewOrStitch" @click="layoutStore.showSummary(); closeNavigation();"
+      <v-list-item v-if="!layoutStore.isForReviewOrStitch" @click="layoutStore.showMarking(); closeNavigation();"
+                     :prepend-icon="layoutStore.isMarkingVisible ? 'mdi-comment-edit': 'mdi-comment-edit-outline'"
+                     title="Anmerkungen">
+      </v-list-item>
+      <v-list-item v-if="!layoutStore.isForReviewOrStitch" @click="layoutStore.showSummary();  closeNavigation();"
                    :prepend-icon="layoutStore.isSummaryVisible ? 'mdi-file-edit': 'mdi-file-edit-outline'"
-                   title="Meine Korrektur">
+                   title="Gesamteindruck">
       </v-list-item>
 
       <v-list-group v-show="resourcesStore.hasResources">
