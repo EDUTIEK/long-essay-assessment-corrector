@@ -52,16 +52,29 @@ class Comment {
     comment = '';
 
     /**
-     * Rating flag (see static values)
-     * @type {string}
+     * Marked text is excellent
+     * @type {bool}
      */
-    rating = '';
+    rating_excellent = false;
 
     /**
-     * label that should be shown for the comment
+     * Marked text has a cardinal failure
+     * @type {bool}
+     */
+    rating_cardinal = false;
+
+    /**
+     * label that should be shown for the comment (not stored, dynamically assigned)
      * @type {string}
      */
     label = '';
+
+    /**
+     * 'own' for own comment, 'other' for comments of other correctors (not stored, dynamically assigned)
+     * @type {string}
+     */
+    prefix = '';
+
 
     /**
      * Constructor - gets properties from a data object
@@ -93,8 +106,11 @@ class Comment {
         if (data.comment !== undefined && data.comment !== null) {
             this.comment = data.comment.toString()
         }
-        if (data.rating !== undefined && data.rating !== null) {
-            this.rating = data.rating.toString()
+        if (data.rating == Comment.RAITNG_EXCELLENT) {
+            this.rating_excellent = true;
+        }
+        else if (data.rating == Comment.RATING_CARDINAL) {
+            this.rating_cardinal = true;
         }
     }
 
@@ -109,7 +125,7 @@ class Comment {
             end_position: this.end_position,
             parent_number: this.parent_number,
             comment: this.comment,
-            rating: this.rating
+            rating: this.rating_excellent ? Comment.RAITNG_EXCELLENT : (this.rating_cardinal ? Comment.RATING_CARDINAL : '')
         }
     }
 }

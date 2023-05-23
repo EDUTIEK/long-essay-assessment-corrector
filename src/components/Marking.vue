@@ -14,7 +14,7 @@ const layoutStore = useLayoutStore();
     </div>
 </template>
 
-<style scoped>
+<style scoped   >
 
 .appMarkingWrapper {
     height: 100%;

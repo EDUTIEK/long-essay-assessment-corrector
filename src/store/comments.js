@@ -66,7 +66,7 @@ export const useCommentsStore = defineStore('comments',{
         },
 
         getActiveCommentsInRange(start_position, end_position) {
-            return this.comments.filter(comment => comment.start_position <= end_position && comment.end_position >= start_position);
+            return this.getActiveComments.filter(comment => comment.start_position <= end_position && comment.end_position >= start_position);
         }
     },
 
@@ -74,6 +74,7 @@ export const useCommentsStore = defineStore('comments',{
 
         sortAndLabel() {
             const apiStore = useApiStore();
+            const correctorsStore = useCorrectorsStore();
 
             this.comments = this.comments.sort(compareComments);
 
@@ -82,7 +83,8 @@ export const useCommentsStore = defineStore('comments',{
             for (let i = 0; i < this.comments.length; i++) {
                 let comment = this.comments[i];
                 if (comment.corrector_key != apiStore.userKey) {
-                    comment.label = '';
+                    comment.label = correctorsStore.getCorrector(comment.corrector_key).title;
+                    comment.prefix = 'other';
                 }
                 else {
                     if (comment.parent_number > parent) {
@@ -92,6 +94,7 @@ export const useCommentsStore = defineStore('comments',{
                         number++;
                     }
                     comment.label = parent.toString() + '.' + number.toString();
+                    comment.prefix = 'own';
                 }
             }
         },

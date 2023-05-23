@@ -59,8 +59,6 @@ class TextMarker {
   selectionHandler(event)
   {
     let words = this.getSelectedWords();
-    console.log(words);
-
     if (words.firstWord > 0 && words.lastWord > 0) {
       // this.hideAllMarks('own');
       // this.showMark('own', words.firstWord, words.lastWord);
