@@ -39,7 +39,8 @@ export const useCommentsStore = defineStore('comments',{
             comments: [],               // list of comment objects for the currrent correction item
 
             // not saved in storage
-            selectedKey: ''             // key of the currently selected comment
+            selectedKey: '',                // key of the currently selected comment
+            scrollToSelection: false        // force a scrolling to the selected text
         }
     },
 
@@ -94,9 +95,21 @@ export const useCommentsStore = defineStore('comments',{
             }
         },
 
+        /**
+         * Select the currently active comment
+         * @param {string} key
+         */
         selectComment(key) {
             this.selectedKey = key;
             this.sortAndLabel();
+        },
+
+        /**
+         * Activate a text scrolling to the selected key (will be applied once)
+         * @param {bool} scroll
+         */
+        setScrollToSelection(scroll) {
+            this.scrollToSelection = scroll;
         },
 
         /**

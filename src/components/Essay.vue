@@ -33,9 +33,15 @@
       marker.hideAllMarks('selected');
 
       commentsStore.getActiveComments.forEach(comment => updateMark(comment));
+      marker.removeAllLabels();
       let comment = commentsStore.getComment(commentsStore.selectedKey);
       if (comment) {
           marker.showMark('selected', comment.start_position, comment.end_position);
+          marker.addLabel(comment.label, comment.start_position);
+          if (commentsStore.scrollToSelection) {
+              marker.scrollToWord(comment.start_position);
+              commentsStore.setScrollToSelection(false);
+          }
       }
   })
 
@@ -149,6 +155,22 @@
   #app-essay-menu {
       position: absolute;
       width: 150px;
+  }
+
+  w-p.labelled:before {
+      content: attr(label); /* value that that refers to CSS 'content' */
+      position: relative;
+      left: -7px;
+      top: -7px;
+      padding: 3px;
+      z-index: 10000;
+      background-color: white;
+      border: 1px solid lightgrey;
+      box-shadow: 1px 1px lightgrey;
+      font-family: sans-serif;
+      font-size: 12px;
+      font-style: normal;
+      font-weight: normal;
   }
 
   w-p.other {

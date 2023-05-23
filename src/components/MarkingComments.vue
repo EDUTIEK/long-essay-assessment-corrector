@@ -62,6 +62,11 @@ function toggleCardinal(comment) {
     }
 }
 
+function scrollText(comment) {
+    commentsStore.selectComment(comment.key);
+    commentsStore.setScrollToSelection(true);
+}
+
 </script>
 
 
@@ -69,13 +74,18 @@ function toggleCardinal(comment) {
     <div id="appMarkingComments">
         <v-container v-for="comment in commentsStore.getActiveComments" :key="comment.key">
             <v-row class="row" dense>
-                <v-col class="leftCol" cols="1">{{comment.label}}</v-col>
+                <v-col class="leftCol">
+                    <v-btn-group density="compact">
+                        <v-btn @click="scrollText(comment)" density="compact" variant="text" prepend-icon="mdi-bullseye-arrow">{{comment.label}}</v-btn>
+                        <v-btn @click="commentsStore.deleteComment(comment.key)" density="compact" size="small" variant="text" prepend-icon="mdi-delete-outline">Löschen</v-btn>
+                    </v-btn-group>
+                </v-col>
                 <v-col class="rightCol">
-                    <span class="checkboxes">
+                   <span class="checkboxes">
                         <v-checkbox-btn v-model="comment.rating_excellent" label="Exzellent" @change="toggleExcellent(comment)"></v-checkbox-btn>
                         <v-checkbox-btn v-model="comment.rating_cardinal" label="Kardinalfehler" @change="toggleCardinal(comment)"></v-checkbox-btn>
                     </span>
-                    <v-btn @click="commentsStore.deleteComment(comment.key)" density="compact" variant="text" prepend-icon="mdi-delete">Löschen</v-btn>
+
                 </v-col>
             </v-row>
             <v-row>
@@ -99,10 +109,12 @@ function toggleCardinal(comment) {
         display: inline-block;
         position: relative;
         top: 15px;
+        font-size: 10px;
     }
 
     .row {
         margin-top: -25px;
+        margin-bottom: -15px;
     }
 
     .leftCol {
