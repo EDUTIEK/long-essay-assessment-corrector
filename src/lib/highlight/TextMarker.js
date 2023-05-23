@@ -12,7 +12,8 @@ import { defaults } from './utils';
  * @param {HTMLElement} element - DOM element to which marker will be applied.
  * @param {object} [options] - additional options.
  * @param {boolean} options.bindEvents - bind the mouseup and touchend events to the selectionHandler of this class
- * @param {function} options.onSelection - function called when text is selected. Called with {firstWord: integer, lastWord: integer, parentNumber: integer}
+ * @param {function} options.onSelection - function called when text is selected.
+ *      Called with {mouseX: integer, mouseY: integer, firstWord: integer, lastWord: integer, parentNumber: integer, isCollapsed: bool}
  */
 class TextMarker {
 
@@ -58,20 +59,29 @@ class TextMarker {
    */
   selectionHandler(event)
   {
-    let words = this.getSelectedWords();
-    if (words.firstWord > 0 && words.lastWord > 0) {
-      // this.hideAllMarks('own');
-      // this.showMark('own', words.firstWord, words.lastWord);
-      this.options.onSelection(words)
+    let data = this.getSelectionData();
+    data.mouseX = event.clientX;
+    data.mouseY = event.clientY;
+    if (data.firstWord > 0 && data.lastWord > 0) {
+      this.options.onSelection(data)
     }
-    removeAllRanges(this.el);
   }
 
+    /**
+     * Removes a selection
+     */
+  removeSelection()
+  {
+      removeAllRanges(this.el);
+  }
+
+
   /**
-   * Get the selected words from a range
-   * @return {object}  - {firstWord: integer, lastWord: integer, parentNumber: integer}
+   * Get the selection data
+   * @return {object}  - {firstWord: integer, lastWord: integer, parentNumber: integer, isCollapsed: bool}
    */
-  getSelectedWords() {
+  getSelectionData()
+  {
 
     let selection = getSelection(this.el);
     let range = getRange(this.el);
@@ -104,7 +114,7 @@ class TextMarker {
       }
     })
 
-    return {firstWord: first, lastWord: last, parentNumber: parent};
+    return {firstWord: first, lastWord: last, parentNumber: parent, isCollapsed: selection.isCollapsed};
   }
 
   showMark(cssClass, firstWord, lastWord)

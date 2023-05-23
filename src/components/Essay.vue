@@ -3,20 +3,27 @@
   import {useCommentsStore} from "@/store/comments";
   import Comment from "@/data/Comment";
   import TextMarker from '@/lib/highlight/TextMarker';
-  import {onMounted} from 'vue'
-  import { watch } from 'vue'
+  import {onMounted} from 'vue';
+  import { nextTick} from "vue";
+  import { watch } from 'vue';
+  import { ref } from 'vue';
 
   const essayStore = useEssayStore();
   const commentsStore = useCommentsStore();
-  let marker;
+  const showMenu = ref(false);
 
+  let marker;
+  let menuSelection;
+  let menuComment;
 
   onMounted(() => {
     marker = new TextMarker(document.getElementById('app-essay'), {bindEvents: true, onSelection});
     commentsStore.getActiveComments.forEach(comment => updateMark(comment));
   });
 
-  commentsStore.$subscribe((mutation, state) => {
+
+  commentsStore.$subscribe((mutation, state) =>
+  {
       marker.hideAllMarks('own');
       marker.hideAllMarks('own-excellent');
       marker.hideAllMarks('own-cardinal');
@@ -32,10 +39,8 @@
       }
   })
 
-
   /**
    * Update the marking of a comment
-   * @param comment
    */
   function updateMark(comment) {
       marker.hideMark(comment.prefix + '-excellent', comment.start_position, comment.end_position);
@@ -51,27 +56,99 @@
       }
   }
 
-  function onSelection(selected) {
-      commentsStore.createComment(selected.firstWord, selected.lastWord, selected.parentNumber);
+  /**
+   * Handle the click into the text or a selection of a text range
+   * Decide whether to add a new comment or select an existing comment
+   */
+  async function onSelection(selected) {
+      if (showMenu.value) {
+          showMenu.value = false;
+      }
+      else {
+          // check if new selection overlaps with own comments
+          let comments = commentsStore.getOwnCommentsInRange(selected.firstWord, selected.lastWord);
+          if (comments.length) {
+              // get the first overlapping comment
+              let comment = comments.shift();
+
+              if (selected.isCollapsed) {
+                  // just clicked at a position => select the overlapping comment
+                  marker.removeSelection();
+                  commentsStore.selectComment(comment.key);
+              }
+              else {
+                  // selected an overlapping range => show menu whether to change boundaries or add a new comment
+                  menuSelection = selected;
+                  menuComment = comment;
+                  showMenu.value=true;
+                  await nextTick();
+                  document.getElementById("app-essay-menu").style.left = selected.mouseX + 'px';
+                  document.getElementById("app-essay-menu").style.top = selected.mouseY + 'px';
+              }
+         }
+         else {
+              // no overlapping => create a new comment
+              marker.removeSelection();
+              commentsStore.createComment(selected.firstWord, selected.lastWord, selected.parentNumber);
+         }
+      }
   }
 
+  /**
+   * Add comment for a previously selected range
+   */
+  function menuAddComment() {
+      showMenu.value = false;
+      marker.removeSelection();
+      commentsStore.createComment(menuSelection.firstWord, menuSelection.lastWord, menuSelection.parentNumber);
+  }
 
+  /**
+   * Edit the comment from a previously selected range
+   */
+  function menuEditComment() {
+      showMenu.value = false;
+      marker.removeSelection();
+      menuComment.start_position = menuSelection.firstWord;
+      menuComment.end_position = menuSelection.lastWord;
+      menuComment.parent_number = menuSelection.parentNumber;
+      commentsStore.updateComment(menuComment);
+      commentsStore.selectComment(menuComment.key);
+  }
 
 </script>
 
 <template>
-  <div id="app-essay" v-html="essayStore.text"></div>
+    <div id="app-essay-wrapper">
+        <div id="app-essay" v-html="essayStore.text"></div>
+        <v-menu v-model="showMenu">
+            <div id="app-essay-menu">
+                <v-btn icon="mdi-comment-plus" @click="menuAddComment()"></v-btn>
+                <v-btn icon="mdi-comment-edit" @click="menuEditComment()"></v-btn>
+            </div>
+
+        </v-menu>
+    </div>
 </template>
 
 <style>
 
   @import '@/styles/content.css';
 
+  #app-essay-wrapper {
+      height: 100%;
+  }
+
   #app-essay {
     height: 100%;
     padding: 20px;
     border: 1px solid #cccccc;
     overflow-y: scroll;
+  }
+
+  #app-essay-menu {
+      position: absolute;
+      width: 150px;
   }
 
   w-p.other {
@@ -112,39 +189,5 @@
   w-p.own-excellent.selected {
       background-color: #BBEBA5!important;
   }
-
-
-  /*
-  w-p.other {
-      background-color: #E8EFF8;
-  }
-  w-p.other-cardinal {
-    background-color: #FDEBE3;
-  }
-  w-p.other-excellent {
-      background-color: #EEF5EB;
-  }
-
-  w-p.own {
-    background-color: #C8DAF0;
-  }
-  w-p.own-cardinal {
-      background-color: #F9D1BF;
-  }
-  w-p.own-excellent {
-      background-color: #D7E9CF;
-  }
-
-  w-p.active {
-    background-color: #A9C5E7;
-  }
-  w-p.active-cardinal {
-      background-color: #F6B69A;
-  }
-  w-p.active-excellent {
-      background-color: #C1DBB5;
-  }
-    */
-
 
 </style>

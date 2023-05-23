@@ -52,21 +52,14 @@ export const useCommentsStore = defineStore('comments',{
         getActiveComments(state) {
             const apiStore = useApiStore();
             const correctorsStore = useCorrectorsStore();
-            return this.comments.filter(comment => comment.corrector_key == apiStore.userKey || comment.corrector_key == correctorsStore.activeKey);
+            return state.comments.filter(comment => comment.corrector_key == apiStore.userKey
+                || comment.corrector_key == correctorsStore.activeKey);
         },
 
-        getActiveOwnComments(state) {
-            const apiStore = useApiStore();
-            return this.comments.filter(comment => comment.corrector_key == apiStore.userKey);
-        },
-
-        getActiveOtherComments(state) {
-            const correctorsStore = useCorrectorsStore();
-            return this.comments.filter(comment => comment.corrector_key == correctorsStore.activeKey);
-        },
-
-        getActiveCommentsInRange(start_position, end_position) {
-            return this.getActiveComments.filter(comment => comment.start_position <= end_position && comment.end_position >= start_position);
+        getOwnCommentsInRange(state) {
+            return (start_position, end_position) => state.getActiveComments.filter(comment => comment.prefix =='own'
+                && comment.start_position <= end_position && comment.end_position >= start_position
+            );
         }
     },
 
@@ -76,7 +69,9 @@ export const useCommentsStore = defineStore('comments',{
             const apiStore = useApiStore();
             const correctorsStore = useCorrectorsStore();
 
-            this.comments = this.comments.sort(compareComments);
+            // cleanup empty comments and sort by position
+            this.comments = this.comments.filter(comment => (comment.key == this.selectedKey || comment.comment || comment.rating_excellent || comment.rating_cardinal))
+                .sort(compareComments);
 
             let parent = 0;
             let number = 0;
@@ -101,6 +96,7 @@ export const useCommentsStore = defineStore('comments',{
 
         selectComment(key) {
             this.selectedKey = key;
+            this.sortAndLabel();
         },
 
         /**
@@ -122,7 +118,6 @@ export const useCommentsStore = defineStore('comments',{
             })
             this.keys.push(comment.key);
             this.comments.push(comment);
-            this.sortAndLabel();
             this.selectComment(comment.key)
             await storage.setItem(comment.key, comment.getData());
             await storage.setItem('commentKeys', JSON.stringify(this.keys));

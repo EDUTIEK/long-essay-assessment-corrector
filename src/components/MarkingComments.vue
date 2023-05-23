@@ -1,9 +1,32 @@
 <script setup>
 import {useCommentsStore} from "@/store/comments";
 import Comment from "@/data/Comment";
+import { watch } from 'vue';
+import { nextTick} from "vue";
 
 const commentsStore = useCommentsStore();
 
+/**
+ * Focus the currently selected comment
+ */
+async function focusSelected() {
+    await nextTick();
+    let el = document.getElementById('comment' + commentsStore.selectedKey);
+    if (el) {
+        let tx = el.querySelector('textarea');
+        if (tx) {
+            tx.focus();
+        }
+    }
+}
+watch(() => commentsStore.selectedKey, focusSelected);
+
+
+/**
+ * Get the background color for the text field of a comment
+ * @param comment
+ * @return {string}
+ */
 function getBgColor(comment) {
 
     if (comment.key == commentsStore.selectedKey) {
@@ -43,7 +66,7 @@ function toggleCardinal(comment) {
 
 
 <template>
-    <div class="appMarkingComments">
+    <div id="appMarkingComments">
         <v-container v-for="comment in commentsStore.getActiveComments" :key="comment.key">
             <v-row class="row" dense>
                 <v-col class="leftCol" cols="1">{{comment.label}}</v-col>
@@ -56,10 +79,12 @@ function toggleCardinal(comment) {
                 </v-col>
             </v-row>
             <v-row>
+                <div :id="'comment' + comment.key" class="commentWrapper">
                 <v-textarea class="comment" :bg-color="getBgColor(comment)" variant="solo" rows="1" auto-grow
                             @click="commentsStore.selectComment(comment.key)"
                             @change="commentsStore.updateComment(comment)"
                             v-model="comment.comment"></v-textarea>
+                </div>
             </v-row>
         </v-container>
     </div>
@@ -67,14 +92,13 @@ function toggleCardinal(comment) {
 </template>
 
 <style scoped>
+    #appMarkingComments {
+        padding-right: 5px;
+    }
     .checkboxes {
         display: inline-block;
         position: relative;
         top: 15px;
-    }
-
-    .appMarkingComments {
-        padding-right: 5px;
     }
 
     .row {
@@ -91,6 +115,9 @@ function toggleCardinal(comment) {
        line-heigth: 10px;
    }
 
+    .commentWrapper {
+        width:100%;
+    }
     .comment {
         width:100%;
         font-family: Serif;
