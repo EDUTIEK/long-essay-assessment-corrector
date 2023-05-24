@@ -39,7 +39,7 @@ class Points {
       this.key = data.key.toString()
     } else {
       // get a temporary random key
-      this.key = 'temp' . Math.random().toString();
+      this.key = 'temp' + Math.random().toString();
     }
     if (data.comment_key !== undefined && data.comment_key !== null) {
       this.comment_key = data.comment_key.toString()
@@ -50,6 +50,14 @@ class Points {
     if (data.points !== undefined && data.points !== null) {
       this.points = parseInt(data.points);
     }
+  }
+
+  /**
+   * Set the points value
+   * @param value
+   */
+  setPoints(value) {
+      this.points = parseInt(value);
   }
 
   /**

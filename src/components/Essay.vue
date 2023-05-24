@@ -49,16 +49,18 @@
    * Update the marking of a comment
    */
   function updateMark(comment) {
-      marker.hideMark(comment.prefix + '-excellent', comment.start_position, comment.end_position);
-      marker.hideMark(comment.prefix + '-cardinal', comment.start_position, comment.end_position);
-      marker.hideMark(comment.prefix, comment.start_position, comment.end_position);
+      if(comment.prefix) {
+          marker.hideMark(comment.prefix + '-excellent', comment.start_position, comment.end_position);
+          marker.hideMark(comment.prefix + '-cardinal', comment.start_position, comment.end_position);
+          marker.hideMark(comment.prefix, comment.start_position, comment.end_position);
 
-      if (comment.rating_excellent) {
-          marker.showMark(comment.prefix + '-excellent', comment.start_position, comment.end_position);
-      } else if (comment.rating_cardinal) {
-          marker.showMark(comment.prefix + '-cardinal', comment.start_position, comment.end_position);
-      } else {
-          marker.showMark(comment.prefix, comment.start_position, comment.end_position);
+          if (comment.rating_excellent) {
+              marker.showMark(comment.prefix + '-excellent', comment.start_position, comment.end_position);
+          } else if (comment.rating_cardinal) {
+              marker.showMark(comment.prefix + '-cardinal', comment.start_position, comment.end_position);
+          } else {
+              marker.showMark(comment.prefix, comment.start_position, comment.end_position);
+          }
       }
   }
 
@@ -130,7 +132,7 @@
         <v-menu v-model="showMenu">
             <div id="app-essay-menu">
                 <v-btn icon="mdi-comment-plus" @click="menuAddComment()"></v-btn>
-                <v-btn icon="mdi-comment-edit" @click="menuEditComment()"></v-btn>
+                <v-btn icon="mdi-marker" @click="menuEditComment()"></v-btn>
             </div>
 
         </v-menu>

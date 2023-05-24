@@ -13,7 +13,7 @@ const layoutStore = useLayoutStore();
     </div>
 </template>
 
-<style scoped   >
+<style scoped>
 
 #app-marking-wrapper {
     height: 100%;
@@ -28,6 +28,7 @@ const layoutStore = useLayoutStore();
 
 #app-marking-points {
     height: 50%;
+    overflow-y: scroll;
 }
 
 </style>

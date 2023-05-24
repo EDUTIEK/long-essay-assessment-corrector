@@ -46,24 +46,25 @@ function getBgColor(comment) {
     }
 }
 
-function toggleExcellent(comment) {
-    commentsStore.selectComment(comment.key);
+async function toggleExcellent(comment) {
+    await commentsStore.selectComment(comment.key);
     if (comment.rating_excellent) {
         comment.rating_cardinal = false;
         commentsStore.updateComment(comment);
     }
 }
 
-function toggleCardinal(comment) {
-    commentsStore.selectComment(comment.key);
+async function toggleCardinal(comment) {
+    await commentsStore.selectComment(comment.key);
     if (comment.rating_cardinal) {
         comment.rating_excellent = false;
         commentsStore.updateComment(comment);
     }
+
 }
 
-function scrollText(comment) {
-    commentsStore.selectComment(comment.key);
+async function scrollText(comment) {
+    await commentsStore.selectComment(comment.key);
     commentsStore.setScrollToSelection(true);
 }
 
@@ -90,7 +91,7 @@ function scrollText(comment) {
             </v-row>
             <v-row>
                 <div :id="'comment' + comment.key" class="commentWrapper">
-                <v-textarea class="comment" :bg-color="getBgColor(comment)" variant="solo" rows="1" auto-grow
+                <v-textarea class="comment" :bg-color="getBgColor(comment)" rounded="0" density="compact" variant="solo" rows="1" auto-grow
                             @click="commentsStore.selectComment(comment.key)"
                             @change="commentsStore.updateComment(comment)"
                             v-model="comment.comment"></v-textarea>
@@ -124,7 +125,6 @@ function scrollText(comment) {
        padding: 0;
        text-align:right;
        margin-top: -15px;
-       line-heigth: 10px;
    }
 
     .commentWrapper {
@@ -135,5 +135,11 @@ function scrollText(comment) {
         font-family: Serif;
         font-size: 16px;
     }
+
+    textarea {
+        padding: 0;
+    }
+
+
 
 </style>

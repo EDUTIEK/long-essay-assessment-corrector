@@ -144,18 +144,15 @@ class TextMarker {
   }
 
   addLabel(label, firstWord) {
-      this.el.querySelectorAll('w-p').forEach(word => {
-          let w = parseInt(word.getAttribute('w'));
-          if (w == firstWord) {
-              word.setAttribute('label', label);
-              addClass(word, 'labelled');
-          }
-      });
-
+      let word = this.el.querySelector('w-p[w="' + firstWord + '"]');
+      if (word) {
+          word.setAttribute('label', label);
+          addClass(word, 'labelled');
+      }
   }
 
   removeAllLabels() {
-      this.el.querySelectorAll('w-p').forEach(word => {
+      this.el.querySelectorAll('w-p.labelled').forEach(word => {
           word.removeAttribute('label');
           removeClass(word, 'labelled');
       });

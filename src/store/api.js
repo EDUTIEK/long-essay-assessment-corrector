@@ -286,7 +286,7 @@ export const useApiStore = defineStore('api', {
             await summaryStore.loadFromStorage();
 
             await commentsStore.loadFromStorage(itemKey);
-            await pointsStore.loadFromStorage(itemKey);
+            await pointsStore.loadFromStorage(commentsStore.getCurrentCommentKeys);
 
             return true;
         },
@@ -367,7 +367,7 @@ export const useApiStore = defineStore('api', {
             await summaryStore.loadFromData(response.data.summary);
 
             await commentsStore.loadFromData(response.data.comments, itemKey);
-            await pointsStore.loadFromData(response.data.points, itemKey);
+            await pointsStore.loadFromData(response.data.points, commentsStore.getCurrentCommentKeys);
 
             this.itemKey = itemKey;
             localStorage.setItem('itemKey', this.itemKey);

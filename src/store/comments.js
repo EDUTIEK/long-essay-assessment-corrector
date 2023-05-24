@@ -3,6 +3,7 @@ import localForage from "localforage";
 import Comment from '@/data/Comment';
 import {useApiStore} from "@/store/api";
 import {useCorrectorsStore} from "@/store/correctors";
+import {usePointsStore} from "@/store/points";
 import api from "js-cookie";
 
 const storage = localForage.createInstance({
@@ -46,6 +47,14 @@ export const useCommentsStore = defineStore('comments',{
 
     getters: {
 
+        getSelectedLabel(state) {
+            let comment = state.getComment(state.selectedKey);
+            if (comment) {
+                return comment.label;
+            }
+            return '';
+        },
+
         getComment(state) {
             return (key) => state.comments.find(element => element.key == key);
         },
@@ -61,18 +70,37 @@ export const useCommentsStore = defineStore('comments',{
             return (start_position, end_position) => state.getActiveComments.filter(comment => comment.prefix =='own'
                 && comment.start_position <= end_position && comment.end_position >= start_position
             );
+        },
+
+        getCurrentCommentKeys(state) {
+            let keys = [];
+            state.comments.forEach(comment => keys.push(comment.key));
+            return keys;
         }
     },
 
     actions: {
 
+        async removeEmptyComments() {
+            const pointsStore = usePointsStore();
+
+            let comments = this.comments.filter(comment => comment.key != this.selectedKey
+                        && comment.comment == ''
+                        && !comment.rating_excellent
+                        && !comment.rating_cardinal
+                        && !pointsStore.hasCommentPoints(comment.key)
+            );
+
+            for (let i = 0; i < comments.length; i++) {
+                await this.deleteComment(comments[i].key);
+            }
+        },
+
         sortAndLabel() {
             const apiStore = useApiStore();
             const correctorsStore = useCorrectorsStore();
 
-            // cleanup empty comments and sort by position
-            this.comments = this.comments.filter(comment => (comment.key == this.selectedKey || comment.comment || comment.rating_excellent || comment.rating_cardinal))
-                .sort(compareComments);
+            this.comments = this.comments.sort(compareComments);
 
             let parent = 0;
             let number = 0;
@@ -99,8 +127,9 @@ export const useCommentsStore = defineStore('comments',{
          * Select the currently active comment
          * @param {string} key
          */
-        selectComment(key) {
+        async selectComment(key) {
             this.selectedKey = key;
+            await this.removeEmptyComments();
             this.sortAndLabel();
         },
 
@@ -131,7 +160,7 @@ export const useCommentsStore = defineStore('comments',{
             })
             this.keys.push(comment.key);
             this.comments.push(comment);
-            this.selectComment(comment.key)
+            await this.selectComment(comment.key)
             await storage.setItem(comment.key, comment.getData());
             await storage.setItem('commentKeys', JSON.stringify(this.keys));
 
@@ -153,9 +182,13 @@ export const useCommentsStore = defineStore('comments',{
          * @param {string} removeKey
          */
         async deleteComment(removeKey) {
+            const pointsStore = usePointsStore();
+            await pointsStore.deletePointsOfComment(removeKey);
 
-            this.selectedKey = '';
-            this.comments = this.comments.filter(comment => comment.key != removeKey)
+            if (this.selectedKey == removeKey) {
+                this.selectedKey = '';
+            }
+            this.comments = this.comments.filter(comment => comment.key != removeKey);
             this.sortAndLabel();
             if (this.keys.includes(removeKey)) {
                 this.keys = this.keys.filter(key => key != removeKey)
