@@ -19,7 +19,7 @@ export const useLayoutStore = defineStore('layout', {
             expandedColumn: 'none',         // left|right|none
             leftContent: 'essay',           // instructions|resources|essay|correctors
             rightContent: 'marking',        // summary|marking
-            pointsExpanded: false
+            pointsExpanded: true
         }
     },
 
