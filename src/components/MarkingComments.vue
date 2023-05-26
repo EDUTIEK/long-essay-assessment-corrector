@@ -60,12 +60,10 @@ async function toggleCardinal(comment) {
         comment.rating_excellent = false;
         commentsStore.updateComment(comment);
     }
-
 }
 
-async function scrollText(comment) {
-    await commentsStore.selectComment(comment.key);
-    commentsStore.setScrollToSelection(true);
+async function selectComment(comment) {
+    commentsStore.selectComment(comment.key);
 }
 
 </script>
@@ -73,13 +71,11 @@ async function scrollText(comment) {
 
 <template>
     <div id="appMarkingComments">
-        <v-container v-for="comment in commentsStore.getActiveComments" :key="comment.key">
+        <v-container v-for="comment in commentsStore.activeComments" :key="comment.key">
             <v-row class="row" dense>
                 <v-col class="leftCol">
-                    <v-btn-group density="compact">
-                        <v-btn @click="scrollText(comment)" density="compact" variant="text" prepend-icon="mdi-bullseye-arrow">{{comment.label}}</v-btn>
-                        <v-btn @click="commentsStore.deleteComment(comment.key)" density="compact" size="small" variant="text" prepend-icon="mdi-delete-outline">Löschen</v-btn>
-                    </v-btn-group>
+                    <span :class="'commentLabel ' + (comment.key == commentsStore.selectedKey ? 'selected' : '')">{{comment.label}}</span>
+                    <v-btn @click="commentsStore.deleteComment(comment.key)" density="compact" size="small" variant="text" prepend-icon="mdi-delete-outline">Löschen</v-btn>
                 </v-col>
                 <v-col class="rightCol">
                    <span class="checkboxes">
@@ -103,13 +99,16 @@ async function scrollText(comment) {
 </template>
 
 <style scoped>
-    #appMarkingComments {
-        padding-right: 5px;
+
+    .v-container {
+        padding-right: 20px;
+        padding-bottom: 8px;
     }
+
     .checkboxes {
         display: inline-block;
         position: relative;
-        top: 15px;
+        top: 10px;
         font-size: 10px;
     }
 
@@ -127,13 +126,26 @@ async function scrollText(comment) {
        margin-top: -15px;
    }
 
+    .commentLabel {
+        font-size: 14px;
+    }
+
+    .commentLabel.selected {
+        background-color: grey;
+        color: white;
+        padding: 3px;
+        border: 1px solid lightgrey;
+        box-shadow: 1px 1px lightgrey;
+        font-size: 12px;
+    }
+
     .commentWrapper {
         width:100%;
     }
     .comment {
         width:100%;
-        font-family: Serif;
-        font-size: 16px;
+        font-family: serif;
+        line-height: 20px;
     }
 
     textarea {

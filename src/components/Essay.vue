@@ -18,30 +18,20 @@
 
   onMounted(() => {
     marker = new TextMarker(document.getElementById('app-essay'), {bindEvents: true, onSelection});
-    commentsStore.getActiveComments.forEach(comment => updateMark(comment));
+    commentsStore.activeComments.forEach(comment => updateMark(comment));
   });
 
 
   commentsStore.$subscribe((mutation, state) =>
   {
-      marker.hideAllMarks('own');
-      marker.hideAllMarks('own-excellent');
-      marker.hideAllMarks('own-cardinal');
-      marker.hideAllMarks('other');
-      marker.hideAllMarks('other-excellent');
-      marker.hideAllMarks('other-cardinal');
-      marker.hideAllMarks('selected');
+      marker.hideAllMarksAndLabels();
+      commentsStore.activeComments.forEach(comment => updateMark(comment));
 
-      commentsStore.getActiveComments.forEach(comment => updateMark(comment));
-      marker.removeAllLabels();
       let comment = commentsStore.getComment(commentsStore.selectedKey);
       if (comment) {
           marker.showMark('selected', comment.start_position, comment.end_position);
           marker.addLabel(comment.label, comment.start_position);
-          if (commentsStore.scrollToSelection) {
-              marker.scrollToWord(comment.start_position);
-              commentsStore.setScrollToSelection(false);
-          }
+          marker.scrollToMark(comment.start_position, comment.end_position);
       }
   })
 
@@ -168,9 +158,10 @@
       position: relative;
       left: -7px;
       top: -7px;
-      padding: 3px;
+          padding: 3px;
       z-index: 10000;
-      background-color: white;
+      background-color: grey;
+      color: white;
       border: 1px solid lightgrey;
       box-shadow: 1px 1px lightgrey;
       font-family: sans-serif;

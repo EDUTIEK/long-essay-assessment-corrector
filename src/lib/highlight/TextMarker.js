@@ -1,5 +1,5 @@
 import {addClass, removeClass, getSelection, getRange, removeAllRanges} from './dom';
-import { defaults } from './utils';
+import {defaults} from './utils';
 
 /**
  * TextMarker class
@@ -17,153 +17,156 @@ import { defaults } from './utils';
  */
 class TextMarker {
 
-  constructor(element, options) {
-    if (!element) {
-      throw new Error('Missing anchor element');
+    constructor(element, options) {
+        if (!element) {
+            throw new Error('Missing anchor element');
+        }
+
+        this.el = element;
+        this.options = defaults(options, {
+            bindEvents: true,
+            onSelection() {
+                return true;
+            }
+        });
+
+        if (this.options.bindEvents) {
+            this.bindEvents();
+        }
     }
 
-    this.el = element;
-    this.options = defaults(options, {
-      bindEvents: true,
-      onSelection() { return true; }
-    });
-
-    if (this.options.bindEvents) {
-      this.bindEvents();
+    bindEvents() {
+        this.el.addEventListener('mouseup', this.selectionHandler.bind(this));
+        this.el.addEventListener('touchend', this.selectionHandler.bind(this));
     }
-  }
 
-  bindEvents() {
-    this.el.addEventListener('mouseup', this.selectionHandler.bind(this));
-    this.el.addEventListener('touchend', this.selectionHandler.bind(this));
-  }
-
-  unbindEvents() {
-    this.el.removeEventListener('mouseup', this.selectionHandler.bind(this));
-    this.el.removeEventListener('touchend', this.selectionHandler.bind(this));
-  }
-
-  /**
-   * Permanently disables highlighting.
-   * Unbinds events and remove context element class.
-   */
-  destroy() {
-    if (this.options.bindEvents) {
-      this.unbindEvents();
+    unbindEvents() {
+        this.el.removeEventListener('mouseup', this.selectionHandler.bind(this));
+        this.el.removeEventListener('touchend', this.selectionHandler.bind(this));
     }
-  }
 
-  /**
-   * Handle a text selection
-   * @param event
-   */
-  selectionHandler(event)
-  {
-    let data = this.getSelectionData();
-    data.mouseX = event.clientX;
-    data.mouseY = event.clientY;
-    if (data.firstWord > 0 && data.lastWord > 0) {
-      this.options.onSelection(data)
+    /**
+     * Permanently disables highlighting.
+     * Unbinds events and remove context element class.
+     */
+    destroy() {
+        if (this.options.bindEvents) {
+            this.unbindEvents();
+        }
     }
-  }
+
+    /**
+     * Handle a text selection
+     * @param event
+     */
+    selectionHandler(event) {
+        let data = this.getSelectionData();
+        data.mouseX = event.clientX;
+        data.mouseY = event.clientY;
+        if (data.firstWord > 0 && data.lastWord > 0) {
+            this.options.onSelection(data)
+        }
+    }
 
     /**
      * Removes a selection
      */
-  removeSelection()
-  {
-      removeAllRanges(this.el);
-  }
-
-
-  /**
-   * Get the selection data
-   * @return {object}  - {firstWord: integer, lastWord: integer, parentNumber: integer, isCollapsed: bool}
-   */
-  getSelectionData()
-  {
-
-    let selection = getSelection(this.el);
-    let range = getRange(this.el);
-    if (!selection || !range) {
-      return {};
-    }
-    // console.log(selection)
-    // console.log(range);
-
-    let ancestor = range.commonAncestorContainer;
-    // part of text node is selected - get parent of the surrounding w-p element
-    if (ancestor.nodeType == 3) {
-      ancestor = ancestor.parentNode.parentNode;
+    removeSelection() {
+        removeAllRanges(this.el);
     }
 
-    let first = 0;
-    let last = 0;
-    let parent = 0;
-    ancestor.querySelectorAll('w-p').forEach(word => {
-      if (selection.containsNode(word, true)) {
-        let w = parseInt(word.getAttribute('w'));
-        let p = parseInt(word.getAttribute('p'));
-        if (first == 0 || w < first) {
-          first = w;
-          parent = p;
+
+    /**
+     * Get the selection data
+     * @return {object}  - {firstWord: integer, lastWord: integer, parentNumber: integer, isCollapsed: bool}
+     */
+    getSelectionData() {
+
+        let selection = getSelection(this.el);
+        let range = getRange(this.el);
+        if (!selection || !range) {
+            return {};
         }
-        if (w > last) {
-          last = w
+        // console.log(selection)
+        // console.log(range);
+
+        let ancestor = range.commonAncestorContainer;
+        // part of text node is selected - get parent of the surrounding w-p element
+        if (ancestor.nodeType == 3) {
+            ancestor = ancestor.parentNode.parentNode;
         }
-      }
-    })
 
-    return {firstWord: first, lastWord: last, parentNumber: parent, isCollapsed: selection.isCollapsed};
-  }
+        let first = 0;
+        let last = 0;
+        let parent = 0;
+        ancestor.querySelectorAll('w-p').forEach(node => {
+            if (selection.containsNode(node, true)) {
+                let w = parseInt(node.getAttribute('w'));
+                let p = parseInt(node.getAttribute('p'));
+                if (first == 0 || w < first) {
+                    first = w;
+                    parent = p;
+                }
+                if (w > last) {
+                    last = w
+                }
+            }
+        })
 
-  showMark(cssClass, firstWord, lastWord)
-  {
-    this.el.querySelectorAll('w-p').forEach(word => {
-      let w = parseInt(word.getAttribute('w'));
-      if (w >= firstWord && w <= lastWord) {
-        addClass(word, cssClass);
-      }
-    });
-  }
+        return {firstWord: first, lastWord: last, parentNumber: parent, isCollapsed: selection.isCollapsed};
+    }
 
-  hideMark(cssClass, firstWord, lastWord)
-  {
-    this.el.querySelectorAll('w-p.' + cssClass).forEach(word => {
-      let w = parseInt(word.getAttribute('w'));
-      if (w >= firstWord && w <= lastWord) {
-        removeClass(word, cssClass);
-      }
-    });
-  }
+    showMark(cssClass, firstWord, lastWord) {
+        this.el.querySelectorAll('w-p').forEach(node => {
+            let w = parseInt(node.getAttribute('w'));
+            if (w >= firstWord && w <= lastWord) {
+                addClass(node, cssClass);
+            }
+        });
+    }
 
-  hideAllMarks(cssClass) {
-    this.el.querySelectorAll('w-p.' + cssClass).forEach(word => {
-      removeClass(word, cssClass);
-    });
-  }
+    hideMark(cssClass, firstWord, lastWord) {
+        this.el.querySelectorAll('w-p.' + cssClass).forEach(node => {
+            let w = parseInt(node.getAttribute('w'));
+            if (w >= firstWord && w <= lastWord) {
+                removeClass(node, cssClass);
+            }
+        });
+    }
 
-  addLabel(label, firstWord) {
-      let word = this.el.querySelector('w-p[w="' + firstWord + '"]');
-      if (word) {
-          word.setAttribute('label', label);
-          addClass(word, 'labelled');
-      }
-  }
+    hideAllMarksAndLabels() {
+        this.el.querySelectorAll('w-p[class]').forEach(node => {
+            node.removeAttribute('class');
+        });
+    }
 
-  removeAllLabels() {
-      this.el.querySelectorAll('w-p.labelled').forEach(word => {
-          word.removeAttribute('label');
-          removeClass(word, 'labelled');
-      });
-  }
+    addLabel(label, firstWord) {
+        let node = this.el.querySelector('w-p[w="' + firstWord + '"]');
+        if (node) {
+            node.setAttribute('label', label);
+            addClass(node, 'labelled');
+        }
+    }
 
-  scrollToWord(firstWord) {
-      let word = this.el.querySelector('w-p[w="' + firstWord + '"]');
-      if (word) {
-          word.scrollIntoView();
-      }
-  }
+    scrollToMark(firstWord, lastWord) {
+        const firstNode = this.el.querySelector('w-p[w="' + firstWord + '"]');
+        const lastNode = this.el.querySelector('w-p[w="' + lastWord + '"]');
+
+        if (!firstNode || !lastNode) {
+            return;
+        }
+
+        const containerRect = this.el.getBoundingClientRect();
+        const firstRect = firstNode.getBoundingClientRect();
+        const lastRect = lastNode.getBoundingClientRect();
+
+        const firstVisible = (firstRect.top >= containerRect.top && firstRect.bottom <= containerRect.bottom);
+        const lastVisible = (lastRect.top >= containerRect.top && lastRect.bottom <= containerRect.bottom);
+
+        if (!firstVisible || !lastVisible) {
+            firstNode.scrollIntoView();
+        }
+    }
 }
 
 export default TextMarker;

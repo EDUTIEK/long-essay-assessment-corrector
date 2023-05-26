@@ -44,7 +44,7 @@ function savePoints(criterionKey) {
             <thead>
             <tr>
                 <th class="text-left">
-                    Bewertungskriterien {{commentsStore.getSelectedLabel}}
+                    Bewertungskriterien <span class="commentLabel" v-show="commentsStore.selectedKey != ''">{{commentsStore.selectedLabel}}</span>
                 </th>
                 <th class="text-right">
                     Punkte / max
@@ -72,6 +72,15 @@ function savePoints(criterionKey) {
 
 .appMarkingPointsWrapper {
 
+}
+
+.commentLabel {
+    background-color: grey;
+    color: white;
+    padding: 3px;
+    border: 1px solid lightgrey;
+    box-shadow: 1px 1px lightgrey;
+    font-size: 12px;
 }
 
 .appPoints {
