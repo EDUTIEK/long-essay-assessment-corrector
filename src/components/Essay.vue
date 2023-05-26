@@ -85,13 +85,17 @@
                   commentsStore.selectComment(comment.key);
               }
               else {
+                  // always create a new comment, even if it overlaps (VC 26.5.2023)
+                  marker.removeSelection();
+                  commentsStore.createComment(selected.firstWord, selected.lastWord, selected.parentNumber);
+
                   // selected an overlapping range => show menu whether to change boundaries or add a new comment
-                  menuSelection = selected;
-                  menuComment = comment;
-                  showMenu.value=true;
-                  await nextTick();
-                  document.getElementById("app-essay-menu").style.left = selected.mouseX + 'px';
-                  document.getElementById("app-essay-menu").style.top = selected.mouseY + 'px';
+                  // menuSelection = selected;
+                  // menuComment = comment;
+                  // showMenu.value=true;
+                  // await nextTick();
+                  // document.getElementById("app-essay-menu").style.left = selected.mouseX + 'px';
+                  // document.getElementById("app-essay-menu").style.top = selected.mouseY + 'px';
               }
          }
          else {
