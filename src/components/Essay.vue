@@ -2,11 +2,8 @@
   import {useEssayStore} from '@/store/essay';
   import {useCommentsStore} from "@/store/comments";
   import Comment from "@/data/Comment";
-  import TextMarker from '@/lib/highlight/TextMarker';
-  import {onMounted} from 'vue';
-  import { nextTick} from "vue";
-  import { watch } from 'vue';
-  import { ref } from 'vue';
+  import TextMarker from '@/lib/TextMarker';
+  import {onMounted, nextTick, watch, ref} from 'vue';
 
   const essayStore = useEssayStore();
   const commentsStore = useCommentsStore();
@@ -30,7 +27,7 @@
       let comment = commentsStore.getComment(commentsStore.selectedKey);
       if (comment) {
           marker.showMark('selected', comment.start_position, comment.end_position);
-          marker.addLabel(comment.label, comment.start_position);
+          marker.addLabel('labelled', comment.label, comment.start_position);
           marker.scrollToMark(comment.start_position, comment.end_position);
       }
   })

@@ -1,8 +1,7 @@
-import {addClass, removeClass, getSelection, getRange, removeAllRanges} from './dom';
-import {defaults} from './utils';
-
 /**
  * TextMarker class
+ * inspired by https://github.com/shuowu/text-highlighter
+ *
  *
  * This class expects single word being wrapped in elements like <w-p w="1" p="2">
  *  - attribute w gives the absolute number of the word
@@ -17,43 +16,58 @@ import {defaults} from './utils';
  */
 class TextMarker {
 
+    /**
+     * Constructor - see class parameters
+     */
     constructor(element, options) {
         if (!element) {
             throw new Error('Missing anchor element');
         }
+        if (!options) {
+            this.options = this.defaultOptions();
+        }
+        else {
+            const defaultOptions = this.defaultOptions();
+            for (const prop in this.defaultOptions()) {
+                if (options[prop] === undefined) {
+                    options[prop] = defaultOptions[prop];
+                }
+            }
+        }
 
         this.el = element;
-        this.options = defaults(options, {
+        this.options = options;
+
+        if (this.options.bindEvents) {
+            this.el.addEventListener('mouseup', this.selectionHandler.bind(this));
+            this.el.addEventListener('touchend', this.selectionHandler.bind(this));
+        }
+    }
+
+    /**
+     * Stop listening to events
+     */
+    stopListening() {
+        if (this.options.bindEvents) {
+            this.el.removeEventListener('mouseup', this.selectionHandler.bind(this));
+            this.el.removeEventListener('touchend', this.selectionHandler.bind(this));
+        }
+    }
+
+    /**
+     * Get the default options
+     * @return {object}
+     */
+    defaultOptions() {
+        return {
             bindEvents: true,
             onSelection() {
                 return true;
             }
-        });
-
-        if (this.options.bindEvents) {
-            this.bindEvents();
         }
     }
 
-    bindEvents() {
-        this.el.addEventListener('mouseup', this.selectionHandler.bind(this));
-        this.el.addEventListener('touchend', this.selectionHandler.bind(this));
-    }
 
-    unbindEvents() {
-        this.el.removeEventListener('mouseup', this.selectionHandler.bind(this));
-        this.el.removeEventListener('touchend', this.selectionHandler.bind(this));
-    }
-
-    /**
-     * Permanently disables highlighting.
-     * Unbinds events and remove context element class.
-     */
-    destroy() {
-        if (this.options.bindEvents) {
-            this.unbindEvents();
-        }
-    }
 
     /**
      * Handle a text selection
@@ -72,7 +86,8 @@ class TextMarker {
      * Removes a selection
      */
     removeSelection() {
-        removeAllRanges(this.el);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
     }
 
 
@@ -82,8 +97,9 @@ class TextMarker {
      */
     getSelectionData() {
 
-        let selection = getSelection(this.el);
-        let range = getRange(this.el);
+        const selection = window.getSelection();
+        const range = selection.getRangeAt(0);
+
         if (!selection || !range) {
             return {};
         }
@@ -91,7 +107,7 @@ class TextMarker {
         // console.log(range);
 
         let ancestor = range.commonAncestorContainer;
-        // part of text node is selected - get parent of the surrounding w-p element
+        // part of a text node is selected - get parent of the surrounding w-p element
         if (ancestor.nodeType == 3) {
             ancestor = ancestor.parentNode.parentNode;
         }
@@ -116,38 +132,64 @@ class TextMarker {
         return {firstWord: first, lastWord: last, parentNumber: parent, isCollapsed: selection.isCollapsed};
     }
 
+    /**
+     * Add a label to the first wird of a mark
+     * @param {string} cssClass
+     * @param {string} label
+     * @param {integer} firstWord
+     */
+    addLabel(cssClass, label, firstWord) {
+        let node = this.el.querySelector('w-p[w="' + firstWord + '"]');
+        if (node) {
+            node.setAttribute('label', label);
+            node.classList.add(cssClass);
+        }
+    }
+
+    /**
+     * Show a mark
+     * @param {string} cssClass
+     * @param {integer} firstWord
+     * @param {integer} lastWord
+     */
     showMark(cssClass, firstWord, lastWord) {
         this.el.querySelectorAll('w-p').forEach(node => {
             let w = parseInt(node.getAttribute('w'));
             if (w >= firstWord && w <= lastWord) {
-                addClass(node, cssClass);
+                node.classList.add(cssClass);
             }
         });
     }
 
+    /**
+     * Hide a mark
+     * @param {string} cssClass
+     * @param {integer} firstWord
+     * @param {integer} lastWord
+     */
     hideMark(cssClass, firstWord, lastWord) {
         this.el.querySelectorAll('w-p.' + cssClass).forEach(node => {
             let w = parseInt(node.getAttribute('w'));
             if (w >= firstWord && w <= lastWord) {
-                removeClass(node, cssClass);
+                node.classList.remove(cssClass);
             }
         });
     }
 
+    /**
+     * Remoce the css classes from all marks and labels
+     */
     hideAllMarksAndLabels() {
         this.el.querySelectorAll('w-p[class]').forEach(node => {
-            node.removeAttribute('class');
+            node.classList.value = '';
         });
     }
 
-    addLabel(label, firstWord) {
-        let node = this.el.querySelector('w-p[w="' + firstWord + '"]');
-        if (node) {
-            node.setAttribute('label', label);
-            addClass(node, 'labelled');
-        }
-    }
-
+    /**
+     * Set the scripping so that the complete mark is visible
+     * @param {integer} firstWord
+     * @param {integer} lastWord
+     */
     scrollToMark(firstWord, lastWord) {
         const firstNode = this.el.querySelector('w-p[w="' + firstWord + '"]');
         const lastNode = this.el.querySelector('w-p[w="' + lastWord + '"]');
