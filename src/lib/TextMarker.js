@@ -7,66 +7,57 @@
  *  - attribute w gives the absolute number of the word
  *  - attribute p gives the absolute number of the parent paragraph
  *
- *
  * @param {HTMLElement} element - DOM element to which marker will be applied.
- * @param {object} [options] - additional options.
- * @param {boolean} options.bindEvents - bind the mouseup and touchend events to the selectionHandler of this class
- * @param {function} options.onSelection - function called when text is selected.
- *      Called with {mouseX: integer, mouseY: integer, firstWord: integer, lastWord: integer, parentNumber: integer, isCollapsed: bool}
+ * @param {function} onSelection - Override callback when text is selected
  */
 class TextMarker {
 
     /**
+     * @type {IntersectionObserver}
+     */
+    observer = null;
+
+    /**
      * Constructor - see class parameters
      */
-    constructor(element, options) {
+    constructor(element, onSelection, onIntersection) {
         if (!element) {
             throw new Error('Missing anchor element');
         }
-        if (!options) {
-            this.options = this.defaultOptions();
-        }
-        else {
-            const defaultOptions = this.defaultOptions();
-            for (const prop in this.defaultOptions()) {
-                if (options[prop] === undefined) {
-                    options[prop] = defaultOptions[prop];
-                }
-            }
-        }
-
         this.el = element;
-        this.options = options;
 
-        if (this.options.bindEvents) {
+        if (onSelection instanceof Function) {
+            this.onSelection = onSelection;
             this.el.addEventListener('mouseup', this.selectionHandler.bind(this));
             this.el.addEventListener('touchend', this.selectionHandler.bind(this));
         }
-    }
 
-    /**
-     * Stop listening to events
-     */
-    stopListening() {
-        if (this.options.bindEvents) {
-            this.el.removeEventListener('mouseup', this.selectionHandler.bind(this));
-            this.el.removeEventListener('touchend', this.selectionHandler.bind(this));
+        if (onIntersection instanceof Function) {
+            this.onIntersection = onIntersection;
+            this.observer = new IntersectionObserver(this.intersectionHandler.bind(this), {
+                root: this.el, threshold: [1] });
         }
     }
 
     /**
-     * Get the default options
-     * @return {object}
+     * Callback when text is selected
+     * This should be overridden by the onSelction parameter of the constructor
+     * @param {object} [selected] -
+     * @param {integer} selected.mouseX  - x position of the mouseup or touch event
+     * @param {integer} selected.mouseY - y position of the mouseup or touch event
+     * @param {integer} selected.firstWord - number of the first selected word
+     * @param {integer} selected.lastWord  - number of the last selected word
+     * @param {integer} selected.parentNumber - number of the paragraph with the first selected word
+     * @param {boolean} selected.isCollapsed - only a point is clicked, not a text range selected
      */
-    defaultOptions() {
-        return {
-            bindEvents: true,
-            onSelection() {
-                return true;
-            }
-        }
-    }
+    onSelection(selected) {}
 
+    /**
+     * Callback when marked text is moving into or out the scrolling window
+     * @param {integer} firstWord - number of the first marked word that is visible
+     * @param {integer} lastWord - number of the first marked word that is visible
+     */
+    onIntersection(firstWord, lastWord) {}
 
 
     /**
@@ -78,9 +69,33 @@ class TextMarker {
         data.mouseX = event.clientX;
         data.mouseY = event.clientY;
         if (data.firstWord > 0 && data.lastWord > 0) {
-            this.options.onSelection(data)
+            this.onSelection(data)
         }
     }
+
+    /**
+     * Handle the intersection observer
+     * @param {array} entries
+     */
+    intersectionHandler(entries) {
+        let first = 0;
+        let last = 0;
+
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                let w = parseInt(entry.target.getAttribute('w'));
+                if (first == 0 || w < first) {
+                    first = w;
+                }
+                if (w > last) {
+                    last = w
+                }
+            }
+        });
+
+        this.onIntersection(first, last);
+    }
+
 
     /**
      * Removes a selection
@@ -158,6 +173,9 @@ class TextMarker {
             if (w >= firstWord && w <= lastWord) {
                 node.classList.add(cssClass);
             }
+            if (this.observer && (w == firstWord || w == lastWord)) {
+                this.observer.observe(node);
+            }
         });
     }
 
@@ -173,6 +191,10 @@ class TextMarker {
             if (w >= firstWord && w <= lastWord) {
                 node.classList.remove(cssClass);
             }
+            if (this.observer && (w == firstWord || w == lastWord)) {
+                this.observer.unobserve(node);
+            }
+
         });
     }
 
@@ -183,6 +205,9 @@ class TextMarker {
         this.el.querySelectorAll('w-p[class]').forEach(node => {
             node.classList.value = '';
         });
+        if (this.observer) {
+            this.observer.disconnect();
+        }
     }
 
     /**

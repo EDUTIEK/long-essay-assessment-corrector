@@ -14,7 +14,7 @@
   let menuComment;
 
   onMounted(() => {
-    marker = new TextMarker(document.getElementById('app-essay'), {bindEvents: true, onSelection});
+    marker = new TextMarker(document.getElementById('app-essay'), onSelection, onIntersection);
     commentsStore.activeComments.forEach(comment => updateMark(comment));
   });
 
@@ -92,6 +92,20 @@
          }
       }
   }
+
+  /**
+   * Handle a comment geting visible by scrolling
+   * @param {integer} firstWord
+   * @param {integer }lastWord
+   */
+  function onIntersection(firstWord, lastWord) {
+      let comments = commentsStore.getOwnCommentsInRange(firstWord, lastWord);
+      if (comments.length) {
+          let comment = comments.shift();
+          console.log('label:' + comment.label);
+      }
+  }
+
 
   /**
    * Add comment for a previously selected range
