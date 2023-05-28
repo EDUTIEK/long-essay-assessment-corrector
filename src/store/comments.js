@@ -89,13 +89,16 @@ export const useCommentsStore = defineStore('comments',{
                 comment.start_position == start_position
             );
         },
-
     },
 
     /**
      * Internal actions (that should not be calles from outside start with '_'
      */
     actions: {
+
+        setFirstVisibleComment(key) {
+            this.firstVisibleKey = key;
+        },
 
         /**
          * Set the currently selected comment

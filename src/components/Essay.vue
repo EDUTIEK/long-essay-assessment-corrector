@@ -111,7 +111,7 @@
       let comments = commentsStore.getActiveCommentsByStartPosition(firstWord);
       if (comments.length) {
           let comment = comments.shift();
-          console.log(Date.now() + ' label:' + comment.label);
+          commentsStore.setFirstVisibleComment(comment.key);
       }
   }
 

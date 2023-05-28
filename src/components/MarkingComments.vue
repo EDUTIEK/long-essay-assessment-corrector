@@ -11,7 +11,7 @@ const commentsStore = useCommentsStore();
  */
 async function focusSelected() {
     await nextTick();
-    let el = document.getElementById('comment' + commentsStore.selectedKey);
+    let el = document.getElementById('appCommentWrapper' + commentsStore.selectedKey);
     if (el) {
         let tx = el.querySelector('textarea');
         if (tx) {
@@ -22,8 +22,19 @@ async function focusSelected() {
 watch(() => commentsStore.selectedKey, focusSelected);
 
 
-
-
+/**
+ * Set the scripping so that the complete mark is visible
+ * @param {integer} firstWord
+ * @param {integer} lastWord
+ */
+async function scrollToFirstVisible() {
+    await nextTick();
+    let el = document.getElementById('appCommentContainer' + commentsStore.firstVisibleKey);
+    if (el) {
+        el.scrollIntoView();
+    }
+}
+watch(() => commentsStore.firstVisibleKey, scrollToFirstVisible);
 
 
 /**
@@ -77,7 +88,7 @@ async function selectComment(comment) {
 
 <template>
     <div id="appMarkingComments">
-        <v-container v-for="comment in commentsStore.activeComments" :key="comment.key">
+        <v-container :id="'appCommentContainer' + comment.key" v-for="comment in commentsStore.activeComments" :key="comment.key">
             <v-row class="row" dense>
                 <v-col class="leftCol">
                     <span :class="'commentLabel ' + (comment.key == commentsStore.selectedKey ? 'selected' : '')">{{comment.label}}</span>
@@ -92,7 +103,7 @@ async function selectComment(comment) {
                 </v-col>
             </v-row>
             <v-row>
-                <div :id="'comment' + comment.key" class="commentWrapper">
+                <div :id="'appCommentWrapper' + comment.key" class="commentWrapper">
                 <v-textarea class="comment" :bg-color="getBgColor(comment)" rounded="0" density="compact" variant="solo" rows="1" auto-grow
                             @click="commentsStore.selectComment(comment.key)"
                             @change="commentsStore.updateComment(comment)"
