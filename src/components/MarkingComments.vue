@@ -22,6 +22,10 @@ async function focusSelected() {
 watch(() => commentsStore.selectedKey, focusSelected);
 
 
+
+
+
+
 /**
  * Get the background color for the text field of a comment
  * @param comment
@@ -50,16 +54,18 @@ async function toggleExcellent(comment) {
     await commentsStore.selectComment(comment.key);
     if (comment.rating_excellent) {
         comment.rating_cardinal = false;
-        commentsStore.updateComment(comment);
     }
+    commentsStore.setMarkerChange();
+    commentsStore.updateComment(comment);
 }
 
 async function toggleCardinal(comment) {
     await commentsStore.selectComment(comment.key);
     if (comment.rating_cardinal) {
         comment.rating_excellent = false;
-        commentsStore.updateComment(comment);
     }
+    commentsStore.setMarkerChange();
+    commentsStore.updateComment(comment);
 }
 
 async function selectComment(comment) {

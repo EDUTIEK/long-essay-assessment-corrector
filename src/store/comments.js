@@ -41,7 +41,10 @@ export const useCommentsStore = defineStore('comments',{
             comments: [],               // list of comment objects for the currrent correction item
 
             // not saved in storage
+            markerChange: 0,                // timestamp of the last change that affects the text markers (not the selection)
+                                            //      (this is watched to update the text markers)
             selectedKey: '',                // key of the currently selected comment
+            firstVisibleKey: '',            // key of the first vislble comment in the scrolled text
         }
     },
 
@@ -75,12 +78,18 @@ export const useCommentsStore = defineStore('comments',{
             return (key) => state.comments.find(element => element.key == key);
         },
 
-
-        getOwnCommentsInRange(state) {
-            return (start_position, end_position) => state.activeComments.filter(comment => comment.prefix =='own'
-                && comment.start_position <= end_position && comment.end_position >= start_position
+        getActiveCommentsInRange(state) {
+            return (start_position, end_position) => state.activeComments.filter(comment =>
+               comment.start_position <= end_position && comment.end_position >= start_position
             );
         },
+
+        getActiveCommentsByStartPosition(state) {
+            return (start_position) => state.activeComments.filter(comment =>
+                comment.start_position == start_position
+            );
+        },
+
     },
 
     /**
@@ -127,6 +136,7 @@ export const useCommentsStore = defineStore('comments',{
             this.comments.push(comment);
             await this.removeEmptyComments(comment.key);
             await this.sortAndLabelComments();
+            this.setMarkerChange();
             this.selectedKey = comment.key;
 
             // then save the comment
@@ -157,8 +167,16 @@ export const useCommentsStore = defineStore('comments',{
         async deleteComment(removeKey) {
             await this.removeComment(removeKey);
             await this.sortAndLabelComments();
+            this.setMarkerChange();
         },
 
+        /**
+         * Set timestamp of the last change that affects the text markers (not the selection)
+         * @public
+         */
+        setMarkerChange() {
+            this.markerChange = Date.now();
+        },
 
         /**
          * Remove a comment (internally used)
@@ -252,7 +270,7 @@ export const useCommentsStore = defineStore('comments',{
         /**
          * Load the comments data from the storage
          * @param {string} currentItemKey - key of the correction item that is shown
-         * @pablic
+         * @public
          */
         async loadFromStorage(currentItemKey) {
             try {

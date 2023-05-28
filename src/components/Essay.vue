@@ -18,11 +18,18 @@
     commentsStore.activeComments.forEach(comment => updateMark(comment));
   });
 
-
-  commentsStore.$subscribe((mutation, state) =>
-  {
+  function refreshMarks() {
+      console.log('refreshMarks');
       marker.hideAllMarksAndLabels();
       commentsStore.activeComments.forEach(comment => updateMark(comment));
+      refreshSelection();
+  };
+  watch(() => commentsStore.markerChange, refreshMarks);
+
+  function refreshSelection() {
+      console.log('refreshSelection');
+      marker.hideAllMarksOfClass('selected');
+      marker.hideAllMarksOfClass('labelled');
 
       let comment = commentsStore.getComment(commentsStore.selectedKey);
       if (comment) {
@@ -30,7 +37,9 @@
           marker.addLabel('labelled', comment.label, comment.start_position);
           marker.scrollToMark(comment.start_position, comment.end_position);
       }
-  })
+  };
+  watch(() => commentsStore.selectedKey, refreshSelection);
+
 
   /**
    * Update the marking of a comment
@@ -61,7 +70,7 @@
       }
       else {
           // check if new selection overlaps with own comments
-          let comments = commentsStore.getOwnCommentsInRange(selected.firstWord, selected.lastWord);
+          let comments = commentsStore.getActiveCommentsInRange(selected.firstWord, selected.lastWord);
           if (comments.length) {
               // get the first overlapping comment
               let comment = comments.shift();
@@ -98,11 +107,11 @@
    * @param {integer} firstWord
    * @param {integer }lastWord
    */
-  function onIntersection(firstWord, lastWord) {
-      let comments = commentsStore.getOwnCommentsInRange(firstWord, lastWord);
+  function onIntersection(firstWord) {
+      let comments = commentsStore.getActiveCommentsByStartPosition(firstWord);
       if (comments.length) {
           let comment = comments.shift();
-          console.log('label:' + comment.label);
+          console.log(Date.now() + ' label:' + comment.label);
       }
   }
 

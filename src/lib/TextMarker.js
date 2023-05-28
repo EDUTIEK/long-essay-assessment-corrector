@@ -8,7 +8,8 @@
  *  - attribute p gives the absolute number of the parent paragraph
  *
  * @param {HTMLElement} element - DOM element to which marker will be applied.
- * @param {function} onSelection - Override callback when text is selected
+ * @param {function} onSelection - Callback when text is selected
+ * @param {function} onIntersection - Callback when marked text is is moving into or out the scrolling window
  */
 class TextMarker {
 
@@ -16,6 +17,11 @@ class TextMarker {
      * @type {IntersectionObserver}
      */
     observer = null;
+
+    /**
+     * Marked texts {cssClass: string, firstWord: integer, lastWord: integer}
+     */
+    marks = [];
 
     /**
      * Constructor - see class parameters
@@ -54,10 +60,9 @@ class TextMarker {
 
     /**
      * Callback when marked text is moving into or out the scrolling window
-     * @param {integer} firstWord - number of the first marked word that is visible
-     * @param {integer} lastWord - number of the first marked word that is visible
+     * @param {integer} firstWord - number of the first marked word thet is visible
      */
-    onIntersection(firstWord, lastWord) {}
+    onIntersection(firstMarkedWord) {}
 
 
     /**
@@ -79,21 +84,12 @@ class TextMarker {
      */
     intersectionHandler(entries) {
         let first = 0;
-        let last = 0;
-
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                let w = parseInt(entry.target.getAttribute('w'));
-                if (first == 0 || w < first) {
-                    first = w;
-                }
-                if (w > last) {
-                    last = w
-                }
+        this.marks.forEach(mark => {
+            if ((first == 0 || mark.firstWord < first) && this.isMarkVisible(mark.firstWord, mark.lastWord)) {
+                first = mark.firstWord;
             }
         });
-
-        this.onIntersection(first, last);
+        this.onIntersection(first);
     }
 
 
@@ -111,7 +107,6 @@ class TextMarker {
      * @return {object}  - {firstWord: integer, lastWord: integer, parentNumber: integer, isCollapsed: bool}
      */
     getSelectionData() {
-
         const selection = window.getSelection();
         const range = selection.getRangeAt(0);
 
@@ -168,6 +163,8 @@ class TextMarker {
      * @param {integer} lastWord
      */
     showMark(cssClass, firstWord, lastWord) {
+        this.marks.push({cssClass: cssClass, firstWord: firstWord, lastWord: lastWord});
+
         this.el.querySelectorAll('w-p').forEach(node => {
             let w = parseInt(node.getAttribute('w'));
             if (w >= firstWord && w <= lastWord) {
@@ -186,6 +183,8 @@ class TextMarker {
      * @param {integer} lastWord
      */
     hideMark(cssClass, firstWord, lastWord) {
+        this.marks = this.marks.filter(mark => mark.cssClass != cssClass || mark.firstWord != firstWord || mark.lastWord != lastWord);
+
         this.el.querySelectorAll('w-p.' + cssClass).forEach(node => {
             let w = parseInt(node.getAttribute('w'));
             if (w >= firstWord && w <= lastWord) {
@@ -199,9 +198,24 @@ class TextMarker {
     }
 
     /**
-     * Remoce the css classes from all marks and labels
+     * Hide all marks with a certain css class
+     * This is used to deseelct a mark
+     * @param {string} cssClass
+     */
+    hideAllMarksOfClass(cssClass) {
+        this.marks = this.marks.filter(mark => mark.cssClass != cssClass);
+
+        this.el.querySelectorAll('w-p.' + cssClass).forEach(node => {
+            node.classList.remove(cssClass);
+        });
+    }
+
+    /**
+     * Remove the css classes from all marks and labels
      */
     hideAllMarksAndLabels() {
+        this.marks = [];
+
         this.el.querySelectorAll('w-p[class]').forEach(node => {
             node.classList.value = '';
         });
@@ -211,16 +225,40 @@ class TextMarker {
     }
 
     /**
+     * Remove the css classes of a current selection
+     */
+    hideSelection() {
+
+    }
+
+    /**
      * Set the scripping so that the complete mark is visible
      * @param {integer} firstWord
      * @param {integer} lastWord
      */
     scrollToMark(firstWord, lastWord) {
+
+        if (!this.isMarkVisible(firstWord, lastWord, true)) {
+            const firstNode = this.el.querySelector('w-p[w="' + firstWord + '"]');
+            if (firstNode) {
+                firstNode.scrollIntoView();
+            }
+        }
+    }
+
+    /**
+     * Check if a mark is visible in the scrolling window
+     * @param {integer} firstWord - number of the first marked word
+     * @param {integer} lastWord - number of the last marled word
+     * @param {boolean} full - check for full visibility (first Word and lastWord)
+     * @return {boolean}
+     */
+    isMarkVisible(firstWord, lastWord, full) {
         const firstNode = this.el.querySelector('w-p[w="' + firstWord + '"]');
         const lastNode = this.el.querySelector('w-p[w="' + lastWord + '"]');
 
         if (!firstNode || !lastNode) {
-            return;
+            return false;
         }
 
         const containerRect = this.el.getBoundingClientRect();
@@ -230,8 +268,11 @@ class TextMarker {
         const firstVisible = (firstRect.top >= containerRect.top && firstRect.bottom <= containerRect.bottom);
         const lastVisible = (lastRect.top >= containerRect.top && lastRect.bottom <= containerRect.bottom);
 
-        if (!firstVisible || !lastVisible) {
-            firstNode.scrollIntoView();
+        if (full) {
+            return firstVisible && lastVisible;
+        }
+        else {
+            return firstVisible || lastVisible;
         }
     }
 }
