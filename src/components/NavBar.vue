@@ -41,6 +41,9 @@ function getResourceIcon(resource) {
 function getCorrectorIcon(corrector) {
   return (correctorsStore.isActive(corrector) && layoutStore.isCorrectorsVisible) ? "mdi-account" : "mdi-account-outline"
 }
+
+
+
 </script>
 
 <template>
@@ -89,6 +92,11 @@ function getCorrectorIcon(corrector) {
                    :key="corrector.key">
       </v-list-item>
 
+
+        <v-list-item @click="layoutStore.togglePlayground();  closeNavigation();"
+                     :prepend-icon="layoutStore.isPlaygroundShown ? 'mdi-flask-empty': 'mdi-flask-empty-outline'"
+                     title="Developer Paygrund">
+        </v-list-item>
 
     </v-list>
 

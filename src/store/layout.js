@@ -19,7 +19,9 @@ export const useLayoutStore = defineStore('layout', {
             expandedColumn: 'none',         // left|right|none
             leftContent: 'essay',           // instructions|resources|essay|correctors
             rightContent: 'marking',        // summary|marking
-            pointsExpanded: true
+            pointsExpanded: true,           // vertical expansion of the rating points
+
+            showPlayground: false           // show the playground istead of the main content
         }
     },
 
@@ -60,7 +62,9 @@ export const useLayoutStore = defineStore('layout', {
         },
         isEssayVisible: (state) => (state.expandedColumn != 'right' && state.leftContent == 'essay'),
         isSummaryVisible: (state) => (state.expandedColumn != 'left' && state.rightContent == 'summary'),
-        isMarkingVisible: (state) => (state.expandedColumn != 'left' && state.rightContent == 'marking')
+        isMarkingVisible: (state) => (state.expandedColumn != 'left' && state.rightContent == 'marking'),
+
+        isPlaygroundShown: (state) => (state.showPlayground)
     },
 
     actions: {
@@ -172,6 +176,10 @@ export const useLayoutStore = defineStore('layout', {
         setPointsExpanded(expanded) {
             this.pointsExpanded = !!expanded;
             this.saveToStorage();
+        },
+
+        togglePlayground() {
+            this.showPlayground = !this.showPlayground;
         }
     }
 });
