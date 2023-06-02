@@ -1,0 +1,3 @@
+[submodule "src/lib/image-marker"]
+	path = src/lib/image-marker
+	url = https://github.com/EDUTIEK/long-essay-image-marker.git
