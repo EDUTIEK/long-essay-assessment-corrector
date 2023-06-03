@@ -95,7 +95,7 @@ function getCorrectorIcon(corrector) {
 
         <v-list-item @click="layoutStore.togglePlayground();  closeNavigation();"
                      :prepend-icon="layoutStore.isPlaygroundShown ? 'mdi-flask-empty': 'mdi-flask-empty-outline'"
-                     title="Developer Paygrund">
+                     title="Developer Labs">
         </v-list-item>
 
     </v-list>
