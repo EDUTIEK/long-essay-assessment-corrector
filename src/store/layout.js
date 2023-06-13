@@ -19,7 +19,8 @@ export const useLayoutStore = defineStore('layout', {
             expandedColumn: 'none',         // left|right|none
             leftContent: 'essay',           // instructions|resources|essay|correctors
             rightContent: 'marking',        // summary|marking
-            pointsExpanded: true,           // vertical expansion of the rating points
+            markingPointsExpanded: true,    // vertical expansion of the rating points
+            summaryTextExpanded: true,      // vertical expansion of the summary text
 
             showPlayground: false           // show the playground istead of the main content
         }
@@ -33,7 +34,8 @@ export const useLayoutStore = defineStore('layout', {
 
         isLeftExpanded: (state) => state.expandedColumn == 'left',
         isRightExpanded: (state) => state.expandedColumn == 'right',
-        isPointsExpanded: (state) => state.pointsExpanded,
+        isMarkingPointsExpanded: (state) => state.markingPointsExpanded,
+        isSummaryTextExpanded: (state) => state.summaryTextExpanded,
 
         isLeftVisible: (state) => state.expandedColumn != 'right',
         isRightVisible: (state) => state.expandedColumn != 'left',
@@ -87,6 +89,8 @@ export const useLayoutStore = defineStore('layout', {
                     // so show show the instructions as default left content
                     // this.leftContent = data.leftContent;
                     this.rightContent = data.rightContent;
+                    this.markingPointsExpanded = data.markingPointsExpanded;
+                    this.summaryTextExpanded = data.summaryTextExpanded;
                     this.showTimer = data.showTimer;
                 }
 
@@ -101,6 +105,8 @@ export const useLayoutStore = defineStore('layout', {
                     expandedColumn: this.expandedColumn,
                     leftContent: this.leftContent,
                     rightContent: this.rightContent,
+                    markingPointsExpanded: this.markingPointsExpanded,
+                    summaryTextExpanded: this.summaryTextExpanded,
                     showTimer: this.showTimer
                 })
             } catch (err) {
@@ -173,8 +179,13 @@ export const useLayoutStore = defineStore('layout', {
             this.saveToStorage();
         },
 
-        setPointsExpanded(expanded) {
-            this.pointsExpanded = !!expanded;
+        setMarkingPointsExpanded(expanded) {
+            this.markingPointsExpanded = !!expanded;
+            this.saveToStorage();
+        },
+
+        setSummaryTextExpanded(expanded) {
+            this.summaryTextExpanded = !!expanded;
             this.saveToStorage();
         },
 

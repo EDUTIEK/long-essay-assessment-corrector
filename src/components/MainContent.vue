@@ -96,16 +96,16 @@
               </span>
                 <v-icon icon="mdi-chevron-right"></v-icon>
           </v-btn>
-          <!-- toggle points -->
-          <v-btn class="ma-2" @click="layoutStore.setPointsExpanded(true)" v-show="layoutStore.isMarkingVisible && !layoutStore.isPointsExpanded">
-                <v-icon icon="mdi-chevron-up"></v-icon>
+          <!-- toggle marking points -->
+          <v-btn class="ma-2" v-show="layoutStore.isMarkingVisible" @click="layoutStore.setMarkingPointsExpanded(!layoutStore.isMarkingPointsExpanded)">
+                <v-icon :icon="layoutStore.isMarkingPointsExpanded ? 'mdi-chevron-down' : 'mdi-chevron-up'"></v-icon>
                 <span>Bewertungen</span>
           </v-btn>
-          <v-btn class="ma-2" @click="layoutStore.setPointsExpanded(false)" v-show="layoutStore.isMarkingVisible && layoutStore.isPointsExpanded">
-                <v-icon icon="mdi-chevron-down"></v-icon>
-                <span>Bewertungen</span>
+          <!-- toggle summary text  -->
+          <v-btn class="ma-2" v-show="layoutStore.isSummaryVisible" @click="layoutStore.setSummaryTextExpanded(!layoutStore.isSummaryTextExpanded)">
+              <v-icon :icon="layoutStore.isSummaryTextExpanded ? 'mdi-chevron-down' : 'mdi-chevron-up'"></v-icon>
+              <span>Zusammenfassung</span>
           </v-btn>
-
         </div>
       </div>
     </div>

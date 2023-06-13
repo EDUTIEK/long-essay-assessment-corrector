@@ -10,7 +10,7 @@ const layoutStore = useLayoutStore();
 <template>
     <div id="app-own-summary-wrapper">
         <own-summary-points id="app-own-summary-points"></own-summary-points>
-        <own-summary-text id="app-own-summary-text"></own-summary-text>
+        <own-summary-text id="app-own-summary-text" v-show="layoutStore.isSummaryTextExpanded"></own-summary-text>
     </div>
 </template>
 
