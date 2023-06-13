@@ -4,6 +4,7 @@
  */
 import Items from "@/components/Items.vue";
 import StitchDecision from "@/components/StitchDecision.vue";
+import Authorization from '@/components/Authorization.vue';
 import {useApiStore} from '@/store/api';
 import {useSummaryStore} from '@/store/summary';
 import {useTaskStore} from '@/store/task';
@@ -32,8 +33,9 @@ async function returnToBackend() {
   <v-app-bar elevation="1" color="white" density="compact" >
     <v-app-bar-title>{{ taskStore.title}}</v-app-bar-title>
     <v-spacer></v-spacer>
-    <stitch-decision v-if="apiStore.isStitchDecision"/>
     <items />
+    <authorization v-if="!apiStore.isReview && !apiStore.isStitchDecision" />
+    <stitch-decision v-if="apiStore.isStitchDecision"/>
     <v-btn @click="returnToBackend()">
       <v-icon left icon="mdi-logout-variant"></v-icon>
       <span>Korrekturen</span>

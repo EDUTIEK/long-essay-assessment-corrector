@@ -42,7 +42,7 @@
 </script>
 
 <template>
- <div class="stitch">
+ <div id="app-stitch-decision-wrapper">
    <v-btn :disabled="essayStore.correction_finalized" @click="dialogOpen=true">
      <v-icon left icon="mdi-checkbox-marked-outline"></v-icon>
      Stichentscheid
