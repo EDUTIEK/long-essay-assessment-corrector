@@ -29,7 +29,7 @@ export const useCorrectorsStore = defineStore('correctors',{
         },
 
         getCorrector(state) {
-            return (key) => state.items.find(element => element.key == key)
+            return (key) => state.correctors.find(element => element.key == key)
         },
 
         isActive(state) {

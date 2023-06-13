@@ -61,7 +61,7 @@
       </div>
 
         <!--
-            RightColumn
+            Right Column
         -->
         <div class="column" :class="{ colExpanded: layoutStore.isRightExpanded, colNormal: !layoutStore.isRightExpanded}" v-show="layoutStore.isRightVisible" >
           <!-- Header -->
@@ -76,7 +76,7 @@
         <!-- Content -->
         <div class="col-content">
           <own-summary v-if="layoutStore.isSummaryVisible"/>
-          <marking v-if="layoutStore.isMarkingVisible"/>
+          <marking v-show="layoutStore.isMarkingVisible"/> <!-- v-show neeed to keep points displayed when switching right content) -->
         </div>
         <!-- Footer -->
         <div class="col-footer text-left" :class="{ footerExpanded: layoutStore.isRightExpanded, footerNormal: !layoutStore.isRightExpanded}">

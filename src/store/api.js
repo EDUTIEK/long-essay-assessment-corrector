@@ -26,9 +26,10 @@ export const useApiStore = defineStore('api', {
             // saved in storage
             backendUrl: '',                     // url to be used for REST calls
             returnUrl: '',                      // url to be called when the corrector is closed
-            userKey: '',                        // identifying key of the correctiong user
+            userKey: '',                        // identifying user key of the correcting user
             environmentKey: '',                 // identifying key of the correcting envirnonment (defining the task)
             itemKey: '',                        // identifying key of the correction item
+            correctorKey: 'own',                // todo: identifying corrector key of the correcting user
             dataToken: '',                      // authentication token for transmission if data
             fileToken: '',                      // authentication token for loading files
             timeOffset: 0,                      // differnce between server time and client time (ms)

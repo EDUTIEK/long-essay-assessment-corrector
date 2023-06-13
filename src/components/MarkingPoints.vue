@@ -3,7 +3,8 @@ import {useCriteriaStore} from "@/store/criteria";
 import {useCommentsStore} from "@/store/comments";
 import {usePointsStore} from "@/store/points";
 import {useApiStore} from "@/store/api";
-import { watch } from 'vue';
+import { watch} from 'vue';
+import TextMarker from '@/lib/TextMarker';
 
 const criteriaStore = useCriteriaStore();
 const commentsStore = useCommentsStore();
@@ -11,6 +12,7 @@ const pointsStore = usePointsStore();
 const apiStore = useApiStore();
 
 function loadPoints() {
+    console.log('loadPoints');
     let commentKey = commentsStore.selectedKey;
     let comment = commentsStore.getComment(commentKey);
     criteriaStore.getCriteria.forEach((criterion) => {

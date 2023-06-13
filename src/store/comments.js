@@ -64,7 +64,7 @@ export const useCommentsStore = defineStore('comments',{
         activeComments(state) {
             const apiStore = useApiStore();
             const correctorsStore = useCorrectorsStore();
-            return state.comments.filter(comment => comment.corrector_key == apiStore.userKey
+            return state.comments.filter(comment => comment.corrector_key == apiStore.correctorKey
                 || comment.corrector_key == correctorsStore.activeKey);
         },
 
@@ -89,6 +89,31 @@ export const useCommentsStore = defineStore('comments',{
                 comment.start_position == start_position
             );
         },
+
+        getKeysOfCorrector(state) {
+            return (corrector_key) => {
+                let keys = [];
+                state.comments
+                    .filter(comment => comment.corrector_key = corrector_key)
+                    .forEach(comment => keys.push(comment.key));
+                return keys;
+            };
+        },
+
+        getCountOfExcellent(state) {
+            return (corrector_key) =>
+                state.comments
+                .filter(comment => comment.corrector_key == corrector_key && comment.rating_excellent)
+                .length
+        },
+
+        getCountOfCardinal(state) {
+            return (corrector_key) =>
+                state.comments
+                .filter(comment => comment.corrector_key == corrector_key && comment.rating_cardinal)
+                .length
+        }
+
     },
 
     /**
@@ -128,7 +153,7 @@ export const useCommentsStore = defineStore('comments',{
             const apiStore = useApiStore();
             let comment = new Comment({
                 item_key: apiStore.itemKey,
-                corrector_key: apiStore.userKey,
+                corrector_key: apiStore.correctorKey,
                 start_position: start_positon,
                 end_position: end_position,
                 parent_number: parent_number
@@ -240,7 +265,7 @@ export const useCommentsStore = defineStore('comments',{
             let number = 0;
             for (let i = 0; i < this.comments.length; i++) {
                 let comment = this.comments[i];
-                if (comment.corrector_key != apiStore.userKey) {
+                if (comment.corrector_key != apiStore.correctorKey) {
                     comment.label = correctorsStore.getCorrector(comment.corrector_key).title;
                     comment.prefix = 'other';
                 }

@@ -9,7 +9,7 @@ const layoutStore = useLayoutStore();
 <template>
     <div id="app-marking-wrapper">
         <marking-comments id="app-marking-comments"></marking-comments>
-        <marking-points id="app-marking-points" v-if="layoutStore.isMarkingPointsExpanded"></marking-points>
+        <marking-points id="app-marking-points" v-show="layoutStore.isMarkingPointsExpanded"></marking-points>
     </div>
 </template>
 

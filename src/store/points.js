@@ -31,6 +31,15 @@ export const usePointsStore = defineStore('points',{
         },
 
         /**
+         * Get the points for a set of comment keys
+         * @param state
+         * @return {function(array): Points}
+         */
+        getObjectsByCommentKeys(state) {
+            return (commentKeys) => state.points.filter(element => commentKeys.includes(element.comment_key));
+        },
+
+        /**
          * Get a points object by its relations
          * @param state
          * @return {function(string, string): Points}
@@ -52,7 +61,7 @@ export const usePointsStore = defineStore('points',{
                 }
                 return 0;
             }
-        }
+        },
     },
 
     actions: {
