@@ -1,39 +1,36 @@
 <script setup>
 
-import {useApiStore} from '@/store/api';
-import {useTaskStore} from '@/store/task';
 import {useSummaryStore} from '@/store/summary';
-import {useLevelsStore} from '@/store/levels';
 import {useSettingsStore} from '@/store/settings';
-import {useItemsStore} from '@/store/items';
 
-const apiStore = useApiStore();
-const taskStore = useTaskStore();
 const summaryStore = useSummaryStore();
-const levelsStore = useLevelsStore();
 const settingsStore = useSettingsStore();
-const itemsStore = useItemsStore();
 
 </script>
 
 <template>
     <div id="app-own-summary-points-wrapper">
-
-      <label for="appSummaryPoints">Punkte: </label>
-      <input :disabled="summaryStore.storedIsAuthorized" id="appSummaryPoints" class="appRatingControl" type="number" min="0" :max="settingsStore.max_points" v-model="summaryStore.currentPoints" />
-
-      <label for="appSummaryGradeKey">( {{ summaryStore.currentGradeTitle }} ) &nbsp;</label>
-
-
+        <v-container>
+            <v-row>
+                <v-col>
+                    <label for="appSummaryPoints"><strong>Eigene Wertung:</strong></label>
+                    <input :disabled="summaryStore.storedIsAuthorized" id="appSummaryPoints" class="appPoints" type="number" min="0" :max="settingsStore.max_points" v-model="summaryStore.currentPoints" /> Punkte
+                </v-col>
+                <v-col>
+                    <strong>Notenstufe:</strong> {{ summaryStore.currentGradeTitle }}
+                </v-col>
+            </v-row>
+        </v-container>
     </div>
 </template>
 
 <style scoped>
 
-.appRatingControl {
-  border: 1px solid lightgray;
-  margin-left: 10px;
-  margin-right: 10px;
-  padding: 5px;
+.appPoints {
+    width: 4em;
+    border: 0;
+    margin-left: 5px;
+    margin-right: 5px;
+    padding: 5px;
 }
 </style>

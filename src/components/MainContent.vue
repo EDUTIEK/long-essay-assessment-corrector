@@ -35,10 +35,10 @@
         </div>
         <!-- Content -->
         <div class="col-content">
-          <instructions v-show="layoutStore.isInstructionsVisible" />
-          <essay v-show="layoutStore.isEssayVisible" />
-          <resources v-show="layoutStore.isResourcesVisible" />
-          <other-correctors v-show= "layoutStore.isCorrectorsVisible" />
+          <instructions v-if="layoutStore.isInstructionsVisible" />
+          <essay v-if="layoutStore.isEssayVisible" />
+          <resources v-if="layoutStore.isResourcesVisible" />
+          <other-correctors v-if= "layoutStore.isCorrectorsVisible" />
         </div>
         <!--Footer -->
         <div class="col-footer text-right" :class="{ footerExpanded: layoutStore.isLeftExpanded, footerNormal: !layoutStore.isLeftExpanded}" >
@@ -75,8 +75,8 @@
         </div>
         <!-- Content -->
         <div class="col-content">
-          <own-summary v-show="layoutStore.isSummaryVisible"/>
-          <marking v-show="layoutStore.isMarkingVisible"/>
+          <own-summary v-if="layoutStore.isSummaryVisible"/>
+          <marking v-if="layoutStore.isMarkingVisible"/>
         </div>
         <!-- Footer -->
         <div class="col-footer text-left" :class="{ footerExpanded: layoutStore.isRightExpanded, footerNormal: !layoutStore.isRightExpanded}">

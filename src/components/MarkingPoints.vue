@@ -70,10 +70,6 @@ function savePoints(criterionKey) {
 
 <style scoped>
 
-.appMarkingPointsWrapper {
-
-}
-
 .commentLabel {
     background-color: grey;
     color: white;
