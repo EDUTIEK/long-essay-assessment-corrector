@@ -197,6 +197,15 @@ export const usePointsStore = defineStore('points',{
             catch (err) {
                 console.log(err);
             }
+        },
+
+
+        async changeCommentKeys(matches) {
+
+            this.keys.forEach(key => {
+
+
+            });
         }
     }
 });
