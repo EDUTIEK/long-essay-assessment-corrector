@@ -407,28 +407,31 @@ export const useApiStore = defineStore('api', {
          */
         async saveChangesToBackend() {
 
+            console.log(Date.now() +  ' saveChangesToBackend');
+
             // don't send twice
             if (this.lastSendingTry > 0) {
                 return;
             }
             this.lastSendingTry = Date.now();
 
-            let response = {
-                comments: [],
-                points: []
+            let data = {
+                comments: {},
+                points: {}
             };
 
             const commentsStore = useCommentsStore();
-            if (commentsStore.countUnsentChanges > 0) {
-                response.comments = await commentsStore.getUnsentComments(this.lastSendingTry);
+            const hasUnsentComments = (commentsStore.countUnsentChanges > 0);
+            if (hasUnsentComments) {
+                data.comments = await commentsStore.getUnsentData(this.lastSendingTry);
             }
 
-            if (response.comments.length > 0) {
+            if (hasUnsentComments) {
                 try {
-                    response = await axios.put( '/changes/' + this.itemKey, data, this.requestConfig(this.dataToken));
+                    const response = await axios.put( '/changes/' + this.itemKey, data, this.requestConfig(this.dataToken));
                     this.setTimeOffset(response);
                     this.refreshToken(response);
-                    commentsStore.setCommentsSent(response.matches, this.lastSendingTry);
+                    commentsStore.setCommentsSent(response.data.comments, this.lastSendingTry);
                 }
                 catch (error) {
                     console.error(error);
@@ -441,9 +444,8 @@ export const useApiStore = defineStore('api', {
          * Save the correction summary to the backend
          */
         async saveSummaryToBackend(data) {
-            let response = {};
             try {
-                response = await axios.put( '/summary/' + this.itemKey, data, this.requestConfig(this.dataToken));
+                const response = await axios.put( '/summary/' + this.itemKey, data, this.requestConfig(this.dataToken));
                 this.setTimeOffset(response);
                 this.refreshToken(response);
                 return true;

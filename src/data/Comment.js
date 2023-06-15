@@ -75,6 +75,13 @@ class Comment {
      */
     prefix = '';
 
+    /**
+     * Comment is deleted
+     * @type {string}
+     */
+
+    deleted = false;
+
 
     /**
      * Constructor - gets properties from a data object
@@ -97,11 +104,11 @@ class Comment {
         if (data.start_position !== undefined && data.start_position !== null) {
             this.start_position = parseInt(data.start_position);
         }
-        if (data.parent_number !== undefined && data.parent_number !== null) {
-            this.parent_number = parseInt(data.parent_number);
-        }
         if (data.end_position !== undefined && data.end_position !== null) {
             this.end_position = parseInt(data.end_position);
+        }
+        if (data.parent_number !== undefined && data.parent_number !== null) {
+            this.parent_number = parseInt(data.parent_number);
         }
         if (data.comment !== undefined && data.comment !== null) {
             this.comment = data.comment.toString()
