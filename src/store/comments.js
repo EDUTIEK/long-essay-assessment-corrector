@@ -38,8 +38,8 @@ export const useCommentsStore = defineStore('comments',{
         return {
             // saved in storage
             keys: [],                   // list of string keys of all comments in the storage
-            unsentKeys: [],             // list of string keys of all comments that have to be sent to the backend (created, modified, deleted)
             comments: [],               // list of comment objects for the currrent correction item
+            unsentChanges: {},          // assoc array of changes that have to be sent to the backend key => timestamp
 
             // not saved in storage
             markerChange: 0,                // timestamp of the last change that affects the text markers (not the selection)
@@ -54,8 +54,8 @@ export const useCommentsStore = defineStore('comments',{
      */
     getters: {
 
-        countToSend(state) {
-            return state.unsentKeys.length
+        countUnsentChanges(state) {
+            return Object.keys(state.unsentChanges).length;
         },
 
         selectedLabel(state) {
@@ -307,6 +307,8 @@ export const useCommentsStore = defineStore('comments',{
 
         /**
          * Load the comments data from the storage
+         * Only the comments of the current item are loaded to the state
+         *
          * @param {string} currentItemKey - key of the correction item that is shown
          * @public
          */
@@ -316,9 +318,9 @@ export const useCommentsStore = defineStore('comments',{
                 if (keys) {
                     this.keys = JSON.parse(keys);
                 }
-                const unsentKeys = await storage.getItem('unsentKeys');
-                if (unsentKeys) {
-                    this.unsentKeys = JSON.parse(unsentKeys);
+                const unsentChanges = await storage.getItem('unsentChanges');
+                if (unsentChanges) {
+                    this.unsentChanges = JSON.parse(unsentChanges);
                 }
 
                 this.comments = [];
@@ -354,7 +356,7 @@ export const useCommentsStore = defineStore('comments',{
                 await storage.clear();
 
                 this.keys = [];
-                this.unsentKeys = [];
+                this.unsentChanges = {};
                 this.comments = [];
                 this.selectedKey = '';
 
@@ -371,7 +373,7 @@ export const useCommentsStore = defineStore('comments',{
                 await this.sortAndLabelComments();
 
                 await storage.setItem('keys', JSON.stringify(this.keys));
-                await storage.setItem('unsentKeys', JSON.stringify(this.unsentKeys));
+                await storage.setItem('unsentChanges', JSON.stringify(this.unsentChanges));
             }
             catch (err) {
                 console.log(err);
@@ -379,13 +381,13 @@ export const useCommentsStore = defineStore('comments',{
         },
 
         /**
-         * Check if unsent savings are in the storage
+         * Check if unsent changes are in the storage
          * (called from api store at initialisation)
          */
-        async hasUnsentSavingInStorage() {
-            const data = await storage.getItem('unsentKeys');
-            const unsentKeys = data ? JSON.parse(data) : [];
-            return unsentKeys.length > 0;
+        async hasUnsentChangesInStorage() {
+            const data = await storage.getItem('unsentChanges');
+            const unsentChanges = data ? JSON.parse(data) : {};
+            return Object.keys(unsentChanges).length > 0;
         },
 
 
@@ -395,23 +397,24 @@ export const useCommentsStore = defineStore('comments',{
          * @param {string} key
          */
         async setUnsent(key) {
-            if (!this.unsentKeys.includes(key)) {
-                this.unsentKeys.push(key);
-                await storage.setItem('unsentKeys', JSON.stringify(this.unsentKeys));
-            }
+            this.unsentChanges[key] = Date.now();
+            await storage.setItem('unsentChanges', JSON.stringify(this.unsentChanges));
         },
 
         /**
          * Get all unsent comments from the storage
          * These may include comments of other items that are only in the storage
          * This is called for sending the comments to the backend
-         * @return {array}
+         * @param {integer} sendingTime - timestamp of the sending or 0 to get all
+         * @return {Comment[]}
          */
-        async getUnsentComments() {
+        async getUnsentComments(sendingTime = 0) {
             let comments = [];
-            for (const key of this.unsentKeys) {
-                let comment = new Comment(await storage.getItem(key));
-                comments.push(comment);
+            for (const key in this.unsentChanges) {
+                if (sendingTime == 0 || this.unsentChanges[key] < sendingTime) {
+                    let comment = new Comment(await storage.getItem(key));
+                    comments.push(comment);
+                }
             };
             return comments;
         },
@@ -423,8 +426,9 @@ export const useCommentsStore = defineStore('comments',{
          * A new key is null for a deleted comment
          *
          * @param {array} matches - assoc array with old and new string keys
+         * @param {integer} sendingTime - timestamp of the sending
          */
-        async setCommentsSent(matches) {
+        async setCommentsSent(matches, sendingTime) {
 
             let removedKeys = [];       // old keys of removed comments
             let changedKeys = [];       // old keys that are changed
@@ -456,7 +460,7 @@ export const useCommentsStore = defineStore('comments',{
 
             // save the changes to the storage
             this.keys = this.keys.filter(key => !removedKeys.includes(key) && !changedKeys.includes(key));
-            this.unsentKeys = this.unsentKeys.filter(key => !removedKeys.includes(key) && !changedKeys.includes(key));
+
             for (const key of removedKeys) {
                 await storage.removeItem(key);
             }
@@ -468,7 +472,23 @@ export const useCommentsStore = defineStore('comments',{
                 await storage.setItem(comment.key, comment.getData());
             }
             await storage.setItem('keys', JSON.stringify(this.keys));
-            await storage.setItem('unsentKeys', JSON.stringify(this.unsentKeys));
+
+            // cleanup the unsent changes
+            let remainingChanges = {};
+            for (const key in this.unsentChanges) {
+                let time = this.unsentChanges[key];
+                // keep change that is newer than the sending
+                if (time >= sendingTime) {
+                    if (changedKeys.includes(key)) {
+                        remainingChanges[changedKeys[key]] = time;
+                    }
+                    else if (!removedKeys.includes(key)) {
+                        remainingChanges[key] = time;
+                    }
+                }
+            }
+            this.unsentChanges = remainingChanges;
+            await storage.setItem('unsentChanges', JSON.stringify(this.unsentChanges));
         }
     }
 });

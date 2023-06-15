@@ -15,6 +15,8 @@ import {useCommentsStore} from "@/store/comments";
 import {usePointsStore} from "@/store/points";
 import md5 from 'md5';
 
+const sendInterval = 5000;      // time (ms) to wait for sending open savings to the backend
+
 /**
  * API Store
  * Handles the communication with the backend
@@ -43,13 +45,13 @@ export const useApiStore = defineStore('api', {
             showSendFailure: false,             // show a message about a sending failure
             showDataReplaceConfirmation: false, // show a confirmation that the stored data should be replaced by another task or user
             showItemReplaceConfirmation: false, // show a confirmation that the stored item should be replaced by another item
-
+            lastSendingTry: 0                   // timestamp of the last try to send changes
         }
     },
 
     getters: {
 
-        isCorrection: (state) => !state.isReview && !state.isStitchDecision,
+        isCorrection: state => !state.isReview && !state.isStitchDecision,
 
         /**
          * Get the config object for REST requests
@@ -172,7 +174,7 @@ export const useApiStore = defineStore('api', {
                 return;
             }
 
-            if (await this.hasUnsentSavings()) {
+            if (await this.hasUnsentChanges()) {
                 if (newContext) {
                     console.log('init: open saving, new context');
                     this.showDataReplaceConfirmation = true;
@@ -220,11 +222,11 @@ export const useApiStore = defineStore('api', {
         },
 
         /**
-         * Check if savings exist in the storage that have to be sent
+         * Check if changes exist in the storage that have to be sent
          */
-        async hasUnsentSavings() {
+        async hasUnsentChanges() {
             const commentsStore = useCommentsStore();
-            if (await commentsStore.hasUnsentSavingInStorage) {
+            if (await commentsStore.hasUnsentChangesInStorage()) {
                 return true;
             }
             const summaryStore = useSummaryStore();
@@ -396,6 +398,43 @@ export const useApiStore = defineStore('api', {
             this.itemKey = itemKey;
             localStorage.setItem('itemKey', this.itemKey);
             return true;
+        },
+
+
+        /**
+         * Periodically send changes to the backend
+         * Timer is set in initialisation
+         */
+        async saveChangesToBackend() {
+
+            // don't send twice
+            if (this.lastSendingTry > 0) {
+                return;
+            }
+            this.lastSendingTry = Date.now();
+
+            let response = {
+                comments: [],
+                points: []
+            };
+
+            const commentsStore = useCommentsStore();
+            if (commentsStore.countUnsentChanges > 0) {
+                response.comments = await commentsStore.getUnsentComments(this.lastSendingTry);
+            }
+
+            if (response.comments.length > 0) {
+                try {
+                    response = await axios.put( '/changes/' + this.itemKey, data, this.requestConfig(this.dataToken));
+                    this.setTimeOffset(response);
+                    this.refreshToken(response);
+                    commentsStore.setCommentsSent(response.matches, this.lastSendingTry);
+                }
+                catch (error) {
+                    console.error(error);
+                }
+            }
+            this.lastSendingTry = 0;
         },
 
         /**
