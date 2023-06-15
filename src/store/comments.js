@@ -256,8 +256,8 @@ export const useCommentsStore = defineStore('comments',{
                 && !pointsStore.hasCommentPoints(comment.key)
             );
 
-            for (let i = 0; i < comments.length; i++) {
-                await this.removeComment(comments[i].key);
+            for (const comment of comments) {
+                await this.removeComment(comment.key);
             }
         },
 
@@ -274,8 +274,7 @@ export const useCommentsStore = defineStore('comments',{
 
             let parent = 0;
             let number = 0;
-            for (let i = 0; i < this.comments.length; i++) {
-                let comment = this.comments[i];
+            for (const comment of this.comments) {
                 if (comment.corrector_key != apiStore.correctorKey) {
                     comment.label = correctorsStore.getCorrector(comment.corrector_key).title;
                     comment.prefix = 'other';
@@ -325,13 +324,13 @@ export const useCommentsStore = defineStore('comments',{
                 this.comments = [];
                 this.currentKey = '';
 
-                this.keys.forEach(key => {
+                for (const key of this.keys) {
                     let comment_data = await storage.getItem(key);
                     let comment = new Comment(comment_data);
                     if (comment.item_key == currentItemKey) {
                         this.comments.push(comment);
                     }
-                })
+                }
 
                 await this.removeEmptyComments();
                 await this.sortAndLabelComments();
@@ -360,15 +359,14 @@ export const useCommentsStore = defineStore('comments',{
                 this.comments = [];
                 this.selectedKey = '';
 
-                let index = 0;
-                data.forEach(comment_data => {
+                for (const comment_data of data) {
                     let comment = new Comment(comment_data);
                     this.keys.push(comment.key);
                     await storage.setItem(comment.key, comment.getData());
                     if (comment.item_key == currentItemKey) {
                         this.comments.push(comment);
                     }
-                });
+                };
 
                 await this.removeEmptyComments();
                 await this.sortAndLabelComments();
@@ -402,12 +400,12 @@ export const useCommentsStore = defineStore('comments',{
          */
         async getUnsentComments() {
             let comments = {};
-            this.unsentKeys.forEach(key => {
+            for (const key of this.unsentKeys) {
                 let comment = await storage.getItem(key);
                 if (comment) {
                     comments.push(comment);
                 }
-            });
+            };
 
             return comments;
         },
@@ -423,40 +421,50 @@ export const useCommentsStore = defineStore('comments',{
          */
         async setSentComments(matches) {
 
-            for (oldkey in matches) {
-                newkey = matches[oldkey];
+            let removedKeys = [];       // old keys of comments to be removed
+            let changedKeys = [];       // old keys that are changed
+            let changedComments = [];   // comments objects with changed keys
 
-                if (newkey == null) {
-                    await this.removeComment(oldkey);
-                }
-                else if (newkey != oldkey) {
-                    // save the comment with the new key
-                    let comment_data = await storage.getItem(oldkey);
-                    if (comment_data) {
-                        let comment = new Comment(comment_data);
-                        comment.key = newkey;
-
-                        this.keys.push(comment.key);
-                        if (comment.item_key == currentItemKey) {
-                            this.comments.push(comment);
-                        }
-                        if (this.selectedKey == removeKey) {
-                            this.selectedKey = '';
-                        }
-
-                        await storage.setItem(comment.key, comment.getData());
-                        await storage.setItem('keys', JSON.stringify(this.keys));
+            // collect the changes in the storage (all correction items)
+            for (const key of this.keys) {
+                if (key in matches) {
+                    if (matches[key] == null) {
+                        removedKeys.push(key);
                     }
-
-                    // todo: change the comment keys of the points for the comment
-                }
-
-
-                if (this.unsentKeys.includes(oldkey)) {
-                    this.unsentKeys = this.unsentKeys.filter(key => key != oldkey);
-                    await storage.setItem('unsentKeys', JSON.stringify(this.unsentKeys));
+                    else if(key != matches[key]) {
+                        let comment_data = await storage.getItem(key);
+                        let comment = new Comment(comment_data);
+                        comment.key = matches[key];
+                        changedKeys.push(key);
+                        changedComments.push(comment);
+                    }
                 }
             }
+
+            // treat the changes in the state (curent correction item)
+            this.selectedKey = ''
+            this.comments = this.comment.filter(comment => !removedKeys.includes(points.key));
+            for (const comment of this.comments) {
+                if (changedKeys.includes(comment.key)) {
+                    comment.key = matches[comment.key];
+                }
+            }
+
+            // save the changes to the storage
+            this.keys = this.keys.filter(key => !removedKeys.includes(key) && !changedKeys.includes(key));
+            this.unsentKeys = this.unsentKeys.filter(key => !removedKeys.includes(key) && !changedKeys.includes(key));
+            for (const key of removedKeys) {
+                await storage.removeItem(key);
+            }
+            for (const key of changedKeys) {
+                this.keys.push(matches[key]);
+                await storage.removeItem(key);
+            }
+            for (const comment of changedComments) {
+                await storage.setItem(points.key, points.getData());
+            }
+            await storage.setItem('keys', JSON.stringify(this.keys));
+            await storage.setItem('unsentKeys', JSON.stringify(this.unsentKeys));
         }
     }
 });

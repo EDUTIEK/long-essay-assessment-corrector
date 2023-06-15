@@ -105,7 +105,7 @@ export const usePointsStore = defineStore('points',{
           this.keys.push(pointsObject.key);
           this.points.push(pointsObject);
             await storage.setItem(pointsObject.key, pointsObject.getData());
-            await storage.setItem('pointsKeys', JSON.stringify(this.keys));
+            await storage.setItem('keys', JSON.stringify(this.keys));
         },
 
         /**
@@ -127,7 +127,7 @@ export const usePointsStore = defineStore('points',{
             this.points = this.points.filter(pointsObject => pointsObject.key != removeKey)
             if (this.keys.includes(removeKey)) {
                 this.keys = this.keys.filter(key => key != removeKey)
-                await storage.setItem('pointsKeys', JSON.stringify(this.keys));
+                await storage.setItem('keys', JSON.stringify(this.keys));
                 await storage.removeItem(removeKey);
             }
         },
@@ -153,21 +153,19 @@ export const usePointsStore = defineStore('points',{
 
         async loadFromStorage(currentCommentKeys) {
             try {
-                const keys = await storage.getItem('pointsKeys');
+                const keys = await storage.getItem('keys');
                 if (keys) {
                     this.keys =  JSON.parse(keys);
                 }
                 this.points = [];
 
-                let index = 0;
-                while (index < this.keys.length) {
-                    let points = await storage.getItem(this.keys[index]);
+                for (const key of this.keys) {
+                    let points_data = await storage.getItem(key);
+                    let points = new Points(points_data);
                     if (currentCommentKeys.includes(points.comment_key)) {
                         this.points.push(points);
                     }
-                    index++;
                 }
-
             } catch (err) {
                 console.log(err);
             }
@@ -180,19 +178,15 @@ export const usePointsStore = defineStore('points',{
                 this.keys = [];
                 this.points = [];
 
-                let index = 0;
-                while (index < data.length) {
-                    let points_data = data[index];
+                for (const points_data of data) {
                     let points = new Points(points_data);
                     this.keys.push(points.key);
                     await storage.setItem(points.key, points.getData());
                     if (currentCommentKeys.includes(points.comment_key)) {
                         this.points.push(points);
                     }
-                    index++;
-                }
-
-                await storage.setItem('pointsKeys', JSON.stringify(this.keys));
+                };
+                await storage.setItem('keys', JSON.stringify(this.keys));
             }
             catch (err) {
                 console.log(err);
@@ -200,12 +194,47 @@ export const usePointsStore = defineStore('points',{
         },
 
 
+        /**
+         * Change comment keys in the stored points
+         * @param {array} matches - oldkey => newkey|null
+         */
         async changeCommentKeys(matches) {
 
-            this.keys.forEach(key => {
+            let removedKeys = [];       // keys of points to be removed
+            let changedPoints = [];     // points objects with changed comment keys
 
+            // collect the changes in the storage (all correction items)
+            for (const key of this.keys) {
+                let points_data = await storage.getItem(key);
+                let points = new Points(points_data);
+                if (points.comment_key in matches) {
+                    if (matches[points.comment_key] == null) {
+                        removedKeys.push(key);
+                    }
+                    else if (points.comment_key != matches[points.comment_key]) {
+                        points.comment_key = matches[points.comment_key];
+                        changedPoints.push(points);
+                    }
+                }
+            }
 
-            });
+            // treat the changes in the state (curent correction item)
+            this.points = this.points.filter(points => !removedKeys.includes(points.key));
+            for (const points of this.points) {
+                if (points.comment_key in matches) {
+                    points.comment_key = matches[points.comment_key];
+                }
+            }
+
+            // save the changes to the storage
+            for (const key of removedKeys) {
+                await storage.removeItem(key);
+            }
+            for (const points of changedPoints) {
+                await storage.setItem(points.key, points.getData());
+            }
+            this.keys = this.keys.filter(key => !removedKeys.includes(key));
+            await storage.setItem('keys', JSON.stringify(this.keys));
         }
     }
 });
