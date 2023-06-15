@@ -1,10 +1,12 @@
 <script setup>
 import {useCommentsStore} from "@/store/comments";
+import { useSummaryStore } from '@/store/summary';
 import Comment from "@/data/Comment";
 import { watch } from 'vue';
 import { nextTick} from "vue";
 
 const commentsStore = useCommentsStore();
+const summaryStore = useSummaryStore();
 
 /**
  * Focus the currently selected comment
@@ -92,12 +94,12 @@ async function selectComment(comment) {
             <v-row class="row" dense>
                 <v-col class="leftCol">
                     <span :class="'commentLabel ' + (comment.key == commentsStore.selectedKey ? 'selected' : '')">{{comment.label}}</span>
-                    <v-btn @click="commentsStore.deleteComment(comment.key)" density="compact" size="small" variant="text" prepend-icon="mdi-delete-outline">Löschen</v-btn>
+                    <v-btn :disabled="summaryStore.isAuthorized" @click="commentsStore.deleteComment(comment.key)" density="compact" size="small" variant="text" prepend-icon="mdi-delete-outline">Löschen</v-btn>
                 </v-col>
                 <v-col class="rightCol">
                    <span class="checkboxes">
-                        <v-checkbox-btn v-model="comment.rating_excellent" label="Exzellent" @change="toggleExcellent(comment)"></v-checkbox-btn>
-                        <v-checkbox-btn v-model="comment.rating_cardinal" label="Kardinalfehler" @change="toggleCardinal(comment)"></v-checkbox-btn>
+                        <v-checkbox-btn v-model="comment.rating_excellent" label="Exzellent" :disabled="summaryStore.isAuthorized" @change="toggleExcellent(comment)"></v-checkbox-btn>
+                        <v-checkbox-btn v-model="comment.rating_cardinal" label="Kardinalfehler" :disabled="summaryStore.isAuthorized" @change="toggleCardinal(comment)"></v-checkbox-btn>
                     </span>
 
                 </v-col>
@@ -105,6 +107,7 @@ async function selectComment(comment) {
             <v-row>
                 <div :id="'appCommentWrapper' + comment.key" class="commentWrapper">
                 <v-textarea class="comment" :bg-color="getBgColor(comment)" rounded="0" density="compact" variant="solo" rows="1" auto-grow
+                            :readonly="summaryStore.isAuthorized"
                             @click="commentsStore.selectComment(comment.key)"
                             @change="commentsStore.updateComment(comment)"
                             v-model="comment.comment"></v-textarea>

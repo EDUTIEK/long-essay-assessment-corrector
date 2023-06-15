@@ -3,6 +3,7 @@ import {useCriteriaStore} from "@/store/criteria";
 import {useCommentsStore} from "@/store/comments";
 import {usePointsStore} from "@/store/points";
 import {useApiStore} from "@/store/api";
+import {useSummaryStore} from '@/store/summary';
 import { watch} from 'vue';
 import TextMarker from '@/lib/TextMarker';
 
@@ -10,6 +11,7 @@ const criteriaStore = useCriteriaStore();
 const commentsStore = useCommentsStore();
 const pointsStore = usePointsStore();
 const apiStore = useApiStore();
+const summaryStore = useSummaryStore();
 
 function loadPoints() {
     console.log('loadPoints');
@@ -60,6 +62,7 @@ function savePoints(criterionKey) {
                     </td>
                     <td  class="text-right">
                         <input class="appPoints" type="number" min="0"
+                               :disabled="summaryStore.isAuthorized"
                                :id="'pointsInput' + criterion.key"
                                :max="criterion.points"
                                @change="savePoints(criterion.key)" /> / {{criterion.points}}

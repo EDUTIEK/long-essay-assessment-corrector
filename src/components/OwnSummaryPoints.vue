@@ -14,7 +14,7 @@ const settingsStore = useSettingsStore();
             <v-row>
                 <v-col>
                     <label for="appSummaryPoints"><strong>Eigene Wertung:</strong></label>
-                    <input :disabled="summaryStore.storedIsAuthorized" id="appSummaryPoints" class="appPoints" type="number" min="0" :max="settingsStore.max_points" v-model="summaryStore.currentPoints" /> Punkte
+                    <input :disabled="summaryStore.isAuthorized" id="appSummaryPoints" class="appPoints" type="number" min="0" :max="settingsStore.max_points" v-model="summaryStore.currentPoints" /> Punkte
                 </v-col>
                 <v-col>
                     <strong>Notenstufe:</strong> {{ summaryStore.currentGradeTitle }}

@@ -404,6 +404,7 @@ export const useApiStore = defineStore('api', {
         /**
          * Periodically send changes to the backend
          * Timer is set in initialisation
+         * @return bool
          */
         async saveChangesToBackend() {
 
@@ -411,7 +412,7 @@ export const useApiStore = defineStore('api', {
 
             // don't send twice
             if (this.lastSendingTry > 0) {
-                return;
+                return false;
             }
             this.lastSendingTry = Date.now();
 
@@ -442,13 +443,17 @@ export const useApiStore = defineStore('api', {
                 }
                 catch (error) {
                     console.error(error);
+                    this.lastSendingTry = 0;
+                    return false;
                 }
             }
             this.lastSendingTry = 0;
+            return true;
         },
 
         /**
          * Save the correction summary to the backend
+         * @return bool
          */
         async saveSummaryToBackend(data) {
             try {

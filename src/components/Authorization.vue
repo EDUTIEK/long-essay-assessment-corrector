@@ -11,26 +11,34 @@ const summaryStore = useSummaryStore();
 const itemsStore = useItemsStore();
 
 async function setAuthorizedAndContinue() {
-  await summaryStore.setAuthorized();
-  if (!summaryStore.isSent) {
-    apiStore.setShowSendFailure(true);
-  }
-  else {
-    let newKey = itemsStore.nextKey(apiStore.itemKey);
-    if (newKey != '') {
-      apiStore.loadItemFromBackend(newKey);
+    if (! await apiStore.saveChangesToBackend()) {
+        apiStore.setShowSendFailure(true);
+        return;
     }
-  }
+    await summaryStore.setAuthorized();
+    if (!summaryStore.isSent) {
+        apiStore.setShowSendFailure(true);
+    }
+    else {
+        let newKey = itemsStore.nextKey(apiStore.itemKey);
+        if (newKey != '') {
+          apiStore.loadItemFromBackend(newKey);
+        }
+    }
 }
 
 async function setAuthorizedAndClose() {
-  await summaryStore.setAuthorized();
-  if (!summaryStore.isSent) {
+    if (! await apiStore.saveChangesToBackend()) {
+        apiStore.setShowSendFailure(true);
+        return;
+    }
+    await summaryStore.setAuthorized();
+    if (!summaryStore.isSent) {
     apiStore.setShowSendFailure(true);
-  }
-  else {
+    }
+    else {
     window.location = apiStore.returnUrl;
-  }
+    }
 }
 
 </script>
@@ -38,7 +46,7 @@ async function setAuthorizedAndClose() {
 <template>
     <div id="app-authorization-wrapper">
 
-      <v-btn v-show="!summaryStore.storedIsAuthorized" :disabled="!taskStore.authorization_allowed" @click="summaryStore.showAuthorization=true">
+      <v-btn v-show="!summaryStore.isAuthorized" :disabled="!taskStore.authorization_allowed" @click="summaryStore.showAuthorization=true">
           <v-icon left icon="mdi-file-certificate-outline"></v-icon>
         <span>Autorisieren...</span>
       </v-btn>
