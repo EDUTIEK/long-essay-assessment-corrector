@@ -29,7 +29,7 @@ const apiStore = useApiStore();
       </v-card>
     </v-dialog>
 
-    <v-dialog persistent v-model="apiStore.showInitFailure">
+    <v-dialog persistent v-model="apiStore.showItemLoadFailure">
       <v-card>
         <v-card-text>
           <p>Beim Laden der zu korrigierenden Abgabe ist ein Fehler aufgetreten. Die Anwendung kann nicht gestartet werden.</p>
@@ -81,7 +81,7 @@ const apiStore = useApiStore();
           </v-btn>
           <v-btn :href="apiStore.returnUrl">
             <v-icon left icon="mdi-logout-variant"></v-icon>
-            <span>Zurück zu den Korrekturen</span>
+            <span>Abbrechen</span>
           </v-btn>
         </v-card-actions>
       </v-card>

@@ -378,6 +378,16 @@ export const useCommentsStore = defineStore('comments',{
             }
         },
 
+        /**
+         * Check if unsent savings are in the storage
+         * (called from api store at initialisation)
+         */
+        async hasUnsentSavingInStorage() {
+            const data = await storage.getItem('unsentKeys');
+            const unsentKeys = data ? JSON.parse(data) : [];
+            return unsentKeys.length > 0;
+        },
+
 
         /**
          * Not that a comment has to be sent to the backend

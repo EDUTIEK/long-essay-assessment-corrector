@@ -28,8 +28,8 @@ export const useApiStore = defineStore('api', {
             returnUrl: '',                      // url to be called when the corrector is closed
             userKey: '',                        // identifying user key of the correcting user
             environmentKey: '',                 // identifying key of the correcting envirnonment (defining the task)
+            correctorKey: '',                   // identifying corrector key of the correcting user
             itemKey: '',                        // identifying key of the correction item
-            correctorKey: 'own',                // todo: identifying corrector key of the correcting user
             dataToken: '',                      // authentication token for transmission if data
             fileToken: '',                      // authentication token for loading files
             timeOffset: 0,                      // differnce between server time and client time (ms)
@@ -123,6 +123,8 @@ export const useApiStore = defineStore('api', {
             this.returnUrl = localStorage.getItem('correctorReturnUrl');
             this.userKey = localStorage.getItem('correctorUserKey');
             this.environmentKey = localStorage.getItem('correctorEnvironmentKey');
+            this.correctorKey = localStorage.getItem('correctorCorrectorKey');
+            this.itemKey = localStorage.getItem('correctorItemKey');
             this.dataToken = localStorage.getItem('correctorDataToken');
             this.fileToken = localStorage.getItem('correctorFileToken');
             this.timeOffset = Math.floor(localStorage.getItem('correctorTimeOffset') ?? 0);
@@ -138,6 +140,10 @@ export const useApiStore = defineStore('api', {
                 this.environmentKey = Cookies.get('LongEssayEnvironment');
                 newContext = true;
             }
+            if (!!Cookies.get('LongEssayCorrector') && Cookies.get('LongEssayCorrector') !== this.correctorKey) {
+                this.correctorKey = Cookies.get('LongEssayCorrector');
+                newContext = true;
+            }
             if ((Cookies.get('LongEssayIsReview') == '1') != this.isReview) {
                 this.isReview = (Cookies.get('LongEssayIsReview') == '1');
                 newContext = true;
@@ -147,12 +153,10 @@ export const useApiStore = defineStore('api', {
                 newContext = true;
             }
 
-            this.itemKey = '';
-            if (Cookies.get('LongEssayItem')) {
+            // these values can be changed without forcing a reload
+            if (!!Cookies.get('LongEssayItem') && Cookies.get('LongEssayItem') !== this.itemKey) {
                 this.itemKey = Cookies.get('LongEssayItem');
             }
-
-            // these values can be changed without forcing a reload
             if (!!Cookies.get('LongEssayBackend') && Cookies.get('LongEssayBackend') !== this.backendUrl) {
                 this.backendUrl = Cookies.get('LongEssayBackend');
             }
@@ -168,23 +172,23 @@ export const useApiStore = defineStore('api', {
                 return;
             }
 
-            const summaryStore = useSummaryStore();
-            if (await summaryStore.hasUnsentSavingInStorage()) {
+            if (await this.hasUnsentSavings()) {
                 if (newContext) {
                     console.log('init: open saving, new context');
                     this.showDataReplaceConfirmation = true;
                 }
-                else {
-                    console.log('init: open saving, same context');
+                else if (!!Cookies.get('LongEssayUser')) {
+                    console.log('init: open saving, same context, call from backend');
                     this.showItemReplaceConfirmation = true;
+                }
+                else {
+                    console.log('init: open saving, same context, simple reload');
+                    this.initAfterKeepDataConfirmed();
                 }
             }
             else {
                 console.log('init: no open saving');
-                if (await this.loadDataFromBackend()) {
-                    this.initialized = await this.loadItemFromBackend(this.itemKey);
-                }
-                this.updateConfig();
+                this.initAfterReplaceDataConfirmed();
             }
         },
 
@@ -209,10 +213,27 @@ export const useApiStore = defineStore('api', {
             this.showDataReplaceConfirmation = false;
             this.showItemReplaceConfirmation = false;
             this.itemKey = localStorage.getItem('correctorItemKey');
-            this.initialized = this.loadDataFromStorage();
-            this.initialized = this.loadItemFromStorage( this.itemKey);
+            if (await this.loadDataFromStorage()) {
+                this.initialized = await this.loadItemFromStorage( this.itemKey);
+            }
             this.updateConfig();
         },
+
+        /**
+         * Check if savings exist in the storage that have to be sent
+         */
+        async hasUnsentSavings() {
+            const commentsStore = useCommentsStore();
+            if (await commentsStore.hasUnsentSavingInStorage) {
+                return true;
+            }
+            const summaryStore = useSummaryStore();
+            if (await summaryStore.hasUnsentSavingInStorage()) {
+                return true;
+            };
+            return false;
+        },
+
 
         /**
          * Update the app configuration
@@ -226,6 +247,7 @@ export const useApiStore = defineStore('api', {
             Cookies.remove('LongEssayReturn');
             Cookies.remove('LongEssayUser');
             Cookies.remove('LongEssayEnvironment');
+            Cookies.remove('LongEssayCorrector');
             Cookies.remove('LongEssayItem');
             Cookies.remove('LongEssayToken');
             Cookies.remove('LongEssayIsReview');
@@ -235,6 +257,7 @@ export const useApiStore = defineStore('api', {
             localStorage.setItem('correctorReturnUrl', this.returnUrl);
             localStorage.setItem('correctorUserKey', this.userKey);
             localStorage.setItem('correctorEnvironmentKey', this.environmentKey);
+            localStorage.setItem('correctorCorrectorKey', this.correctorKey);
             localStorage.setItem('correctorItemKey', this.itemKey);
             localStorage.setItem('correctorDataToken', this.dataToken);
             localStorage.setItem('correctorFileToken', this.fileToken);
@@ -281,7 +304,7 @@ export const useApiStore = defineStore('api', {
             const commentsStore = useCommentsStore();
             const pointsStore = usePointsStore();
 
-            // todo: make item dependent
+            // todo: add item key as parameter when store has data of all items
             await essayStore.loadFromStorage();
             await correctorsStore.loadFromStorage();
             await summaryStore.loadFromStorage();

@@ -121,6 +121,7 @@ class Comment {
         return {
             key: this.key,
             item_key: this.item_key,
+            corrector_key: this.corrector_key,
             start_position: this.start_position,
             end_position: this.end_position,
             parent_number: this.parent_number,
