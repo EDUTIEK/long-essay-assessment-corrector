@@ -395,6 +395,8 @@ export const useApiStore = defineStore('api', {
             await commentsStore.loadFromData(response.data.comments, itemKey);
             await pointsStore.loadFromData(response.data.points, commentsStore.currentCommentKeys);
 
+            commentsStore.setMarkerChange();
+
             this.itemKey = itemKey;
             localStorage.setItem('itemKey', this.itemKey);
             return true;

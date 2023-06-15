@@ -196,6 +196,7 @@
       font-weight: normal;
   }
 
+  /*
   w-p.other {
       background-color: #F5F7FB;
   }
@@ -205,6 +206,18 @@
   w-p.other-excellent {
       background-color: #F7F9F7;
   }
+  */
+
+  w-p.other {
+      background-color: #D8E5F4;
+  }
+  w-p.other-cardinal {
+      background-color: #FBDED1;
+  }
+  w-p.other-excellent {
+      background-color: #E3EFDD;
+  }
+
 
   w-p.own {
       background-color: #D8E5F4;
