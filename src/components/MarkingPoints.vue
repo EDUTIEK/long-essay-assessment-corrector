@@ -19,7 +19,7 @@ function loadPoints() {
         let value = pointsStore.getValueByRelation(commentKey, criterion.key);
         let el = document.getElementById('pointsInput' + criterion.key);
         el.value = value;
-        if (!comment || comment.corrector_key != apiStore.userKey) {
+        if (!comment || comment.corrector_key != apiStore.correctorKey) {
             el.setAttribute('disabled', 'disabled');
         }
         else {
