@@ -78,13 +78,13 @@ class Comment {
 
     /**
      * Constructor - gets properties from a data object
-     * @param data
+     * @param {object} data
      */
-    constructor(data) {
+    constructor(data = {}) {
 
         if (data.key !== undefined && data.key !== null) {
             this.key = data.key.toString()
-        } else if (this.key == '') {
+        } else {
             // get a temporary random key
             this.key = 'temp' + Math.random().toString();
         }

@@ -30,9 +30,9 @@ class Criterion {
 
   /**
    * Constructor - gets properties from a data object
-   * @param data
+   * @param {object} data
    */
-  constructor(data) {
+  constructor(data = {}) {
     if (data.key !== undefined && data.key !== null) {
       this.key = data.key.toString()
     }

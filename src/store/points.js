@@ -205,8 +205,7 @@ export const usePointsStore = defineStore('points',{
 
             // collect the changes in the storage (all correction items)
             for (const key of this.keys) {
-                let points_data = await storage.getItem(key);
-                let points = new Points(points_data);
+                let points = new Points(await storage.getItem(key));
                 if (points.comment_key in matches) {
                     if (matches[points.comment_key] == null) {
                         removedKeys.push(key);
