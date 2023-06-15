@@ -121,11 +121,13 @@ export const useCommentsStore = defineStore('comments',{
 
     },
 
-    /**
-     * Internal actions (that should not be calles from outside start with '_'
-     */
     actions: {
 
+        /**
+         * Set the first visible comment to force a scrolling
+         * @param {string} key
+         * @public
+         */
         setFirstVisibleComment(key) {
             this.firstVisibleKey = key;
         },
@@ -141,7 +143,6 @@ export const useCommentsStore = defineStore('comments',{
 
         /**
          * Set the currently selected comment
-         *
          * This should be called when a comment is manually selected in the text or comment list
          * It will also remove a previously created comment that is still empty
          * @param {string} key
@@ -158,7 +159,6 @@ export const useCommentsStore = defineStore('comments',{
 
         /**
          * Create a new comment
-         *
          * @param {integer} start_positon - the first marked word of the comment
          * @param {integer} end_position - the last marked word of the comment
          * @param {integer} parent_number - the number of the parent paragraph
@@ -191,8 +191,7 @@ export const useCommentsStore = defineStore('comments',{
 
         /**
          * Update a comment in the store
-         *
-         * @param {comment} comment
+         * @param {Comment} comment
          * @public
          */
         async updateComment(comment) {
@@ -205,7 +204,6 @@ export const useCommentsStore = defineStore('comments',{
         /**
          * Delete a comment
          * Sort and label the remaining comments
-         *
          * @param {string} removeKey
          * @public
          */
@@ -237,8 +235,7 @@ export const useCommentsStore = defineStore('comments',{
 
             if (removeKey.substr(0, 4) == 'temp') {
                 await this.removeUnsent(removeKey);
-            }
-            else {
+            } else {
                 await this.setUnsent(removeKey);
             }
         },
@@ -299,7 +296,7 @@ export const useCommentsStore = defineStore('comments',{
 
         /**
          * Clear the whole storage
-         * @private
+         * @public
          */
         async clearStorage() {
             try {
@@ -330,7 +327,6 @@ export const useCommentsStore = defineStore('comments',{
 
                 this.comments = [];
                 this.currentKey = '';
-
                 for (const key of this.keys) {
                     let comment = new Comment(await storage.getItem(key));
                     if (comment.item_key == currentItemKey) {
@@ -418,26 +414,25 @@ export const useCommentsStore = defineStore('comments',{
 
 
         /**
-         * Get all unsent comments from the storage
+         * Get all unsent comments from the storage as flat data objects
          * These may include comments of other items that are only in the storage
          * This is called for sending the comments to the backend
          * @param {integer} sendingTime - timestamp of the sending or 0 to get all
-         * @return {object} key => Comment|null
+         * @return {object} key => object|null
          */
         async getUnsentData(sendingTime = 0) {
-            let comments = {};
+            let data_list = {};
             for (const key in this.unsentChanges) {
                 if (sendingTime == 0 || this.unsentChanges[key] < sendingTime) {
-                    let comment_data = await storage.getItem(key)
-                    if (comment_data) {
-                        let comment = new Comment(await storage.getItem(key));
-                        comments[key] = comment.getData();
+                    let data = await storage.getItem(key)
+                    if (data) {
+                        data_list[key] = data;
                     } else {
-                        comments[key] = null;
+                        data_list[key] = null;
                     }
                 }
             };
-            return comments;
+            return data_list;
         },
 
 
@@ -481,7 +476,6 @@ export const useCommentsStore = defineStore('comments',{
 
             // save the changes to the storage
             this.keys = this.keys.filter(key => !removedKeys.includes(key) && !changedKeys.includes(key));
-
             for (const key of removedKeys) {
                 await storage.removeItem(key);
             }

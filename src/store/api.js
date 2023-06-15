@@ -421,17 +421,24 @@ export const useApiStore = defineStore('api', {
             };
 
             const commentsStore = useCommentsStore();
+            const pointsStore = usePointsStore();
             const hasUnsentComments = (commentsStore.countUnsentChanges > 0);
+            const hasUnsentPoints = (pointsStore.countUnsentChanges > 0);
             if (hasUnsentComments) {
                 data.comments = await commentsStore.getUnsentData(this.lastSendingTry);
             }
+            if (hasUnsentPoints) {
+                data.points = await pointsStore.getUnsentData(this.lastSendingTry);
+            }
 
-            if (hasUnsentComments) {
+            if (hasUnsentComments || hasUnsentPoints) {
                 try {
                     const response = await axios.put( '/changes/' + this.itemKey, data, this.requestConfig(this.dataToken));
                     this.setTimeOffset(response);
                     this.refreshToken(response);
                     commentsStore.setCommentsSent(response.data.comments, this.lastSendingTry);
+                    pointsStore.changeCommentKeys(response.data.comments);
+                    pointsStore.setPointsSent(response.data.points, this.lastSendingTry);
                 }
                 catch (error) {
                     console.error(error);

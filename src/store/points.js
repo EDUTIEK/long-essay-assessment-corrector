@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import localForage from "localforage";
 import Points from '@/data/Points'
+import Comment from '@/data/Comment';
 
 const storage = localForage.createInstance({
     storeName: "corrector-points",
@@ -16,10 +17,17 @@ export const usePointsStore = defineStore('points',{
             // saved in storage
             keys: [],               // list of string keys of all points in the storage
             points: [],             // list of comment objects for the currrent correction item
+            unsentChanges: {},      // assoc array of changes that have to be sent to the backend key => timestamp
+
         }
     },
 
     getters: {
+
+        countUnsentChanges(state) {
+            return Object.keys(state.unsentChanges).length;
+        },
+
         hasPoints: (state) => state.points.length > 0,
 
         hasCommentPoints(state) {
@@ -71,7 +79,7 @@ export const usePointsStore = defineStore('points',{
          * @param {string} commentKey
          * @param {string} criterionKey
          * @param {integer} pointsValue
-         * @return {Promise<void>}
+         * @public
          */
         async setValueByRelation(commentKey, criterionKey, pointsValue) {
             let pointsObject = this.getObjectByRelation(commentKey, criterionKey);
@@ -91,10 +99,10 @@ export const usePointsStore = defineStore('points',{
 
         /**
          * Create a new points object
-         * @param commentKey
-         * @param criterionKey
-         * @param points
-         * @return {Promise<void>}
+         * @param {string} commentKey
+         * @param {string} criterionKey
+         * @param {integer} points
+         * @public
          */
         async createPoints(commentKey, criterionKey, pointsValue) {
           let pointsObject = new Points({
@@ -104,31 +112,40 @@ export const usePointsStore = defineStore('points',{
           });
           this.keys.push(pointsObject.key);
           this.points.push(pointsObject);
-            await storage.setItem(pointsObject.key, pointsObject.getData());
-            await storage.setItem('keys', JSON.stringify(this.keys));
+
+          await storage.setItem(pointsObject.key, pointsObject.getData());
+          await storage.setItem('keys', JSON.stringify(this.keys));
+          await this.setUnsent(pointsObject.key);
         },
 
         /**
          * Update a points object in the store
          * @param {Points} pointsObject
+         * @public
          */
         async updatePoints(pointsObject) {
             if (this.keys.includes(pointsObject.key)) {
                 await storage.setItem(pointsObject.key, pointsObject.getData());
+                await this.setUnsent(pointsObject.key);
             }
         },
 
         /**
          * Delete a points object in the store
          * @param {string} removeKey
+         * @public
          */
         async deletePoints(removeKey) {
-
             this.points = this.points.filter(pointsObject => pointsObject.key != removeKey)
             if (this.keys.includes(removeKey)) {
                 this.keys = this.keys.filter(key => key != removeKey)
                 await storage.setItem('keys', JSON.stringify(this.keys));
                 await storage.removeItem(removeKey);
+            }
+            if (removeKey.substr(0, 4) == 'temp') {
+                await this.removeUnsent(removeKey);
+            } else {
+                await this.setUnsent(removeKey);
             }
         },
 
@@ -142,6 +159,10 @@ export const usePointsStore = defineStore('points',{
             })
         },
 
+        /**
+         * Clear the whole storage
+         * @public
+         */
         async clearStorage() {
             try {
                 await storage.clear();
@@ -151,14 +172,25 @@ export const usePointsStore = defineStore('points',{
             }
         },
 
+        /**
+         * Load the points data from the storage
+         * Only the points of the current item are loaded to the state
+         *
+         * @param {array} currentCommentKeys - keys of comments for which the points should be loaded
+         * @public
+         */
         async loadFromStorage(currentCommentKeys) {
             try {
                 const keys = await storage.getItem('keys');
                 if (keys) {
                     this.keys =  JSON.parse(keys);
                 }
-                this.points = [];
+                const unsentChanges = await storage.getItem('unsentChanges');
+                if (unsentChanges) {
+                    this.unsentChanges = JSON.parse(unsentChanges);
+                }
 
+                this.points = [];
                 for (const key of this.keys) {
                     let points_data = await storage.getItem(key);
                     let points = new Points(points_data);
@@ -176,6 +208,7 @@ export const usePointsStore = defineStore('points',{
                 await storage.clear();
 
                 this.keys = [];
+                this.unsentChanges = {};
                 this.points = [];
 
                 for (const points_data of data) {
@@ -187,10 +220,136 @@ export const usePointsStore = defineStore('points',{
                     }
                 };
                 await storage.setItem('keys', JSON.stringify(this.keys));
+                await storage.setItem('unsentChanges', JSON.stringify(this.unsentChanges));
             }
             catch (err) {
                 console.log(err);
             }
+        },
+
+        /**
+         * Check if unsent changes are in the storage
+         * (called from api store at initialisation)
+         */
+        async hasUnsentChangesInStorage() {
+            const data = await storage.getItem('unsentChanges');
+            const unsentChanges = data ? JSON.parse(data) : {};
+            return Object.keys(unsentChanges).length > 0;
+        },
+
+
+        /**
+         * Add a note that a points have to be sent to the backend
+         * This is called for added, updated and removed points
+         * @param {string} key
+         */
+        async setUnsent(key) {
+            this.unsentChanges[key] = Date.now();
+            await storage.setItem('unsentChanges', JSON.stringify(this.unsentChanges));
+        },
+
+        /**
+         * Remove the note that points have to be sent to the backend
+         * This is called when a new points object (not yet in the backend) is deleted
+         * @param {string} key
+         */
+        async removeUnsent(key) {
+            delete this.unsentChanges[key];
+            await storage.setItem('unsentChanges', JSON.stringify(this.unsentChanges));
+        },
+
+
+        /**
+         * Get all unsent points from the storage as flat data objects
+         * These may include points of other items that are only in the storage
+         * This is called for sending the points to the backend
+         * @param {integer} sendingTime - timestamp of the sending or 0 to get all
+         * @return {object} key => object|null
+         */
+        async getUnsentData(sendingTime = 0) {
+            let data_list = {};
+            for (const key in this.unsentChanges) {
+                if (sendingTime == 0 || this.unsentChanges[key] < sendingTime) {
+                    let data = await storage.getItem(key)
+                    if (data) {
+                        data_list[key] = data;
+                    } else {
+                        data_list[key] = null;
+                    }
+                }
+            };
+            return data_list;
+        },
+
+
+        /**
+         * Set points as sent
+         * A key is changed from a temporary string to a numeric value for saved points
+         * A new key is null for deleted points
+         *
+         * @param {object} matches - assoc array with old and new string keys
+         * @param {integer} sendingTime - timestamp of the sending
+         */
+        async setPointsSent(matches= {}, sendingTime) {
+
+            let removedKeys = [];       // old keys of removed points
+            let changedKeys = [];       // old keys that are changed
+            let changedPoints = [];     // points objects with changed keys
+
+            // collect the changes in the storage (all correction items)
+            for (const key of this.keys) {
+                if (key in matches) {
+                    if (matches[key] == null) {
+                        removedKeys.push(key);
+                    }
+                    else if(key != matches[key]) {
+                        let points = new Points(await storage.getItem(key));
+                        points.key = matches[key];
+                        changedKeys.push(key);
+                        changedPoints.push(points);
+                    }
+                }
+            }
+
+            // treat the changes in the state (curent correction item)
+            this.selectedKey = ''
+            this.points = this.points.filter(comment => !removedKeys.includes(comment.key));
+            for (const points of this.points) {
+                if (changedKeys.includes(points.key)) {
+                    points.key = matches[points.key];
+                }
+            }
+
+            // save the changes to the storage
+            this.keys = this.keys.filter(key => !removedKeys.includes(key) && !changedKeys.includes(key));
+            for (const key of removedKeys) {
+                await storage.removeItem(key);
+            }
+            for (const key of changedKeys) {
+                this.keys.push(matches[key]);
+                await storage.removeItem(key);
+            }
+            for (const points of changedPoints) {
+                await storage.setItem(points.key, points.getData());
+            }
+            await storage.setItem('keys', JSON.stringify(this.keys));
+
+            // cleanup the unsent changes
+            let remainingChanges = {};
+            for (const key in this.unsentChanges) {
+                let time = this.unsentChanges[key];
+                // keep change that is newer than the sending
+                if (time >= sendingTime) {
+                    if (changedKeys.includes(key)) {
+                        remainingChanges[changedKeys[key]] = time;
+                    }
+                    else if (!removedKeys.includes(key)) {
+                        remainingChanges[key] = time;
+                    }
+                }
+            }
+            this.unsentChanges = remainingChanges;
+            await storage.setItem('unsentChanges', JSON.stringify(this.unsentChanges));
         },
 
 
