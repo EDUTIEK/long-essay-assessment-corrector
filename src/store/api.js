@@ -314,6 +314,8 @@ export const useApiStore = defineStore('api', {
             await commentsStore.loadFromStorage(itemKey);
             await pointsStore.loadFromStorage(commentsStore.currentCommentKeys);
 
+
+            setInterval(this.saveChangesToBackend, sendInterval);
             return true;
         },
 
@@ -399,6 +401,8 @@ export const useApiStore = defineStore('api', {
 
             this.itemKey = itemKey;
             localStorage.setItem('itemKey', this.itemKey);
+
+            setInterval(this.saveChangesToBackend, sendInterval);
             return true;
         },
 
