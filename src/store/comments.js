@@ -515,7 +515,7 @@ export const useCommentsStore = defineStore('comments',{
             }
 
             // treat the changes in the state (curent correction item)
-            if (this.selectedKey in matches) {
+            if (changedKeys.includes(this.selectedKey)) {
                 this.selectedKey = matches[this.selectedKey];
             }
             this.comments = this.comments.filter(comment => !removedKeys.includes(comment.key));
@@ -524,6 +524,15 @@ export const useCommentsStore = defineStore('comments',{
                     comment.key = matches[comment.key];
                 }
             }
+            let newFilterKeys = [];
+            for (const key of this.filterKeys) {
+                if (changedKeys.includes(key)) {
+                    newFilterKeys.push(matches[key]);
+                } else {
+                    newFilterKeys.push(key);
+                }
+            }
+            this.filterKeys = newFilterKeys;
 
             // save the changes to the storage
             this.keys = this.keys.filter(key => !removedKeys.includes(key) && !changedKeys.includes(key));
