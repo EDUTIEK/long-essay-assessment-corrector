@@ -9,11 +9,14 @@
   import {useLayoutStore} from "../store/layout";
   import {useResourcesStore} from "../store/resources";
   import {useCorrectorsStore} from "../store/correctors";
+  import { useCommentsStore } from '@/store/comments';
 
   const apiStore = useApiStore();
   const layoutStore = useLayoutStore();
   const resourcesStore = useResourcesStore();
   const correctorsStore = useCorrectorsStore();
+  const commentsStore = useCommentsStore();
+
 </script>
 
 <template>
@@ -77,8 +80,15 @@
                           : layoutStore.isSummaryVisible && !layoutStore.isForReviewOrStitch ? "Eigener Gesamteindruck"
                               : layoutStore.isSummaryVisible && layoutStore.isForReviewOrStitch ? correctorsStore.activeTitle : ""
                   }}
+                  <!-- reset comments filter -->
+                  <v-btn variant="plain" v-if="layoutStore.isMarkingVisible"
+                         :disabled="!commentsStore.isFilterActive"
+                         @click="commentsStore.resetFilter()">
+                      <v-icon :icon="commentsStore.isFilterActive ? 'mdi-filter-off' : 'mdi-filter-off-outline'"></v-icon>
+                  </v-btn>
               </h2>
-        </div>
+
+          </div>
         <!-- Content -->
         <div class="col-content">
           <own-summary v-if="layoutStore.isSummaryVisible"/>

@@ -34,6 +34,9 @@ function text() {
 
 .app-summary-text-display {
     height:100%;
+    font-family: Serif;
+    font-size: 16px;
+
 }
 
 </style>

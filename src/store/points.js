@@ -48,6 +48,21 @@ export const usePointsStore = defineStore('points',{
         },
 
         /**
+         * Check if points for a comment and criterion exist
+         * @param state
+         */
+        hasPointsForCommentAndCriterionKeys(state) {
+            return (comment_key, criterion_key) => {
+                for (const points of state.points) {
+                    if (points.comment_key == comment_key && points.criterion_key == criterion_key && points.points > 0) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        },
+
+        /**
          * Get a points object by its relations
          * @param state
          * @return {function(string, string): Points}

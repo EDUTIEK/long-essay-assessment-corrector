@@ -4,11 +4,13 @@ import { useApiStore } from '@/store/api';
 import {useCriteriaStore} from "@/store/criteria";
 import {useCommentsStore} from "@/store/comments";
 import {usePointsStore} from "@/store/points";
+import { useLayoutStore } from '@/store/layout';
 
 const apiStore = useApiStore();
 const criteriaStore = useCriteriaStore();
 const commentsStore = useCommentsStore();
 const pointsStore = usePointsStore();
+const layoutStore = useLayoutStore();
 
 const props = defineProps(['corrector_key']);
 watch(() => props, loadCriteria);
@@ -44,6 +46,22 @@ async function loadCriteria() {
 loadCriteria();
 
 
+async function filterByRating(rating_excellent, rating_cardinal) {
+    commentsStore.setFilterByRating(props.corrector_key, rating_excellent, rating_cardinal);
+    await nextTick();
+    layoutStore.showEssay();
+    layoutStore.showMarking();
+}
+
+async function filterByCriterion(criterion_key) {
+    commentsStore.setFilterByCriterion(props.corrector_key, criterion_key);
+    await nextTick();
+    layoutStore.showEssay();
+    layoutStore.showMarking();
+
+}
+
+
 </script>
 
 <template>
@@ -57,12 +75,27 @@ loadCriteria();
             </thead>
             <tbody>
             <tr>
-                <td><span class="label">Exzellente Stellen</span></td>
-                <td class="text-right">{{commentsStore.getCountOfExcellent(props.corrector_key)}}</td>
+                <td>
+                    <v-btn density="compact" size="small" variant="text" prepend-icon="mdi-filter-outline"
+                           :disabled="commentsStore.getCountOfExcellent(props.corrector_key) == 0"
+                           @click="filterByRating(true, false)" ></v-btn>
+                    Exzellente Stellen
+
+                </td>
+                <td class="text-right">
+                    {{commentsStore.getCountOfExcellent(props.corrector_key)}}
+                </td>
             </tr>
             <tr>
-                <td><span class="label">Kardinalfehler</span></td>
-                <td class="text-right">{{commentsStore.getCountOfCardinal(props.corrector_key)}}</td>
+                <td>
+                    <v-btn density="compact" size="small" variant="text" prepend-icon="mdi-filter-outline"
+                           :disabled="commentsStore.getCountOfCardinal(props.corrector_key) == 0"
+                           @click="filterByRating(false, true)" ></v-btn>
+                    Kardinalfehler
+                </td>
+                <td class="text-right">
+                    {{commentsStore.getCountOfCardinal(props.corrector_key)}}
+                </td>
             </tr>
             </tbody>
         </v-table>
@@ -77,11 +110,18 @@ loadCriteria();
             </thead>
             <tbody>
             <tr v-for="criterion in criteriaPoints" :key="criterion.key">
-                <td><span class="label">{{ criterion.title}}</span></td>
+                <td>
+                    <v-btn density="compact" size="small" variant="text" prepend-icon="mdi-filter-outline"
+                           :disabled="criterion.sum_points == 0"
+                           @click="filterByCriterion(criterion.key)" ></v-btn>
+                    {{ criterion.title}}
+                </td>
                 <td class="text-right">{{criterion.sum_points}} / {{criterion.max_points}}</td>
             </tr>
             <tr>
-                <td><strong class="label">Summe</strong></td>
+                <td>
+                    <strong>Summe</strong>
+                </td>
                 <td class="text-right"><strong>{{ criteriaSum }} / {{ criteriaMax }}</strong></td>
             </tr>
             </tbody>
@@ -96,7 +136,6 @@ loadCriteria();
 }
 .label {
     display: inline-block;
-    margin-left: 20px;
 }
 
 td {

@@ -46,6 +46,7 @@ export const useCommentsStore = defineStore('comments',{
                                             //      (this is watched to update the text markers)
             selectedKey: '',                // key of the currently selected comment
             firstVisibleKey: '',            // key of the first vislble comment in the scrolled text
+            filterKeys: [],                 // keys of filtered comments
         }
     },
 
@@ -69,14 +70,20 @@ export const useCommentsStore = defineStore('comments',{
         activeComments(state) {
             const apiStore = useApiStore();
             const correctorsStore = useCorrectorsStore();
-            return state.comments.filter(comment => comment.corrector_key == apiStore.correctorKey
-                || comment.corrector_key == correctorsStore.activeKey);
+            return state.comments.filter(comment =>
+                (comment.corrector_key == apiStore.correctorKey || comment.corrector_key == correctorsStore.activeKey)
+                && (state.filterKeys.length == 0 || state.filterKeys.includes(comment.key))
+            );
         },
 
         currentCommentKeys(state) {
             let keys = [];
             state.comments.forEach(comment => keys.push(comment.key));
             return keys;
+        },
+
+        isFilterActive(state) {
+          return state.filterKeys.length > 0;
         },
 
         getComment(state) {
@@ -176,6 +183,9 @@ export const useCommentsStore = defineStore('comments',{
 
             // first do state changes (trigger watchers)
             this.keys.push(comment.key);
+            if (this.filterKeys.length > 0) {
+                this.filterKeys.push(comment.key);
+            }
             this.comments.push(comment);
             await this.removeEmptyComments(comment.key);
             await this.sortAndLabelComments();
@@ -292,6 +302,45 @@ export const useCommentsStore = defineStore('comments',{
                     comment.prefix = 'own';
                 }
             }
+        },
+
+        /**
+         * Filter the displayed comments by a corrector and rating
+         * @param {string} corrector_key
+         * @param {bool} rating_excellent
+         * @param {bool} rating_cardinal
+         */
+        setFilterByRating(corrector_key, rating_excellent, rating_cardinal) {
+            this.filterKeys = [];
+            for (const comment of this.comments) {
+                if (comment.corrector_key == corrector_key
+                    && comment.rating_excellent == rating_excellent
+                    && comment.rating_cardinal == rating_cardinal) {
+                    this.filterKeys.push(comment.key);
+                }
+            }
+        },
+
+        /**
+         * Filter the displayed comments by a corrector and points for a criterion
+         * @param {string} corrector_key
+         * @param {string} criterion_key
+         */
+        setFilterByCriterion(corrector_key, criterion_key) {
+            const pointsStore = usePointsStore();
+            this.filterKeys = [];
+            for (const comment of this.comments) {
+                if (comment.corrector_key == corrector_key) {
+                    if (pointsStore.hasPointsForCommentAndCriterionKeys(comment.key, criterion_key)) {
+                        this.filterKeys.push(comment.key);
+                    }
+                }
+            }
+        },
+
+
+        resetFilter() {
+          this.filterKeys = [];
         },
 
         /**
