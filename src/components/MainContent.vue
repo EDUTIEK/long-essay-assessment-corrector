@@ -1,14 +1,15 @@
 <script setup>
   import Instructions from "@/components/Instructions.vue";
   import Resources from "@/components/Resources.vue";
-  import OtherCorrectors from "@/components/OtherCorrectors.vue";
   import Essay from "@/components/Essay.vue";
   import OwnSummary from "@/components/OwnSummary.vue";
+  import OtherSummary from '@/components/OtherSummary.vue';
   import Marking from "@/components/Marking.vue";
   import {useApiStore} from "../store/api";
   import {useLayoutStore} from "../store/layout";
   import {useResourcesStore} from "../store/resources";
   import {useCorrectorsStore} from "../store/correctors";
+
   const apiStore = useApiStore();
   const layoutStore = useLayoutStore();
   const resourcesStore = useResourcesStore();
@@ -38,11 +39,16 @@
           <instructions v-if="layoutStore.isInstructionsVisible" />
           <essay v-if="layoutStore.isEssayVisible" />
           <resources v-if="layoutStore.isResourcesVisible" />
-          <other-correctors v-if= "layoutStore.isCorrectorsVisible" />
+          <other-summary v-if= "layoutStore.isCorrectorsVisible" />
         </div>
         <!--Footer -->
         <div class="col-footer text-right" :class="{ footerExpanded: layoutStore.isLeftExpanded, footerNormal: !layoutStore.isLeftExpanded}" >
-          <!-- expand right column -->
+            <!-- toggle other summary text  -->
+            <v-btn class="ma-2" v-show="layoutStore.isCorrectorsVisible" @click="layoutStore.setOtherSummaryTextExpanded(!layoutStore.isOtherSummaryTextExpanded)">
+                <v-icon :icon="layoutStore.isOtherSummaryTextExpanded ? 'mdi-chevron-down' : 'mdi-chevron-up'"></v-icon>
+                <span>Zusammenfassung</span>
+            </v-btn>
+            <!-- expand right column -->
           <v-btn class="ma-2" @click="layoutStore.setLeftExpanded(false)" v-show="layoutStore.isLeftExpanded">
             <v-icon icon="mdi-chevron-left"></v-icon>
               <span> {{
@@ -68,7 +74,7 @@
           <div class="col-header">
               <h2 class="text-h6"> {{
                       layoutStore.isMarkingVisible ? "Anmerkungen"
-                          : layoutStore.isSummaryVisible && !layoutStore.isForReviewOrStitch ? "Gesamteindruck"
+                          : layoutStore.isSummaryVisible && !layoutStore.isForReviewOrStitch ? "Eigener Gesamteindruck"
                               : layoutStore.isSummaryVisible && layoutStore.isForReviewOrStitch ? correctorsStore.activeTitle : ""
                   }}
               </h2>
@@ -101,9 +107,9 @@
                 <v-icon :icon="layoutStore.isMarkingPointsExpanded ? 'mdi-chevron-down' : 'mdi-chevron-up'"></v-icon>
                 <span>Bewertungen</span>
           </v-btn>
-          <!-- toggle summary text  -->
-          <v-btn class="ma-2" v-show="layoutStore.isSummaryVisible" @click="layoutStore.setSummaryTextExpanded(!layoutStore.isSummaryTextExpanded)">
-              <v-icon :icon="layoutStore.isSummaryTextExpanded ? 'mdi-chevron-down' : 'mdi-chevron-up'"></v-icon>
+          <!-- toggle own summary text  -->
+          <v-btn class="ma-2" v-show="layoutStore.isSummaryVisible" @click="layoutStore.setOwnSummaryTextExpanded(!layoutStore.isOwnSummaryTextExpanded)">
+              <v-icon :icon="layoutStore.isOwnSummaryTextExpanded ? 'mdi-chevron-down' : 'mdi-chevron-up'"></v-icon>
               <span>Zusammenfassung</span>
           </v-btn>
         </div>

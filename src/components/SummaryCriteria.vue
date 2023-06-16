@@ -1,25 +1,27 @@
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, watch, nextTick} from 'vue';
+import { useApiStore } from '@/store/api';
 import {useCriteriaStore} from "@/store/criteria";
 import {useCommentsStore} from "@/store/comments";
 import {usePointsStore} from "@/store/points";
 
+const apiStore = useApiStore();
 const criteriaStore = useCriteriaStore();
 const commentsStore = useCommentsStore();
 const pointsStore = usePointsStore();
 
 const props = defineProps(['corrector_key']);
+watch(() => props, loadCriteria);
+watch(() => apiStore.itemKey, loadCriteria);
 
 const criteriaPoints = reactive({});
 const criteriaSum = ref(0);
 const criteriaMax = ref(0);
 
 
-function loadMarks() {
+async function loadCriteria() {
+    await nextTick();
 
-}
-
-function loadCriteria() {
     criteriaSum.value = 0;
     criteriaMax.value = 0;
 
@@ -33,13 +35,15 @@ function loadCriteria() {
         criteriaMax.value += criterion.points
     })
 
-    pointsStore.getObjectsByCommentKeys(commentsStore.getKeysOfCorrector(props.corrector_key)).forEach(points => {
+    pointsStore.getObjectsByCommentKeys(commentsStore.getKeysOfCorrector(props['corrector_key'])).forEach(points => {
         criteriaPoints[points.criterion_key].sum_points += points.points;
         criteriaSum.value += points.points
     });
 }
 
 loadCriteria();
+
+
 </script>
 
 <template>

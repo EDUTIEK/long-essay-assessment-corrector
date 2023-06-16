@@ -20,7 +20,8 @@ export const useLayoutStore = defineStore('layout', {
             leftContent: 'essay',           // instructions|resources|essay|correctors
             rightContent: 'marking',        // summary|marking
             markingPointsExpanded: true,    // vertical expansion of the rating points
-            summaryTextExpanded: true,      // vertical expansion of the summary text
+            ownSummaryTextExpanded: true,   // vertical expansion of the own summary text
+            otherSummaryTextExpanded: true, // vertical expansion of the own summary text
 
             showPlayground: false           // show the playground istead of the main content
         }
@@ -35,7 +36,9 @@ export const useLayoutStore = defineStore('layout', {
         isLeftExpanded: (state) => state.expandedColumn == 'left',
         isRightExpanded: (state) => state.expandedColumn == 'right',
         isMarkingPointsExpanded: (state) => state.markingPointsExpanded,
-        isSummaryTextExpanded: (state) => state.summaryTextExpanded,
+
+        isOwnSummaryTextExpanded: (state) => state.ownSummaryTextExpanded,
+        isOtherSummaryTextExpanded: (state) => state.otherSummaryTextExpanded,
 
         isLeftVisible: (state) => state.expandedColumn != 'right',
         isRightVisible: (state) => state.expandedColumn != 'left',
@@ -90,7 +93,8 @@ export const useLayoutStore = defineStore('layout', {
                     // this.leftContent = data.leftContent;
                     this.rightContent = data.rightContent;
                     this.markingPointsExpanded = data.markingPointsExpanded;
-                    this.summaryTextExpanded = data.summaryTextExpanded;
+                    this.ownSummaryTextExpanded = data.ownSummaryTextExpanded;
+                    this.otherSummaryTextExpanded = data.otherSummaryTextExpanded;
                     this.showTimer = data.showTimer;
                 }
 
@@ -106,7 +110,8 @@ export const useLayoutStore = defineStore('layout', {
                     leftContent: this.leftContent,
                     rightContent: this.rightContent,
                     markingPointsExpanded: this.markingPointsExpanded,
-                    summaryTextExpanded: this.summaryTextExpanded,
+                    ownSummaryTextExpanded: this.ownSummaryTextExpanded,
+                    otherSummaryTextExpanded: this.otherSummaryTextExpanded,
                     showTimer: this.showTimer
                 })
             } catch (err) {
@@ -184,8 +189,13 @@ export const useLayoutStore = defineStore('layout', {
             this.saveToStorage();
         },
 
-        setSummaryTextExpanded(expanded) {
-            this.summaryTextExpanded = !!expanded;
+        setOwnSummaryTextExpanded(expanded) {
+            this.ownSummaryTextExpanded = !!expanded;
+            this.saveToStorage();
+        },
+
+        setOtherSummaryTextExpanded(expanded) {
+            this.otherSummaryTextExpanded = !!expanded;
             this.saveToStorage();
         },
 

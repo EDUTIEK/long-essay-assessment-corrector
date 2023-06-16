@@ -99,7 +99,7 @@ export const useCommentsStore = defineStore('comments',{
             return (corrector_key) => {
                 let keys = [];
                 state.comments
-                    .filter(comment => comment.corrector_key = corrector_key)
+                    .filter(comment => comment.corrector_key == corrector_key)
                     .forEach(comment => keys.push(comment.key));
                 return keys;
             };

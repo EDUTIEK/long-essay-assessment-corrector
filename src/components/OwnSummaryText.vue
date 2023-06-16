@@ -72,7 +72,6 @@ const id = "summary";
 
 <template>
   <div id="app-own-summary-text-wrapper">
-    <div v-show="!summaryStore.storedIsAuthorized" id="app-own-summary-text-editor">
       <editor
           :id="id"
           v-model="summaryStore.currentContent"
@@ -93,9 +92,6 @@ const id = "summary";
             paste_block_drop: true
        }"
       />
-    </div>
-    <div v-show="summaryStore.storedIsAuthorized" id="app-own-summary-text-display" v-html="summaryStore.currentContent">
-    </div>
   </div>
 </template>
 
@@ -106,15 +102,6 @@ const id = "summary";
 
 #app-own-summary-text-wrapper {
   height: 100%;
-}
-
-#app-own-summary-text-editor {
-    height: 100%;
-}
-
-#app-own-summary-text-display {
-    height: 100%;
-    overflow-y: scroll;
 }
 
 </style>
