@@ -27,6 +27,7 @@
       refreshSelection();
   };
   watch(() => commentsStore.markerChange, refreshMarks);
+  watch(() => commentsStore.filterKeys, refreshMarks);
 
   function refreshSelection() {
       console.log('refreshSelection');
