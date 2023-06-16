@@ -26,7 +26,7 @@ function text() {
 <style scoped>
 
 .app-summary-text-wrapper {
-    heigh:100%;
+    height:100%;
     border: 1px solid #cccccc;
     padding: 10px;
     overflow-y: scroll;
