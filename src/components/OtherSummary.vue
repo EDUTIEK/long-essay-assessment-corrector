@@ -8,13 +8,15 @@ import {useLayoutStore} from "../store/layout";
 const correctorsStore = useCorrectorsStore();
 const layoutStore = useLayoutStore();
 
+const props = defineProps(['corrector_key', 'isTextExpanded']);
+
 </script>
 
 <template>
     <div id="app-other-summary-wrapper">
-        <summary-criteria id="app-other-summary-criteria" :corrector_key="correctorsStore.activeKey"></summary-criteria>
-        <summary-text id="app-other-summary-text" :corrector_key="correctorsStore.activeKey" v-if="layoutStore.isOtherSummaryTextExpanded"></summary-text>
-        <summary-points id="app-summary-points" :corrector_key="correctorsStore.activeKey"></summary-points>
+        <summary-criteria id="app-other-summary-criteria" :corrector_key="props.corrector_key"></summary-criteria>
+        <summary-text id="app-other-summary-text" :corrector_key="props.corrector_key" v-if="props.isTextExpanded"></summary-text>
+        <summary-points id="app-summary-points" :corrector_key="props.corrector_key"></summary-points>
 
     </div>
 </template>
