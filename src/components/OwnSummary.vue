@@ -11,13 +11,16 @@ const apiStore = useApiStore();
 const layoutStore = useLayoutStore();
 const summaryStore = useSummaryStore();
 
+const props = defineProps(['isTextExpanded']);
+
+
 </script>
 
 <template>
     <div id="app-own-summary-wrapper">
         <summary-criteria id="app-own-summary-criteria" :corrector_key="apiStore.correctorKey"></summary-criteria>
-        <own-summary-text id="app-own-summary-text" v-if="layoutStore.isOwnSummaryTextExpanded && !summaryStore.isAuthorized"></own-summary-text>
-        <summary-text id="app-own-summary-text" v-if="layoutStore.isOwnSummaryTextExpanded && summaryStore.isAuthorized"></summary-text>
+        <own-summary-text id="app-own-summary-text" v-if="props.isTextExpanded && !summaryStore.isAuthorized"></own-summary-text>
+        <summary-text id="app-own-summary-text" v-if="props.isTextExpanded && summaryStore.isAuthorized"></summary-text>
         <own-summary-points id="app-own-summary-points"></own-summary-points>
     </div>
 </template>

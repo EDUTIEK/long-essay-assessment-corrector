@@ -46,14 +46,9 @@
        </v-btn>
 
        <span>{{ item.title }}</span>
-       <template v-if="apiStore.isCorrection">
-         <span v-show="summaryStore.isAuthorized"> - autorisiert</span>
-         <span v-show="!summaryStore.isAuthorized"> - offen</span>
-       </template>
-       <template v-if="!apiStore.isCorrection">
-         <span v-show="essayStore.isFinalized"> - finalisiert</span>
-         <span v-show="!essayStore.isFinalized"> - offen</span>
-       </template>
+       <span>{{ apiStore.isForReviewOrStitch
+                    ? (essayStore.isFinalized ? ' - finalisiert' : ' - offen')
+                    : (summaryStore.isAuthorized ? ' - autorisiert' : ' - offen')}}</span>
 
        <v-btn :disabled="item.key == itemsStore.lastKey" @click="nextItem(item.key)">
          <v-icon left icon="mdi-arrow-right-bold"></v-icon>

@@ -21,7 +21,7 @@
   });
 
   function refreshMarks() {
-      console.log('refreshMarks');
+      //console.log('refreshMarks');
       marker.hideAllMarksAndLabels();
       commentsStore.activeComments.forEach(comment => updateMark(comment));
       refreshSelection();
@@ -30,7 +30,7 @@
   watch(() => commentsStore.filterKeys, refreshMarks);
 
   function refreshSelection() {
-      console.log('refreshSelection');
+      //console.log('refreshSelection');
       marker.hideAllMarksOfClass('selected');
       marker.hideAllMarksOfClass('labelled');
 

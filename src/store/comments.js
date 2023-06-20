@@ -37,9 +37,10 @@ export const useCommentsStore = defineStore('comments',{
     state: () => {
         return {
             // saved in storage
-            keys: [],                   // list of string keys of all comments in the storage
-            comments: [],               // list of comment objects for the currrent correction item
-            unsentChanges: {},          // assoc array of changes that have to be sent to the backend key => timestamp
+            keys: [],                       // list of string keys of all comments in the storage
+            comments: [],                   // list of comment objects for the currrent correction item
+            unsentChanges: {},              // assoc array of changes that have to be sent to the backend key => timestamp
+            showOtherCorrectors: false,     // show the comments of other correctors
 
             // not saved in storage
             markerChange: 0,                // timestamp of the last change that affects the text markers (not the selection)
@@ -71,7 +72,7 @@ export const useCommentsStore = defineStore('comments',{
             const apiStore = useApiStore();
             const correctorsStore = useCorrectorsStore();
             return state.comments.filter(comment =>
-                (comment.corrector_key == apiStore.correctorKey || comment.corrector_key == correctorsStore.activeKey)
+                (state.showOtherCorrectors || comment.corrector_key == apiStore.correctorKey)
                 && (state.filterKeys.length == 0 || state.filterKeys.includes(comment.key))
             );
         },
@@ -80,6 +81,10 @@ export const useCommentsStore = defineStore('comments',{
             let keys = [];
             state.comments.forEach(comment => keys.push(comment.key));
             return keys;
+        },
+
+        isOtherCorrectorsShown(state) {
+            return state.showOtherCorrectors
         },
 
         isFilterActive(state) {
@@ -338,9 +343,20 @@ export const useCommentsStore = defineStore('comments',{
             }
         },
 
-
+        /**
+         * Reset a filter on the shown comments
+         */
         resetFilter() {
-          this.filterKeys = [];
+            this.filterKeys = [];
+        },
+
+        /**
+         * Set if comments from other correctors should be shown
+         */
+        async setShowOtherCorrectors(show) {
+            this.showOtherCorrectors = !!show;
+            this.markerChange = Date.now();
+            await storage.setItem('showOtherCorrectors', JSON.stringify(this.showOtherCorrectors));
         },
 
         /**
@@ -373,6 +389,7 @@ export const useCommentsStore = defineStore('comments',{
                 if (unsentChanges) {
                     this.unsentChanges = JSON.parse(unsentChanges);
                 }
+                this.showOtherCorrectors = !! await JSON.parse(storage.getItem('showOtherCorrectors'));
 
                 this.comments = [];
                 this.currentKey = '';
@@ -409,6 +426,7 @@ export const useCommentsStore = defineStore('comments',{
                 this.unsentChanges = {};
                 this.comments = [];
                 this.selectedKey = '';
+                this.showOtherCorrectors = false;
 
                 for (const comment_data of data) {
                     let comment = new Comment(comment_data);
@@ -424,6 +442,7 @@ export const useCommentsStore = defineStore('comments',{
 
                 await storage.setItem('keys', JSON.stringify(this.keys));
                 await storage.setItem('unsentChanges', JSON.stringify(this.unsentChanges));
+                await storage.setItem('showOtherCorrectors', JSON.stringify(this.showOtherCorrectors));
             }
             catch (err) {
                 console.log(err);

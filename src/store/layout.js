@@ -1,6 +1,6 @@
 import {defineStore} from 'pinia';
-import localForage from "localforage";
-import {useApiStore} from "./api";
+import localForage, { setItem } from "localforage";
+import {useCorrectorsStore} from '@/store/correctors';
 
 const storage = localForage.createInstance({
     storeName: "corrector-layout",
@@ -16,60 +16,67 @@ export const useLayoutStore = defineStore('layout', {
     state: () => {
         return {
             // saved in storage
-            expandedColumn: 'none',         // left|right|none
-            leftContent: 'essay',           // instructions|resources|essay|correctors
-            rightContent: 'marking',        // summary|marking
-            markingPointsExpanded: true,    // vertical expansion of the rating points
-            ownSummaryTextExpanded: true,   // vertical expansion of the own summary text
-            otherSummaryTextExpanded: true, // vertical expansion of the own summary text
+            expandedColumn: 'none',             // left|right|none
+            leftContent: 'essay',               // instructions|resources|essay|corrector
+            rightContent: 'marking',            // summary|marking|corrector
 
-            showPlayground: false           // show the playground istead of the main content
+            leftCorrectorKey: '',               // key of the corrector shown on the left side
+            rightCorrectorKey: '',              // key of the corrector shown on the right side
+
+            markingPointsExpanded: true,        // vertical expansion of the rating points
+            leftSummaryTextExpanded: true,      // vertical expansion of the left summary text
+            rightSummaryTextExpanded: true,     // vertical expansion of the right summary text
+
+            showPlayground: false               // show the playground istead of the main content
         }
     },
 
     getters: {
-        isForReviewOrStitch(state) {
-            const apiStore = useApiStore();
-            return apiStore.isReview || apiStore.isStitchDecision;
-        },
-
-        isLeftExpanded: (state) => state.expandedColumn == 'left',
-        isRightExpanded: (state) => state.expandedColumn == 'right',
-        isMarkingPointsExpanded: (state) => state.markingPointsExpanded,
-
-        isOwnSummaryTextExpanded: (state) => state.ownSummaryTextExpanded,
-        isOtherSummaryTextExpanded: (state) => state.otherSummaryTextExpanded,
-
         isLeftVisible: (state) => state.expandedColumn != 'right',
         isRightVisible: (state) => state.expandedColumn != 'left',
 
+        isLeftExpanded: (state) => state.expandedColumn == 'left',
+        isRightExpanded: (state) => state.expandedColumn == 'right',
+
         isInstructionsSelected: (state) => state.leftContent == 'instructions',
         isResourcesSelected: (state) => state.leftContent == 'resources',
-        isCorrectorsSelected: (state) => {
-            if (state.isForReviewOrStitch) {
-                return state.rightContent == 'correctors'
-            } else {
-                return state.leftContent == 'correctors'
-            }
-        },
         isEssaySelected: (state) => state.leftContent == 'essay',
         isSummarySelected: (state) => state.rightContent == 'summary',
         isMarkingSelected: (state) => state.rightContent == 'marking',
+        isLeftCorrectorSelected: (state) => state.leftContent == 'corrector',
+        isRightCorrectorSelected: (state) => state.rightContent == 'corrector',
 
-        isInstructionsVisible: (state) => (state.expandedColumn != 'right' && state.leftContent == 'instructions'),
-        isResourcesVisible: (state) => (state.expandedColumn != 'right' && state.leftContent == 'resources'),
-        isCorrectorsVisible: (state) => {
-            if (state.isForReviewOrStitch) {
-                return (state.expandedColumn != 'left' && state.rightContent == 'correctors')
-            } else {
-                return (state.expandedColumn != 'right' && state.leftContent == 'correctors')
-            }
+        isInstructionsVisible: (state) => (state.isInstructionsSelected && state.isLeftVisible),
+        isResourcesVisible: (state) => (state.isResourcesSelected && state.isLeftVisible),
+        isEssayVisible: (state) => (state.isEssaySelected && state.isLeftVisible),
+        isSummaryVisible: (state) => (state.isSummarySelected && state.isRightVisible),
+        isMarkingVisible: (state) => (state.isMarkingSelected && state.isRightVisible),
+        isLeftCorrectorVisible: (state) => (state.isLeftCorrectorSelected && state.isLeftVisible),
+        isRightCorrectorVisible: (state) => (state.isRightCorrectorSelected && state.isRightVisible),
+
+        isMarkingPointsExpanded: (state) => state.markingPointsExpanded,
+        isLeftSummaryTextExpanded: (state) => state.leftSummaryTextExpanded,
+        isRightSummaryTextExpanded: (state) => state.rightSummaryTextExpanded,
+
+        isPlaygroundShown: (state) => (state.showPlayground),
+
+        leftCorrectorTitle: (state) => {
+            const correctorsStore = useCorrectorsStore();
+            const corrector = correctorsStore.getCorrector(state.leftCorrectorKey);
+            return corrector ? 'Korrektur von ' + corrector.title : ''
         },
-        isEssayVisible: (state) => (state.expandedColumn != 'right' && state.leftContent == 'essay'),
-        isSummaryVisible: (state) => (state.expandedColumn != 'left' && state.rightContent == 'summary'),
-        isMarkingVisible: (state) => (state.expandedColumn != 'left' && state.rightContent == 'marking'),
 
-        isPlaygroundShown: (state) => (state.showPlayground)
+        rightCorrectorTitle: (state) => {
+            const correctorsStore = useCorrectorsStore();
+            const corrector = correctorsStore.getCorrector(state.rightCorrectorKey);
+            return corrector ? 'Korrektur von ' + corrector.title : ''
+        },
+
+        isCorrectorVisible(state) {
+            return (corrector) =>
+                state.leftCorrectorKey == corrector.key && state.isLeftCorrectorVisible
+                || state.rightCorrectorKey == corrector.key && state.isRightCorrectorVisible
+        },
     },
 
     actions: {
@@ -88,13 +95,13 @@ export const useLayoutStore = defineStore('layout', {
 
                 if (data) {
                     this.expandedColumn = data.expandedColumn;
-                    // resources may not be ready PDF is not shown instantly
+                    // resources may not be ready, PDF is not shown instantly
                     // so show show the instructions as default left content
                     // this.leftContent = data.leftContent;
                     this.rightContent = data.rightContent;
                     this.markingPointsExpanded = data.markingPointsExpanded;
-                    this.ownSummaryTextExpanded = data.ownSummaryTextExpanded;
-                    this.otherSummaryTextExpanded = data.otherSummaryTextExpanded;
+                    this.leftSummaryTextExpanded = data.leftSummaryTextExpanded;
+                    this.rightSummaryTextExpanded = data.rightSummaryTextExpanded;
                     this.showTimer = data.showTimer;
                 }
 
@@ -110,8 +117,8 @@ export const useLayoutStore = defineStore('layout', {
                     leftContent: this.leftContent,
                     rightContent: this.rightContent,
                     markingPointsExpanded: this.markingPointsExpanded,
-                    ownSummaryTextExpanded: this.ownSummaryTextExpanded,
-                    otherSummaryTextExpanded: this.otherSummaryTextExpanded,
+                    leftSummaryTextExpanded: this.leftSummaryTextExpanded,
+                    rightSummaryTextExpanded: this.rightSummaryTextExpanded,
                     showTimer: this.showTimer
                 })
             } catch (err) {
@@ -131,14 +138,15 @@ export const useLayoutStore = defineStore('layout', {
             this.saveToStorage();
         },
 
-        showCorrectors() {
-            if (this.isForReviewOrStitch) {
-                this.setRightVisible();
-                this.rightContent = 'correctors';
-            } else {
-                this.setLeftVisible();
-                this.leftContent = 'correctors';
-            }
+        showLeftCorrector() {
+            this.setLeftVisible();
+            this.leftContent = 'corrector';
+            this.saveToStorage();
+        },
+
+        showRightCorrector() {
+            this.setRightVisible();
+            this.rightContent = 'corrector';
             this.saveToStorage();
         },
 
@@ -189,15 +197,49 @@ export const useLayoutStore = defineStore('layout', {
             this.saveToStorage();
         },
 
-        setOwnSummaryTextExpanded(expanded) {
-            this.ownSummaryTextExpanded = !!expanded;
+        setLeftSummaryTextExpanded(expanded) {
+            this.leftSummaryTextExpanded = !!expanded;
             this.saveToStorage();
         },
 
-        setOtherSummaryTextExpanded(expanded) {
-            this.otherSummaryTextExpanded = !!expanded;
+        setRightSummaryTextExpanded(expanded) {
+            this.rightSummaryTextExpanded = !!expanded;
             this.saveToStorage();
         },
+
+
+        setLeftCorrector(corrector_key) {
+            this.leftCorrectorKey = corrector_key;
+            this.saveToStorage();
+        },
+
+        setRightCorrector(corrector_key) {
+            this.leftCorrectorKey = corrector_key;
+            this.saveToStorage();
+        },
+
+
+        selectCorrector(corrector_key) {
+            if (this.leftCorrectorKey == corrector_key) {
+                this.showLeftCorrector();
+            }
+            else if (this.rightCorrectorKey == corrector_key) {
+                this.showRightCorrector();
+            }
+            else if (this.leftCorrectorKey == '') {
+                this.leftCorrectorKey = corrector_key;
+                this.showLeftCorrector();
+            }
+            else if (this.rightCorrectorKey == '') {
+                this.rightCorrectorKey = corrector_key;
+                this.showRightCorrector();
+            }
+            else {
+                this.leftCorrectorKey = corrector_key;
+                this.showLeftCorrector();
+            }
+        },
+
 
         togglePlayground() {
             this.showPlayground = !this.showPlayground;

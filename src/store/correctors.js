@@ -15,7 +15,6 @@ export const useCorrectorsStore = defineStore('correctors',{
             // saved in storage
             keys: [],               // list of string keys
             correctors: [],         // list of corrector objects
-            activeKey: ''           // key of the active corrector
         }
     },
 
@@ -23,17 +22,8 @@ export const useCorrectorsStore = defineStore('correctors',{
     getters: {
         hasCorrectors: (state) => state.correctors.length > 0,
 
-        activeTitle(state) {
-          const corrector = state.correctors.find(element => element.key == state.activeKey);
-          return corrector ? 'Korrektur von ' + corrector.title : ""
-        },
-
         getCorrector(state) {
             return (key) => state.correctors.find(element => element.key == key)
-        },
-
-        isActive(state) {
-            return (corrector) => state.activeKey == corrector.key
         },
 
         allAuthorized(state) {
@@ -103,7 +93,6 @@ export const useCorrectorsStore = defineStore('correctors',{
                 if (keys) {
                     this.keys =  JSON.parse(keys);
                 }
-                this.activeKey = await storage.getItem('activeKey') ?? [];
                 this.correctors = [];
 
                 let index = 0;
@@ -125,7 +114,6 @@ export const useCorrectorsStore = defineStore('correctors',{
 
                 this.keys = [];
                 this.correctors = [];
-                this.activeKey = '';
 
                 let index = 0;
                 while (index < data.length) {
@@ -135,21 +123,12 @@ export const useCorrectorsStore = defineStore('correctors',{
                     await storage.setItem(corrector.key, corrector);
                     index++;
                 }
-                if (this.keys.length > 0) {
-                    this.activeKey = this.keys[0];
-                }
 
                 await storage.setItem('correctorKeys', JSON.stringify(this.keys));
-                await storage.setItem('activeKey', this.activeKey);
             }
             catch (err) {
                 console.log(err);
             }
         },
-
-        async selectCorrector(corrector) {
-            this.activeKey = corrector.key;
-            await storage.setItem('activeKey', this.activeKey);
-        }
     }
 });

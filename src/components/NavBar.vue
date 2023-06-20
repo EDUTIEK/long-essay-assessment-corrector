@@ -1,8 +1,10 @@
 <script setup>
-import { useLayoutStore } from "../store/layout";
-import { useResourcesStore } from "../store/resources";
-import { useCorrectorsStore } from "../store/correctors";
+import { useApiStore } from '@/store/api';
+import { useLayoutStore } from "@/store/layout";
+import { useResourcesStore } from "@/store/resources";
+import { useCorrectorsStore } from "@/store/correctors";
 
+const apiStore = useApiStore();
 const layoutStore = useLayoutStore();
 const resourcesStore = useResourcesStore();
 const correctorsStore = useCorrectorsStore();
@@ -25,8 +27,7 @@ function selectResource(resource) {
 }
 
 function selectCorrector(corrector) {
-    correctorsStore.selectCorrector(corrector);
-    layoutStore.showCorrectors();
+    layoutStore.selectCorrector(corrector.key);
 }
 
 function getResourceIcon(resource) {
@@ -39,7 +40,7 @@ function getResourceIcon(resource) {
 }
 
 function getCorrectorIcon(corrector) {
-    return (correctorsStore.isActive(corrector) && layoutStore.isCorrectorsVisible) ? "mdi-account" : "mdi-account-outline"
+    return (layoutStore.isCorrectorVisible(corrector)) ? "mdi-account-school" : "mdi-account-school-outline"
 }
 
 
@@ -80,7 +81,7 @@ function getCorrectorIcon(corrector) {
             </v-list-item>
 
 
-            <v-list-item v-if="!layoutStore.isForReviewOrStitch" @click="layoutStore.showMarking(); closeNavigation();"
+            <v-list-item @click="layoutStore.showMarking(); closeNavigation();"
                          :prepend-icon="layoutStore.isMarkingVisible ? 'mdi-comment-edit': 'mdi-comment-edit-outline'"
                          title="Anmerkungen">
             </v-list-item>
@@ -95,7 +96,7 @@ function getCorrectorIcon(corrector) {
             </v-list-item>
 
 
-            <v-list-item v-if="!layoutStore.isForReviewOrStitch" @click="layoutStore.showSummary();  closeNavigation();"
+            <v-list-item v-if="!apiStore.isForReviewOrStitch" @click="layoutStore.showSummary();  closeNavigation();"
                          :prepend-icon="layoutStore.isSummaryVisible ? 'mdi-file-edit': 'mdi-file-edit-outline'"
                          title="Gesamteindruck">
             </v-list-item>
