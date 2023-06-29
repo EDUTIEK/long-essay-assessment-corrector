@@ -1,27 +1,36 @@
 <script setup>
-import ImageMarker from 'long-essay-image-marker/ImageMarker';
-import Mark from 'long-essay-image-marker/Mark';
-import { onMounted, reactive } from 'vue';
+import createImageMarker from 'long-essay-image-marker/ImageMarker';
+import createMark, { SHAPES } from 'long-essay-image-marker/Mark';
+import { onMounted, reactive, ref, computed } from 'vue';
 import bgb from '@/assets/bgb-hand.png';
 
 let marker;
 
-let status = reactive({
+const status = reactive({
     data: {
         key: 'demo-key',
         label: 'demo-label',
         color: '#D8E5F4',
-        shape: Mark.SHAPE_RECTANGLE,
-        x_position: 100,
-        y_position: 100,
-        width: 100,
-        height: 200,
-        poly_path: []
+        shape: SHAPES.RECTANGLE,
+        pos: {x: 10, y: 10},
+        width: Number(100),
+        height: Number(200),
+        polygon: []
     }
 });
 
+const mark = computed(() => ({
+    ...status.data,
+    pos: {x: Number(status.data.pos.x), y: Number(status.data.pos.y)},
+    width: Number(status.data.width),
+    height: Number(status.data.height),
+}));
+
+const markerNode = ref();
+
 onMounted(() => {
-    marker = new ImageMarker(document.getElementById('appPlaygroundImageMarker'), onCreation, onSelection);
+    marker = createImageMarker(markerNode.value, onCreation, onSelection);
+    showPage();
 });
 
 /**
@@ -29,8 +38,8 @@ onMounted(() => {
  * @param {Mark} created
  */
 function onCreation(created) {
-    console.log[Date.now(), 'onCreation', created];
-    status.data = created.getData();
+    console.log(Date.now(), 'onCreation', created);
+    status.data = created;
 }
 
 /**
@@ -38,32 +47,37 @@ function onCreation(created) {
  * @param {Mark} created
  */
 function onSelection(selected) {
-    console.log[Date.now(), 'onSelection', selected];
-    status.data = selected.getData();
+    console.log(Date.now(), 'onSelection', selected);
+    status.data = selected;
 }
 
 function showPage() {
-    marker.showPage(new URL(bgb, import.meta.url).href, [new Mark(status.data)])
+    marker.showPage(new URL(bgb, import.meta.url).href, [])
 }
 
 function addMark() {
-   marker.addMark(new Mark(status.data));
+   marker.addMark(createMark(mark.value));
 }
 
 function updateMark() {
-    marker.updateMark(new Mark(status.data));
+    console.log(mark.value);
+    marker.updateMark(mark.value);
 }
 
 function removeMark() {
-    marker.removeMark(status.data.key)
-}
-
-function updateLabel() {
-    marker.updateLabel(status.data.key, status.data.label);
+    marker.removeMark(mark.value.key);
 }
 
 function selectMark() {
-    marker.selectMark(status.data.key);
+    marker.selectMark(mark.value.key);
+}
+
+function defaultColor() {
+    marker.setDefaultColor(status.data.color);
+}
+
+function defaultShape() {
+    marker.setDefaultShape(status.data.shape);
 }
 
 
@@ -79,7 +93,7 @@ function selectMark() {
         </div>
         <!-- Left Column Content -->
         <div class="col-content">
-            <div id="appPlaygroundImageMarker"></div>
+            <div class="appPlaygroundImageMarker" ref="markerNode"></div>
         </div>
       </div>
       <div class="column" >
@@ -89,12 +103,12 @@ function selectMark() {
         </div>
         <!-- Right Column Content -->
         <div class="col-content">
-            <label for="demoKey">Label</label>: <input id="demoKey" type="text" v-model="status.data.key" /><br>
+            <label for="demoKey">Mark key</label>: <input id="demoKey" type="text" v-model="status.data.key" /><br>
             <label for="demoLabel">Label</label>: <input id="demoLabel" type="text" v-model="status.data.label" /><br>
             <label for="demoColor">Color</label>: <input id="demoColor" type="text" v-model="status.data.color" /><br>
             <label for="demoShape">Shape</label>: <input id="demoShape" type="text" v-model="status.data.shape" /><br>
-            <label for="demoXPosition">X Position</label>: <input id="demoXPosition" type="text" v-model="status.data.x_position" /><br>
-            <label for="demoYPosition">Y Position</label>: <input id="demoYPosition" type="text" v-model="status.data.y_position" /><br>
+            <label for="demoXPosition">X Position</label>: <input id="demoXPosition" type="text" v-model="status.data.pos.x" /><br>
+            <label for="demoYPosition">Y Position</label>: <input id="demoYPosition" type="text" v-model="status.data.pos.y" /><br>
             <label for="demoWidth">Width</label>: <input id="demoWidth" type="text" v-model="status.data.width" /><br>
             <label for="demoHeight">Height</label>: <input id="demoHeight" type="text" v-model="status.data.height" /><br>
             <hr>
@@ -102,8 +116,9 @@ function selectMark() {
             <v-btn variant="text" @click="addMark()">Add Mark</v-btn><br>
             <v-btn variant="text" @click="updateMark()">Update Mark</v-btn><br>
             <v-btn variant="text" @click="removeMark()">Remove Mark</v-btn><br>
-            <v-btn variant="text" @click="updateLabel()">Update Label</v-btn><br>
             <v-btn variant="text" @click="selectMark()">Select Mark</v-btn><br>
+            <v-btn variant="text" @click="defaultColor()">Set default color</v-btn><br>
+            <v-btn variant="text" @click="defaultShape()">Set default shape</v-btn><br>
         </div>
       </div>
     </div>
@@ -142,7 +157,6 @@ function selectMark() {
   height: calc(100% - 50px);
   background-color: white;
   overflow: hidden;
-  width: 50%;
   padding:10px;
 }
 
