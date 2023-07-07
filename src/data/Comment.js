@@ -52,6 +52,12 @@ class Comment {
     comment = '';
 
     /**
+     * Points directly given to this comment
+     * @type {integer}
+     */
+    points = 0;
+
+    /**
      * Marked text is excellent
      * @type {bool}
      */
@@ -113,6 +119,9 @@ class Comment {
         if (data.comment !== undefined && data.comment !== null) {
             this.comment = data.comment.toString()
         }
+        if (data.points !== undefined && data.points !== null) {
+            this.points = parseInt(data.points);
+        }
         if (data.rating == Comment.RAITNG_EXCELLENT) {
             this.rating_excellent = true;
         }
@@ -133,6 +142,7 @@ class Comment {
             end_position: this.end_position,
             parent_number: this.parent_number,
             comment: this.comment,
+            points: this.points,
             rating: this.rating_excellent ? Comment.RAITNG_EXCELLENT : (this.rating_cardinal ? Comment.RATING_CARDINAL : '')
         }
     }

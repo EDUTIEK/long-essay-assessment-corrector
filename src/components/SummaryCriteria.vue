@@ -5,12 +5,14 @@ import {useCriteriaStore} from "@/store/criteria";
 import {useCommentsStore} from "@/store/comments";
 import {usePointsStore} from "@/store/points";
 import { useLayoutStore } from '@/store/layout';
+import { useSettingsStore } from '@/store/settings';
 
 const apiStore = useApiStore();
 const criteriaStore = useCriteriaStore();
 const commentsStore = useCommentsStore();
 const pointsStore = usePointsStore();
 const layoutStore = useLayoutStore();
+const settingsStore = useSettingsStore();
 
 const props = defineProps(['corrector_key']);
 watch(() => props, loadCriteria);
@@ -43,11 +45,33 @@ async function loadCriteria() {
     });
 }
 
-loadCriteria();
+if (criteriaStore.hasCriteria) {
+    loadCriteria();
+}
 
+
+function getPointsColor(comment) {
+    const sum = commentsStore.getPointsOfCorrector(props.corrector_key);
+
+    if (sum > settingsStore.max_points) {
+        return 'red';
+    }
+
+    return 'black';
+}
 
 async function filterByRating(rating_excellent, rating_cardinal) {
     commentsStore.setFilterByRating(props.corrector_key, rating_excellent, rating_cardinal);
+    if (props.corrector_key != apiStore.correctorKey) {
+        commentsStore.setShowOtherCorrectors(true);
+    }
+    await nextTick();
+    layoutStore.showEssay();
+    layoutStore.showMarking();
+}
+
+async function filterByPointsInComment() {
+    commentsStore.setFilterByPoints(props.corrector_key);
     if (props.corrector_key != apiStore.correctorKey) {
         commentsStore.setShowOtherCorrectors(true);
     }
@@ -106,8 +130,33 @@ async function filterByCriterion(criterion_key) {
             </tbody>
         </v-table>
 
+        <!-- Points are asigned to comments -->
+        <v-table v-if="!criteriaStore.hasCriteria" class="table" density="compact">
+            <thead>
+            <tr>
+                <th><strong>Bewertung</strong></th>
+                <th class="text-right">Punkte  / max</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    <v-btn density="compact" size="small" variant="text" prepend-icon="mdi-filter-outline"
+                           :disabled="commentsStore.getPointsOfCorrector(props.corrector_key) == 0"
+                           @click="filterByPointsInComment(true)" ></v-btn>
+                    Punkte in Kommentaren
+                </td>
+                <td class="text-right">
+                <span :style="'color: ' + getPointsColor() + ';'">
+                    {{commentsStore.getPointsOfCorrector(props.corrector_key)}} / {{settingsStore.max_points}}
+                </span>
+                </td>
+            </tr>
+            </tbody>
+        </v-table>
 
-        <v-table class="table" density="compact">
+        <!-- Points are asigned to criteria -->
+        <v-table v-if="criteriaStore.hasCriteria" class="table" density="compact">
             <thead>
             <tr>
                 <th>Kriterium</th>

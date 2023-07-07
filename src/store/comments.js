@@ -117,6 +117,16 @@ export const useCommentsStore = defineStore('comments',{
             };
         },
 
+        getPointsOfCorrector(state) {
+            return (corrector_key) => {
+                let points = 0;
+                state.comments
+                .filter(comment => comment.corrector_key == corrector_key)
+                .forEach(comment => points += comment.points);
+                return points;
+            };
+        },
+
         getCountOfExcellent(state) {
             return (corrector_key) =>
                 state.comments
@@ -325,6 +335,22 @@ export const useCommentsStore = defineStore('comments',{
                 }
             }
         },
+
+        /**
+         * Filter the displayed comments by given points (directly, not per criterion)
+         * @param {string} corrector_key
+         * @param {bool} rating_excellent
+         * @param {bool} rating_cardinal
+         */
+        setFilterByPoints(corrector_key) {
+            this.filterKeys = [];
+            for (const comment of this.comments) {
+                if (comment.corrector_key == corrector_key && comment.points > 0) {
+                    this.filterKeys.push(comment.key);
+                }
+            }
+        },
+
 
         /**
          * Filter the displayed comments by a corrector and points for a criterion

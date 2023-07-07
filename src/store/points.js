@@ -63,6 +63,23 @@ export const usePointsStore = defineStore('points',{
         },
 
         /**
+         * Get the sum op points given to criteria for a comment
+         * @param state
+         * @return {function(*): number}
+         */
+        getSumOfPointsForComment(state) {
+            return (comment_key) => {
+                let sum = 0;
+                for (const points of state.points) {
+                    if (points.comment_key == comment_key && points.points > 0) {
+                        sum += points.points;
+                    }
+                }
+                return sum;
+            }
+        },
+
+        /**
          * Get a points object by its relations
          * @param state
          * @return {function(string, string): Points}

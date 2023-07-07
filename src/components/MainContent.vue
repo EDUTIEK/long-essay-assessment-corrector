@@ -9,11 +9,13 @@
   import {useLayoutStore} from "../store/layout";
   import {useResourcesStore} from "../store/resources";
   import { useCommentsStore } from '@/store/comments';
+  import { useCriteriaStore} from '@/store/criteria';
 
   const apiStore = useApiStore();
   const layoutStore = useLayoutStore();
   const resourcesStore = useResourcesStore();
   const commentsStore = useCommentsStore();
+  const criteriaStore = useCriteriaStore();
 
 </script>
 
@@ -118,7 +120,7 @@
                 <v-icon icon="mdi-chevron-right"></v-icon>
           </v-btn>
           <!-- toggle marking points -->
-          <v-btn class="ma-2" v-show="layoutStore.isMarkingVisible" @click="layoutStore.setMarkingPointsExpanded(!layoutStore.isMarkingPointsExpanded)">
+          <v-btn class="ma-2" v-show=" criteriaStore.hasCriteria && layoutStore.isMarkingVisible" @click="layoutStore.setMarkingPointsExpanded(!layoutStore.isMarkingPointsExpanded)">
                 <v-icon :icon="layoutStore.isMarkingPointsExpanded ? 'mdi-chevron-down' : 'mdi-chevron-up'"></v-icon>
                 <span>Bewertungen</span>
           </v-btn>

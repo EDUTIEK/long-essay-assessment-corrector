@@ -2,6 +2,10 @@
 import { useApiStore } from '@/store/api';
 import {useCommentsStore} from "@/store/comments";
 import { useSummaryStore } from '@/store/summary';
+import { useSettingsStore } from '@/store/settings';
+import { useCriteriaStore } from '@/store/criteria';
+import { usePointsStore } from '@/store/points';
+
 import Comment from "@/data/Comment";
 import { watch } from 'vue';
 import { nextTick} from "vue";
@@ -9,6 +13,9 @@ import { nextTick} from "vue";
 const apiStore = useApiStore();
 const commentsStore = useCommentsStore();
 const summaryStore = useSummaryStore();
+const settingsStore = useSettingsStore();
+const criteriaStore = useCriteriaStore();
+const pointsStore = usePointsStore();
 
 /**
  * Focus the currently selected comment
@@ -65,6 +72,24 @@ function getBgColor(comment) {
     }
 }
 
+function getPointsColor(comment) {
+    if (comment.points == 0) {
+        return 'white';
+    }
+
+    if (comment.corrector_key != apiStore.correctorKey) {
+        return 'grey';
+    }
+
+    const sum = commentsStore.getPointsOfCorrector(comment.corrector_key);
+
+    if (sum > settingsStore.max_points) {
+        return 'red';
+    }
+
+    return 'grey';
+}
+
 async function toggleExcellent(comment) {
     await commentsStore.selectComment(comment.key);
     if (comment.rating_excellent) {
@@ -101,7 +126,22 @@ async function selectComment(comment) {
                            @click="commentsStore.deleteComment(comment.key)" >Löschen</v-btn>
                 </v-col>
                 <v-col class="rightCol">
-                   <span class="checkboxes">
+                    <span class="checkboxes">
+
+                        <label v-if="criteriaStore.hasCriteria" @for="'pointsInput' + comment.key">Punkte:</label>
+
+                        <input v-if="criteriaStore.hasCriteria" disabled="disabled"
+                               :id="'pointsInput' + comment.key"
+                               :value="pointsStore.getSumOfPointsForComment(comment.key)"/>
+
+                        <input v-if="!criteriaStore.hasCriteria" type="number" min="0"
+                               :style="'color: ' + getPointsColor(comment) + ';'"
+                               :id="'pointsInput' + comment.key"
+                               :max="settingsStore.max_points"
+                               :disabled="summaryStore.isAuthorized || comment.corrector_key != apiStore.correctorKey"
+                               @change="commentsStore.updateComment(comment)"
+                               v-model="comment.points" />
+
                         <v-checkbox-btn v-model="comment.rating_excellent" label="Exzellent"
                                         :disabled="summaryStore.isAuthorized || comment.corrector_key != apiStore.correctorKey"
                                         @change="toggleExcellent(comment)"></v-checkbox-btn>
@@ -131,6 +171,25 @@ async function selectComment(comment) {
     .v-container {
         padding-right: 20px;
         padding-bottom: 8px;
+    }
+
+    .checkboxes label {
+        position: relative;
+        top: -14px;
+        font-size: 16px;
+        font-family: sans-serif;
+        color: grey;
+    }
+
+    .checkboxes input {
+        position: relative;
+        top: -14px;
+        font-size: 14px;
+        font-family: sans-serif;
+        font-weight: bold;
+        color: grey;
+        width: 50px;
+        margin-left: 5px;
     }
 
     .checkboxes {
