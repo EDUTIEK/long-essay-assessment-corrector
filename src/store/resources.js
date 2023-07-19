@@ -25,6 +25,35 @@ export const useResourcesStore = defineStore('resources',{
     getters: {
         hasResources: (state) => state.resources.length > 0,
 
+        hasInstruction(state) {
+            const resource = state.resources.find(element => element.type == 'instruct');
+            return resource ? true : false;
+        },
+
+        hasSolution(state) {
+            const resource = state.resources.find(element => element.type == 'solution');
+            return resource ? true : false;
+        },
+
+
+        getInstruction(state) {
+            return state.resources.find(element => element.type == 'instruct');
+        },
+
+        getSolution(state) {
+            return state.resources.find(element => element.type == 'solution');
+
+        },
+
+        hasFileOrUrlResources(state) {
+            const resource = state.resources.find(element => element.type == 'file' || element.type == 'url');
+            return resource ? true : false;
+        },
+
+        getFileOrUrlResources(state) {
+            return state.resources.filter(element => element.type == 'file' || element.type == 'url');
+        },
+
         activeTitle(state) {
           const resource = state.resources.find(element => element.key == state.activeKey);
 
@@ -120,7 +149,7 @@ export const useResourcesStore = defineStore('resources',{
             while (index < this.keys.length) {
                 let resource = this.getResource(this.keys[index]);
                 let response = null;
-                if (resource.type == 'file') {
+                if (resource.type != 'url') {
                     try {
                         console.log('preload ' + resource.title + '...');
                         response = await axios( resource.url, {responseType: 'blob', timeout: 60000});

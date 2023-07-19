@@ -1,5 +1,8 @@
 <script setup>
   import Instructions from "@/components/Instructions.vue";
+  import InstructionsPdf from '@/components/InstructionsPdf.vue';
+  import Solution from '@/components/Solution.vue';
+  import SolutionPdf from '@/components/SolutionPdf.vue';
   import Resources from "@/components/Resources.vue";
   import Essay from "@/components/Essay.vue";
   import OwnSummary from "@/components/OwnSummary.vue";
@@ -31,15 +34,21 @@
         <div class="col-header">
             <h2 class="text-h6">{{
                     layoutStore.isInstructionsVisible ? "Aufgabenstellung"
-                        : layoutStore.isEssayVisible ? "Abgegebener Text"
-                            : layoutStore.isResourcesVisible ? resourcesStore.activeTitle
-                                : layoutStore.isLeftCorrectorVisible ? layoutStore.leftCorrectorTitle : ""
+                        : layoutStore.isInstructionsPdfVisible ? "Aufgabenstellung (PDF)"
+                            : layoutStore.isSolutionVisible ? "Lösungshinweise"
+                                : layoutStore.isSolutionPdfVisible ? "Lösungshinweise (PDF)"
+                                    : layoutStore.isEssayVisible ? "Abgegebener Text"
+                                        : layoutStore.isResourcesVisible ? resourcesStore.activeTitle
+                                            : layoutStore.isLeftCorrectorVisible ? layoutStore.leftCorrectorTitle : ""
                 }}
             </h2>
         </div>
         <!-- Content -->
         <div class="col-content">
           <instructions v-if="layoutStore.isInstructionsVisible" />
+          <instructions-pdf v-if="layoutStore.isInstructionsPdfVisible" />
+          <solution v-if="layoutStore.isSolutionVisible" />
+          <solution-pdf v-if="layoutStore.isSolutionPdfVisible" />
           <essay v-if="layoutStore.isEssayVisible" />
           <resources v-if="layoutStore.isResourcesVisible" />
           <other-summary v-if= "layoutStore.isLeftCorrectorVisible" :corrector_key="layoutStore.leftCorrectorKey" :isTextExpanded="layoutStore.isLeftSummaryTextExpanded" />

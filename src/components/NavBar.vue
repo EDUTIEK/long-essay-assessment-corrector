@@ -3,11 +3,13 @@ import { useApiStore } from '@/store/api';
 import { useLayoutStore } from "@/store/layout";
 import { useResourcesStore } from "@/store/resources";
 import { useCorrectorsStore } from "@/store/correctors";
+import { useTaskStore } from '@/store/task';
 
 const apiStore = useApiStore();
 const layoutStore = useLayoutStore();
 const resourcesStore = useResourcesStore();
 const correctorsStore = useCorrectorsStore();
+const taskStore = useTaskStore();
 
 function openNavigation() {
     document.getElementById('app-navigation-drawer').dispatchEvent(new Event('mouseenter'));
@@ -50,12 +52,30 @@ function getCorrectorIcon(corrector) {
     <v-navigation-drawer id="app-navigation-drawer" elevation="2" width="500" permanent rail expand-on-hover>
 
         <v-list>
-            <v-list-item @click="layoutStore.showInstructions(); closeNavigation();"
+            <v-list-item v-show="taskStore.hasInstructions" @click="layoutStore.showInstructions(); closeNavigation();"
                          :prepend-icon="layoutStore.isInstructionsVisible ? 'mdi-text-box': 'mdi-text-box-outline'"
                          title="Aufgabenstellung">
             </v-list-item>
 
-            <v-list-group v-show="resourcesStore.hasResources">
+            <v-list-item v-show="resourcesStore.hasInstruction" @click="layoutStore.showInstructionsPdf(); closeNavigation();"
+                         :prepend-icon="layoutStore.isInstructionsPdfVisible ? 'mdi-text-box': 'mdi-text-box-outline'"
+                         title="Aufgabenstellung (PDF)">
+            </v-list-item>
+
+
+            <v-list-item v-show="taskStore.hasSolution" @click="layoutStore.showSolution(); closeNavigation();"
+                         :prepend-icon="layoutStore.isSolutionVisible ? 'mdi-text-box-check': 'mdi-text-box-check-outline'"
+                         title="Lösungshinweise">
+            </v-list-item>
+
+            <v-list-item v-show="resourcesStore.hasSolution" @click="layoutStore.showSolutionPdf(); closeNavigation();"
+                         :prepend-icon="layoutStore.isSolutionPdfVisible ? 'mdi-text-box-check': 'mdi-text-box-check-outline'"
+                         title="Lösungshinweise (PDF)">
+            </v-list-item>
+
+            <v-divider class="border-opacity-75" ></v-divider>
+
+            <v-list-group v-show="resourcesStore.hasFileOrUrlResources">
                 <template v-slot:activator="{ props }">
                     <v-list-item active-class="appNavActive" v-bind="props"
                                  @mouseenter="openNavigation()"
@@ -64,7 +84,7 @@ function getCorrectorIcon(corrector) {
                     </v-list-item>
                 </template>
 
-                <v-list-item v-for="resource in resourcesStore.resources"
+                <v-list-item v-for="resource in resourcesStore.getFileOrUrlResources"
                              @click="selectResource(resource); closeNavigation();"
                              :prepend-icon="getResourceIcon(resource)"
                              :title="resource.title"

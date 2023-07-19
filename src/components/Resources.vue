@@ -8,7 +8,7 @@
 <template>
  <div class="resources">
    <template v-for="resource in resourcesStore.resources" :key="resource.key">
-     <div v-if="resource.type=='file'" v-show="resourcesStore.isActive(resource)">
+     <div v-if="resource.type != 'url'" v-show="resourcesStore.isActive(resource)">
        <!--
        <p><a :target= "'long-essay-writer-resource-' + resource.key" :href="apiStore.resourceUrl(resource.key)">{{ resource.title }}</a></p>
        -->

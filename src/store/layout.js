@@ -17,7 +17,7 @@ export const useLayoutStore = defineStore('layout', {
         return {
             // saved in storage
             expandedColumn: 'none',             // left|right|none
-            leftContent: 'essay',               // instructions|resources|essay|corrector
+            leftContent: 'essay',               // instructions|instructionsPdf|solution|solutionPdf|resources|essay|corrector
             rightContent: 'marking',            // summary|marking|corrector
 
             leftCorrectorKey: '',               // key of the corrector shown on the left side
@@ -39,6 +39,9 @@ export const useLayoutStore = defineStore('layout', {
         isRightExpanded: (state) => state.expandedColumn == 'right',
 
         isInstructionsSelected: (state) => state.leftContent == 'instructions',
+        isInstructionsPdfSelected: (state) => state.leftContent == 'instructionsPdf',
+        isSolutionSelected: (state) => state.leftContent == 'solution',
+        isSolutionPdfSelected: (state) => state.leftContent == 'solutionPdf',
         isResourcesSelected: (state) => state.leftContent == 'resources',
         isEssaySelected: (state) => state.leftContent == 'essay',
         isSummarySelected: (state) => state.rightContent == 'summary',
@@ -47,6 +50,9 @@ export const useLayoutStore = defineStore('layout', {
         isRightCorrectorSelected: (state) => state.rightContent == 'corrector',
 
         isInstructionsVisible: (state) => (state.isInstructionsSelected && state.isLeftVisible),
+        isInstructionsPdfVisible: (state) => (state.isInstructionsPdfSelected && state.isLeftVisible),
+        isSolutionVisible: (state) => (state.isSolutionSelected && state.isLeftVisible),
+        isSolutionPdfVisible: (state) => (state.isSolutionPdfSelected && state.isLeftVisible),
         isResourcesVisible: (state) => (state.isResourcesSelected && state.isLeftVisible),
         isEssayVisible: (state) => (state.isEssaySelected && state.isLeftVisible),
         isSummaryVisible: (state) => (state.isSummarySelected && state.isRightVisible),
@@ -129,6 +135,24 @@ export const useLayoutStore = defineStore('layout', {
         showInstructions() {
             this.setLeftVisible();
             this.leftContent = 'instructions';
+            this.saveToStorage();
+        },
+
+        showInstructionsPdf() {
+            this.setLeftVisible();
+            this.leftContent = 'instructionsPdf';
+            this.saveToStorage();
+        },
+
+        showSolution() {
+            this.setLeftVisible();
+            this.leftContent = 'solution';
+            this.saveToStorage();
+        },
+
+        showSolutionPdf() {
+            this.setLeftVisible();
+            this.leftContent = 'solutionPdf';
             this.saveToStorage();
         },
 

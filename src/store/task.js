@@ -19,6 +19,7 @@ export const useTaskStore = defineStore('task',{
             // saved in storage
             title: null,                    // title of the task - shown in the app bar
             instructions: null,             // instructions - shown in the left column
+            solution: null,                 // solution - shown in the left column
             correction_end: null,           // correction end (sec in server time) - accept no writing step after this time
             correction_allowed: false,      // allowed to enter a correction
             authorization_allowed: false,   // allowed to authorize the correction
@@ -29,6 +30,8 @@ export const useTaskStore = defineStore('task',{
     },
 
     getters: {
+        hasInstructions: (state) => !!state.instructions,
+        hasSolution: (state) => !!state.solution,
         hasCorrectionEnd: (state) => !!state.correction_end,
         correctionEndReached: (state) => state.remaining_time === 0,
     },
@@ -37,6 +40,7 @@ export const useTaskStore = defineStore('task',{
         setData(data) {
             this.title = data.title;
             this.instructions = data.instructions;
+            this.solution = data.solution;
             this.correction_end = data.correction_end;
             this.correction_allowed = !!data.correction_allowed;
             this.authorization_allowed = !!data.authorization_allowed;
