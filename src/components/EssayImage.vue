@@ -12,6 +12,11 @@
 
   const markerNode = ref();
 
+
+  const defaultShape = ref(SHAPES.RECTANGLE);
+  const zoomLevel = ref(1);
+  const mod = ref('draw');
+
   const defaults = reactive({
       data: {
           color: '#D8E5F4AA',
@@ -31,9 +36,9 @@
       marker = createImageMarker(markerNode.value, onCreation, onSelection);
       showPage(page);
 
-      marker.setDefaultColor(defaults.data.color);
-      marker.setDefaultSelectedColor(defaults.data.selectedColor);
-      marker.setDefaultShape(defaults.data.shape);
+      marker.setDefaultColor('#D8E5F4AA');
+      marker.setDefaultSelectedColor('#94C3FCAA');
+
       marker.drawMode();
   });
 
@@ -177,24 +182,68 @@
       return '#94C3FCAA';
   }
 
+  function zoomIn() {
+      zoomLevel.value += 0.1;
+      marker.setZoomLevel(zoomLevel.value);
+  }
+
+  function zoomOut() {
+      zoomLevel.value = Math.max(0, zoomLevel.value - 0.1);
+      marker.setZoomLevel(zoomLevel.value);
+  }
+
+  function setShape() {
+      if (defaultShape.value == 'scroll') {
+          marker.scrollMode();
+      }
+      else {
+          marker.setDefaultShape(defaultShape.value);
+          marker.drawMode();
+      }
+  }
+
 
 </script>
 
 <template>
-    <div id="app-essay-wrapper">
+    <div id="app-essay-image-wrapper">
+        <div class = "appImageButtons">
+            <v-btn-group variant="outlined" divided>
+                <v-btn icon="mdi-magnify-minus-outline" @click="zoomOut()"></v-btn>
+                <v-btn icon="mdi-magnify-plus-outline" @click="zoomIn()"></v-btn>
+            </v-btn-group>
+
+            &nbsp;
+
+            <v-btn-toggle variant="outlined" divided v-model="defaultShape" @click="setShape()">
+                <v-btn icon="mdi-cursor-move" value="scroll"></v-btn>
+                <v-btn icon="mdi-minus" :value="SHAPES.LINE"></v-btn>
+                <v-btn icon="mdi-wave" :value="SHAPES.WAVE"></v-btn>
+                <v-btn icon="mdi-circle-medium" :value="SHAPES.CIRCLE"></v-btn>
+                <v-btn icon="mdi-rectangle-outline" :value="SHAPES.RECTANGLE"></v-btn>
+                <v-btn icon="mdi-vector-triangle" :value="SHAPES.POLYGON"></v-btn>
+            </v-btn-toggle>
+
+        </div>
         <div class="appImageMarker" ref="markerNode"></div>
     </div>
 </template>
 
 <style>
 
-  #app-essay-wrapper {
+  #app-essay-image-wrapper {
       height: 100%;
+      display: flex;
+      flex-direction: column;
+  }
+
+  .appImageButtons {
+      height: 50px;
   }
 
   .appImageMarker {
+      flex-grow: 1;
       width: 100%;
-      height: 100%;
   }
 
 
