@@ -100,6 +100,11 @@ function getCorrectorIcon(corrector) {
                          title="Abgegebener Text">
             </v-list-item>
 
+            <v-list-item @click="layoutStore.showEssayImage(); closeNavigation();"
+                         :prepend-icon="layoutStore.isEssayImageVisible ? 'mdi-file-image': 'mdi-file-image-outline'"
+                         title="Abgegebener Text (PDF)">
+            </v-list-item>
+
 
             <v-list-item @click="layoutStore.showMarking(); closeNavigation();"
                          :prepend-icon="layoutStore.isMarkingVisible ? 'mdi-comment-edit': 'mdi-comment-edit-outline'"

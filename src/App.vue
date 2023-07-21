@@ -55,5 +55,17 @@ html {
   background-color: #fafafa;
 }
 
+.appImageMarker rect.label {
+    fill: grey;
+}
+
+.appImageMarker text {
+    fill: white;
+    font-family: sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: normal;
+}
+
 
 </style>

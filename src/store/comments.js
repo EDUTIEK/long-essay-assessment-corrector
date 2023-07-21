@@ -18,7 +18,13 @@ const storage = localForage.createInstance({
  * @param {Comment} comment2
  */
 const compareComments = function(comment1, comment2) {
-    if (comment1.start_position < comment2.start_position) {
+    if (comment1.parent_number < comment2.parent_number) {
+        return -1;
+    }
+    else if (comment1.parent_number > comment2.parent_number) {
+        return 1;
+    }
+    else if (comment1.start_position < comment2.start_position) {
         return -1;
     }
     else if (comment1.start_position > comment2.start_position) {
@@ -93,6 +99,10 @@ export const useCommentsStore = defineStore('comments',{
 
         getComment(state) {
             return (key) => state.comments.find(element => element.key == key);
+        },
+
+        getCommentByMarkKey(state) {
+            return (key) => state.comments.find(element => element.mark_key == key);
         },
 
         getActiveCommentsInRange(state) {
@@ -187,14 +197,25 @@ export const useCommentsStore = defineStore('comments',{
          * @public
          */
         async createComment(start_positon, end_position, parent_number) {
-            const apiStore = useApiStore();
             let comment = new Comment({
-                item_key: apiStore.itemKey,
-                corrector_key: apiStore.correctorKey,
                 start_position: start_positon,
                 end_position: end_position,
                 parent_number: parent_number
             })
+
+            await this.addComment(comment);
+            return comment.key;
+        },
+
+        /**
+         * Add a new comment
+         * @param {Comment} comment
+         * @public
+         */
+        async addComment(comment) {
+            const apiStore = useApiStore();
+            comment.item_key = apiStore.itemKey;
+            comment.corrector_key = apiStore.correctorKey;
 
             // first do state changes (trigger watchers)
             this.keys.push(comment.key);
@@ -208,7 +229,7 @@ export const useCommentsStore = defineStore('comments',{
             this.selectedKey = comment.key;
 
             // then save the comment
-            await storage.setItem(comment.key, comment.getData());
+            await storage.setItem(comment.key, JSON.stringify(comment.getData()));
             await storage.setItem('keys', JSON.stringify(this.keys));
             await this.setUnsent(comment.key);
             return comment.key;
@@ -221,7 +242,7 @@ export const useCommentsStore = defineStore('comments',{
          */
         async updateComment(comment) {
             if (this.keys.includes(comment.key)) {
-                await storage.setItem(comment.key, comment.getData());
+                await storage.setItem(comment.key, JSON.stringify(comment.getData()));
                 await this.setUnsent(comment.key);
             }
         },
@@ -303,8 +324,15 @@ export const useCommentsStore = defineStore('comments',{
             let number = 0;
             for (const comment of this.comments) {
                 if (comment.corrector_key != apiStore.correctorKey) {
-                    comment.label = correctorsStore.getCorrector(comment.corrector_key).title;
-                    comment.prefix = 'other';
+                    const corrector = correctorsStore.getCorrector(comment.corrector_key);
+                    if (corrector) {
+                        comment.label = corrector.title;
+                        comment.prefix = 'other';
+                    }
+                    else {
+                        comment.label = 'Corrector ' + comment.corrector_key;
+                        comment.prefix = 'other';
+                    }
                 }
                 else {
                     if (comment.parent_number > parent) {
@@ -415,12 +443,12 @@ export const useCommentsStore = defineStore('comments',{
                 if (unsentChanges) {
                     this.unsentChanges = JSON.parse(unsentChanges);
                 }
-                this.showOtherCorrectors = !! await JSON.parse(storage.getItem('showOtherCorrectors'));
+                this.showOtherCorrectors = !! JSON.parse(await storage.getItem('showOtherCorrectors'));
 
                 this.comments = [];
                 this.currentKey = '';
                 for (const key of this.keys) {
-                    let comment = new Comment(await storage.getItem(key));
+                    let comment = new Comment(JSON.parse(await storage.getItem(key)));
                     if (comment.item_key == currentItemKey) {
                         this.comments.push(comment);
                     }
@@ -457,7 +485,7 @@ export const useCommentsStore = defineStore('comments',{
                 for (const comment_data of data) {
                     let comment = new Comment(comment_data);
                     this.keys.push(comment.key);
-                    await storage.setItem(comment.key, comment.getData());
+                    await storage.setItem(comment.key, JSON.stringify(comment.getData()));
                     if (comment.item_key == currentItemKey) {
                         this.comments.push(comment);
                     }
@@ -520,7 +548,7 @@ export const useCommentsStore = defineStore('comments',{
                 if (sendingTime == 0 || this.unsentChanges[key] < sendingTime) {
                     let data = await storage.getItem(key)
                     if (data) {
-                        data_list[key] = data;
+                        data_list[key] = JSON.parse(data);
                     } else {
                         data_list[key] = null;
                     }
@@ -551,7 +579,7 @@ export const useCommentsStore = defineStore('comments',{
                         removedKeys.push(key);
                     }
                     else if(key != matches[key]) {
-                        let comment = new Comment(await storage.getItem(key));
+                        let comment = new Comment(JSON.parse(await storage.getItem(key)));
                         comment.key = matches[key];
                         changedKeys.push(key);
                         changedComments.push(comment);
@@ -589,7 +617,7 @@ export const useCommentsStore = defineStore('comments',{
                 await storage.removeItem(key);
             }
             for (const comment of changedComments) {
-                await storage.setItem(comment.key, comment.getData());
+                await storage.setItem(comment.key, JSON.stringify(comment.getData()));
             }
             await storage.setItem('keys', JSON.stringify(this.keys));
 

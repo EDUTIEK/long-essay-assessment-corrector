@@ -5,6 +5,7 @@
   import SolutionPdf from '@/components/SolutionPdf.vue';
   import Resources from "@/components/Resources.vue";
   import Essay from "@/components/Essay.vue";
+  import EssayImage from '@/components/EssayImage.vue';
   import OwnSummary from "@/components/OwnSummary.vue";
   import OtherSummary from '@/components/OtherSummary.vue';
   import Marking from "@/components/Marking.vue";
@@ -38,8 +39,9 @@
                             : layoutStore.isSolutionVisible ? "Lösungshinweise"
                                 : layoutStore.isSolutionPdfVisible ? "Lösungshinweise (PDF)"
                                     : layoutStore.isEssayVisible ? "Abgegebener Text"
-                                        : layoutStore.isResourcesVisible ? resourcesStore.activeTitle
-                                            : layoutStore.isLeftCorrectorVisible ? layoutStore.leftCorrectorTitle : ""
+                                        : layoutStore.isEssayImageVisible ? "Abgegebener Text (PDF)"
+                                            : layoutStore.isResourcesVisible ? resourcesStore.activeTitle
+                                                : layoutStore.isLeftCorrectorVisible ? layoutStore.leftCorrectorTitle : ""
                 }}
             </h2>
         </div>
@@ -50,6 +52,7 @@
           <solution v-if="layoutStore.isSolutionVisible" />
           <solution-pdf v-if="layoutStore.isSolutionPdfVisible" />
           <essay v-if="layoutStore.isEssayVisible" />
+          <essay-image v-if="layoutStore.isEssayImageVisible" />
           <resources v-if="layoutStore.isResourcesVisible" />
           <other-summary v-if= "layoutStore.isLeftCorrectorVisible" :corrector_key="layoutStore.leftCorrectorKey" :isTextExpanded="layoutStore.isLeftSummaryTextExpanded" />
         </div>

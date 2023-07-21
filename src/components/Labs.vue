@@ -26,7 +26,7 @@ const defaults = reactive({
         color: '#0000AAAA',
         selectedColor: '#FF0000AA',
         shape: SHAPES.RECTANGLE,
-        zommLevel: 1,
+        zoomLevel: 1,
         mode: ''
     }
 });
@@ -135,7 +135,7 @@ function scrollMode() {
         </div>
         <!-- Left Column Content -->
         <div class="col-content-left">
-            <div class="appPlaygroundImageMarker" ref="markerNode"></div>
+            <div class="appImageMarker" ref="markerNode"></div>
         </div>
       </div>
       <div class="column" >
@@ -212,7 +212,7 @@ function scrollMode() {
 
 /* Structure */
 
-.appPlaygroundImageMarker {
+.appImageMarker {
     width: 100%;
     height: 100%;
 }
