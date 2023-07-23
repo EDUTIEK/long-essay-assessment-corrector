@@ -29,7 +29,7 @@ async function loadCriteria() {
     criteriaSum.value = 0;
     criteriaMax.value = 0;
 
-    criteriaStore.getCriteria.forEach(criterion => {
+    criteriaStore.getCriteria(props.corrector_key).forEach(criterion => {
         criteriaPoints[criterion.key] = {
             key: criterion.key,
             title: criterion.title,
@@ -37,10 +37,12 @@ async function loadCriteria() {
             sum_points: 0
         }
         criteriaMax.value += criterion.points
-    })
+    });
 
     pointsStore.getObjectsByCommentKeys(commentsStore.getKeysOfCorrector(props['corrector_key'])).forEach(points => {
-        criteriaPoints[points.criterion_key].sum_points += points.points;
+        if (criteriaPoints[points.criterion_key] !== undefined) {
+          criteriaPoints[points.criterion_key].sum_points += points.points;
+        }
         criteriaSum.value += points.points
     });
 }
@@ -131,7 +133,7 @@ async function filterByCriterion(criterion_key) {
         </v-table>
 
         <!-- Points are asigned to comments -->
-        <v-table v-if="!criteriaStore.hasCriteria" class="table" density="compact">
+        <v-table v-if="!criteriaStore.hasCriteria(props.corrector_key)" class="table" density="compact">
             <thead>
             <tr>
                 <th><strong>Bewertung</strong></th>
@@ -156,7 +158,7 @@ async function filterByCriterion(criterion_key) {
         </v-table>
 
         <!-- Points are asigned to criteria -->
-        <v-table v-if="criteriaStore.hasCriteria" class="table" density="compact">
+        <v-table v-if="criteriaStore.hasCriteria(props.corrector_key)" class="table" density="compact">
             <thead>
             <tr>
                 <th>Kriterium</th>

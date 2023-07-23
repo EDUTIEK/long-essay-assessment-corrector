@@ -132,7 +132,7 @@
                 <v-icon icon="mdi-chevron-right"></v-icon>
           </v-btn>
           <!-- toggle marking points -->
-          <v-btn class="ma-2" v-show=" criteriaStore.hasCriteria && layoutStore.isMarkingVisible" @click="layoutStore.setMarkingPointsExpanded(!layoutStore.isMarkingPointsExpanded)">
+          <v-btn class="ma-2" v-show=" criteriaStore.hasOwnCriteria && layoutStore.isMarkingVisible" @click="layoutStore.setMarkingPointsExpanded(!layoutStore.isMarkingPointsExpanded)">
                 <v-icon :icon="layoutStore.isMarkingPointsExpanded ? 'mdi-chevron-down' : 'mdi-chevron-up'"></v-icon>
                 <span>Bewertungen</span>
           </v-btn>

@@ -128,13 +128,13 @@ async function selectComment(comment) {
                 <v-col class="rightCol">
                     <span class="checkboxes">
 
-                        <label v-if="criteriaStore.hasCriteria" @for="'pointsInput' + comment.key">Punkte:</label>
+                        <label @for="'pointsInput' + comment.key">Punkte:</label>
 
-                        <input v-if="criteriaStore.hasCriteria" disabled="disabled"
+                        <input v-if="criteriaStore.hasOwnCriteria" disabled="disabled"
                                :id="'pointsInput' + comment.key"
                                :value="pointsStore.getSumOfPointsForComment(comment.key)"/>
 
-                        <input v-if="!criteriaStore.hasCriteria" type="number" min="0"
+                        <input v-if="!criteriaStore.hasOwnCriteria" type="number" min="0"
                                :style="'color: ' + getPointsColor(comment) + ';'"
                                :id="'pointsInput' + comment.key"
                                :max="settingsStore.max_points"

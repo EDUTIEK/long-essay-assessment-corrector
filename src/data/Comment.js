@@ -221,6 +221,7 @@ class Comment {
             mark_key: this.mark_key,
             mark_shape: this.mark_shape,
             mark_pos: this.mark_pos,
+            mark_end: this.mark_end,
             mark_width: this.mark_width,
             mark_height: this.mark_height,
             mark_polygon: this.mark_polygon

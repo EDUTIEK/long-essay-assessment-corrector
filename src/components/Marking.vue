@@ -12,7 +12,7 @@ const criteriaStore = useCriteriaStore();
 <template>
     <div id="app-marking-wrapper">
         <marking-comments id="app-marking-comments"></marking-comments>
-        <marking-points id="app-marking-points" v-show="criteriaStore.hasCriteria && layoutStore.isMarkingPointsExpanded"></marking-points>
+        <marking-points id="app-marking-points" v-show="criteriaStore.hasOwnCriteria && layoutStore.isMarkingPointsExpanded"></marking-points>
     </div>
 </template>
 

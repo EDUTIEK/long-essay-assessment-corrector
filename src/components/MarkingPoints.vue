@@ -4,7 +4,7 @@ import {useCommentsStore} from "@/store/comments";
 import {usePointsStore} from "@/store/points";
 import {useApiStore} from "@/store/api";
 import {useSummaryStore} from '@/store/summary';
-import { watch} from 'vue';
+import { ref, watch} from 'vue';
 import TextMarker from '@/lib/TextMarker';
 
 const criteriaStore = useCriteriaStore();
@@ -13,21 +13,30 @@ const pointsStore = usePointsStore();
 const apiStore = useApiStore();
 const summaryStore = useSummaryStore();
 
+let corrector_key = ref('');
+
 function loadPoints() {
-    console.log('loadPoints');
-    let commentKey = commentsStore.selectedKey;
-    let comment = commentsStore.getComment(commentKey);
-    criteriaStore.getCriteria.forEach((criterion) => {
-        let value = pointsStore.getValueByRelation(commentKey, criterion.key);
-        let el = document.getElementById('pointsInput' + criterion.key);
+    const comment = commentsStore.getComment(commentsStore.selectedKey);
+    if (comment) {
+      corrector_key.value = comment.corrector_key;
+    }
+    else {
+      corrector_key.value = '';
+    }
+
+    criteriaStore.getCriteria(corrector_key.value).forEach(criterion => {
+      let value = pointsStore.getValueByRelation(commentsStore.selectedKey, criterion.key);
+      let el = document.getElementById('pointsInput' + criterion.key);
+      if (el !== undefined && el !== null) {
         el.value = value;
-        if (!comment || comment.corrector_key != apiStore.correctorKey) {
-            el.setAttribute('disabled', 'disabled');
+        if (corrector_key.value == '' || corrector_key.value != apiStore.correctorKey) {
+          el.setAttribute('disabled', 'disabled');
         }
         else {
-            el.removeAttribute('disabled');
+          el.removeAttribute('disabled');
         }
-    });
+      }
+   });
 }
 watch(() => commentsStore.selectedKey, loadPoints);
 
@@ -56,7 +65,7 @@ function savePoints(criterionKey) {
             </tr>
             </thead>
             <tbody>
-                <tr v-for="criterion in criteriaStore.getCriteria" :key="criterion.key">
+                <tr v-for="criterion in criteriaStore.getCriteria(corrector_key)" :key="criterion.key">
                     <td class="text-rigth">
                         <label :for="'pointsInput' + criterion.key">{{ criterion.title}}</label>
                     </td>
