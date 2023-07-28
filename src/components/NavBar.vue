@@ -128,11 +128,12 @@ function getCorrectorIcon(corrector) {
 
             <v-divider class="border-opacity-75" ></v-divider>
 
+<!--         
             <v-list-item @click="layoutStore.togglePlayground();  closeNavigation();"
                          :prepend-icon="layoutStore.isPlaygroundShown ? 'mdi-flask-empty': 'mdi-flask-empty-outline'"
                          title="Developer Labs">
             </v-list-item>
-
+-->
         </v-list>
 
     </v-navigation-drawer>

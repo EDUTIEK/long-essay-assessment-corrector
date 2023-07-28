@@ -294,6 +294,10 @@ export const useCommentsStore = defineStore('comments',{
          * @private
          */
         async removeEmptyComments(keepKey) {
+            
+            // 28.7.2023: empty comments should be kept
+            return;
+            
             const pointsStore = usePointsStore();
 
             let comments = this.comments.filter(comment =>

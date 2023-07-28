@@ -36,9 +36,10 @@
       marker = createImageMarker(markerNode.value, onCreation, onSelection);
       showPage(page);
 
-      marker.setDefaultColor('#D8E5F4AA');
-      marker.setDefaultSelectedColor('#94C3FCAA');
+      marker.setDefaultColor('#3365ffaa');
+      marker.setDefaultSelectedColor('#3365ffaa');
 
+      marker.setDefaultShape(SHAPES.RECTANGLE);
       marker.drawMode();
   });
 
@@ -60,7 +61,6 @@
               mark_height: created.height,
               mark_polygon: created.polygon
           });
-          console.log('new comment', comment);
 
           currentKeys.push(created.key);
           if (!commentsStore.getCommentByMarkKey(created.key)) {
@@ -158,16 +158,26 @@
    */
   function getColor(comment) {
 
-      if (comment.prefix == 'own') {
-          if (comment.rating_excellent)  return '#E3EFDDAA';
-          if (comment.rating_cardinal) return '#FBDED1AA';
-          return '#D8E5F4AA';
+    const filled = (comment.mark_shape == Comment.SHAPE_CIRCLE || comment.mark_shape == Comment.SHAPE_POLYGON || comment.mark_shape == Comment.SHAPE_RECTANGLE);
+
+    let color = '';
+    if (comment.prefix == 'own') {
+      if (comment.rating_excellent) {
+        return filled ?  '#E3EFDDAA' : '#19e62e';
+      } else if (comment.rating_cardinal) {
+        return filled ? '#FBDED1AA' : '#bc4710';
+      } else {
+        return filled ? '#D8E5F4AA' : '#3365ff';
       }
-      else {
-          if (comment.rating_excellent)  return '#F7F9F7AA';
-          if (comment.rating_cardinal) return '#FCF6F4AA';
-          return '#F5F7FBAA';
+    } else {
+      if (comment.rating_excellent) {
+        return filled ? '#F7F9F7AA' : '#19e62e';
+      } else if (comment.rating_cardinal) {
+        return filled ? '#FCF6F4AA' : '#bc4710';
+      } else {
+        return filled ? '#F5F7FBAA' : '#3365ff';
       }
+    }
   }
 
   /**
@@ -176,10 +186,16 @@
    * @return {string}
    */
   function getSelectedColor(comment) {
-
-      if (comment.rating_excellent) return '#BBEBA5AA';
-      if (comment.rating_cardinal) return '#FCB494AA';
-      return '#94C3FCAA';
+    
+    const filled = (comment.mark_shape == Comment.SHAPE_CIRCLE || comment.mark_shape == Comment.SHAPE_POLYGON || comment.mark_shape == Comment.SHAPE_RECTANGLE);
+    
+    if (comment.rating_excellent) {
+      return filled ? '#BBEBA5AA' : '#19e62e';
+    } else if (comment.rating_cardinal) {
+      return filled ? '#FCB494AA' : '#bc4710';
+    } else {
+      return filled ? '#94C3FCAA' : '#3365ff';
+    }
   }
 
   function zoomIn() {
@@ -229,7 +245,7 @@
     </div>
 </template>
 
-<style>
+<style scoped>
 
   #app-essay-image-wrapper {
       height: 100%;

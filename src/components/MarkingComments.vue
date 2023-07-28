@@ -120,7 +120,12 @@ async function selectComment(comment) {
         <v-container :id="'appCommentContainer' + comment.key" v-for="comment in commentsStore.activeComments" :key="comment.key">
             <v-row class="row" dense>
                 <v-col class="leftCol">
-                    <span :class="'commentLabel ' + (comment.key == commentsStore.selectedKey ? 'selected' : '')">{{comment.label}}</span>
+                    <span 
+                        :class="'commentLabel ' + (comment.key == commentsStore.selectedKey ? 'selected' : '')"
+                        @click="commentsStore.selectComment(comment.key)">
+                      {{comment.label}}
+                    </span>
+                     &nbsp;
                     <v-btn density="compact" size="small" variant="text" prepend-icon="mdi-delete-outline"
                            :disabled="summaryStore.isAuthorized || comment.corrector_key != apiStore.correctorKey"
                            @click="commentsStore.deleteComment(comment.key)" >Löschen</v-btn>
@@ -128,7 +133,8 @@ async function selectComment(comment) {
                 <v-col class="rightCol">
                     <span class="checkboxes">
 
-                        <label @for="'pointsInput' + comment.key">Punkte:</label>
+                        <label 
+                               @click="commentsStore.selectComment(comment.key)">Punkte:</label>
 
                         <input v-if="criteriaStore.hasOwnCriteria" disabled="disabled"
                                :id="'pointsInput' + comment.key"
@@ -158,6 +164,7 @@ async function selectComment(comment) {
                             :readonly="summaryStore.isAuthorized || comment.corrector_key != apiStore.correctorKey"
                             @click="commentsStore.selectComment(comment.key)"
                             @change="commentsStore.updateComment(comment)"
+                            v-show="comment.comment != '' || comment.key == commentsStore.selectedKey"
                             v-model="comment.comment"></v-textarea>
                 </div>
             </v-row>
@@ -215,15 +222,14 @@ async function selectComment(comment) {
 
     .commentLabel {
         font-size: 14px;
+        padding: 3px;
     }
 
     .commentLabel.selected {
         background-color: grey;
         color: white;
         padding: 3px;
-        border: 1px solid lightgrey;
-        box-shadow: 1px 1px lightgrey;
-        font-size: 12px;
+        font-size: 14px;
     }
 
     .commentWrapper {

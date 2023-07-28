@@ -185,14 +185,13 @@
       position: relative;
       left: -7px;
       top: -7px;
-          padding: 3px;
+      padding: 3px;
       z-index: 10000;
       background-color: grey;
       color: white;
-      border: 1px solid lightgrey;
-      box-shadow: 1px 1px lightgrey;
       font-family: sans-serif;
-      font-size: 12px;
+    
+      font-size: 14px;
       font-style: normal;
       font-weight: normal;
   }

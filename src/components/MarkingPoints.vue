@@ -88,9 +88,7 @@ function savePoints(criterionKey) {
     background-color: grey;
     color: white;
     padding: 3px;
-    border: 1px solid lightgrey;
-    box-shadow: 1px 1px lightgrey;
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .appPoints {
