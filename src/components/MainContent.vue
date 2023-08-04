@@ -14,12 +14,14 @@
   import {useResourcesStore} from "../store/resources";
   import { useCommentsStore } from '@/store/comments';
   import { useCriteriaStore} from '@/store/criteria';
+  import { usePagesStore } from '@/store/pages';
 
   const apiStore = useApiStore();
   const layoutStore = useLayoutStore();
   const resourcesStore = useResourcesStore();
   const commentsStore = useCommentsStore();
   const criteriaStore = useCriteriaStore();
+  const pagesStore = usePagesStore();
 
 </script>
 
@@ -39,7 +41,6 @@
                             : layoutStore.isSolutionVisible ? "Lösungshinweise"
                                 : layoutStore.isSolutionPdfVisible ? "Lösungshinweise (PDF)"
                                     : layoutStore.isEssayVisible ? "Abgegebener Text"
-                                        : layoutStore.isEssayImageVisible ? "Abgegebener Text (PDF)"
                                             : layoutStore.isResourcesVisible ? resourcesStore.activeTitle
                                                 : layoutStore.isLeftCorrectorVisible ? layoutStore.leftCorrectorTitle : ""
                 }}
@@ -51,8 +52,8 @@
           <instructions-pdf v-if="layoutStore.isInstructionsPdfVisible" />
           <solution v-if="layoutStore.isSolutionVisible" />
           <solution-pdf v-if="layoutStore.isSolutionPdfVisible" />
-          <essay v-if="layoutStore.isEssayVisible" />
-          <essay-image v-if="layoutStore.isEssayImageVisible" />
+          <essay v-if="layoutStore.isEssayVisible && !pagesStore.hasPages" />
+          <essay-image v-if="layoutStore.isEssayVisible && pagesStore.hasPages" />
           <resources v-if="layoutStore.isResourcesVisible" />
           <other-summary v-if= "layoutStore.isLeftCorrectorVisible" :corrector_key="layoutStore.leftCorrectorKey" :isTextExpanded="layoutStore.isLeftSummaryTextExpanded" />
         </div>

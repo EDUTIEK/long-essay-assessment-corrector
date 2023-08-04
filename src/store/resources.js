@@ -86,7 +86,7 @@ export const useResourcesStore = defineStore('resources',{
                 if (keys) {
                     this.keys =  JSON.parse(keys);
                 }
-                this.activeKey = await storage.getItem('activeKey') ?? [];
+                this.activeKey = await storage.getItem('activeKey') ?? '';
                 this.resources = [];
 
                 let index = 0;

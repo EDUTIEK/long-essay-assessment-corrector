@@ -1,6 +1,8 @@
 <script setup>
   import {useCommentsStore} from "@/store/comments";
   import { useSummaryStore } from '@/store/summary';
+  import { usePagesStore } from '@/store/pages';
+  
   import createImageMarker from 'long-essay-image-marker/ImageMarker';
   import createMark, { SHAPES } from 'long-essay-image-marker/Mark';
   import Comment from "@/data/Comment";
@@ -9,6 +11,7 @@
 
   const commentsStore = useCommentsStore();
   const summaryStore = useSummaryStore();
+  const pagesStore = usePagesStore();
 
   const markerNode = ref();
 
@@ -28,13 +31,12 @@
   });
 
   let marker;
-  let page = 1;
   let currentKeys = [];
 
 
   onMounted(() => {
       marker = createImageMarker(markerNode.value, onCreation, onSelection);
-      showPage(page);
+      showPage(pagesStore.minPage);
 
       marker.setDefaultColor('#3365ffaa');
       marker.setDefaultSelectedColor('#3365ffaa');
@@ -52,7 +54,7 @@
           let comment = new Comment({
               start_position: created.pos.y,
               end_position: created.pos.y,
-              parent_number: page,
+              parent_number: pagesStore.selectedPageNo,
               mark_key: created.key,
               mark_shape: created.shape,
               mark_pos: created.pos,
@@ -83,6 +85,42 @@
       }
       commentsStore.selectComment('');
   }
+  
+  
+
+  /**
+   * Show a new page with the active marks on it
+   * @param {integer} page
+   */
+  function showPage(page_no) {
+    if (pagesStore.selectByPageNo(page_no)) {
+      const page = pagesStore.getPageByPageNo(page_no);
+      if (page) {
+        marker.showPage(page.url, []);
+        try {
+          marker.setZoomLevel(zoomLevel.value);
+        }
+        catch {
+          // do nothing
+        }
+
+        currentKeys = [];
+        refreshMarks();
+      }
+    }
+  }
+
+  /**
+   * Refresh by selection of a comment
+   */
+  function refreshSelection() {
+    const comment = commentsStore.getComment(commentsStore.selectedKey);
+    if (comment && comment.parent_number != pagesStore.selectedPageNo) {
+      showPage(comment.parent_number);
+    }
+    refreshMarks();
+  }
+  watch(() => commentsStore.selectedKey, refreshSelection);
 
   /**
    * Refresh the display of marks on the page
@@ -91,7 +129,7 @@
       let newKeys = [];
 
       for (const comment of commentsStore.activeComments) {
-          if (comment.parent_number == page && !!comment.mark_key) {
+          if (comment.parent_number == pagesStore.selectedPageNo && !!comment.mark_key) {
               let mark = getMark(comment);
               if (currentKeys.includes(mark.key)) {
                   marker.updateMark(mark);
@@ -114,19 +152,20 @@
   };
   watch(() => commentsStore.markerChange, refreshMarks);
   watch(() => commentsStore.filterKeys, refreshMarks);
-  watch(() => commentsStore.selectedKey, refreshMarks);
 
 
   /**
-   * Show a new page with the active marks on it
-   * @param {integer} page
+   * Scroll the list of comments to the comments of the current page
    */
-  function showPage(page) {
-      marker.showPage(new URL(bgb, import.meta.url).href, []);
-      currentKeys = [];
-      refreshMarks();
+  function scrollComments() {
+    let comments = commentsStore.getActiveCommentsByParentNumber(pagesStore.selectedPageNo);
+    if (comments.length) {
+      let comment = comments.shift();
+      commentsStore.setFirstVisibleComment(comment.key);
+    }
   }
-
+  watch(() => pagesStore.selectedKey, scrollComments);
+  
   /**
    * Get the mark from a comment
    * @param comment
@@ -198,6 +237,18 @@
     }
   }
 
+  function prevPage() {
+    if (pagesStore.selectedPageNo > pagesStore.minPage) {
+      showPage(pagesStore.selectedPageNo - 1);
+    }
+  }
+
+  function nextPage() {
+    if (pagesStore.selectedPageNo < pagesStore.maxPage) {
+      showPage(pagesStore.selectedPageNo + 1);
+    }
+  }
+
   function zoomIn() {
       zoomLevel.value += 0.1;
       marker.setZoomLevel(zoomLevel.value);
@@ -224,7 +275,16 @@
 <template>
     <div id="app-essay-image-wrapper">
         <div class = "appImageButtons">
-            <v-btn-group variant="outlined" divided>
+
+          <v-btn-group variant="outlined" divided>
+            <v-btn icon="mdi-menu-left" @click="prevPage()"></v-btn>
+            <v-btn>{{pagesStore.selectedPageNo}}</v-btn>
+            <v-btn icon="mdi-menu-right" @click="nextPage()"></v-btn>
+          </v-btn-group>
+
+          &nbsp;
+          
+          <v-btn-group variant="outlined" divided>
                 <v-btn icon="mdi-magnify-minus-outline" @click="zoomOut()"></v-btn>
                 <v-btn icon="mdi-magnify-plus-outline" @click="zoomIn()"></v-btn>
             </v-btn-group>
@@ -254,7 +314,6 @@
   }
 
   .appImageButtons {
-      height: 50px;
   }
 
   .appImageMarker {

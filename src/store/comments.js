@@ -117,6 +117,12 @@ export const useCommentsStore = defineStore('comments',{
             );
         },
 
+        getActiveCommentsByParentNumber(state) {
+            return (parent_number) => state.activeComments.filter(comment =>
+              comment.parent_number == parent_number
+            );
+        },
+
         getKeysOfCorrector(state) {
             return (corrector_key) => {
                 let keys = [];

@@ -17,7 +17,7 @@ export const useLayoutStore = defineStore('layout', {
         return {
             // saved in storage
             expandedColumn: 'none',             // left|right|none
-            leftContent: 'essay',               // instructions|instructionsPdf|solution|solutionPdf|resources|essay|essayImage|corrector
+            leftContent: 'essay',               // instructions|instructionsPdf|solution|solutionPdf|resources|essay|corrector
             rightContent: 'marking',            // summary|marking|corrector
 
             leftCorrectorKey: '',               // key of the corrector shown on the left side
@@ -44,7 +44,6 @@ export const useLayoutStore = defineStore('layout', {
         isSolutionPdfSelected: (state) => state.leftContent == 'solutionPdf',
         isResourcesSelected: (state) => state.leftContent == 'resources',
         isEssaySelected: (state) => state.leftContent == 'essay',
-        isEssayImageSelected: (state) => state.leftContent == 'essayImage',
         isSummarySelected: (state) => state.rightContent == 'summary',
         isMarkingSelected: (state) => state.rightContent == 'marking',
         isLeftCorrectorSelected: (state) => state.leftContent == 'corrector',
@@ -56,7 +55,6 @@ export const useLayoutStore = defineStore('layout', {
         isSolutionPdfVisible: (state) => (state.isSolutionPdfSelected && state.isLeftVisible),
         isResourcesVisible: (state) => (state.isResourcesSelected && state.isLeftVisible),
         isEssayVisible: (state) => (state.isEssaySelected && state.isLeftVisible),
-        isEssayImageVisible: (state) => (state.isEssayImageSelected && state.isLeftVisible),
         isSummaryVisible: (state) => (state.isSummarySelected && state.isRightVisible),
         isMarkingVisible: (state) => (state.isMarkingSelected && state.isRightVisible),
         isLeftCorrectorVisible: (state) => (state.isLeftCorrectorSelected && state.isLeftVisible),
@@ -181,13 +179,7 @@ export const useLayoutStore = defineStore('layout', {
             this.leftContent = 'essay';
             this.saveToStorage();
         },
-
-        showEssayImage() {
-            this.setLeftVisible();
-            this.leftContent = 'essayImage';
-            this.saveToStorage();
-        },
-
+        
         showMarking() {
             this.setRightVisible();
             this.rightContent = 'marking';

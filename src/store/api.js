@@ -7,12 +7,13 @@ import {useLayoutStore} from "./layout";
 import {useResourcesStore} from "./resources";
 import {useItemsStore} from "./items";
 import {useEssayStore} from "./essay";
+import {usePagesStore} from './pages';
 import {useSummaryStore} from "./summary";
 import {useLevelsStore} from "./levels";
 import {useCriteriaStore} from "./criteria";
 import {useCorrectorsStore} from "./correctors";
-import {useCommentsStore} from "@/store/comments";
-import {usePointsStore} from "@/store/points";
+import {useCommentsStore} from "./comments";
+import {usePointsStore} from "./points";
 import md5 from 'md5';
 
 const sendInterval = 5000;      // time (ms) to wait for sending open savings to the backend
@@ -98,6 +99,17 @@ export const useApiStore = defineStore('api', {
                 return config.baseURL + '/file/' + resourceKey + '?' + config.params.toString();
             }
         },
+
+        /**
+         * Get the Url for loading a page image
+         */
+        imageUrl() {
+            return function (pageKey, itemKey) {
+                const config = this.requestConfig(this.fileToken);
+                return config.baseURL + '/image/' + itemKey + '/' + pageKey + '?' + config.params.toString();
+            }
+        },
+
 
         /**
          * Get the server unix timestamp (s) corresponding to a client timestamp (ms)
@@ -335,6 +347,7 @@ export const useApiStore = defineStore('api', {
             console.log("loadItemFromStorage...");
 
             const essayStore = useEssayStore();
+            const pagesStore = usePagesStore();
             const correctorsStore = useCorrectorsStore();
             const summaryStore = useSummaryStore();
             const commentsStore = useCommentsStore();
@@ -346,6 +359,7 @@ export const useApiStore = defineStore('api', {
             await correctorsStore.loadFromStorage();
             await summaryStore.loadFromStorage();
 
+            await pagesStore.loadFromStorage(itemKey);
             await commentsStore.loadFromStorage(itemKey);
             await pointsStore.loadFromStorage(commentsStore.currentCommentKeys);
 
@@ -417,6 +431,7 @@ export const useApiStore = defineStore('api', {
 
             const taskStore = useTaskStore();
             const essayStore = useEssayStore();
+            const pagesStore = usePagesStore();
             const correctorsStore = useCorrectorsStore();
             const summaryStore = useSummaryStore();
             const commentsStore = useCommentsStore();
@@ -427,6 +442,7 @@ export const useApiStore = defineStore('api', {
             await correctorsStore.loadFromData(response.data.correctors);
             await summaryStore.loadFromData(response.data.summary);
 
+            await pagesStore.loadFromData(response.data.pages, itemKey);
             await commentsStore.loadFromData(response.data.comments, itemKey);
             await pointsStore.loadFromData(response.data.points, commentsStore.currentCommentKeys);
 
