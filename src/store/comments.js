@@ -102,7 +102,7 @@ export const useCommentsStore = defineStore('comments',{
         },
 
         getCommentByMarkKey(state) {
-            return (key) => state.comments.find(element => element.mark_key == key);
+            return (key) => state.comments.find(element => element.hasMarkKey(key));
         },
 
         getActiveCommentsInRange(state) {

@@ -76,17 +76,13 @@ function getPointsColor(comment) {
     if (comment.points == 0) {
         return 'white';
     }
-
     if (comment.corrector_key != apiStore.correctorKey) {
         return 'grey';
     }
-
     const sum = commentsStore.getPointsOfCorrector(comment.corrector_key);
-
     if (sum > settingsStore.max_points) {
         return 'red';
     }
-
     return 'grey';
 }
 

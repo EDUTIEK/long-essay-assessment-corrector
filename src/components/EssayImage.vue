@@ -6,30 +6,17 @@
   import createImageMarker from 'long-essay-image-marker/ImageMarker';
   import createMark, { SHAPES } from 'long-essay-image-marker/Mark';
   import Comment from "@/data/Comment";
+  import Mark from '@/data/Mark';
   import { onMounted, nextTick, watch, ref, reactive } from 'vue';
-  import bgb from '@/assets/bgb-hand.png';
 
   const commentsStore = useCommentsStore();
   const summaryStore = useSummaryStore();
   const pagesStore = usePagesStore();
 
   const markerNode = ref();
-
-
   const defaultShape = ref(SHAPES.RECTANGLE);
   const zoomLevel = ref(1);
-  const mod = ref('draw');
-
-  const defaults = reactive({
-      data: {
-          color: '#D8E5F4AA',
-          selectedColor: '#94C3FCAA',
-          shape: SHAPES.RECTANGLE,
-          zoomLevel: 1,
-          mode: 'draw'
-      }
-  });
-
+  
   let marker;
   let currentKeys = [];
 
@@ -40,7 +27,6 @@
 
       marker.setDefaultColor('#3365ffaa');
       marker.setDefaultSelectedColor('#3365ffaa');
-
       marker.setDefaultShape(SHAPES.RECTANGLE);
       marker.drawMode();
   });
@@ -51,19 +37,12 @@
    */
   async function onCreation(created) {
       if (!!created && !summaryStore.isAuthorized) {
-          let comment = new Comment({
-              start_position: created.pos.y,
-              end_position: created.pos.y,
+        
+          const mark = new Mark(created);
+          const comment = new Comment({
               parent_number: pagesStore.selectedPageNo,
-              mark_key: created.key,
-              mark_shape: created.shape,
-              mark_pos: created.pos,
-              mark_end: created.end,
-              mark_width: created.width,
-              mark_height: created.height,
-              mark_polygon: created.polygon
-          });
-
+              marks: [mark]
+         });
           currentKeys.push(created.key);
           if (!commentsStore.getCommentByMarkKey(created.key)) {
               await commentsStore.addComment(comment);
@@ -103,7 +82,6 @@
         catch {
           // do nothing
         }
-
         currentKeys = [];
         refreshMarks();
       }
@@ -126,29 +104,36 @@
    * Refresh the display of marks on the page
    */
   function refreshMarks() {
-      let newKeys = [];
+    let newKeys = [];
 
-      for (const comment of commentsStore.activeComments) {
-          if (comment.parent_number == pagesStore.selectedPageNo && !!comment.mark_key) {
-              let mark = getMark(comment);
-              if (currentKeys.includes(mark.key)) {
-                  marker.updateMark(mark);
-              } else {
-                  marker.addMark(mark);
-              }
-              if (comment.key == commentsStore.selectedKey) {
-                  marker.selectMark(mark.key);
-              }
-              newKeys.push(mark.key);
+    for (const comment of commentsStore.activeComments) {
+      if (comment.parent_number == pagesStore.selectedPageNo) {
+        for (const mark of comment.marks) {
+          const mark_data = {
+            ...mark.getData(),
+            label: comment.key == commentsStore.selectedKey ? comment.label : '',
+            color: getColor(comment, mark.shape),
+            selectedColor: getSelectedColor(comment, mark.shape)
           }
+          if (currentKeys.includes(mark.key)) {
+            marker.updateMark(mark_data);
+          } else {
+            marker.addMark(mark_data);
+          }
+          newKeys.push(mark.key);
+          if (comment.key == commentsStore.selectedKey) {
+            marker.selectMark(mark.key);
+          }
+        }
       }
+    }
 
-      for (const key of currentKeys) {
-          if (!newKeys.includes(key)) {
-              marker.removeMark(key);
-          }
+    for (const key of currentKeys) {
+      if (!newKeys.includes(key)) {
+        marker.removeMark(key);
       }
-      currentKeys = newKeys;
+    }
+    currentKeys = newKeys;
   };
   watch(() => commentsStore.markerChange, refreshMarks);
   watch(() => commentsStore.filterKeys, refreshMarks);
@@ -166,38 +151,15 @@
   }
   watch(() => pagesStore.selectedKey, scrollComments);
   
-  /**
-   * Get the mark from a comment
-   * @param comment
-   * @return {?Mark}
-   */
-  function getMark(comment)
-  {
-      if (!!comment.mark_key) {
-          return {
-            key: comment.mark_key,
-            label: comment.key == commentsStore.selectedKey ? comment.label : '',
-            color: getColor(comment),
-            selectedColor: getSelectedColor(comment),
-            shape: comment.mark_shape,
-            pos: comment.mark_pos,
-            end: comment.mark_end,
-            width: comment.mark_width,
-            height: comment.mark_height,
-            polygon: comment.mark_polygon
-          }
-      }
-      return null;
-  }
 
   /**
    * Get the background color for the text field of a comment
    * @param comment
    * @return {string}
    */
-  function getColor(comment) {
+  function getColor(comment, shape) {
 
-    const filled = (comment.mark_shape == Comment.SHAPE_CIRCLE || comment.mark_shape == Comment.SHAPE_POLYGON || comment.mark_shape == Comment.SHAPE_RECTANGLE);
+    const filled = (shape == Mark.SHAPE_CIRCLE || shape == Mark.SHAPE_POLYGON || shape == Mark.SHAPE_RECTANGLE);
 
     let color = '';
     if (comment.prefix == 'own') {
@@ -224,9 +186,9 @@
    * @param comment
    * @return {string}
    */
-  function getSelectedColor(comment) {
+  function getSelectedColor(comment, shape) {
     
-    const filled = (comment.mark_shape == Comment.SHAPE_CIRCLE || comment.mark_shape == Comment.SHAPE_POLYGON || comment.mark_shape == Comment.SHAPE_RECTANGLE);
+    const filled = (shape == Mark.SHAPE_CIRCLE || shape == Mark.SHAPE_POLYGON || shape == Mark.SHAPE_RECTANGLE);
     
     if (comment.rating_excellent) {
       return filled ? '#BBEBA5AA' : '#19e62e';
@@ -320,7 +282,5 @@
       flex-grow: 1;
       width: 100%;
   }
-
-
 
 </style>

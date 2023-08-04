@@ -1,18 +1,15 @@
+import Mark from '@/data/Mark';
+
 /**
  * Corrector Comment
  */
 class Comment {
 
     static RATING_CARDINAL = 'cardinal';
-    static RAITNG_FAILURE = 'failure';
     static RAITNG_EXCELLENT = 'excellent';
 
-    static SHAPE_CIRCLE = 'circle';
-    static SHAPE_RECTANGLE = 'rectangle';
-    static SHAPE_POLYGON = 'polygon';
-    static SHAPE_LINE = 'line';
-    static SHAPE_WAVE = 'wave';
-
+    static ALLOWED_RATING = [Comment.RATING_CARDINAL, Comment.RAITNG_EXCELLENT];
+    
     /**
      * Unique identifier of the comment
      * Will be auto-generated for a new comment with random alpanumeric key (starting with 'temp')
@@ -34,19 +31,22 @@ class Comment {
     corrector_key = '';
 
     /**
-     * Number of the first word from the marked text to which the comment belongs
+     * Text mark: Number of the first word from the marked text to which the comment belongs
+     * Image mark: lowest y position of the marks on the page
      * @type {integer}
      */
     start_position = 0;
 
     /**
-     * Number of the last word fom the marked text to which the comment belongs
+     * Text mark: Number of the last word fom the marked text to which the comment belongs
+     * Image mark: ignored
      * @type {integer}
      */
     end_position = 0;
 
     /**
-     * Number of the parent paragraph of the first marked word
+     * Text mark: Number of the parent paragraph of the first marked word
+     * Image mark: Number of the page
      * @type {integer}
      */
     parent_number = 0;
@@ -88,59 +88,17 @@ class Comment {
     prefix = '';
 
     /**
+     * Image mark: Graphical marks on PDF image assigned to the comment
+     * @type {Mark[]}
+     */
+    marks = [];
+    
+    /**
      * Comment is deleted
      * @type {string}
      */
-
     deleted = false;
-
-
-    /**
-     * Key of a graphical mark (is kept in database)
-     * @type {string}
-     */
-    mark_key = '';
-
-    /**
-     * Shape of a graphical mark (see constant)
-     * @type {string}
-     */
-    mark_shape = '';
-
-    /**
-     * Start position of a graphical mark
-     * @typedef {{x: number, y: number}} Point
-     * @type {Point}
-     */
-    mark_pos = {x: 0, y: 0};
-
-    /**
-     * End position of a graphical mark (line or wave)
-     * @typedef {{x: number, y: number}} Point
-     * @type {Point}
-     */
-
-    mark_end = {x: 0, y: 0};
-
-    /**
-     * Width of a graphical mark (rectangle)
-     * @type {integer}
-     */
-    mark_width = 0;
-
-    /**
-     * Height of a graphical mark (rectangle)
-     * @type {integer}
-     */
-    mark_height = 0;
-
-    /**
-     * Polygon of a graphical mark (polygon)
-     * @typedef {{x: number, y: number}} Point
-     * @type {Point[]}
-     */
-    mark_polygon = [];
-
+    
 
     /**
      * Constructor - gets properties from a data object
@@ -181,33 +139,61 @@ class Comment {
         else if (data.rating == Comment.RATING_CARDINAL) {
             this.rating_cardinal = true;
         }
-        if (data.mark_key !== undefined && data.mark_key !== null) {
-            this.mark_key = data.mark_key;
-        }
-        if (data.mark_shape !== undefined && data.mark_shape !== null) {
-            this.mark_shape = data.mark_shape.toString();
-        }
-        if (data.mark_pos !== undefined && data.mark_pos !== null) {
-            this.mark_pos = { x: parseInt(data.mark_pos.x), y: parseInt(data.mark_pos.y) };
-        }
-        if (data.mark_end !== undefined && data.mark_end !== null) {
-            this.mark_end = { x: parseInt(data.mark_end.x), y: parseInt(data.mark_end.y) };
-        }
-        if (data.mark_width !== undefined && data.mark_width !== null) {
-            this.mark_width = parseInt(data.mark_width);
-        }
-        if (data.mark_height !== undefined && data.mark_height !== null) {
-            this.mark_height = parseInt(data.mark_height);
-        }
-        if (data.mark_polygon !== undefined && data.mark_polygon !== null) {
-            this.mark_polygon = data.mark_polygon;
+        if (data.marks !== undefined && Array.isArray(data.marks)) {
+            for (const mark_data of data.marks) {
+                this.addMarkData(mark_data);
+            }
         }
     }
+    
+    /**
+     * Add a new mark by its data
+     * @param mark_data
+     */
+    addMarkData(mark_data) {
+        this.marks.push(new Mark(mark_data));
+        this.calculateStartPositon();
+    }
+
+    /**
+     * Calculate the start position as lowest y position of all marks
+     */
+    calculateStartPositon() {
+        let pos = null;
+        for (const mark of this.marks) {
+            if (pos === null  || mark.pos.y > pos) {
+                pos = mark.pos.y
+            }
+        }
+        if (pos !== null) {
+            this.start_position = pos;
+        }
+    }
+
+    /**
+     * Check if the comment has a mark with a given key
+     * @param key
+     * @return {boolean}
+     */
+    hasMarkKey(key) {
+        for (const mark of this.marks) {
+            if (mark.key == key) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     /**
      * Get a plain data object from the public properties
      */
     getData() {
+        let marks = [];
+        for (const mark of this.marks) {
+            marks.push(mark.getData());
+        }
+
         return {
             key: this.key,
             item_key: this.item_key,
@@ -218,13 +204,7 @@ class Comment {
             comment: this.comment,
             points: this.points,
             rating: this.rating_excellent ? Comment.RAITNG_EXCELLENT : (this.rating_cardinal ? Comment.RATING_CARDINAL : ''),
-            mark_key: this.mark_key,
-            mark_shape: this.mark_shape,
-            mark_pos: this.mark_pos,
-            mark_end: this.mark_end,
-            mark_width: this.mark_width,
-            mark_height: this.mark_height,
-            mark_polygon: this.mark_polygon
+            marks: marks
         }
     }
 }
