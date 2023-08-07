@@ -24,7 +24,8 @@ export const usePagesStore = defineStore('pages',{
             // not saved in storage
             selectedKey: '',                // key of the currently selected page
             minPage: 0,                     // minimum page number
-            maxPage: 0                      // maximum page number
+            maxPage: 0,                     // maximum page number
+            pagesLoaded: false              // page files are loaded
         }
     },
 
@@ -147,6 +148,7 @@ export const usePagesStore = defineStore('pages',{
                     }
                 }
                 this.calculateMinMaxPage();
+                this.selectByPageNo(this.minPage);
                 this.loadFiles();
                 
             } catch (err) {
@@ -169,7 +171,7 @@ export const usePagesStore = defineStore('pages',{
             try {
                 await storage.clear();
                 
-               this.purgeFiles();
+                this.purgeFiles();
 
                 this.keys = [];
                 this.pages = [];
@@ -188,6 +190,7 @@ export const usePagesStore = defineStore('pages',{
                 await storage.setItem('keys', JSON.stringify(this.keys));
 
                 this.calculateMinMaxPage();
+                this.selectByPageNo(this.minPage);
                 this.loadFiles();
             }
             catch (err) {
@@ -207,8 +210,8 @@ export const usePagesStore = defineStore('pages',{
                 try {
                     console.log('preload page ' + page.page_no + '...');
                     const response = await axios( page.url, {responseType: 'blob', timeout: 60000});
-                    page.objectUrl = URL.createObjectURL(response.data)
-                    console.log('finished. ');
+                    page.objectUrl = URL.createObjectURL(response.data);
+                    this.pagesLoaded = true;
                 }
                 catch (error) {
                     console.error(error);
@@ -227,6 +230,7 @@ export const usePagesStore = defineStore('pages',{
                     page.objectUrl = null;
                 }  
             }
+            this.pagesLoaded = false;
         }
     }
 });

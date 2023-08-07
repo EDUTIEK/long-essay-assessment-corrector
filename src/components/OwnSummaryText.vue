@@ -71,7 +71,7 @@ const id = "summary";
 </script>
 
 <template>
-  <div id="app-own-summary-text-wrapper">
+  <div class="app-own-summary-text-wrapper" v-if="!summaryStore.isAuthorized">
       <editor
           :id="id"
           v-model="summaryStore.currentContent"
@@ -93,15 +93,31 @@ const id = "summary";
        }"
       />
   </div>
+
+  <div class="app-summary-text-wrapper" v-if="summaryStore.isAuthorized">
+    <div class="app-summary-text-display" v-html="summaryStore.currentContent">
+    </div>
+  </div>
 </template>
 
-<style>
-.tox-statusbar {
-  display: none!important;
+<style scoped>
+
+.app-own-summary-text-wrapper {
+  height: 50%;
 }
 
-#app-own-summary-text-wrapper {
-  height: 100%;
+.app-summary-text-wrapper {
+  height:50%;
+  border: 1px solid #cccccc;
+  padding: 10px;
+  overflow-y: scroll;
+}
+
+.app-summary-text-display {
+  height:100%;
+  font-family: Serif;
+  font-size: 16px;
+
 }
 
 </style>

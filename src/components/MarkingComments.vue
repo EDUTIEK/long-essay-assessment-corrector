@@ -123,7 +123,7 @@ async function selectComment(comment) {
                     </span>
                      &nbsp;
                     <v-btn density="compact" size="small" variant="text" prepend-icon="mdi-delete-outline"
-                           :disabled="summaryStore.isAuthorized || comment.corrector_key != apiStore.correctorKey"
+                           v-show="comment.corrector_key == apiStore.correctorKey && !summaryStore.isAuthorized"
                            @click="commentsStore.deleteComment(comment.key)" >Löschen</v-btn>
                 </v-col>
                 <v-col class="rightCol">

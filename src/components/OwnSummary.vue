@@ -19,8 +19,7 @@ const props = defineProps(['isTextExpanded']);
 <template>
     <div id="app-own-summary-wrapper">
         <summary-criteria id="app-own-summary-criteria" :corrector_key="apiStore.correctorKey"></summary-criteria>
-        <own-summary-text id="app-own-summary-text" v-if="props.isTextExpanded && !summaryStore.isAuthorized"></own-summary-text>
-        <summary-text id="app-own-summary-text" v-if="props.isTextExpanded && summaryStore.isAuthorized"></summary-text>
+        <own-summary-text  v-if="props.isTextExpanded"></own-summary-text>
         <own-summary-points id="app-own-summary-points"></own-summary-points>
     </div>
 </template>
@@ -36,11 +35,6 @@ const props = defineProps(['isTextExpanded']);
 #app-own-summary-criteria {
     flex-grow: 1;
     overflow-y: scroll;
-}
-
-
-#app-own-summary-text {
-    height: 50%;
 }
 
 #app-own-summary-points {

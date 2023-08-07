@@ -23,12 +23,12 @@
 
   onMounted(() => {
       marker = createImageMarker(markerNode.value, onCreation, onSelection);
-      showPage(pagesStore.minPage);
-
       marker.setDefaultColor('#3365ffaa');
       marker.setDefaultSelectedColor('#3365ffaa');
       marker.setDefaultShape(SHAPES.RECTANGLE);
       marker.drawMode();
+
+      showPage(pagesStore.minPage);
   });
 
   /**
@@ -88,6 +88,17 @@
     }
   }
 
+  /**
+   * Reload the page when the page images is available
+   */
+  function reloadPage() {
+    if (pagesStore.pagesLoaded) {
+      showPage(pagesStore.selectedPageNo);
+    }
+  }
+  watch(() => pagesStore.pagesLoaded, reloadPage);
+  
+  
   /**
    * Refresh by selection of a comment
    */
@@ -245,25 +256,27 @@
           </v-btn-group>
 
           &nbsp;
-          
+
           <v-btn-group variant="outlined" divided>
-                <v-btn icon="mdi-magnify-minus-outline" @click="zoomOut()"></v-btn>
-                <v-btn icon="mdi-magnify-plus-outline" @click="zoomIn()"></v-btn>
-            </v-btn-group>
+            <v-btn icon="mdi-magnify-minus-outline" @click="zoomOut()"></v-btn>
+            <v-btn icon="mdi-magnify-plus-outline" @click="zoomIn()"></v-btn>
+          </v-btn-group>
 
-            &nbsp;
+          &nbsp;
 
-            <v-btn-toggle variant="outlined" divided v-model="defaultShape" @click="setShape()">
-                <v-btn icon="mdi-cursor-move" value="scroll"></v-btn>
-                <v-btn icon="mdi-minus" :value="SHAPES.LINE"></v-btn>
-                <v-btn icon="mdi-wave" :value="SHAPES.WAVE"></v-btn>
-                <v-btn icon="mdi-circle-medium" :value="SHAPES.CIRCLE"></v-btn>
-                <v-btn icon="mdi-rectangle-outline" :value="SHAPES.RECTANGLE"></v-btn>
-                <v-btn icon="mdi-vector-triangle" :value="SHAPES.POLYGON"></v-btn>
-            </v-btn-toggle>
+          <v-btn-toggle variant="outlined" divided v-model="defaultShape" @click="setShape()">
+            <v-btn icon="mdi-cursor-move" value="scroll"></v-btn>
+            <v-btn icon="mdi-minus" :value="SHAPES.LINE"></v-btn>
+            <v-btn icon="mdi-wave" :value="SHAPES.WAVE"></v-btn>
+            <v-btn icon="mdi-circle-medium" :value="SHAPES.CIRCLE"></v-btn>
+            <v-btn icon="mdi-rectangle-outline" :value="SHAPES.RECTANGLE"></v-btn>
+            <v-btn icon="mdi-vector-triangle" :value="SHAPES.POLYGON"></v-btn>
+          </v-btn-toggle>
 
         </div>
-        <div class="appImageMarker" ref="markerNode"></div>
+      
+      <div class="appImageMarker" ref="markerNode"></div>
+
     </div>
 </template>
 
@@ -275,12 +288,9 @@
       flex-direction: column;
   }
 
-  .appImageButtons {
-  }
-
   .appImageMarker {
-      flex-grow: 1;
-      width: 100%;
+    flex-grow: 1;
+    width: 100%;
   }
 
 </style>

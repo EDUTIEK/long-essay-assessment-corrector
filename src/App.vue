@@ -36,7 +36,14 @@ html {
   overflow-y: hidden !important;
 }
 
+/* hide the statusbar from tiny editor */
+
+.tox-statusbar {
+  display: none!important;
+}
+
 /* needed for instructions and review screen, must be global */
+
 .col-content li {
   margin-left: 20px;
   margin-bottom: 5px;
@@ -47,6 +54,7 @@ html {
 }
 
 /* needed to avoid highlight of selected NavBar item, must be global */
+
 .v-list-item__overlay {
   visibility: hidden !important;
 }
@@ -54,6 +62,8 @@ html {
 .v-navigation-drawer__content {
   background-color: #fafafa;
 }
+
+/* labels of marks on images (must be globally styled) */
 
 .appImageMarker rect.label {
     fill: grey;
