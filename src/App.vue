@@ -65,11 +65,11 @@ html {
 
 /* labels of marks on images (must be globally styled) */
 
-.appImageMarker rect.label {
-    fill: grey;
+.appImageMarker svg rect.label {
+    fill: grey!important;
 }
 
-.appImageMarker text {
+.appImageMarker svg text {
     fill: white;
     font-family: sans-serif;
     font-size: 14px;
@@ -77,5 +77,8 @@ html {
     font-weight: normal;
 }
 
+.appImageMarker svg .shape text.symbol {
+  font-weight: bold;
+}
 
 </style>

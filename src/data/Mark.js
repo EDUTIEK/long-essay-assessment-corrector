@@ -58,6 +58,12 @@ class Mark {
 
 
     /**
+     * Symbol to be displayed in a circle
+     * @type {string}
+     */
+    symbol = '';
+
+    /**
      * Constructor - gets properties from a data object
      * @param {object} data
      */
@@ -86,6 +92,9 @@ class Mark {
                 this.polygon.push(new MarkPoint(point_data))
             }
         }
+        if (data.symbol !== undefined && data.symbol !== null) {
+            this.symbol = data.symbol.toString();
+        }
     }
     
     /**
@@ -104,7 +113,8 @@ class Mark {
             end: this.end.getData(),
             width: this.width,
             height: this.height,
-            polygon: polygon
+            polygon: polygon,
+            symbol: this.symbol,
         }
     }
 }

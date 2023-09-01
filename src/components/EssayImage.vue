@@ -12,9 +12,9 @@
   const commentsStore = useCommentsStore();
   const summaryStore = useSummaryStore();
   const pagesStore = usePagesStore();
-
+  
   const markerNode = ref();
-  const defaultShape = ref(SHAPES.RECTANGLE);
+  const selectedTool = ref('rectangle');
   const zoomLevel = ref(1);
   
   let marker;
@@ -25,9 +25,7 @@
       marker = createImageMarker(markerNode.value, onCreation, onSelection);
       marker.setDefaultColor('#3365ffaa');
       marker.setDefaultSelectedColor('#3365ffaa');
-      marker.setDefaultShape(SHAPES.RECTANGLE);
-      marker.drawMode();
-
+      selectTool()
       showPage(pagesStore.minPage);
   });
 
@@ -39,6 +37,18 @@
       if (!!created && !summaryStore.isAuthorized) {
         
           const mark = new Mark(created);
+          switch (selectedTool.value) {
+            case 'check':
+              mark.symbol = '✓';
+              break;
+            case 'cross':
+              mark.symbol = '✗';
+              break;
+            case 'question':
+              mark.symbol = '?';
+              break;
+          }
+          
           const comment = new Comment({
               parent_number: pagesStore.selectedPageNo,
               marks: [mark]
@@ -124,7 +134,7 @@
             ...mark.getData(),
             label: comment.key == commentsStore.selectedKey ? comment.label : '',
             color: getColor(comment, mark.shape),
-            selectedColor: getSelectedColor(comment, mark.shape)
+            selectedColor: getSelectedColor(comment, mark.shape),
           }
           if (currentKeys.includes(mark.key)) {
             marker.updateMark(mark_data);
@@ -232,14 +242,40 @@
       marker.setZoomLevel(zoomLevel.value);
   }
 
-  function setShape() {
-      if (defaultShape.value == 'scroll') {
-          marker.scrollMode();
-      }
-      else {
-          marker.setDefaultShape(defaultShape.value);
-          marker.drawMode();
-      }
+  function selectTool() {
+    switch (selectedTool.value) {
+      case 'scroll':
+        marker.scrollMode();
+        break;
+        
+      case 'rectangle':
+        marker.drawMode();
+        marker.setDefaultShape(SHAPES.RECTANGLE);
+        break;
+        
+      case 'line':
+        marker.drawMode();
+        marker.setDefaultShape(SHAPES.LINE);
+        break;
+
+      case 'wave':
+        marker.drawMode();
+        marker.setDefaultShape(SHAPES.WAVE);
+        break;
+
+      case 'polygon':
+        marker.drawMode();
+        marker.setDefaultShape(SHAPES.POLYGON);
+        break;
+
+      case 'circle':
+      case 'check':
+      case 'cross':
+      case 'question':
+        marker.drawMode();
+        marker.setDefaultShape(SHAPES.CIRCLE);
+        break;
+    }
   }
 
 
@@ -264,13 +300,14 @@
 
           &nbsp;
 
-          <v-btn-toggle variant="outlined" divided v-model="defaultShape" @click="setShape()">
+          <v-btn-toggle variant="outlined" divided v-model="selectedTool" @click="selectTool()">
             <v-btn icon="mdi-cursor-move" value="scroll"></v-btn>
-            <v-btn icon="mdi-minus" :value="SHAPES.LINE"></v-btn>
-            <v-btn icon="mdi-wave" :value="SHAPES.WAVE"></v-btn>
-            <v-btn icon="mdi-circle-medium" :value="SHAPES.CIRCLE"></v-btn>
-            <v-btn icon="mdi-rectangle-outline" :value="SHAPES.RECTANGLE"></v-btn>
-            <v-btn icon="mdi-vector-triangle" :value="SHAPES.POLYGON"></v-btn>
+            <v-btn icon="mdi-minus" value="line"></v-btn>
+            <v-btn icon="mdi-wave" value="wave"></v-btn>
+            <v-btn icon="mdi-check-bold" value="check"></v-btn>
+            <v-btn icon="mdi-close-thick" value="cross"></v-btn>
+            <v-btn icon="mdi-help" value="question"></v-btn>
+            <v-btn icon="mdi-vector-triangle" value="polygon"></v-btn>
           </v-btn-toggle>
 
         </div>
