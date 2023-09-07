@@ -307,7 +307,7 @@
             <v-btn icon="mdi-check-bold" value="check"></v-btn>
             <v-btn icon="mdi-close-thick" value="cross"></v-btn>
             <v-btn icon="mdi-help" value="question"></v-btn>
-            <v-btn icon="mdi-vector-triangle" value="polygon"></v-btn>
+            <!--<v-btn icon="mdi-vector-triangle" value="polygon"></v-btn> -->
           </v-btn-toggle>
 
         </div>

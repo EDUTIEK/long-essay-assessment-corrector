@@ -130,7 +130,7 @@ async function selectComment(comment) {
                     <span class="checkboxes">
 
                         <label 
-                               @click="commentsStore.selectComment(comment.key)">Punkte:</label>
+                               @click="commentsStore.selectComment(comment.key)">Pkt.:</label>
 
                         <input v-if="criteriaStore.hasOwnCriteria" disabled="disabled"
                                :id="'pointsInput' + comment.key"
@@ -144,10 +144,10 @@ async function selectComment(comment) {
                                @change="commentsStore.updateComment(comment)"
                                v-model="comment.points" />
 
-                        <v-checkbox-btn v-model="comment.rating_excellent" label="Exzellent"
+                        <v-checkbox-btn v-model="comment.rating_excellent" label="Exc."
                                         :disabled="summaryStore.isAuthorized || comment.corrector_key != apiStore.correctorKey"
                                         @change="toggleExcellent(comment)"></v-checkbox-btn>
-                        <v-checkbox-btn v-model="comment.rating_cardinal" label="Kardinalfehler"
+                        <v-checkbox-btn v-model="comment.rating_cardinal" label="Kard."
                                         :disabled="summaryStore.isAuthorized || comment.corrector_key != apiStore.correctorKey"
                                         @change="toggleCardinal(comment)"></v-checkbox-btn>
                     </span>
