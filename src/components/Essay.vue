@@ -150,13 +150,12 @@
 <template>
     <div id="app-essay-wrapper">
         <div id="app-essay" v-html="essayStore.text"></div>
-        <v-menu v-model="showMenu">
-            <div id="app-essay-menu">
-                <v-btn icon="mdi-comment-plus" @click="menuAddComment()"></v-btn>
-                <v-btn icon="mdi-marker" @click="menuEditComment()"></v-btn>
-            </div>
-
-        </v-menu>
+      <v-menu v-model="showMenu">
+        <div id="app-essay-menu">
+          <v-btn icon="mdi-comment-plus" @click="menuAddComment()"></v-btn>
+          <v-btn icon="mdi-marker" @click="menuEditComment()"></v-btn>
+        </div>
+      </v-menu>
     </div>
 </template>
 

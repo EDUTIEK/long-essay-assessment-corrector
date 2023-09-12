@@ -4,12 +4,24 @@ import { useLayoutStore } from "@/store/layout";
 import { useResourcesStore } from "@/store/resources";
 import { useCorrectorsStore } from "@/store/correctors";
 import { useTaskStore } from '@/store/task';
+import { useSummaryStore} from '@/store/summary';
+import { useCommentsStore } from '@/store/comments';
+import { usePointsStore} from '@/store/points';
 
 const apiStore = useApiStore();
 const layoutStore = useLayoutStore();
 const resourcesStore = useResourcesStore();
 const correctorsStore = useCorrectorsStore();
 const taskStore = useTaskStore();
+const summaryStore = useSummaryStore();
+const commentsStore = useCommentsStore();
+const pointsStore = usePointsStore();
+
+function isSent() {
+  return summaryStore.openSending == false
+      && commentsStore.countUnsentChanges == 0
+      && pointsStore.countUnsentChanges == 0
+}
 
 function openNavigation() {
     document.getElementById('app-navigation-drawer').dispatchEvent(new Event('mouseenter'));
@@ -123,13 +135,20 @@ function getCorrectorIcon(corrector) {
 
             <v-divider class="border-opacity-75" ></v-divider>
 
-<!--         
-            <v-list-item @click="layoutStore.togglePlayground();  closeNavigation();"
-                         :prepend-icon="layoutStore.isPlaygroundShown ? 'mdi-flask-empty': 'mdi-flask-empty-outline'"
-                         title="Developer Labs">
-            </v-list-item>
--->
+
+
         </v-list>
+
+        <template v-slot:append>
+          <v-list>
+            <v-list-item
+                :disabled="isSent()"
+                :prepend-icon="isSent() ? 'mdi-cloud-check-outline' : 'mdi-cloud-upload'"
+                :title="isSent() ? 'Alles gesendet' : 'Letzte Änderung senden'"
+                @click="apiStore.saveChangesToBackend()"></v-list-item>
+          </v-list>
+        </template>
+
 
     </v-navigation-drawer>
 </template>

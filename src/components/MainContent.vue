@@ -27,7 +27,7 @@
 
 <template>
   <v-main fill-height>
-    <div class="container">
+    <div id="app-main-container">
 
       <!--
         Left Column
@@ -35,7 +35,7 @@
       <div  class="column" :class="{ colExpanded: layoutStore.isLeftExpanded, colNormal: !layoutStore.isLeftExpanded}" v-show="layoutStore.isLeftVisible">
         <!-- Header -->
         <div class="col-header">
-            <h2 class="text-h6">{{
+            <span class="headline">{{
                     layoutStore.isInstructionsVisible ? "Aufgabenstellung"
                         : layoutStore.isInstructionsPdfVisible ? "Aufgabenstellung (PDF)"
                             : layoutStore.isSolutionVisible ? "Lösungshinweise"
@@ -44,7 +44,31 @@
                                             : layoutStore.isResourcesVisible ? resourcesStore.activeTitle
                                                 : layoutStore.isLeftCorrectorVisible ? layoutStore.leftCorrectorTitle : ""
                 }}
-            </h2>
+            </span>
+            <v-btn-group density="comfortable">
+              <!-- toggle left summary text  -->
+              <v-btn size="x-small" v-show="layoutStore.isLeftCorrectorVisible" @click="layoutStore.setLeftSummaryTextExpanded(!layoutStore.isLeftSummaryTextExpanded)">
+                <v-icon icon="mdi-arrow-up-down"></v-icon>
+                <span>Text</span>
+              </v-btn>
+              <!-- expand right column -->
+              <v-btn size="x-small" @click="layoutStore.setLeftExpanded(false)" v-show="layoutStore.isLeftExpanded">
+                <v-icon icon="mdi-chevron-left"></v-icon>
+                <span> {{
+                    layoutStore.isMarkingSelected ? "Anmerkungen"
+                        : layoutStore.isSummarySelected ? "Gesamteindruck"
+                            : layoutStore.isRightCorrectorSelected ? layoutStore.rightCorrectorTitle : ""
+                  }}
+                </span>
+              </v-btn>
+              <!-- expand left column -->
+              <v-btn size="x-small" @click="layoutStore.setLeftExpanded(true)" v-show="!layoutStore.isLeftExpanded">
+                <span>Erweitern</span>
+                <v-icon icon="mdi-chevron-right"></v-icon>
+              </v-btn>
+              
+            </v-btn-group>
+          
         </div>
         <!-- Content -->
         <div class="col-content">
@@ -59,26 +83,6 @@
         </div>
         <!--Footer -->
         <div class="col-footer text-right" :class="{ footerExpanded: layoutStore.isLeftExpanded, footerNormal: !layoutStore.isLeftExpanded}" >
-            <!-- toggle left summary text  -->
-            <v-btn class="ma-2" v-show="layoutStore.isLeftCorrectorVisible" @click="layoutStore.setLeftSummaryTextExpanded(!layoutStore.isLeftSummaryTextExpanded)">
-                <v-icon :icon="layoutStore.isLeftSummaryTextExpanded ? 'mdi-chevron-down' : 'mdi-chevron-up'"></v-icon>
-                <span>Zusammenfassung</span>
-            </v-btn>
-            <!-- expand right column -->
-          <v-btn class="ma-2" @click="layoutStore.setLeftExpanded(false)" v-show="layoutStore.isLeftExpanded">
-            <v-icon icon="mdi-chevron-left"></v-icon>
-              <span> {{
-                      layoutStore.isMarkingSelected ? "Anmerkungen"
-                          : layoutStore.isSummarySelected ? "Gesamteindruck"
-                              : layoutStore.isRightCorrectorSelected ? layoutStore.rightCorrectorTitle : ""
-                  }}
-            </span>
-          </v-btn>
-          <!-- expand left column -->
-          <v-btn class="ma-2" @click="layoutStore.setLeftExpanded(true)" v-show="!layoutStore.isLeftExpanded">
-            <span>Erweitern</span>
-            <v-icon icon="mdi-chevron-right"></v-icon>
-          </v-btn>
         </div>
       </div>
 
@@ -88,60 +92,68 @@
         <div class="column" :class="{ colExpanded: layoutStore.isRightExpanded, colNormal: !layoutStore.isRightExpanded}" v-show="layoutStore.isRightVisible" >
           <!-- Header -->
           <div class="col-header">
-              <h2 class="text-h6"> {{
+            
+            <span class="headline"> {{
                       layoutStore.isMarkingVisible ? "Anmerkungen"
                           : layoutStore.isSummaryVisible ? "Eigener Gesamteindruck"
                               : layoutStore.isRightCorrectorVisible ? layoutStore.rightCorrectorTitle : ""
                   }}
-                  <!-- show other correctors -->
-                  <v-btn variant="plain" v-if="layoutStore.isMarkingVisible"
-                         @click="commentsStore.setShowOtherCorrectors(!commentsStore.isOtherCorrectorsShown)">
-                      <v-icon :icon="commentsStore.isOtherCorrectorsShown ? 'mdi-account-school' : 'mdi-account-school-outline'"></v-icon>
-                  </v-btn>
+            </span>
 
-                  <!-- reset comments filter -->
-                  <v-btn variant="plain" v-if="layoutStore.isMarkingVisible"
-                         :disabled="!commentsStore.isFilterActive"
-                         @click="commentsStore.resetFilter()">
-                      <v-icon :icon="commentsStore.isFilterActive ? 'mdi-filter' : 'mdi-filter-outline'"></v-icon>
-                  </v-btn>
-              </h2>
+            <v-btn-group density="comfortable">
+              
+              <!-- show other correctors -->
+              <v-btn  size="x-small" variant="plain" v-if="layoutStore.isMarkingVisible"
+                     @click="commentsStore.setShowOtherCorrectors(!commentsStore.isOtherCorrectorsShown)">
+                <v-icon :icon="commentsStore.isOtherCorrectorsShown ? 'mdi-account-school' : 'mdi-account-school-outline'"></v-icon>
+              </v-btn>
+              
+              <!-- reset comments filter -->
+              <v-btn  size="x-small" variant="plain" v-if="layoutStore.isMarkingVisible"
+                     :disabled="!commentsStore.isFilterActive"
+                     @click="commentsStore.resetFilter()">
+                <v-icon :icon="commentsStore.isFilterActive ? 'mdi-filter' : 'mdi-filter-outline'"></v-icon>
+              </v-btn>
+              
+              <!-- toggle marking points -->
+              <v-btn size="x-small" v-show=" criteriaStore.hasOwnCriteria && layoutStore.isMarkingVisible" @click="layoutStore.setMarkingPointsExpanded(!layoutStore.isMarkingPointsExpanded)">
+                <v-icon :icon="layoutStore.isMarkingPointsExpanded ? 'mdi-chevron-down' : 'mdi-chevron-up'"></v-icon>
+                <span>Bewertungen</span>
+              </v-btn>
 
+              <!-- toggle right summary text  -->
+              <v-btn size="x-small" v-show="layoutStore.isSummaryVisible || layoutStore.isRightCorrectorVisible" @click="layoutStore.setRightSummaryTextExpanded(!layoutStore.isRightSummaryTextExpanded)">
+                <v-icon icon="mdi-arrow-up-down"></v-icon>
+                <span>Text</span>
+              </v-btn>
+
+              <!-- expand left column -->
+              <v-btn size="x-small" @click="layoutStore.setRightExpanded(false)" v-show="layoutStore.isRightExpanded">
+                <span> {{
+                    layoutStore.isInstructionsSelected ? "Aufgabenstellung"
+                        : layoutStore.isEssaySelected ? "Abgegebener Text"
+                            : layoutStore.isResourcesSelected ? resourcesStore.activeTitle
+                                : layoutStore.isLeftCorrectorSelected ? layoutStore.leftCorrectorTitle : ""
+                  }}
+                </span>
+                <v-icon icon="mdi-chevron-right"></v-icon>
+              </v-btn>
+
+              <!-- expand right column -->
+              <v-btn size="x-small" @click="layoutStore.setRightExpanded(true)" v-show="!layoutStore.isRightExpanded">
+                <v-icon icon="mdi-chevron-left"></v-icon>
+                <span>Breiter</span>
+              </v-btn>
+              
+            </v-btn-group>
+            
           </div>
+          
         <!-- Content -->
         <div class="col-content">
           <own-summary v-if="layoutStore.isSummaryVisible" :isTextExpanded="layoutStore.isRightSummaryTextExpanded"/>
           <other-summary v-if= "layoutStore.isRightCorrectorVisible" :corrector_key="layoutStore.rightCorrectorKey" :isTextExpanded="layoutStore.isRightSummaryTextExpanded" />
           <marking v-show="layoutStore.isMarkingVisible"/> <!-- v-show neeed to keep points displayed when switching right content) -->
-        </div>
-        <!-- Footer -->
-        <div class="col-footer text-left" :class="{ footerExpanded: layoutStore.isRightExpanded, footerNormal: !layoutStore.isRightExpanded}">
-          <!-- expand right column -->
-          <v-btn class="ma-2" @click="layoutStore.setRightExpanded(true)" v-show="!layoutStore.isRightExpanded">
-            <v-icon icon="mdi-chevron-left"></v-icon>
-            <span>Erweitern</span>
-          </v-btn>
-          <!-- expand left column -->
-          <v-btn class="ma-2" @click="layoutStore.setRightExpanded(false)" v-show="layoutStore.isRightExpanded">
-              <span> {{
-                      layoutStore.isInstructionsSelected ? "Aufgabenstellung"
-                          : layoutStore.isEssaySelected ? "Abgegebener Text"
-                              : layoutStore.isResourcesSelected ? resourcesStore.activeTitle
-                                  : layoutStore.isLeftCorrectorSelected ? layoutStore.leftCorrectorTitle : ""
-                  }}
-              </span>
-                <v-icon icon="mdi-chevron-right"></v-icon>
-          </v-btn>
-          <!-- toggle marking points -->
-          <v-btn class="ma-2" v-show=" criteriaStore.hasOwnCriteria && layoutStore.isMarkingVisible" @click="layoutStore.setMarkingPointsExpanded(!layoutStore.isMarkingPointsExpanded)">
-                <v-icon :icon="layoutStore.isMarkingPointsExpanded ? 'mdi-chevron-down' : 'mdi-chevron-up'"></v-icon>
-                <span>Bewertungen</span>
-          </v-btn>
-          <!-- toggle right summary text  -->
-          <v-btn class="ma-2" v-show="layoutStore.isSummaryVisible || layoutStore.isRightCorrectorVisible" @click="layoutStore.setRightSummaryTextExpanded(!layoutStore.isRightSummaryTextExpanded)">
-              <v-icon :icon="layoutStore.isRightSummaryTextExpanded ? 'mdi-chevron-down' : 'mdi-chevron-up'"></v-icon>
-              <span>Zusammenfassung</span>
-          </v-btn>
         </div>
       </div>
     </div>
@@ -175,35 +187,44 @@
 
 /* Structure */
 
-.container {
+#app-main-container {
   position: fixed;
-  height: calc((100% - 50px) - 50px);
+  height: calc(100% - 50px);
   width: calc(100% - 72px);
+
   display: flex;
+  flex-direction: row;
+
 }
 
 .column {
-  flex: 1;
+  height:100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .col-header {
-  height: 50px;
+  min-height: 40px;
   width: 100%;
   padding:10px;
 }
 
 .col-content {
-  height: calc(((100% - 50px)) - 70px);
+  flex-grow: 1;
   background-color: white;
-  overflow: hidden;
   width: 100%;
   padding:10px;
+  overflow-y: hidden;
 }
 
-.col-footer {
-  position: fixed;
-  bottom: 48px;
-  padding:20px;
+.headline {
+  font-weight: bold;
+  
+}
+
+.v-btn-group {
+  margin-top: -6px;
+  float: right;
 }
 
 /* Dynamic Properties */
@@ -214,13 +235,6 @@
 
 .colExpanded {
   width: 100%;
-}
-
-.footerNormal {
-  width: calc(50% - 50px);
-}
-.footerExpanded {
-  width: calc(100% - 100px);
 }
 
 

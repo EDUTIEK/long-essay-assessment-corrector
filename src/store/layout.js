@@ -26,8 +26,6 @@ export const useLayoutStore = defineStore('layout', {
             markingPointsExpanded: true,        // vertical expansion of the rating points
             leftSummaryTextExpanded: true,      // vertical expansion of the left summary text
             rightSummaryTextExpanded: true,     // vertical expansion of the right summary text
-
-            showPlayground: false               // show the playground istead of the main content
         }
     },
 
@@ -63,8 +61,6 @@ export const useLayoutStore = defineStore('layout', {
         isMarkingPointsExpanded: (state) => state.markingPointsExpanded,
         isLeftSummaryTextExpanded: (state) => state.leftSummaryTextExpanded,
         isRightSummaryTextExpanded: (state) => state.rightSummaryTextExpanded,
-
-        isPlaygroundShown: (state) => (state.showPlayground),
 
         leftCorrectorTitle: (state) => {
             const correctorsStore = useCorrectorsStore();
@@ -262,11 +258,6 @@ export const useLayoutStore = defineStore('layout', {
                 this.leftCorrectorKey = corrector_key;
                 this.showLeftCorrector();
             }
-        },
-
-
-        togglePlayground() {
-            this.showPlayground = !this.showPlayground;
         }
     }
 });

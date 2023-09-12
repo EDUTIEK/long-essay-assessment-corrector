@@ -5,7 +5,6 @@
  */
 import AppBar from "@/components/AppBar.vue";
 import NavBar from "@/components/NavBar.vue";
-import StateBar from "@/components/StateBar.vue";
 import MainContent from "@/components/MainContent.vue";
 import StartupContent from "@/components/StartupContent.vue";
 import Labs from "@/components/Labs.vue";
@@ -24,9 +23,7 @@ const layoutStore = useLayoutStore();
       <startup-content v-if="!apiStore.initialized" />
       <app-bar v-if="apiStore.initialized"/>
       <nav-bar v-if="apiStore.initialized"/>
-      <main-content v-if="apiStore.initialized && !layoutStore.isPlaygroundShown"/>
-      <labs v-if="apiStore.initialized && layoutStore.isPlaygroundShown"></labs>
-      <state-bar v-if="apiStore.initialized"/>
+      <main-content v-if="apiStore.initialized"/>
     </v-app>
 </template>
 

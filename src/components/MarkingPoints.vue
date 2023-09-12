@@ -84,6 +84,10 @@ function savePoints(criterionKey) {
 
 <style scoped>
 
+th, td {
+  font-size: 14px;  
+}
+
 .commentLabel {
     background-color: grey;
     color: white;

@@ -121,8 +121,10 @@ async function selectComment(comment) {
                         @click="commentsStore.selectComment(comment.key)">
                       {{comment.label}}
                     </span>
-                  
-                  &nbsp;
+
+                </v-col>
+
+                <v-col class="col">
                   
                   <v-btn density="compact" size="small" variant="text" prepend-icon="mdi-delete-outline"
                          v-show="comment.corrector_key == apiStore.correctorKey && !summaryStore.isAuthorized"
@@ -160,7 +162,7 @@ async function selectComment(comment) {
                              @change="toggleExcellent(comment)" />
                   
                   <label :for="'ratingExcellent' + comment.key"
-                         @click="commentsStore.selectComment(comment.key)">&nbsp;Excellent</label>
+                         @click="commentsStore.selectComment(comment.key)"> Excellent</label>
 
                 </v-col>
 
@@ -172,7 +174,7 @@ async function selectComment(comment) {
                            :disabled="summaryStore.isAuthorized || comment.corrector_key != apiStore.correctorKey"
                            @change="toggleCardinal(comment)"/>
                   <label :for="'ratingCardinal' + comment.key"
-                         @click="commentsStore.selectComment(comment.key)">&nbsp;Kardinal</label>
+                         @click="commentsStore.selectComment(comment.key)"> Kardinal</label>
                 </v-col>
             </v-row>
             <v-row>
@@ -199,12 +201,13 @@ async function selectComment(comment) {
     }
 
     .row {
-        margin-top: -25px;
-        margin-bottom: -15px;
+        margin-top: -18px;
+        margin-bottom: -12px;
+        line-height: 12px;
     }
 
     .col {
-      font-size: 14px;
+      font-size: 12px;
     }
     
     .commentLabel {
