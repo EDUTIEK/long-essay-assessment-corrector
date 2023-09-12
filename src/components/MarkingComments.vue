@@ -115,43 +115,64 @@ async function selectComment(comment) {
     <div id="appMarkingComments">
         <v-container :id="'appCommentContainer' + comment.key" v-for="comment in commentsStore.activeComments" :key="comment.key">
             <v-row class="row" dense>
-                <v-col class="leftCol">
+                <v-col class="col">
                     <span 
                         :class="'commentLabel ' + (comment.key == commentsStore.selectedKey ? 'selected' : '')"
                         @click="commentsStore.selectComment(comment.key)">
                       {{comment.label}}
                     </span>
-                     &nbsp;
-                    <v-btn density="compact" size="small" variant="text" prepend-icon="mdi-delete-outline"
-                           v-show="comment.corrector_key == apiStore.correctorKey && !summaryStore.isAuthorized"
-                           @click="commentsStore.deleteComment(comment.key)" >Löschen</v-btn>
+                  
+                  &nbsp;
+                  
+                  <v-btn density="compact" size="small" variant="text" prepend-icon="mdi-delete-outline"
+                         v-show="comment.corrector_key == apiStore.correctorKey && !summaryStore.isAuthorized"
+                         @click="commentsStore.deleteComment(comment.key)" ></v-btn>
+
                 </v-col>
-                <v-col class="rightCol">
-                    <span class="checkboxes">
+                <v-col class="col">
+                      <input v-if="criteriaStore.hasOwnCriteria"
+                             class="pointsInput"
+                             disabled="disabled"
+                             :id="'pointsInput' + comment.key"
+                             :value="pointsStore.getSumOfPointsForComment(comment.key)"/>
 
-                        <label 
-                               @click="commentsStore.selectComment(comment.key)">Pkt.:</label>
+                      <input v-if="!criteriaStore.hasOwnCriteria" 
+                             type="number"
+                             min="0"
+                             :style="'color: ' + getPointsColor(comment) + ';'"
+                             :id="'pointsInput' + comment.key"
+                             :max="settingsStore.max_points"
+                             :disabled="summaryStore.isAuthorized || comment.corrector_key != apiStore.correctorKey"
+                             @change="commentsStore.updateComment(comment)"
+                             v-model="comment.points" />
+                  
+                  <label :for="'pointsInput' + comment.key"
+                         @click="commentsStore.selectComment(comment.key)"> Punkte</label>
 
-                        <input v-if="criteriaStore.hasOwnCriteria" disabled="disabled"
-                               :id="'pointsInput' + comment.key"
-                               :value="pointsStore.getSumOfPointsForComment(comment.key)"/>
+                </v-col>
+              
+                <v-col class="col">
+                      <input type="checkbox"
+                             class="ratingInput"
+                             v-model="comment.rating_excellent"
+                             :id="'ratingExcellent' + comment.key"
+                             :disabled="summaryStore.isAuthorized || comment.corrector_key != apiStore.correctorKey"
+                             @change="toggleExcellent(comment)" />
+                  
+                  <label :for="'ratingExcellent' + comment.key"
+                         @click="commentsStore.selectComment(comment.key)">&nbsp;Excellent</label>
 
-                        <input v-if="!criteriaStore.hasOwnCriteria" type="number" min="0"
-                               :style="'color: ' + getPointsColor(comment) + ';'"
-                               :id="'pointsInput' + comment.key"
-                               :max="settingsStore.max_points"
-                               :disabled="summaryStore.isAuthorized || comment.corrector_key != apiStore.correctorKey"
-                               @change="commentsStore.updateComment(comment)"
-                               v-model="comment.points" />
+                </v-col>
 
-                        <v-checkbox-btn v-model="comment.rating_excellent" label="Exc."
-                                        :disabled="summaryStore.isAuthorized || comment.corrector_key != apiStore.correctorKey"
-                                        @change="toggleExcellent(comment)"></v-checkbox-btn>
-                        <v-checkbox-btn v-model="comment.rating_cardinal" label="Kard."
-                                        :disabled="summaryStore.isAuthorized || comment.corrector_key != apiStore.correctorKey"
-                                        @change="toggleCardinal(comment)"></v-checkbox-btn>
-                    </span>
-
+                <v-col class="col">
+                  <input type="checkbox"
+                           class="ratingInput"
+                           v-model="comment.rating_cardinal"
+                           :id="'ratingCardinal' + comment.key"
+                           :disabled="summaryStore.isAuthorized || comment.corrector_key != apiStore.correctorKey"
+                           @change="toggleCardinal(comment)"/>
+                  <label :for="'ratingCardinal' + comment.key"
+                         @click="commentsStore.selectComment(comment.key)">&nbsp;Kardinal</label>
                 </v-col>
             </v-row>
             <v-row>
@@ -172,34 +193,9 @@ async function selectComment(comment) {
 <style scoped>
 
     .v-container {
+        margin-top: 1px;
         padding-right: 20px;
         padding-bottom: 8px;
-    }
-
-    .checkboxes label {
-        position: relative;
-        top: -14px;
-        font-size: 16px;
-        font-family: sans-serif;
-        color: grey;
-    }
-
-    .checkboxes input {
-        position: relative;
-        top: -14px;
-        font-size: 14px;
-        font-family: sans-serif;
-        font-weight: bold;
-        color: grey;
-        width: 50px;
-        margin-left: 5px;
-    }
-
-    .checkboxes {
-        display: inline-block;
-        position: relative;
-        top: 10px;
-        font-size: 10px;
     }
 
     .row {
@@ -207,15 +203,10 @@ async function selectComment(comment) {
         margin-bottom: -15px;
     }
 
-    .leftCol {
+    .col {
+      font-size: 14px;
     }
-
-    .rightCol {
-       padding: 0;
-       text-align:right;
-       margin-top: -15px;
-   }
-
+    
     .commentLabel {
         font-size: 14px;
         padding: 3px;
@@ -228,6 +219,10 @@ async function selectComment(comment) {
         font-size: 14px;
     }
 
+    .pointsInput {
+      width: 20px;
+    }
+    
     .commentWrapper {
         width:100%;
     }
