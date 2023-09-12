@@ -285,29 +285,30 @@
     <div id="app-essay-image-wrapper">
         <div class = "appImageButtons">
 
-          <v-btn-group variant="outlined" divided>
-            <v-btn icon="mdi-menu-left" @click="prevPage()"></v-btn>
-            <v-btn>{{pagesStore.selectedPageNo}}</v-btn>
-            <v-btn icon="mdi-menu-right" @click="nextPage()"></v-btn>
+          <v-btn-group density="comfortable" variant="outlined" divided>
+            <v-btn size="small" icon="mdi-menu-left" @click="prevPage()"></v-btn>
+            <v-btn size="small" >{{pagesStore.selectedPageNo}}</v-btn>
+            <v-btn size="small" icon="mdi-menu-right" @click="nextPage()"></v-btn>
           </v-btn-group>
 
           &nbsp;
 
-          <v-btn-group variant="outlined" divided>
-            <v-btn icon="mdi-magnify-minus-outline" @click="zoomOut()"></v-btn>
-            <v-btn icon="mdi-magnify-plus-outline" @click="zoomIn()"></v-btn>
+          <v-btn-group density="comfortable" variant="outlined" divided>
+            <v-btn size="small" icon="mdi-magnify-minus-outline" @click="zoomOut()"></v-btn>
+            <v-btn size="small" icon="mdi-magnify-plus-outline" @click="zoomIn()"></v-btn>
           </v-btn-group>
 
           &nbsp;
 
-          <v-btn-toggle variant="outlined" divided v-model="selectedTool" @click="selectTool()">
-            <v-btn icon="mdi-cursor-move" value="scroll"></v-btn>
-            <v-btn icon="mdi-minus" value="line"></v-btn>
-            <v-btn icon="mdi-wave" value="wave"></v-btn>
-            <v-btn icon="mdi-check-bold" value="check"></v-btn>
-            <v-btn icon="mdi-close-thick" value="cross"></v-btn>
-            <v-btn icon="mdi-help" value="question"></v-btn>
-            <!--<v-btn icon="mdi-vector-triangle" value="polygon"></v-btn> -->
+          <v-btn-toggle density="comfortable" variant="outlined" divided v-model="selectedTool" @click="selectTool()">
+            <v-btn size="small" icon="mdi-cursor-move" value="scroll"></v-btn>
+            <v-btn size="small" icon="mdi-minus" value="line"></v-btn>
+            <v-btn size="small" icon="mdi-wave" value="wave"></v-btn>
+            <v-btn size="small" icon="mdi-check" value="check"></v-btn>
+            <v-btn size="small" icon="mdi-close" value="cross"></v-btn>
+            <v-btn size="small" icon="mdi-help" value="question"></v-btn>
+            <v-btn size="small" icon="mdi-rectangle-outline" value="rectangle"></v-btn>
+            <v-btn size="small" icon="mdi-vector-triangle" value="polygon"></v-btn>
           </v-btn-toggle>
 
         </div>
