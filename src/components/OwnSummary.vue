@@ -2,24 +2,27 @@
 import SummaryCriteria from '@/components/SummaryCriteria.vue';
 import OwnSummaryPoints from "@/components/OwnSummaryPoints.vue";
 import OwnSummaryText from "@/components/OwnSummaryText.vue";
-import SummaryText from '@/components/SummaryText.vue';
 
 import {useApiStore} from "@/store/api";
-import {useLayoutStore} from "../store/layout";
-import { useSummaryStore } from '@/store/summary';
 const apiStore = useApiStore();
-const layoutStore = useLayoutStore();
-const summaryStore = useSummaryStore();
 
-const props = defineProps(['isTextExpanded']);
+const props = defineProps(['textExpansion']);
 
-
+function textExpansionClass() {
+  switch (props.textExpansion) {
+    case 0: return 'hidden';
+    case 1: return 'full';
+    default: return 'half';
+  }
+}
 </script>
 
 <template>
     <div id="app-own-summary-wrapper">
         <summary-criteria id="app-own-summary-criteria" :corrector_key="apiStore.correctorKey"></summary-criteria>
-        <own-summary-text  v-if="props.isTextExpanded"></own-summary-text>
+        <div :class="textExpansionClass()">
+          <own-summary-text></own-summary-text>
+        </div>
         <own-summary-points id="app-own-summary-points"></own-summary-points>
     </div>
 </template>
@@ -40,5 +43,19 @@ const props = defineProps(['isTextExpanded']);
 #app-own-summary-points {
     min-height: 50px;
 }
+
+.hidden {
+  display: none;
+}
+
+.full {
+  min-height: calc(100% - 50px);
+}
+
+.half {
+  min-height: 50%;
+}
+
+
 
 </style>

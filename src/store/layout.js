@@ -23,9 +23,9 @@ export const useLayoutStore = defineStore('layout', {
             leftCorrectorKey: '',               // key of the corrector shown on the left side
             rightCorrectorKey: '',              // key of the corrector shown on the right side
 
-            markingPointsExpanded: true,        // vertical expansion of the rating points
-            leftSummaryTextExpanded: true,      // vertical expansion of the left summary text
-            rightSummaryTextExpanded: true,     // vertical expansion of the right summary text
+            markingPointsExpansion: 0,           // vertical expansion of the rating points: 0=hidden, 0.5=half, 1=full
+            leftSummaryTextExpansion: 0,         // vertical expansion of the left summary text: 0=hidden, 0.5=half, 1=full
+            rightSummaryTextExpansion: 0,        // vertical expansion of the right summary text: 0=hidden, 0.5=half, 1=full
         }
     },
 
@@ -58,9 +58,9 @@ export const useLayoutStore = defineStore('layout', {
         isLeftCorrectorVisible: (state) => (state.isLeftCorrectorSelected && state.isLeftVisible),
         isRightCorrectorVisible: (state) => (state.isRightCorrectorSelected && state.isRightVisible),
 
-        isMarkingPointsExpanded: (state) => state.markingPointsExpanded,
-        isLeftSummaryTextExpanded: (state) => state.leftSummaryTextExpanded,
-        isRightSummaryTextExpanded: (state) => state.rightSummaryTextExpanded,
+        isMarkingPointsExpanded: (state) => state.markingPointsExpansion > 0,
+        isLeftSummaryTextExpanded: (state) => state.leftSummaryTextExpansion > 0,
+        isRightSummaryTextExpanded: (state) => state.rightSummaryTextExpansion > 0,
 
         leftCorrectorTitle: (state) => {
             const correctorsStore = useCorrectorsStore();
@@ -101,9 +101,9 @@ export const useLayoutStore = defineStore('layout', {
                     // so show show the instructions as default left content
                     // this.leftContent = data.leftContent;
                     this.rightContent = data.rightContent;
-                    this.markingPointsExpanded = data.markingPointsExpanded;
-                    this.leftSummaryTextExpanded = data.leftSummaryTextExpanded;
-                    this.rightSummaryTextExpanded = data.rightSummaryTextExpanded;
+                    this.markingPointsExpansion = data.markingPointsExpansion;
+                    this.leftSummaryTextExpansion = data.leftSummaryTextExpansion;
+                    this.rightSummaryTextExpansion = data.rightSummaryTextExpansion;
                     this.showTimer = data.showTimer;
                 }
 
@@ -118,9 +118,9 @@ export const useLayoutStore = defineStore('layout', {
                     expandedColumn: this.expandedColumn,
                     leftContent: this.leftContent,
                     rightContent: this.rightContent,
-                    markingPointsExpanded: this.markingPointsExpanded,
-                    leftSummaryTextExpanded: this.leftSummaryTextExpanded,
-                    rightSummaryTextExpanded: this.rightSummaryTextExpanded,
+                    markingPointsExpansion: this.markingPointsExpansion,
+                    leftSummaryTextExpansion: this.leftSummaryTextExpansion,
+                    rightSummaryTextExpansion: this.rightSummaryTextExpansion,
                     showTimer: this.showTimer
                 })
             } catch (err) {
@@ -212,19 +212,27 @@ export const useLayoutStore = defineStore('layout', {
             this.saveToStorage();
         },
 
-        setMarkingPointsExpanded(expanded) {
-            this.markingPointsExpanded = !!expanded;
+        changeMarkingPointsExpansion() {
+            this.markingPointsExpansion = this.changeExpansion(this.markingPointsExpansion);
+            this.saveToStorage();
+        },
+        
+        changeLeftSummaryTextExpansion() {
+            this.leftSummaryTextExpansion = this.changeExpansion(this.leftSummaryTextExpansion);
+            this.saveToStorage()
+        },
+
+        changeRightSummaryTextExpansion() {
+            this.rightSummaryTextExpansion = this.changeExpansion(this.rightSummaryTextExpansion);
             this.saveToStorage();
         },
 
-        setLeftSummaryTextExpanded(expanded) {
-            this.leftSummaryTextExpanded = !!expanded;
-            this.saveToStorage();
-        },
-
-        setRightSummaryTextExpanded(expanded) {
-            this.rightSummaryTextExpanded = !!expanded;
-            this.saveToStorage();
+        changeExpansion(ratio) {
+          switch (ratio) {
+              case 0: return 0.5;
+              case 1: return 0;
+              default: return 1;
+          }
         },
 
 

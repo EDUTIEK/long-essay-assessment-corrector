@@ -103,11 +103,11 @@ const id = "summary";
 <style scoped>
 
 .app-own-summary-text-wrapper {
-  height: 50%;
+  height: 100%;
 }
 
 .app-summary-text-wrapper {
-  height:50%;
+  height:100%;
   border: 1px solid #cccccc;
   padding: 10px;
   overflow-y: scroll;
