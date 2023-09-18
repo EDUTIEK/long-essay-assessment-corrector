@@ -138,7 +138,8 @@ async function selectComment(comment) {
                              :id="'pointsInput' + comment.key"
                              :value="pointsStore.getSumOfPointsForComment(comment.key)"/>
 
-                      <input v-if="!criteriaStore.hasOwnCriteria" 
+                      <input v-if="!criteriaStore.hasOwnCriteria"
+                             class="pointsInput"
                              type="number"
                              min="0"
                              :style="'color: ' + getPointsColor(comment) + ';'"
@@ -223,7 +224,8 @@ async function selectComment(comment) {
     }
 
     .pointsInput {
-      width: 20px;
+      width: 4em;
+      text-align: left;
     }
     
     .commentWrapper {
