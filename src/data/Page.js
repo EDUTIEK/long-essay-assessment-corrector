@@ -15,7 +15,6 @@ class Page {
      */
     item_key = '';
 
-
     /**
      * Number of the page in the sequence
      * @type {integer}
@@ -34,6 +33,11 @@ class Page {
      */
     height = 0;
 
+    /**
+     * Url to fetch the page image
+     * @type {string}
+     */
+    url = null;
 
     /**
      * Width of the page thumbnail
@@ -48,10 +52,11 @@ class Page {
     thumb_height = null;
 
     /**
-     * Url to fetch the page image
+     * Url to fetch the page thunbmail
      * @type {string}
      */
-    url = null;
+    thumb_url = null;
+
 
     /**
      * Object url to use a fetched page image 
@@ -60,6 +65,14 @@ class Page {
      * @type {string|null}
      */
     objectUrl = null;
+
+    /**
+     * Object url to use a fetched page thumbnail
+     * Will be set separately and is not provided by getData()
+     * Must be revoked if the page is removed
+     * @type {string|null}
+     */
+    thumbObjectUrl = null;
     
     
     /**
@@ -83,15 +96,19 @@ class Page {
         if (data.height !== undefined && data.height !== null) {
             this.height = parseInt(data.height);
         }
+        if (data.url !== undefined && data.url !== null) {
+            this.url = data.url.toString();
+        }
         if (data.thumb_width !== undefined && data.thumb_width !== null) {
             this.thumb_width = parseInt(data.thumb_width);
         }
         if (data.thumb_height !== undefined && data.thumb_height !== null) {
             this.thumb_height = parseInt(data.thumb_height);
         }
-        if (data.url !== undefined && data.url !== null) {
-            this.url = data.url.toString();
+        if (data.thumb_url !== undefined && data.thumb_url !== null) {
+            this.thumb_url = data.thumb_url.toString();
         }
+
     }
 
     /**
@@ -104,9 +121,10 @@ class Page {
             page_no: this.page_no,
             width: this.width,
             height: this.height,
+            url: this.url,
             thumb_width: this.thumb_width,
             thumb_height: this.thumb_height,
-            url: this.url
+            thumb_url: this.url
         }
     }
 }

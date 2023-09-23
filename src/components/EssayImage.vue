@@ -99,7 +99,7 @@
   }
 
   /**
-   * Reload the page when the page images is available
+   * Reload the page when the page image is available
    */
   function reloadPage() {
     if (pagesStore.pagesLoaded) {
@@ -232,6 +232,11 @@
     }
   }
 
+  function selectPage(page_no) {
+    showPage(page_no);
+  }
+
+
   function zoomIn() {
       zoomLevel.value += 0.1;
       marker.setZoomLevel(zoomLevel.value);
@@ -287,7 +292,7 @@
 
           <v-btn-group density="comfortable" variant="outlined" divided>
             <v-btn size="small" icon="mdi-menu-left" @click="prevPage()"></v-btn>
-            <v-btn size="small" >{{pagesStore.selectedPageNo}}</v-btn>
+            <v-btn size="small" id="app-pages-menu-activator">{{pagesStore.selectedPageNo}}</v-btn>
             <v-btn size="small" icon="mdi-menu-right" @click="nextPage()"></v-btn>
           </v-btn-group>
 
@@ -311,6 +316,20 @@
             <v-btn size="small" icon="mdi-vector-triangle" value="polygon"></v-btn>
           </v-btn-toggle>
 
+          <v-menu activator="#app-pages-menu-activator">
+            <v-list>
+              <v-list-item v-for="page in pagesStore.pages"
+                           @click="selectPage(page.page_no)"
+                           :title="page.page_no"
+                           :key="page.key">
+                  <v-img :src="page.thumb_url" width="100">
+                  </v-img>
+              </v-list-item>
+
+            </v-list>
+          </v-menu>
+
+          
         </div>
       
       <div class="appImageMarker" ref="markerNode"></div>

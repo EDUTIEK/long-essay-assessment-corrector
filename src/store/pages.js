@@ -180,6 +180,7 @@ export const usePagesStore = defineStore('pages',{
                 for (const page_data of data) {
                     let page = new Page(page_data);
                     page.url = apiStore.imageUrl(page.key, page.item_key);
+                    page.thumb_url = apiStore.thumbUrl(page.key, page.item_key);
                     this.keys.push(page.key);
                     await storage.setItem(page.key, JSON.stringify(page.getData()));
                     if (page.item_key == currentItemKey) {
@@ -206,18 +207,25 @@ export const usePagesStore = defineStore('pages',{
          * https://stackoverflow.com/a/50387899
          */
         async loadFiles() {
-            for (const page of this.pages) {
-                try {
+            try {
+                // thumbnails are loaded faster, so load first
+                for (const page of this.pages) {
+                    console.log('preload thumbnail ' + page.page_no + '...');
+                    const response = await axios( page.thumb_url, {responseType: 'blob', timeout: 60000});
+                    page.thumbObjectUrl = URL.createObjectURL(response.data);
+                }
+                for (const page of this.pages) {
                     console.log('preload page ' + page.page_no + '...');
                     const response = await axios( page.url, {responseType: 'blob', timeout: 60000});
                     page.objectUrl = URL.createObjectURL(response.data);
-                    this.pagesLoaded = true;
-                }
-                catch (error) {
-                    console.error(error);
-                    return false;
                 }
             }
+            catch (error) {
+                console.error(error);
+                return false;
+            }
+
+            this.pagesLoaded = true;
         },
 
         /**
@@ -225,6 +233,10 @@ export const usePagesStore = defineStore('pages',{
          */
         purgeFiles() {
             for (const page of this.pages) {
+                if (page.thumbObjectUrl !== null)  {
+                    URL.revokeObjectURL(page.thumbObjectUrl);
+                    page.thumbObjectUrl = null;
+                }
                 if (page.objectUrl !== null)  {
                     URL.revokeObjectURL(page.objectUrl);
                     page.objectUrl = null;

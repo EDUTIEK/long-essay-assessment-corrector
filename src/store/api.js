@@ -110,6 +110,16 @@ export const useApiStore = defineStore('api', {
             }
         },
 
+        /**
+         * Get the Url for loading a page thumbnail
+         */
+        thumbUrl() {
+            return function (pageKey, itemKey) {
+                const config = this.requestConfig(this.fileToken);
+                return config.baseURL + '/thumb/' + itemKey + '/' + pageKey + '?' + config.params.toString();
+            }
+        },
+
 
         /**
          * Get the server unix timestamp (s) corresponding to a client timestamp (ms)
