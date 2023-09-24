@@ -4,11 +4,13 @@ import {useApiStore} from '@/store/api';
 import {useTaskStore} from '@/store/task';
 import {useSummaryStore} from '@/store/summary';
 import {useItemsStore} from '@/store/items';
+import {useSettingsStore} from '@/store/settings';
 
 const apiStore = useApiStore();
 const taskStore = useTaskStore();
 const summaryStore = useSummaryStore();
 const itemsStore = useItemsStore();
+const settingsStore = useSettingsStore();
 
 async function setAuthorizedAndContinue() {
     if (! await apiStore.saveChangesToBackend()) {
@@ -54,6 +56,17 @@ async function setAuthorizedAndClose() {
       <v-dialog persistent v-model="summaryStore.showAuthorization">
         <v-card>
           <v-card-text>
+            
+            <label for="appOwnSummaryPoints"><strong>Eigene Wertung:</strong></label>
+            <input class="appPoints" type="number" min="0" :max="settingsStore.max_points" v-model="summaryStore.currentPoints" />Punkte
+            &nbsp;
+            <strong>Notenstufe:</strong> {{ summaryStore.currentGradeTitle }}
+
+            <p><strong>Eigener Text:</strong></p>
+            <div class="appText" v-html="summaryStore.currentContent">
+            </div>
+            
+            <hr>
             <p v-show="summaryStore.isLastRating && summaryStore.getStitchReasonText != '' ">
               <strong>Ihre Punktevergabe wird einen Stichentscheid erfordern:</strong>
               <br>{{ summaryStore.getStitchReasonText }}
@@ -85,5 +98,17 @@ async function setAuthorizedAndClose() {
 
 <style scoped>
 
+.appPoints {
+  width: 4em;
+  border: 0;
+  margin-left: 5px;
+  margin-right: 5px;
+  padding: 5px;
+}
+
+.appText {
+  height: 12em;
+  overflow-y: scroll;
+}
 
 </style>
