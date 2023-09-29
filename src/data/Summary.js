@@ -93,7 +93,14 @@ class Summary {
    * @param {object} data
    */
   constructor(data = {}) {
+    this.setData(data);
+  }
 
+  /**
+   * Set the data from a plain object
+   * @param {object} data
+   */
+  setData(data) {
     if (data.item_key !== undefined && data.item_key !== null) {
       this.item_key = data.item_key.toString()
     }
@@ -130,9 +137,6 @@ class Summary {
     if (data.include_writer_notes !== undefined && data.include_writer_notes !== null) {
       this.include_writer_notes = this.transformInclusion(data.include_writer_notes);
     }
-
-    
-
   }
   
   transformInclusion(inclusion) {
@@ -148,9 +152,9 @@ class Summary {
     }
   }
 
-  
   /**
    * Get a plain data object from the public properties
+   * @returns {object}
    */
   getData() {
     return {
@@ -167,6 +171,35 @@ class Summary {
       include_criteria_points: this.include_criteria_points,
       include_writer_notes: this.include_writer_notes
     }
+  }
+  
+  /**
+   * @return {string}
+   */
+  getKey() {
+    return 'ITM-' + this.item_key + '-COR-' + this.corrector_key
+  }
+  
+
+  /**
+   * Get a clone of the object
+   * @returns {Summary}
+   */
+  getClone() {
+    return new Summary(this.getData());
+  }
+
+  /**
+   * Check if this object is equal to another summary
+   * @param other
+   */
+  isEqual(other) {
+    for (key in this) {
+      if (this[key] !== other[key]) {
+        return false;
+      }
+    }
+    return true;
   }
 }
 

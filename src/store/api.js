@@ -8,7 +8,7 @@ import {useResourcesStore} from "./resources";
 import {useItemsStore} from "./items";
 import {useEssayStore} from "./essay";
 import {usePagesStore} from './pages';
-import {useSummaryStore} from "./summary";
+import {useSummariesStore} from "./summaries";
 import {useLevelsStore} from "./levels";
 import {useCriteriaStore} from "./criteria";
 import {useCorrectorsStore} from "./correctors";
@@ -258,8 +258,8 @@ export const useApiStore = defineStore('api', {
             if (await commentsStore.hasUnsentChangesInStorage()) {
                 return true;
             }
-            const summaryStore = useSummaryStore();
-            if (await summaryStore.hasUnsentSavingInStorage()) {
+            const summariesStore = useSummariesStore();
+            if (await summariesStore.hasUnsentChangesInStorage()) {
                 return true;
             };
             return false;
@@ -359,7 +359,7 @@ export const useApiStore = defineStore('api', {
             const essayStore = useEssayStore();
             const pagesStore = usePagesStore();
             const correctorsStore = useCorrectorsStore();
-            const summaryStore = useSummaryStore();
+            const summariesStore = useSummariesStore();
             const commentsStore = useCommentsStore();
             const pointsStore = usePointsStore();
             const layoutStore = useLayoutStore();
@@ -367,11 +367,12 @@ export const useApiStore = defineStore('api', {
             // todo: add item key as parameter when store has data of all items
             await essayStore.loadFromStorage();
             await correctorsStore.loadFromStorage();
-            await summaryStore.loadFromStorage();
 
             await pagesStore.loadFromStorage(itemKey);
             await commentsStore.loadFromStorage(itemKey);
             await pointsStore.loadFromStorage(commentsStore.currentCommentKeys);
+            await summariesStore.loadFromStorage(itemKey, this.correctorKey);
+
 
             return true;
         },
@@ -443,18 +444,18 @@ export const useApiStore = defineStore('api', {
             const essayStore = useEssayStore();
             const pagesStore = usePagesStore();
             const correctorsStore = useCorrectorsStore();
-            const summaryStore = useSummaryStore();
+            const summariesStore = useSummariesStore();
             const commentsStore = useCommentsStore();
             const pointsStore = usePointsStore();
 
             await taskStore.loadFromData(response.data.task);
             await essayStore.loadFromData(response.data.essay);
             await correctorsStore.loadFromData(response.data.correctors);
-            await summaryStore.loadFromData(response.data.summary);
 
             await pagesStore.loadFromData(response.data.pages, itemKey);
             await commentsStore.loadFromData(response.data.comments, itemKey);
             await pointsStore.loadFromData(response.data.points, commentsStore.currentCommentKeys);
+            await summariesStore.loadFromData(response.data.summary, itemKey, this.correctorKey);
 
             commentsStore.setMarkerChange();
 
@@ -483,28 +484,41 @@ export const useApiStore = defineStore('api', {
 
             let data = {
                 comments: {},
-                points: {}
+                points: {},
+                summaries: {}
             };
 
             const commentsStore = useCommentsStore();
             const pointsStore = usePointsStore();
+            const summariesStore = useSummariesStore();
+            
             const hasUnsentComments = (commentsStore.countUnsentChanges > 0);
             const hasUnsentPoints = (pointsStore.countUnsentChanges > 0);
+            const hasUnsentSummaries = (summariesStore.countUnsentChanges > 0);
+            
             if (hasUnsentComments) {
                 data.comments = await commentsStore.getUnsentData(this.lastSendingTry);
             }
             if (hasUnsentPoints) {
                 data.points = await pointsStore.getUnsentData(this.lastSendingTry);
             }
+            if (hasUnsentSummaries) {
+                data.summaries = await summariesStore.getUnsentData(this.lastSendingTry);
+            }
 
-            if (hasUnsentComments || hasUnsentPoints) {
+            if (hasUnsentComments || hasUnsentPoints || hasUnsentSummaries) {
                 try {
                     const response = await axios.put( '/changes/' + this.itemKey, data, this.requestConfig(this.dataToken));
                     this.setTimeOffset(response);
                     this.refreshToken(response);
+                    
                     commentsStore.setCommentsSent(response.data.comments, this.lastSendingTry);
                     pointsStore.changeCommentKeys(response.data.comments);
                     pointsStore.setPointsSent(response.data.points, this.lastSendingTry);
+                    pointsStore.setPointsSent(response.data.points, this.lastSendingTry);
+                    
+                    // summaries don't change keys in backend, so do data is needed
+                    summariesStore.setSummariesSent(this.lastSendingTry);
                 }
                 catch (error) {
                     console.error(error);
