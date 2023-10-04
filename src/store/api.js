@@ -455,7 +455,7 @@ export const useApiStore = defineStore('api', {
             await pagesStore.loadFromData(response.data.pages, itemKey);
             await commentsStore.loadFromData(response.data.comments, itemKey);
             await pointsStore.loadFromData(response.data.points, commentsStore.currentCommentKeys);
-            await summariesStore.loadFromData(response.data.summary, itemKey, this.correctorKey);
+            await summariesStore.loadFromData(response.data.summaries, itemKey, this.correctorKey);
 
             commentsStore.setMarkerChange();
 
@@ -516,7 +516,6 @@ export const useApiStore = defineStore('api', {
                     pointsStore.changeCommentKeys(response.data.comments);
                     pointsStore.setPointsSent(response.data.points, this.lastSendingTry);
                     pointsStore.setPointsSent(response.data.points, this.lastSendingTry);
-                    
                     // summaries don't change keys in backend, so do data is needed
                     summariesStore.setSummariesSent(this.lastSendingTry);
                 }
@@ -530,22 +529,6 @@ export const useApiStore = defineStore('api', {
             return true;
         },
 
-        /**
-         * Save the correction summary to the backend
-         * @return bool
-         */
-        async saveSummaryToBackend(data) {
-            try {
-                const response = await axios.put( '/summary/' + this.itemKey, data, this.requestConfig(this.dataToken));
-                this.setTimeOffset(response);
-                this.refreshToken(response);
-                return true;
-            }
-            catch (error) {
-                console.error(error);
-                return false;
-            }
-        },
 
         /**
          * Save the stitch descision to the backend

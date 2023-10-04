@@ -24,26 +24,12 @@ function startState() {
     return {
         // saved in storage
         keys: [],                   // list of string keys of all summaries in the storage
-        editSummary: new Summary(), // summary of the acticve corrector that can is edited
+        editSummary: new Summary(), // summary of the acticve corrector that is edited
         summaries: {},              // list of all summary objects for the currrent correction item, indexed by key
         unsentChanges: {},          // assoc array of changes that have to be sent to the backend: key => timestamp
-                                    //  this may inclode own summaries of other items
+                                    //  this may include own summaries of other items
 
         lastCheck: 0,               // timestamp (ms) of the last check if an update needs a storage
-    }
-}
-
-/**
- * Update the grade key from the given points in a summary
- */
-function setGradeKeyFromPoints(summary) {
-    const levelsStore = useLevelsStore();
-    let level = levelsStore.getLevelForPoints(summary.points);
-    if (level) {
-        summary.grade_key = level.key
-    }
-    else {
-        summary.grade_key = '';
     }
 }
 
@@ -197,7 +183,7 @@ export const useSummariesStore = defineStore('summaries',{
                 for (const summary_data of data) {
                     const summary = new Summary(summary_data);
                     this.keys.push(summary.getKey());
-                    await storage.setItem(comment.key, JSON.stringify(comment.getData()));
+                    await storage.setItem(summary.key, JSON.stringify(summary.getData()));
                     if (summary.item_key == currentItemKey) {
                         this.summaries.push(summary);
                     }
@@ -206,9 +192,8 @@ export const useSummariesStore = defineStore('summaries',{
                     }
                 };
                 
-
                 await storage.setItem('keys', JSON.stringify(this.keys));
-                await storage.setItem('unsentChanges', JSON.stringify(this.unsentChanges));
+                await storage.setItem('unsentChanges', JSON.stringify({}));
             }
             catch (err) {
                 console.log(err);
@@ -263,7 +248,14 @@ export const useSummariesStore = defineStore('summaries',{
 
             // set the grade key for the points
             if (this.editSummary.points != storedSummary.points) {
-               setGradeKeyFromPoints(this.editSummary)
+                const levelsStore = useLevelsStore();
+                let level = levelsStore.getLevelForPoints(this.editSummary.points);
+                if (level) {
+                    this.editSummary.grade_key = level.key
+                }
+                else {
+                    this.editSummary.grade_key = '';
+                }
             }
 
             try {
