@@ -1,10 +1,10 @@
 import localForage from "localforage";
-import api from "js-cookie";
-import Comment from '@/data/Comment';
 import { defineStore } from 'pinia';
 import {useApiStore} from "@/store/api";
 import {useCorrectorsStore} from "@/store/correctors";
 import {usePointsStore} from "@/store/points";
+import Comment from '@/data/Comment';
+import UnsentChange from '@/data/UnsentChange';
 
 
 const storage = localForage.createInstance({
@@ -45,7 +45,7 @@ export const useCommentsStore = defineStore('comments',{
             // saved in storage
             keys: [],                       // list of string keys of all comments in the storage
             comments: [],                   // list of comment objects for the currrent correction item
-            unsentChanges: {},              // assoc array of changes that have to be sent to the backend key => timestamp
+            unsentChanges: {},              // assoc array of changes that have to be sent to the backend: key => UnsentChange
             showOtherCorrectors: false,     // show the comments of other correctors
 
             // not saved in storage
@@ -237,7 +237,7 @@ export const useCommentsStore = defineStore('comments',{
             // then save the comment
             await storage.setItem(comment.key, JSON.stringify(comment.getData()));
             await storage.setItem('keys', JSON.stringify(this.keys));
-            await this.setUnsent(comment.key);
+            await this.setUnsent(comment.key, comment.item_key);
             return comment.key;
         },
 
@@ -249,7 +249,7 @@ export const useCommentsStore = defineStore('comments',{
         async updateComment(comment) {
             if (this.keys.includes(comment.key)) {
                 await storage.setItem(comment.key, JSON.stringify(comment.getData()));
-                await this.setUnsent(comment.key);
+                await this.setUnsent(comment.key, comment.item_key);
             }
         },
 
@@ -278,6 +278,8 @@ export const useCommentsStore = defineStore('comments',{
             if (this.selectedKey == removeKey) {
                 this.selectedKey = '';
             }
+            const comment = this.comments.find(element => element.key == removeKey);
+            
             this.comments = this.comments.filter(comment => comment.key != removeKey);
             if (this.keys.includes(removeKey)) {
                 this.keys = this.keys.filter(key => key != removeKey)
@@ -286,9 +288,9 @@ export const useCommentsStore = defineStore('comments',{
             }
 
             if (removeKey.substr(0, 4) == 'temp') {
-                await this.removeUnsent(removeKey);
+                await this.removeUnsent(comment.key);
             } else {
-                await this.setUnsent(removeKey);
+                await this.setUnsent(comment.key, comment.item_key);
             }
         },
 
@@ -505,7 +507,7 @@ export const useCommentsStore = defineStore('comments',{
                 await this.sortAndLabelComments();
 
                 await storage.setItem('keys', JSON.stringify(this.keys));
-                await storage.setItem('unsentChanges', JSON.stringify(this.unsentChanges));
+                await storage.setItem('unsentChanges', JSON.stringify({}));
                 await storage.setItem('showOtherCorrectors', JSON.stringify(this.showOtherCorrectors));
             }
             catch (err) {
@@ -528,9 +530,14 @@ export const useCommentsStore = defineStore('comments',{
          * Add a note that a comment has to be sent to the backend
          * This is called for added, updated and removed comments
          * @param {string} key
+         * @param {string} item_key
          */
-        async setUnsent(key) {
-            this.unsentChanges[key] = Date.now();
+        async setUnsent(key, item_key) {
+            this.unsentChanges[key] = new UnsentChange({
+                key: key,
+                item_key: item_key,
+                last_change: Date.now()
+            });
             await storage.setItem('unsentChanges', JSON.stringify(this.unsentChanges));
         },
 
@@ -553,15 +560,17 @@ export const useCommentsStore = defineStore('comments',{
          * @return {object} key => object|null
          */
         async getUnsentData(sendingTime = 0) {
-            let data_list = {};
+            const data_list = {};
             for (const key in this.unsentChanges) {
-                if (sendingTime == 0 || this.unsentChanges[key] < sendingTime) {
-                    let data = await storage.getItem(key)
+                const change = this.unsentChanges[key];
+                if (sendingTime == 0 || change.last_change < sendingTime) {
+                    const data = await storage.getItem(key)
                     if (data) {
-                        data_list[key] = JSON.parse(data);
+                        change.payload = JSON.parse(data);
                     } else {
-                        data_list[key] = null;
+                        change.payload = null;
                     }
+                    data_list[key] = change;
                 }
             };
             return data_list;
@@ -632,16 +641,16 @@ export const useCommentsStore = defineStore('comments',{
             await storage.setItem('keys', JSON.stringify(this.keys));
 
             // cleanup the unsent changes
-            let remainingChanges = {};
+            const remainingChanges = {};
             for (const key in this.unsentChanges) {
-                let time = this.unsentChanges[key];
+                const time = this.unsentChanges[key].last_change;
                 // keep change that is newer than the sending
                 if (time >= sendingTime) {
                     if (changedKeys.includes(key)) {
-                        remainingChanges[changedKeys[key]] = time;
+                        remainingChanges[changedKeys[key]] =  this.unsentChanges[key];
                     }
                     else if (!removedKeys.includes(key)) {
-                        remainingChanges[key] = time;
+                        remainingChanges[key] =  this.unsentChanges[key];
                     }
                 }
             }

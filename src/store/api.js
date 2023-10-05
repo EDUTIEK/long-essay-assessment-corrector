@@ -370,9 +370,8 @@ export const useApiStore = defineStore('api', {
 
             await pagesStore.loadFromStorage(itemKey);
             await commentsStore.loadFromStorage(itemKey);
-            await pointsStore.loadFromStorage(commentsStore.currentCommentKeys);
+            await pointsStore.loadFromStorage(itemKey);
             await summariesStore.loadFromStorage(itemKey, this.correctorKey);
-
 
             return true;
         },
@@ -454,7 +453,7 @@ export const useApiStore = defineStore('api', {
 
             await pagesStore.loadFromData(response.data.pages, itemKey);
             await commentsStore.loadFromData(response.data.comments, itemKey);
-            await pointsStore.loadFromData(response.data.points, commentsStore.currentCommentKeys);
+            await pointsStore.loadFromData(response.data.points, itemKey);
             await summariesStore.loadFromData(response.data.summaries, itemKey, this.correctorKey);
 
             commentsStore.setMarkerChange();

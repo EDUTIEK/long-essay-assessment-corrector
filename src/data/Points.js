@@ -12,6 +12,13 @@ class Points {
   key = '';
 
   /**
+   * Key of the correction item to which this points belong
+   * @type {string}
+   */
+  item_key = '';
+
+
+  /**
    * Key of the corrector comment to which this points belong
    * @type {string}
    */
@@ -41,6 +48,9 @@ class Points {
       // get a temporary random key
       this.key = 'temp' + Math.random().toString();
     }
+    if (data.item_key !== undefined && data.item_key !== null) {
+      this.item_key = data.item_key.toString()
+    }
     if (data.comment_key !== undefined && data.comment_key !== null) {
       this.comment_key = data.comment_key.toString()
     }
@@ -66,6 +76,7 @@ class Points {
   getData() {
     return {
       key: this.key,
+      item_key: this.item_key,
       comment_key: this.comment_key,
       criterion_key: this.criterion_key,
       points: this.points

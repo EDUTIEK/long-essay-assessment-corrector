@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
 import localForage from "localforage";
-import api from "js-cookie";
 import {useApiStore} from "./api";
 import {useCorrectorsStore} from "./correctors";
 import {usePointsStore} from "./points";
@@ -8,6 +7,7 @@ import {useTaskStore} from "./task";
 import {useSettingsStore} from "./settings";
 import {useLevelsStore} from "./levels";
 import Summary from '@/data/Summary';
+import UnsentChange from '@/data/UnsentChange';
 
 
 
@@ -26,7 +26,7 @@ function startState() {
         keys: [],                   // list of string keys of all summaries in the storage
         editSummary: new Summary(), // summary of the acticve corrector that is edited
         summaries: {},              // list of all summary objects for the currrent correction item, indexed by key
-        unsentChanges: {},          // assoc array of changes that have to be sent to the backend: key => timestamp
+        unsentChanges: {},          // assoc array of changes that have to be sent to the backend: key => UnsentChange
                                     //  this may include own summaries of other items
 
         lastCheck: 0,               // timestamp (ms) of the last check if an update needs a storage
@@ -270,7 +270,7 @@ export const useSummariesStore = defineStore('summaries',{
                     this.summaries[clonedSummary.getKey()] = clonedSummary;
 
                     await storage.setItem(storedSummary.getKey(), JSON.stringify(clonedSummary.getData()));
-                    await this.setUnsent(clonedSummary.getKey());
+                    await this.setUnsent(clonedSummary.getKey(), clonedSummary.item_key);
                     
                     console.log(
                       "Save Change ",
@@ -302,11 +302,16 @@ export const useSummariesStore = defineStore('summaries',{
 
         /**
          * Add a note that a summary has to be sent to the backend
-         * This is called for added, updated and removed comments
+         * This is called for updated summaries
          * @param {string} key
+         * @param {string} item_key
          */
-        async setUnsent(key) {
-            this.unsentChanges[key] = Date.now();
+        async setUnsent(key, item_key) {
+            this.unsentChanges[key] = new UnsentChange({
+                key: key,
+                item_key: item_key,
+                last_change: Date.now()
+            }); 
             await storage.setItem('unsentChanges', JSON.stringify(this.unsentChanges));
         },
         
@@ -319,15 +324,17 @@ export const useSummariesStore = defineStore('summaries',{
          * @return {object} key => object|null
          */
         async getUnsentData(sendingTime = 0) {
-            let data_list = {};
+            const data_list = {};
             for (const key in this.unsentChanges) {
-                if (sendingTime == 0 || this.unsentChanges[key] < sendingTime) {
-                    let data = await storage.getItem(key)
+                const change = this.unsentChanges[key];
+                if (sendingTime == 0 || change.last_change < sendingTime) {
+                    const data = await storage.getItem(key)
                     if (data) {
-                        data_list[key] = JSON.parse(data);
+                        change.payload = JSON.parse(data);
                     } else {
-                        data_list[key] = null;
+                        change.payload = null;
                     }
+                    data_list[key] = change;
                 }
             };
             return data_list;
@@ -342,12 +349,12 @@ export const useSummariesStore = defineStore('summaries',{
         async setSummariesSent(sendingTime) {
 
             // cleanup the unsent changes
-            let remainingChanges = {};
+            const remainingChanges = {};
             for (const key in this.unsentChanges) {
-                let time = this.unsentChanges[key];
+                const time = this.unsentChanges[key].last_change;
                 // keep change that is newer than the sending
                 if (time >= sendingTime) {
-                    remainingChanges[key] = time;
+                    remainingChanges[key] = this.unsentChanges[key];
                 }
             }
             this.unsentChanges = remainingChanges;
