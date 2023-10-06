@@ -4,7 +4,7 @@ import { useLayoutStore } from "@/store/layout";
 import { useResourcesStore } from "@/store/resources";
 import { useCorrectorsStore } from "@/store/correctors";
 import { useTaskStore } from '@/store/task';
-import { useSummaryStore} from '@/store/summary';
+import { useSummariesStore} from '@/store/summaries';
 import { useCommentsStore } from '@/store/comments';
 import { usePointsStore} from '@/store/points';
 
@@ -13,12 +13,12 @@ const layoutStore = useLayoutStore();
 const resourcesStore = useResourcesStore();
 const correctorsStore = useCorrectorsStore();
 const taskStore = useTaskStore();
-const summaryStore = useSummaryStore();
+const summariesStore = useSummariesStore();
 const commentsStore = useCommentsStore();
 const pointsStore = usePointsStore();
 
 function isSent() {
-  return summaryStore.openSending == false
+  return summariesStore.countUnsentChanges == 0
       && commentsStore.countUnsentChanges == 0
       && pointsStore.countUnsentChanges == 0
 }

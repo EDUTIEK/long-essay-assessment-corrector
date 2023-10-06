@@ -51,7 +51,6 @@ export const useSummariesStore = defineStore('summaries',{
     getters: {
 
         countUnsentChanges: state => Object.keys(state.unsentChanges).length,
-        openSending: state => state.countUnsentChanges > 0,
 
         isAuthorized: state => state.editSummary.is_authorized,
         
