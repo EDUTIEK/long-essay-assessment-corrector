@@ -15,6 +15,9 @@ import {useCorrectorsStore} from "./correctors";
 import {useCommentsStore} from "./comments";
 import {usePointsStore} from "./points";
 import md5 from 'md5';
+import comment from '@/data/Comment';
+import { useChangesStore } from '@/store/changes';
+import Change from '@/data/Change';
 
 const sendInterval = 5000;      // time (ms) to wait for sending open savings to the backend
 
@@ -199,7 +202,8 @@ export const useApiStore = defineStore('api', {
                 return;
             }
 
-            if (await this.hasUnsentChanges()) {
+            const changesStore = useChangesStore();
+            if (await changesStore.hasChangesInStorage()) {
                 if (newContext) {
                     console.log('init: open saving, new context');
                     this.showDataReplaceConfirmation = true;
@@ -248,23 +252,7 @@ export const useApiStore = defineStore('api', {
             this.updateConfig();
         },
 
-
-
-        /**
-         * Check if changes exist in the storage that have to be sent
-         */
-        async hasUnsentChanges() {
-            const commentsStore = useCommentsStore();
-            if (await commentsStore.hasUnsentChangesInStorage()) {
-                return true;
-            }
-            const summariesStore = useSummariesStore();
-            if (await summariesStore.hasUnsentChangesInStorage()) {
-                return true;
-            };
-            return false;
-        },
-
+        
         /**
          * Finish the initialisation
          * set config dependent layout states
@@ -337,6 +325,7 @@ export const useApiStore = defineStore('api', {
             const criteriaStore = useCriteriaStore();
             const layoutStore = useLayoutStore();
             const itemsStore = useItemsStore();
+            const changesStore = useChangesStore();
 
             await settingsStore.loadFromStorage();
             await taskStore.loadFromStorage();
@@ -345,6 +334,7 @@ export const useApiStore = defineStore('api', {
             await criteriaStore.loadFromStorage();
             await layoutStore.loadFromStorage();
             await itemsStore.loadFromStorage();
+            await changesStore.loadDataFromStorage();
 
             return true;
         },
@@ -400,16 +390,28 @@ export const useApiStore = defineStore('api', {
             const resourcesStore = useResourcesStore();
             const levelsStore = useLevelsStore();
             const criteriaStore = useCriteriaStore();
-            const layoutStore = useLayoutStore();
             const itemsStore = useItemsStore();
 
+            const layoutStore = useLayoutStore();
+            const correctorsStore = useCorrectorsStore();
+            const summariesStore = useSummariesStore();
+            const commentsStore = useCommentsStore();
+            const pointsStore = usePointsStore();
+            const changesStore = useChangesStore();
+            
             await taskStore.loadFromData(response.data.task);
             await settingsStore.loadFromData(response.data.settings);
             await resourcesStore.loadFromData(response.data.resources);
             await levelsStore.loadFromData(response.data.levels);
             await criteriaStore.loadFromData(response.data.criteria);
             await itemsStore.loadFromData(response.data.items);
+            
             await layoutStore.clearStorage();
+            await correctorsStore.clearStorage();
+            await summariesStore.clearStorage();
+            await commentsStore.clearStorage();
+            await pointsStore.clearStorage();
+            await changesStore.clearStorage();
 
             return true;
         },
@@ -481,42 +483,31 @@ export const useApiStore = defineStore('api', {
             }
             this.lastSendingTry = Date.now();
 
-            let data = {
-                comments: {},
-                points: {},
-                summaries: {}
-            };
+            const changesStore = useChangesStore();
+            if (changesStore.countChanges() > 0) {
 
-            const commentsStore = useCommentsStore();
-            const pointsStore = usePointsStore();
-            const summariesStore = useSummariesStore();
-            
-            const hasUnsentComments = (commentsStore.countUnsentChanges > 0);
-            const hasUnsentPoints = (pointsStore.countUnsentChanges > 0);
-            const hasUnsentSummaries = (summariesStore.countUnsentChanges > 0);
-            
-            if (hasUnsentComments) {
-                data.comments = await commentsStore.getUnsentData(this.lastSendingTry);
-            }
-            if (hasUnsentPoints) {
-                data.points = await pointsStore.getUnsentData(this.lastSendingTry);
-            }
-            if (hasUnsentSummaries) {
-                data.summaries = await summariesStore.getUnsentData(this.lastSendingTry);
-            }
+                const commentsStore = useCommentsStore();
+                const pointsStore = usePointsStore();
+                const summariesStore = useSummariesStore();
 
-            if (hasUnsentComments || hasUnsentPoints || hasUnsentSummaries) {
+                const data = {
+                    comments: await commentsStore.getChangedData(this.lastSendingTry),
+                    points: await pointsStore.getChangedData(this.lastSendingTry),
+                    summaries: await summariesStore.getChangedData(this.lastSendingTry)
+                };
+                
                 try {
                     const response = await axios.put( '/changes/' + this.itemKey, data, this.requestConfig(this.dataToken));
                     this.setTimeOffset(response);
                     this.refreshToken(response);
                     
-                    commentsStore.setCommentsSent(response.data.comments, this.lastSendingTry);
-                    pointsStore.changeCommentKeys(response.data.comments);
-                    pointsStore.setPointsSent(response.data.points, this.lastSendingTry);
-                    pointsStore.setPointsSent(response.data.points, this.lastSendingTry);
-                    // summaries don't change keys in backend, so do data is needed
-                    summariesStore.setSummariesSent(this.lastSendingTry);
+                    await commentsStore.updateKeys(response.data.comments);
+                    await pointsStore.changeCommentKeys(response.data.comments);
+                    await pointsStore.updateKeys(response.data.points, this.lastSendingTry);
+
+                    await changesStore.cleanupChanges(this.lastSendingTry);
+                    await changesStore.updateKeys(Change.TYPE_COMMENT, response.data.comments);
+                    await changesStore.updateKeys(Change.TYPE_POINTS, response.data.points);
                 }
                 catch (error) {
                     console.error(error);

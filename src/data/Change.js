@@ -4,17 +4,16 @@
  */
 class Change {
 
-  static ACTION_CREATE = 'create';
-  static ACTION_UPDATE = 'update';
+  static ACTION_SAVE = 'save';
   static ACTION_DELETE = 'delete';
 
-  static ALLOWED_ACTIONS = [UnsentChange.ACTION_CREATE, UnsentChange.ACTION_UPDATE, UnsentChange.ACTION_DELETE];
+  static ALLOWED_ACTIONS = [Change.ACTION_SAVE, Change.ACTION_DELETE];
 
   static TYPE_COMMENT = 'comment';
   static TYPE_POINTS = 'points';
   static TYPE_SUMMARY = 'summary';
 
-  static ALLOWED_TYPES = [UnsentChange.TYPE_COMMENT, UnsentChange.TYPE_POINTS, UnsentChange.TYPE_SUMMARY];
+  static ALLOWED_TYPES = [Change.TYPE_COMMENT, Change.TYPE_POINTS, Change.TYPE_SUMMARY];
 
 
   /**

@@ -19,7 +19,7 @@ function startState() {
 /**
  * Changes Store
  * 
- * This stores unsent change objecs for all created, updated or deleted objects of ertain types, e.g. comment
+ * This stores unsent change markers for all created, updated or deleted objects of certain types, e.g. Comment
  * The stored changes just give the type, keys and timestamp of the change
  * The actual changed data is added as a payload when the change is sent to the backend
  */
@@ -32,6 +32,11 @@ export const useChangesStore = defineStore('changes',{
      * Getter functions (with params) start with 'get', simple state queries not
      */
     getters: {
+
+        /**
+         * Count the number of changes
+         * @returns {integer}
+         */
         countChanges: state => {
             let count = 0;
             for (const type in state) {
@@ -40,17 +45,34 @@ export const useChangesStore = defineStore('changes',{
             return count;
         },
 
-
+        /**
+         * Get the count of changes for an object type
+         * @param {string} type see Change.ALLOWED_TYPES
+         * @returns {integer}
+         */
+        getCountOfChangesFor: state => {
+            
+            return type => {
+                if (!Change.ALLOWED_TYPES.includes(type)) {
+                    console.log ('wrong type' + type);
+                    return 0;
+                }
+                return Object.keys(state[type]).length;
+            }
+        },
+        
         /**
          * Get the changes of a type
-         *
-         * @param {string} type - data type
+         * @param {string} type - dsee Change.ALLOWED_TYPES
          * @param {integer} maxTime - maximum last change or 0 to get all
          * @return {array} Change objects
          */
-        getChanges(state) {
-
-            return (type, maxTime = 0) => {
+        getChangesFor(state) {
+            
+             return (type, maxTime = 0) => {
+                if (!Change.ALLOWED_TYPES.includes(type)) {
+                    return [];
+                }
                 const changes = [];
                 for (const key in state[type]) {
                     const change = state[type][key];
@@ -91,7 +113,7 @@ export const useChangesStore = defineStore('changes',{
                 for (const type in state) {
                     const stored = await storage.getItem(type);
                     if (stored) {
-                        const parsed = JSON.parse(item);
+                        const parsed = JSON.parse(stored);
                         if (typeof parsed === 'object' && parsed !== null) {
                             for (const key in parsed) {
                                 state[type][key] = new Change(parsed[key]);
@@ -109,7 +131,7 @@ export const useChangesStore = defineStore('changes',{
         /**
          * Save changes of a type to the storage
          * Saves the change objects as plain data
-         * @param {string} type
+         * @param {string} type see Change.ALLOWED_TYPES
          */
         async saveChangesOfTypeToStorage(type) {
             const data = {};
@@ -125,7 +147,7 @@ export const useChangesStore = defineStore('changes',{
          * (called from api store at initialisation)
          */
         async hasChangesInStorage() {
-            for (const type in state) {
+            for (const type in this.$state) {
                 const stored = await storage.getItem(type);
                 if (stored) {
                     return true;
@@ -136,7 +158,7 @@ export const useChangesStore = defineStore('changes',{
 
 
         /**
-         * Set a changes and save the changes
+         * Set a change and save the changes
          * @param {Change} change
          */
         async setChange(change) {
@@ -144,11 +166,10 @@ export const useChangesStore = defineStore('changes',{
                 this.$state[change.type][change.key] = change;
                 await this.saveChangesOfTypeToStorage(change.type);
             }
-            
         },
 
         /**
-         * Unset a changes and save the changes
+         * Unset a change and save the changes
          * @param {Change} change
          */
         async unsetChange(change) {
@@ -157,6 +178,53 @@ export const useChangesStore = defineStore('changes',{
                 await this.saveChangesOfTypeToStorage(change.type);
             }
         },
-        
+
+        /**
+         * Cleanup changes that have been sent to the backend
+         *
+         * @param {integer} maxTime - timestamp of the sending
+         */
+        async cleanupChanges(maxTime) {
+
+            for (const type in this.$state) {
+                let cleaned = false;
+                for (const key in this.$state[type]) {
+                    const change = this.$state[type][key];
+                    if (change.last_change < maxTime) {
+                        delete this.$state[type][key];
+                        cleaned = true;
+                    }
+                }
+                if (cleaned) {
+                    await this.saveChangesOfTypeToStorage(type);
+                }
+            }
+        },
+
+
+        /**
+         * Cleanup changes that have been sent to the backend
+         *
+         * @param {string} type see Change.ALLOWED_TYPES
+         * @param {object} matches - old key: new key
+         */
+        async updateKeys(type, matches) {
+
+            const changes = this.$state[type];
+            const matched = false;
+            for (const old_key in matches) {
+                const new_key = matches[old_key];
+                const change = changes[old_key];
+                if (change && new_key != old_key) {
+                    change.key = new_key;
+                    changes[new_key] = change;
+                    delete changes[old_key];
+                    matched = true;
+                }
+            }
+            if (matched) {
+                await this.saveChangesOfTypeToStorage(type);
+            }
+        }
     }
 });

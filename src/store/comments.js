@@ -3,8 +3,9 @@ import { defineStore } from 'pinia';
 import {useApiStore} from "@/store/api";
 import {useCorrectorsStore} from "@/store/correctors";
 import {usePointsStore} from "@/store/points";
+import {useChangesStore} from "@/store/changes";
 import Comment from '@/data/Comment';
-import UnsentChange from '@/data/UnsentChange';
+import Change from "@/data/Change";
 
 
 const storage = localForage.createInstance({
@@ -45,7 +46,6 @@ export const useCommentsStore = defineStore('comments',{
             // saved in storage
             keys: [],                       // list of string keys of all comments in the storage
             comments: [],                   // list of comment objects for the currrent correction item
-            unsentChanges: {},              // assoc array of changes that have to be sent to the backend: key => UnsentChange
             showOtherCorrectors: false,     // show the comments of other correctors
 
             // not saved in storage
@@ -61,10 +61,6 @@ export const useCommentsStore = defineStore('comments',{
      * Getter functions (with params) start with 'get', simple state queries not
      */
     getters: {
-
-        countUnsentChanges(state) {
-            return Object.keys(state.unsentChanges).length;
-        },
 
         selectedLabel(state) {
             let comment = state.getComment(state.selectedKey);
@@ -220,6 +216,8 @@ export const useCommentsStore = defineStore('comments',{
          */
         async addComment(comment) {
             const apiStore = useApiStore();
+            const changesStore = useChangesStore();
+            
             comment.item_key = apiStore.itemKey;
             comment.corrector_key = apiStore.correctorKey;
 
@@ -237,7 +235,13 @@ export const useCommentsStore = defineStore('comments',{
             // then save the comment
             await storage.setItem(comment.key, JSON.stringify(comment.getData()));
             await storage.setItem('keys', JSON.stringify(this.keys));
-            await this.setUnsent(comment.key, comment.item_key);
+            await changesStore.setChange(new Change({
+                type: Change.TYPE_COMMENT,
+                action: Change.ACTION_SAVE,
+                key: comment.key,
+                item_key: comment.item_key
+            }))
+
             return comment.key;
         },
 
@@ -247,9 +251,16 @@ export const useCommentsStore = defineStore('comments',{
          * @public
          */
         async updateComment(comment) {
+            const changesStore = useChangesStore();
+
             if (this.keys.includes(comment.key)) {
                 await storage.setItem(comment.key, JSON.stringify(comment.getData()));
-                await this.setUnsent(comment.key, comment.item_key);
+                await changesStore.setChange(new Change({
+                    type: Change.TYPE_COMMENT,
+                    action: Change.ACTION_SAVE,
+                    key: comment.key,
+                    item_key: comment.item_key
+                }))
             }
         },
 
@@ -272,6 +283,7 @@ export const useCommentsStore = defineStore('comments',{
          * @private
          */
         async removeComment(removeKey) {
+            const changesStore = useChangesStore();
             const pointsStore = usePointsStore();
             await pointsStore.deletePointsOfComment(removeKey);
 
@@ -287,10 +299,18 @@ export const useCommentsStore = defineStore('comments',{
                 await storage.removeItem(removeKey);
             }
 
+            const change = new Change({
+                type: Change.TYPE_COMMENT,
+                action: Change.ACTION_DELETE,
+                key: comment.key,
+                item_key: comment.item_key
+            });
+            
             if (removeKey.substr(0, 4) == 'temp') {
-                await this.removeUnsent(comment.key);
+                await changesStore.unsetChange(change);
+
             } else {
-                await this.setUnsent(comment.key, comment.item_key);
+                await changesStore.setChange(change);
             }
         },
 
@@ -451,10 +471,6 @@ export const useCommentsStore = defineStore('comments',{
                 if (keys) {
                     this.keys = JSON.parse(keys);
                 }
-                const unsentChanges = await storage.getItem('unsentChanges');
-                if (unsentChanges) {
-                    this.unsentChanges = JSON.parse(unsentChanges);
-                }
                 this.showOtherCorrectors = !! JSON.parse(await storage.getItem('showOtherCorrectors'));
 
                 this.comments = [];
@@ -489,7 +505,6 @@ export const useCommentsStore = defineStore('comments',{
                 await storage.clear();
 
                 this.keys = [];
-                this.unsentChanges = {};
                 this.comments = [];
                 this.selectedKey = '';
                 this.showOtherCorrectors = false;
@@ -507,7 +522,6 @@ export const useCommentsStore = defineStore('comments',{
                 await this.sortAndLabelComments();
 
                 await storage.setItem('keys', JSON.stringify(this.keys));
-                await storage.setItem('unsentChanges', JSON.stringify({}));
                 await storage.setItem('showOtherCorrectors', JSON.stringify(this.showOtherCorrectors));
             }
             catch (err) {
@@ -516,76 +530,36 @@ export const useCommentsStore = defineStore('comments',{
         },
 
         /**
-         * Check if unsent changes are in the storage
-         * (called from api store at initialisation)
-         */
-        async hasUnsentChangesInStorage() {
-            const data = await storage.getItem('unsentChanges');
-            const unsentChanges = data ? JSON.parse(data) : {};
-            return Object.keys(unsentChanges).length > 0;
-        },
-
-
-        /**
-         * Add a note that a comment has to be sent to the backend
-         * This is called for added, updated and removed comments
-         * @param {string} key
-         * @param {string} item_key
-         */
-        async setUnsent(key, item_key) {
-            this.unsentChanges[key] = new UnsentChange({
-                key: key,
-                item_key: item_key,
-                last_change: Date.now()
-            });
-            await storage.setItem('unsentChanges', JSON.stringify(this.unsentChanges));
-        },
-
-        /**
-         * Remove the note that a comment has to be sent to the backend
-         * This is called when a new comment (not yet in the backend) is deleted
-         * @param {string} key
-         */
-        async removeUnsent(key) {
-            delete this.unsentChanges[key];
-            await storage.setItem('unsentChanges', JSON.stringify(this.unsentChanges));
-        },
-
-
-        /**
-         * Get all unsent comments from the storage as flat data objects
+         * Get all changed comments from the storage as flat data objects
          * These may include comments of other items that are only in the storage
          * This is called for sending the comments to the backend
          * @param {integer} sendingTime - timestamp of the sending or 0 to get all
-         * @return {object} key => object|null
+         * @return {array} Change objects
          */
-        async getUnsentData(sendingTime = 0) {
-            const data_list = {};
-            for (const key in this.unsentChanges) {
-                const change = this.unsentChanges[key];
-                if (sendingTime == 0 || change.last_change < sendingTime) {
-                    const data = await storage.getItem(key)
+        async getChangedData(sendingTime = 0) {
+            const changesStore = useChangesStore();
+            const changes = [];
+            for (const change of changesStore.getChangesFor(Change.TYPE_COMMENT, sendingTime)) {
+                if (change.action == Change.ACTION_SAVE) {
+                    const data = await storage.getItem(Change.key);
                     if (data) {
                         change.payload = JSON.parse(data);
-                    } else {
-                        change.payload = null;
                     }
-                    data_list[key] = change;
+                    changes.push(change);
                 }
             };
-            return data_list;
+            return changes;
         },
-
+        
 
         /**
-         * Set comments as sent
+         * Update the keys of comments after sending to the backend
          * A key is changed from a temporary string to a numeric value for a saved comment
          * A new key is null for a deleted comment
          *
          * @param {object} matches - assoc array with old and new string keys
-         * @param {integer} sendingTime - timestamp of the sending
          */
-        async setCommentsSent(matches= {}, sendingTime) {
+        async updateKeys(matches= {}) {
 
             let removedKeys = [];       // old keys of removed comments
             let changedKeys = [];       // old keys that are changed
@@ -639,23 +613,6 @@ export const useCommentsStore = defineStore('comments',{
                 await storage.setItem(comment.key, JSON.stringify(comment.getData()));
             }
             await storage.setItem('keys', JSON.stringify(this.keys));
-
-            // cleanup the unsent changes
-            const remainingChanges = {};
-            for (const key in this.unsentChanges) {
-                const time = this.unsentChanges[key].last_change;
-                // keep change that is newer than the sending
-                if (time >= sendingTime) {
-                    if (changedKeys.includes(key)) {
-                        remainingChanges[changedKeys[key]] =  this.unsentChanges[key];
-                    }
-                    else if (!removedKeys.includes(key)) {
-                        remainingChanges[key] =  this.unsentChanges[key];
-                    }
-                }
-            }
-            this.unsentChanges = remainingChanges;
-            await storage.setItem('unsentChanges', JSON.stringify(this.unsentChanges));
         }
     }
 });

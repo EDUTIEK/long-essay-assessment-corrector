@@ -1,13 +1,14 @@
-import { defineStore } from 'pinia';
+import { defineStore } from "pinia";
 import localForage from "localforage";
-import {useApiStore} from "./api";
-import {useCorrectorsStore} from "./correctors";
-import {usePointsStore} from "./points";
-import {useTaskStore} from "./task";
-import {useSettingsStore} from "./settings";
-import {useLevelsStore} from "./levels";
-import Summary from '@/data/Summary';
-import UnsentChange from '@/data/UnsentChange';
+import {useApiStore} from "@/store/api";
+import {useCorrectorsStore} from "@/store/correctors";
+import {usePointsStore} from "@/store/points";
+import {useTaskStore} from "@/store/task";
+import {useSettingsStore} from "@/store/settings";
+import {useLevelsStore} from "@/store/levels";
+import {useChangesStore} from "@/store/changes";
+import Summary from "@/data/Summary";
+import Change from "@/data/Change";
 
 
 
@@ -26,13 +27,11 @@ function startState() {
         keys: [],                   // list of string keys of all summaries in the storage
         editSummary: new Summary(), // summary of the acticve corrector that is edited
         summaries: {},              // list of all summary objects for the currrent correction item, indexed by key
-        unsentChanges: {},          // assoc array of changes that have to be sent to the backend: key => UnsentChange
-                                    //  this may include own summaries of other items
 
+        // not saved in storage
         lastCheck: 0,               // timestamp (ms) of the last check if an update needs a storage
     }
 }
-
 
 let lockUpdate = 0;             // prevent updates during a processing
 
@@ -49,8 +48,6 @@ export const useSummariesStore = defineStore('summaries',{
      * Getter functions (with params) start with 'get', simple state queries not
      */
     getters: {
-
-        countUnsentChanges: state => Object.keys(state.unsentChanges).length,
 
         isAuthorized: state => state.editSummary.is_authorized,
         
@@ -122,6 +119,7 @@ export const useSummariesStore = defineStore('summaries',{
             catch (err) {
                 console.log(err);
             }
+            this.$state = startState();
         },
 
         /**
@@ -140,10 +138,6 @@ export const useSummariesStore = defineStore('summaries',{
                 const keys = await storage.getItem('keys');
                 if (keys) {
                     this.keys = JSON.parse(keys);
-                }
-                const unsentChanges = await storage.getItem('unsentChanges');
-                if (unsentChanges) {
-                    this.unsentChanges = JSON.parse(unsentChanges);
                 }
 
                 this.summaries = [];
@@ -192,7 +186,6 @@ export const useSummariesStore = defineStore('summaries',{
                 };
                 
                 await storage.setItem('keys', JSON.stringify(this.keys));
-                await storage.setItem('unsentChanges', JSON.stringify({}));
             }
             catch (err) {
                 console.log(err);
@@ -263,13 +256,20 @@ export const useSummariesStore = defineStore('summaries',{
                 
                 if (!clonedSummary.isEqual(storedSummary) && this.keys.includes(clonedSummary.getKey())) {
                     const apiStore = useApiStore();
+                    const changesStore = useChangesStore();
+                    
                     clonedSummary.last_change = apiStore.serverTime(Date.now());
                    
                     this.editSummary.setData(clonedSummary.getData());
                     this.summaries[clonedSummary.getKey()] = clonedSummary;
 
                     await storage.setItem(storedSummary.getKey(), JSON.stringify(clonedSummary.getData()));
-                    await this.setUnsent(clonedSummary.getKey(), clonedSummary.item_key);
+                    await changesStore.setChange(new Change({
+                        type: Change.TYPE_SUMMARY,
+                        action: Change.ACTION_SAVE,
+                        key: clonedSummary.getKey(),
+                        item_key: clonedSummary.item_key
+                    }))
                     
                     console.log(
                       "Save Change ",
@@ -286,78 +286,28 @@ export const useSummariesStore = defineStore('summaries',{
 
             lockUpdate = 0;
         },
-
-
-        /**
-         * Check if unsent changes are in the storage
-         * (called from api store at initialisation)
-         */
-        async hasUnsentChangesInStorage() {
-            const data = await storage.getItem('unsentChanges');
-            const unsentChanges = data ? JSON.parse(data) : {};
-            return Object.keys(unsentChanges).length > 0;
-        },
-
-
-        /**
-         * Add a note that a summary has to be sent to the backend
-         * This is called for updated summaries
-         * @param {string} key
-         * @param {string} item_key
-         */
-        async setUnsent(key, item_key) {
-            this.unsentChanges[key] = new UnsentChange({
-                key: key,
-                item_key: item_key,
-                last_change: Date.now()
-            }); 
-            await storage.setItem('unsentChanges', JSON.stringify(this.unsentChanges));
-        },
         
 
         /**
-         * Get all unsent summaries from the storage as flat data objects
+         * Get all changed summaries from the storage as flat data objects
          * These may include summaries of other items that are only in the storage
          * This is called for sending the summaries to the backend
          * @param {integer} sendingTime - timestamp of the sending or 0 to get all
-         * @return {object} key => object|null
+         * @return {array} Change objects
          */
-        async getUnsentData(sendingTime = 0) {
-            const data_list = {};
-            for (const key in this.unsentChanges) {
-                const change = this.unsentChanges[key];
-                if (sendingTime == 0 || change.last_change < sendingTime) {
-                    const data = await storage.getItem(key)
+        async getChangedData(sendingTime = 0) {
+            const changesStore = useChangesStore();
+            const changes = [];
+            for (const change of changesStore.getChangesFor(Change.TYPE_SUMMARY, sendingTime)) {
+                if (change.action == Change.ACTION_SAVE) {
+                    const data = await storage.getItem(Change.key);
                     if (data) {
                         change.payload = JSON.parse(data);
-                    } else {
-                        change.payload = null;
-                    }
-                    data_list[key] = change;
+                    } 
+                    changes.push(change);
                 }
             };
-            return data_list;
+            return changes;
         },
-
-
-        /**
-         * Set summaries as sent
-         *
-         * @param {integer} sendingTime - timestamp of the sending
-         */
-        async setSummariesSent(sendingTime) {
-
-            // cleanup the unsent changes
-            const remainingChanges = {};
-            for (const key in this.unsentChanges) {
-                const time = this.unsentChanges[key].last_change;
-                // keep change that is newer than the sending
-                if (time >= sendingTime) {
-                    remainingChanges[key] = this.unsentChanges[key];
-                }
-            }
-            this.unsentChanges = remainingChanges;
-            await storage.setItem('unsentChanges', JSON.stringify(this.unsentChanges));
-        }
     }
 });
