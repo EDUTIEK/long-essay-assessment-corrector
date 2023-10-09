@@ -211,15 +211,22 @@ export const useChangesStore = defineStore('changes',{
         async updateKeys(type, matches) {
 
             const changes = this.$state[type];
+            
             const matched = false;
             for (const old_key in matches) {
                 const new_key = matches[old_key];
                 const change = changes[old_key];
-                if (change && new_key != old_key) {
-                    change.key = new_key;
-                    changes[new_key] = change;
-                    delete changes[old_key];
-                    matched = true;
+                if (change) {
+                    if (new_key == null) {
+                        delete changes[old_key];
+                        matched = true;
+                    }
+                    else if (new_key != old_key) {
+                        change.key = new_key;
+                        changes[new_key] = change;
+                        delete changes[old_key];
+                        matched = true;
+                    }
                 }
             }
             if (matched) {
