@@ -1,14 +1,14 @@
 <script setup>
   import {useEssayStore} from '@/store/essay';
   import {useCommentsStore} from "@/store/comments";
-  import { useSummaryStore } from '@/store/summary';
+  import { useSummariesStore } from '@/store/summaries';
   import Comment from "@/data/Comment";
   import TextMarker from '@/lib/TextMarker';
   import {onMounted, nextTick, watch, ref} from 'vue';
 
   const essayStore = useEssayStore();
   const commentsStore = useCommentsStore();
-  const summaryStore = useSummaryStore();
+  const summariesStore = useSummariesStore();
   const showMenu = ref(false);
 
   let marker;
@@ -86,7 +86,7 @@
               else {
                   // always create a new comment, even if it overlaps (VC 26.5.2023)
                   marker.removeSelection();
-                  if (!summaryStore.isAuthorized) {
+                  if (!summariesStore.isOwnAuthorized) {
                       commentsStore.createComment(selected.firstWord, selected.lastWord, selected.parentNumber);
                   }
 
@@ -102,7 +102,7 @@
          else {
               // no overlapping => create a new comment
               marker.removeSelection();
-              if (!summaryStore.isAuthorized) {
+              if (!summariesStore.isOwnAuthorized) {
                   commentsStore.createComment(selected.firstWord, selected.lastWord, selected.parentNumber);
               }
          }

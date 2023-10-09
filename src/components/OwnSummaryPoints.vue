@@ -1,9 +1,9 @@
 <script setup>
 
-import {useSummaryStore} from '@/store/summary';
+import {useSummariesStore} from '@/store/summaries';
 import {useSettingsStore} from '@/store/settings';
 
-const summaryStore = useSummaryStore();
+const summariesStore = useSummariesStore();
 const settingsStore = useSettingsStore();
 
 </script>
@@ -11,9 +11,9 @@ const settingsStore = useSettingsStore();
 <template>
     <div id="app-own-summary-points-wrapper">
       <label for="appOwnSummaryPoints"><strong>Eigene Wertung:</strong></label>
-      <input :disabled="summaryStore.isAuthorized" id="appOwnSummaryPoints" class="appPoints" type="number" min="0" :max="settingsStore.max_points" v-model="summaryStore.currentPoints" />Punkte
+      <input :disabled="summariesStore.isOwnAuthorized" id="appOwnSummaryPoints" class="appPoints" type="number" min="0" :max="settingsStore.max_points" v-model="summariesStore.editSummary.points" />Punkte
       &nbsp;
-      <strong>Notenstufe:</strong> {{ summaryStore.currentGradeTitle }}
+      <strong>Notenstufe:</strong> {{ summariesStore.currentGradeTitle }}
     </div>
 </template>
 

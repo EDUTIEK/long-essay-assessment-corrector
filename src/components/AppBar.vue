@@ -6,20 +6,21 @@ import Items from "@/components/Items.vue";
 import StitchDecision from "@/components/StitchDecision.vue";
 import Authorization from '@/components/Authorization.vue';
 import {useApiStore} from '@/store/api';
-import {useSummaryStore} from '@/store/summary';
+import {useChangesStore} from '@/store/changes';
 import {useTaskStore} from '@/store/task';
 
 
 const apiStore = useApiStore();
-const summaryStore = useSummaryStore();
+const changesStore = useChangesStore();
 const taskStore = useTaskStore();
 
 
 async function returnToBackend() {
-  if (!summaryStore.isSent) {
-    await summaryStore.sendUpdate(true);
+  
+  if (changesStore.countChanges > 0) {
+    await apiStore.saveChangesToBackend();
   }
-  if (!summaryStore.isSent) {
+  if (changesStore.countChanges > 0) {
     apiStore.setShowSendFailure(true);
   }
   else {

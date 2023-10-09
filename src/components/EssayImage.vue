@@ -1,6 +1,6 @@
 <script setup>
   import {useCommentsStore} from "@/store/comments";
-  import { useSummaryStore } from '@/store/summary';
+  import { useSummariesStore } from '@/store/summaries';
   import { usePagesStore } from '@/store/pages';
   
   import createImageMarker from 'long-essay-image-marker/ImageMarker';
@@ -10,7 +10,7 @@
   import { onMounted, nextTick, watch, ref, reactive } from 'vue';
 
   const commentsStore = useCommentsStore();
-  const summaryStore = useSummaryStore();
+  const summariesStore = useSummariesStore();
   const pagesStore = usePagesStore();
   
   const markerNode = ref();
@@ -34,7 +34,7 @@
    * @param {Mark} created
    */
   async function onCreation(created) {
-      if (!!created && !summaryStore.isAuthorized) {
+      if (!!created && !summariesStore.isOwnAuthorized) {
         
           const mark = new Mark(created);
           switch (selectedTool.value) {

@@ -1,14 +1,16 @@
 <script setup>
-  import {useApiStore} from '@/store/api';
-  import {useItemsStore} from '@/store/items';
-  import {useSummaryStore} from "@/store/summary";
-  import {useEssayStore} from "@/store/essay";
-  import {ref, nextTick} from 'vue';
+  import { useApiStore } from '@/store/api';
+  import { useItemsStore } from '@/store/items';
+  import { useSummariesStore } from "@/store/summaries";
+  import { useEssayStore } from "@/store/essay";
+  import { useChangesStore } from '@/store/changes';
+  import { ref, nextTick } from 'vue';
 
   const apiStore = useApiStore();
   const itemsStore = useItemsStore();
-  const summaryStore = useSummaryStore();
+  const summariesStore = useSummariesStore();
   const essayStore = useEssayStore();
+  const changesStore = useChangesStore();
 
   const menuOpen = ref(false);
   const selectionShown=ref(false);
@@ -25,58 +27,32 @@
     }
   }
 
-  async function previousItem(key) {
-    loading.value = true;
-    if (!summaryStore.isSent) {
-      await summaryStore.sendUpdate(true);
-    }
-    if (!summaryStore.isSent) {
-      apiStore.setShowSendFailure(true);
-    }
-    else {
-      let newKey = itemsStore.previousKey(key);
-      await apiStore.loadItemFromBackend(newKey);
-    }
-    loading.value = false;
-  }
-
-  async function nextItem(key) {
-    loading.value = true;
-    if (!summaryStore.isSent) {
-      await summaryStore.sendUpdate(true);
-    }
-    if (!summaryStore.isSent) {
-      apiStore.setShowSendFailure(true);
-    }
-    else {
-      let newKey = itemsStore.nextKey(key);
-      await apiStore.loadItemFromBackend(newKey);
-    }
-    loading.value = false;
-  }
-
   async function selectItem() {
     menuOpen.value=false;
     if (selectedKey.value != '') {
-      loading.value = true;
-      if (!summaryStore.isSent) {
-        await summaryStore.sendUpdate(true);
-      }
-      if (!summaryStore.isSent) {
-        apiStore.setShowSendFailure(true);
-      }
-      else {
-        await apiStore.loadItemFromBackend(selectedKey.value);
-      }
-      loading.value = false;
+      changeItem(selectedKey.value);
     }
   }
+  
+  async function changeItem(newKey) {
+    loading.value = true;
+    await apiStore.saveChangesToBackend();
+    if (changesStore.countChanges > 0) {
+      apiStore.setShowSendFailure(true);
+    }
+    else {
+      await apiStore.loadItemFromBackend(newKey);
+    }
+    loading.value = false;
+  }
+
+
 
 </script>
 
 <template>
   
-   <v-btn :disabled="apiStore.itemKey == itemsStore.firstKey" @click="previousItem(apiStore.itemKey)">
+   <v-btn :disabled="apiStore.itemKey == itemsStore.firstKey" @click="changeItem(itemsStore.previousKey(apiStore.itemKey))">
      <v-icon left icon="mdi-arrow-left-bold"></v-icon>
    </v-btn>
   
@@ -88,7 +64,7 @@
        {{ itemsStore.getItem(apiStore.itemKey).title }}
         {{ apiStore.isForReviewOrStitch
           ? (essayStore.isFinalized ? ' - finalisiert' : ' - offen')
-          : (summaryStore.isAuthorized ? ' - autorisiert' : ' - offen')}}
+          : (summariesStore.isOwnAuthorized ? ' - autorisiert' : ' - offen')}}
 
       </span>
     </v-btn>
@@ -116,7 +92,7 @@
     ></v-autocomplete>
   </v-menu>
   
-   <v-btn :disabled="apiStore.itemKey == itemsStore.lastKey" @click="nextItem(apiStore.itemKey)">
+   <v-btn :disabled="apiStore.itemKey == itemsStore.lastKey" @click="changeItem(itemsStore.nextKey(apiStore.itemKey))">
      <v-icon left icon="mdi-arrow-right-bold"></v-icon>
    </v-btn>
 </template>

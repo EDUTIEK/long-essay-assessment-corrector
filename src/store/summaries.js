@@ -26,7 +26,7 @@ function startState() {
         // saved in storage
         keys: [],                   // list of string keys of all summaries in the storage
         editSummary: new Summary(), // summary of the acticve corrector that is edited
-        summaries: {},              // list of all summary objects for the currrent correction item, indexed by key
+        summaries: {},              // list of all summary objects for the current correction item, indexed by key
 
         // not saved in storage
         lastCheck: 0,               // timestamp (ms) of the last check if an update needs a storage
@@ -49,10 +49,18 @@ export const useSummariesStore = defineStore('summaries',{
      */
     getters: {
 
-        isAuthorized: state => state.editSummary.is_authorized,
+        isOwnAuthorized: state => state.editSummary.is_authorized,
         
-        storedSummary: state => state.summaries[state.editSummary.getKey()],
-
+        areOthersAuthorized: state => {
+            for (key in state.summaries) {
+                const summary = state.summaries[key];
+                if (summary.getKey() != state.editSummary.getKey() && !summary.is_authorized) {
+                    return false;
+                }
+            }
+            return true;
+        },        
+        
         currentGradeTitle(state) {
             if (state.editSummary.grade_key) {
                 const levelsStore = useLevelsStore();
@@ -70,6 +78,7 @@ export const useSummariesStore = defineStore('summaries',{
             let sum_points = 0;
             let count_points = 0;
             
+            // loop over all summaries for the current correction item
             for (key in state.summaries) {
                 const points = state.summaries[key].points;
                 if (points !== null) {
@@ -104,6 +113,28 @@ export const useSummariesStore = defineStore('summaries',{
 
             return '';
         },
+
+        minPoints(state) {
+            let minPoints = null;
+            for (key in state.summaries) {
+                const points = state.summaries[key].points;
+                if (minPoints === null || points < minPoints) {
+                    minPoints = points;
+                }
+            }
+            return minPoints;
+        },
+
+        maxPoints(state) {
+            let maxPoints = null;
+            for (key in state.summaries) {
+                const points = state.summaries[key].points;
+                if (maxPoints === null || points > maxPoints) {
+                    maxPoints = points;
+                }
+            }
+            return maxPoints;
+        }
     },
 
     actions: {
@@ -139,15 +170,14 @@ export const useSummariesStore = defineStore('summaries',{
                 if (keys) {
                     this.keys = JSON.parse(keys);
                 }
-
-                this.summaries = [];
+                
                 for (const key of this.keys) {
                     const summary = new Summary(JSON.parse(await storage.getItem(key)));
                     if (summary.item_key == currentItemKey) {
-                        this.summaries.push(summary);
+                        this.summaries[key] = summary;
                     }
                     if (summary.corrector_key == correctorKey) {
-                        this.editSummary = summary;
+                        this.editSummary = summary.getClone();
                     }
                 }
                 
@@ -176,9 +206,9 @@ export const useSummariesStore = defineStore('summaries',{
                 for (const summary_data of data) {
                     const summary = new Summary(summary_data);
                     this.keys.push(summary.getKey());
-                    await storage.setItem(summary.key, JSON.stringify(summary.getData()));
+                    await storage.setItem(summary.getKey(), JSON.stringify(summary.getData()));
                     if (summary.item_key == currentItemKey) {
-                        this.summaries.push(summary);
+                        this.summaries[summary.getKey()] = summary;
                     }
                     if (summary.corrector_key == correctorKey) {
                         this.editSummary = summary.getClone();
@@ -201,7 +231,7 @@ export const useSummariesStore = defineStore('summaries',{
          * Triggered from the editor component when the content is changed
          * Triggered every checkInterval
          */
-        async updateContent(fromEditor = false, trySend = true, force = false) {
+        async updateContent(fromEditor = false, force = false) {
 
             const storedSummary = this.summaries[this.editSummary.getKey()];
             
@@ -309,5 +339,14 @@ export const useSummariesStore = defineStore('summaries',{
             };
             return changes;
         },
+
+        /**
+         * Set the own current summary as authorized
+         */
+        async setOwnAuthorized() {
+            this.editSummary.is_authorized = true;
+            await this.updateContent(false, true);
+        },
+
     }
 });

@@ -1,14 +1,14 @@
 <script setup>
   import { ref } from 'vue'
-  import {useApiStore} from '@/store/api';
-  import {useEssayStore} from '@/store/essay';
-  import {useItemsStore} from '@/store/items';
-  import {useCorrectorsStore} from '@/store/correctors';
+  import { useApiStore } from '@/store/api';
+  import { useEssayStore } from '@/store/essay';
+  import { useItemsStore } from '@/store/items';
+  import { useSummariesStore } from '@/store/summaries';
 
   const apiStore = useApiStore();
   const essayStore = useEssayStore();
   const itemsStore = useItemsStore();
-  const correctorsStore = useCorrectorsStore();
+  const summariesStore = useSummariesStore();
 
   let dialogOpen = ref(false);
   let showSendFailure = ref(false);
@@ -56,12 +56,12 @@
            Mit Ihrerm Stichentscheid wird die Bewertung dieser Abgabe abgeschlossen.
          </p>
          <br>
-         <p>Minimale Punkte: {{  correctorsStore.minPoints }}</p>
-         <p>Maximale Punkte: {{ correctorsStore.maxPoints}}</p>
+         <p>Minimale Punkte: {{  summariesStore.minPoints }}</p>
+         <p>Maximale Punkte: {{ summariesStore.maxPoints}}</p>
          <br>
          <p>
            <label for="appFinalPoints">Finale Punkte: </label>
-           <input id="appFinalPoints" class="appRatingControl" type="number" :min="correctorsStore.minPoints" :max="correctorsStore.maxPoints" v-model="essayStore.final_points" />
+           <input id="appFinalPoints" class="appRatingControl" type="number" :min="summariesStore.minPoints" :max="summariesStore.maxPoints" v-model="essayStore.final_points" />
            <span v-html="essayStore.grade"></span>
            <br />
            <label for="appStitchComment">Begründung: </label>

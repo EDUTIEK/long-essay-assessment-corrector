@@ -3,7 +3,7 @@ import {useCriteriaStore} from "@/store/criteria";
 import {useCommentsStore} from "@/store/comments";
 import {usePointsStore} from "@/store/points";
 import {useApiStore} from "@/store/api";
-import {useSummaryStore} from '@/store/summary';
+import {useSummariesStore} from '@/store/summaries';
 import { ref, watch} from 'vue';
 import TextMarker from '@/lib/TextMarker';
 
@@ -11,7 +11,7 @@ const criteriaStore = useCriteriaStore();
 const commentsStore = useCommentsStore();
 const pointsStore = usePointsStore();
 const apiStore = useApiStore();
-const summaryStore = useSummaryStore();
+const summariesStore = useSummariesStore();
 
 let corrector_key = ref('');
 
@@ -71,7 +71,7 @@ function savePoints(criterionKey) {
                     </td>
                     <td  class="text-right">
                         <input class="appPoints" type="number" min="0"
-                               :disabled="summaryStore.isAuthorized"
+                               :disabled="summariesStore.isOwnAuthorized"
                                :id="'pointsInput' + criterion.key"
                                :max="criterion.points"
                                @change="savePoints(criterion.key)" /> / {{criterion.points}}

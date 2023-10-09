@@ -1,46 +1,54 @@
 <script setup>
 
-import {useApiStore} from '@/store/api';
-import {useTaskStore} from '@/store/task';
-import {useSummaryStore} from '@/store/summary';
-import {useItemsStore} from '@/store/items';
-import {useSettingsStore} from '@/store/settings';
+import { useApiStore } from '@/store/api';
+import { useTaskStore } from '@/store/task';
+import { useItemsStore } from '@/store/items';
+import { useSettingsStore } from '@/store/settings';
+import { useChangesStore } from '@/store/changes';
+import { useSummariesStore } from '@/store/summaries';
 
 const apiStore = useApiStore();
 const taskStore = useTaskStore();
-const summaryStore = useSummaryStore();
 const itemsStore = useItemsStore();
 const settingsStore = useSettingsStore();
+const changesStore = useChangesStore();
+const summariesStore = useSummariesStore();
+
+
+const showAuthorization = ref(false);
 
 async function setAuthorizedAndContinue() {
-    if (! await apiStore.saveChangesToBackend()) {
-        apiStore.setShowSendFailure(true);
-        return;
-    }
-    await summaryStore.setAuthorized();
-    if (!summaryStore.isSent) {
-        apiStore.setShowSendFailure(true);
+
+    await summariesStore.setOwnAuthorized();
+    await apiStore.saveChangesToBackend();
+  
+    if (changesStore.countChanges > 0) {
+      showAuthorization.value = false;
+      apiStore.setShowSendFailure(true);
+      return;
     }
     else {
         let newKey = itemsStore.nextKey(apiStore.itemKey);
         if (newKey != '') {
           apiStore.loadItemFromBackend(newKey);
         }
+      showAuthorization.value = false;
     }
 }
 
 async function setAuthorizedAndClose() {
-    if (! await apiStore.saveChangesToBackend()) {
-        apiStore.setShowSendFailure(true);
-        return;
-    }
-    await summaryStore.setAuthorized();
-    if (!summaryStore.isSent) {
+
+  await summariesStore.setOwnAuthorized();
+  await apiStore.saveChangesToBackend();
+  
+  if (changesStore.countChanges > 0) {
+    showAuthorization.value = false;
     apiStore.setShowSendFailure(true);
-    }
-    else {
+    return;
+  }
+  else {
     window.location = apiStore.returnUrl;
-    }
+  }
 }
 
 </script>
@@ -48,26 +56,26 @@ async function setAuthorizedAndClose() {
 <template>
     <div id="app-authorization-wrapper">
 
-      <v-btn v-show="!summaryStore.isAuthorized" :disabled="!taskStore.authorization_allowed" @click="summaryStore.showAuthorization=true">
+      <v-btn v-show="!summariesStore.isOwnAuthorized" :disabled="!taskStore.authorization_allowed" @click="showAuthorization=true">
           <v-icon left icon="mdi-file-certificate-outline"></v-icon>
         <span>Autorisieren...</span>
       </v-btn>
 
-      <v-dialog persistent v-model="summaryStore.showAuthorization">
+      <v-dialog persistent v-model="showAuthorization">
         <v-card>
           <v-card-text>
             
             <label for="appOwnSummaryPoints"><strong>Eigene Wertung:</strong></label>
-            <input class="appPoints" type="number" min="0" :max="settingsStore.max_points" v-model="summaryStore.currentPoints" />Punkte
+            <input class="appPoints" type="number" min="0" :max="settingsStore.max_points" v-model="summariesStore.editSummary.points" />Punkte
             &nbsp;
-            <strong>Notenstufe:</strong> {{ summaryStore.currentGradeTitle }}
+            <strong>Notenstufe:</strong> {{ summariesStore.currentGradeTitle }}
 
             <p><strong>Eigener Text:</strong></p>
-            <div class="appText" v-html="summaryStore.currentContent">
+            <div class="appText" v-html="summariesStore.editSummary.text">
             </div>
             
             <hr>
-            <p v-show="summaryStore.isLastRating && summaryStore.getStitchReasonText != '' ">
+            <p v-show="summariesStore.areOthersAuthorized && summariesStore.getStitchReasonText != '' ">
               <strong>Ihre Punktevergabe wird einen Stichentscheid erfordern:</strong>
               <br>{{ summaryStore.getStitchReasonText }}
             </p>
@@ -85,7 +93,7 @@ async function setAuthorizedAndClose() {
               <v-icon left icon="mdi-check"></v-icon>
               <span>Autorisieren und Schließen</span>
             </v-btn>
-            <v-btn @click="summaryStore.showAuthorization=false">
+            <v-btn @click="showAuthorization=false">
               <v-icon left icon="mdi-close"></v-icon>
               <span>Abbrechen</span>
             </v-btn>

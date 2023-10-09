@@ -1,7 +1,7 @@
 <script setup>
 import { useApiStore } from '@/store/api';
 import {useCommentsStore} from "@/store/comments";
-import { useSummaryStore } from '@/store/summary';
+import { useSummariesStore } from '@/store/summaries';
 import { useSettingsStore } from '@/store/settings';
 import { useCriteriaStore } from '@/store/criteria';
 import { usePointsStore } from '@/store/points';
@@ -12,7 +12,7 @@ import { nextTick} from "vue";
 
 const apiStore = useApiStore();
 const commentsStore = useCommentsStore();
-const summaryStore = useSummaryStore();
+const summariesStore = useSummariesStore();
 const settingsStore = useSettingsStore();
 const criteriaStore = useCriteriaStore();
 const pointsStore = usePointsStore();
@@ -127,7 +127,7 @@ async function selectComment(comment) {
                 <v-col class="col">
                   
                   <v-btn density="compact" size="small" variant="text" prepend-icon="mdi-delete-outline"
-                         v-show="comment.corrector_key == apiStore.correctorKey && !summaryStore.isAuthorized"
+                         v-show="comment.corrector_key == apiStore.correctorKey && !summariesStore.isOwnAuthorized"
                          @click="commentsStore.deleteComment(comment.key)" ></v-btn>
 
                 </v-col>
@@ -145,7 +145,7 @@ async function selectComment(comment) {
                              :style="'color: ' + getPointsColor(comment) + ';'"
                              :id="'pointsInput' + comment.key"
                              :max="settingsStore.max_points"
-                             :disabled="summaryStore.isAuthorized || comment.corrector_key != apiStore.correctorKey"
+                             :disabled="summariesStore.isOwnAuthorized || comment.corrector_key != apiStore.correctorKey"
                              @change="commentsStore.updateComment(comment)"
                              v-model="comment.points" />
                   
@@ -159,7 +159,7 @@ async function selectComment(comment) {
                              class="ratingInput"
                              v-model="comment.rating_excellent"
                              :id="'ratingExcellent' + comment.key"
-                             :disabled="summaryStore.isAuthorized || comment.corrector_key != apiStore.correctorKey"
+                             :disabled="summariesStore.isOwnAuthorized || comment.corrector_key != apiStore.correctorKey"
                              @change="toggleExcellent(comment)" />
                   
                   <label :for="'ratingExcellent' + comment.key"
@@ -172,7 +172,7 @@ async function selectComment(comment) {
                            class="ratingInput"
                            v-model="comment.rating_cardinal"
                            :id="'ratingCardinal' + comment.key"
-                           :disabled="summaryStore.isAuthorized || comment.corrector_key != apiStore.correctorKey"
+                           :disabled="summariesStore.isOwnAuthorized || comment.corrector_key != apiStore.correctorKey"
                            @change="toggleCardinal(comment)"/>
                   <label :for="'ratingCardinal' + comment.key"
                          @click="commentsStore.selectComment(comment.key)"> Kardinal</label>
@@ -181,7 +181,7 @@ async function selectComment(comment) {
             <v-row>
                 <div :id="'appCommentWrapper' + comment.key" class="commentWrapper">
                 <v-textarea class="comment" :bg-color="getBgColor(comment)" rounded="0" density="compact" variant="solo" rows="1" auto-grow
-                            :readonly="summaryStore.isAuthorized || comment.corrector_key != apiStore.correctorKey"
+                            :readonly="summariesStore.isOwnAuthorized || comment.corrector_key != apiStore.correctorKey"
                             @click="commentsStore.selectComment(comment.key)"
                             @change="commentsStore.updateComment(comment)"
                             v-show="comment.comment != '' || comment.key == commentsStore.selectedKey"

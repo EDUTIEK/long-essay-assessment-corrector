@@ -25,55 +25,6 @@ export const useCorrectorsStore = defineStore('correctors',{
         getCorrector(state) {
             return (key) => state.correctors.find(element => element.key == key)
         },
-
-        allAuthorized(state) {
-            let index = 0;
-            while (index < state.correctors.length) {
-                let corrector = state.correctors[index];
-                if (!corrector.is_authorized) {
-                    return false;
-                }
-                index++;
-            }
-            return true;
-        },
-
-        getAllPoints(state) {
-            let points = [];
-            let index = 0;
-            while (index < state.correctors.length) {
-                let corrector = state.correctors[index];
-                points.push(corrector.points);
-                index++;
-            }
-            return points;
-        },
-
-       minPoints(state) {
-            let points = null;
-            let index = 0;
-            while (index < state.correctors.length) {
-                let corrector = state.correctors[index];
-                if (points === null || corrector.points < points) {
-                    points = corrector.points;
-                }
-                index++;
-            }
-            return points;
-        },
-
-        maxPoints(state) {
-            let points = null;
-            let index = 0;
-            while (index < state.correctors.length) {
-                let corrector = state.correctors[index];
-                if (points === null || corrector.points > points) {
-                    points = corrector.points;
-                }
-                index++;
-            }
-            return points;
-        }
     },
 
     actions: {

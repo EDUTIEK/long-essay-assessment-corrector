@@ -21,8 +21,8 @@ import 'tinymce/plugins/paste';
 /* Import tiny vue integration */
 import Editor from '@tinymce/tinymce-vue'
 
-import {useSummaryStore} from '@/store/summary';
-const summaryStore = useSummaryStore();
+import {useSummarieStore} from '@/store/summaries';
+const summariesStore = useSummariesStore();
 
 function toolbar() {
   switch ('full') // corrector always has full formatting options
@@ -71,12 +71,12 @@ const id = "summary";
 </script>
 
 <template>
-  <div class="app-own-summary-text-wrapper" v-if="!summaryStore.isAuthorized">
+  <div class="app-own-summary-text-wrapper" v-if="!summariesStore.isOwnAuthorized">
       <editor
           :id="id"
-          v-model="summaryStore.currentContent"
-          @change="summaryStore.updateContent(true)"
-          @keyup="summaryStore.updateContent(true)"
+          v-model="summariesStore.editSummary.text"
+          @change="summariesStore.updateContent(true)"
+          @keyup="summaryiesStore.updateContent(true)"
           api-key="no-api-key"
           :init="{
             height: '100%',
@@ -94,8 +94,8 @@ const id = "summary";
       />
   </div>
 
-  <div class="app-summary-text-wrapper" v-if="summaryStore.isAuthorized">
-    <div class="app-summary-text-display" v-html="summaryStore.currentContent">
+  <div class="app-summary-text-wrapper" v-if="summariesStore.isOwnAuthorized">
+    <div class="app-summary-text-display" v-html="summariesStore.editSummary.text">
     </div>
   </div>
 </template>
