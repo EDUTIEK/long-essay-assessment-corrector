@@ -471,25 +471,33 @@ export const useApiStore = defineStore('api', {
         /**
          * Periodically send changes to the backend
          * Timer is set in initialisation
+         * 
+         * @param bool wait    wait some seconds for a running sending to finish (if not called by timer)
          * @return bool
          */
-        async saveChangesToBackend() {
+        async saveChangesToBackend(wait = false) {
+            const changesStore = useChangesStore();
+            const commentsStore = useCommentsStore();
+            const pointsStore = usePointsStore();
+            const summariesStore = useSummariesStore();
 
-            // console.log(Date.now() +  ' saveChangesToBackend');
-
-            // don't send twice
+            // give 5 seconds for a running request to finish
+            if (wait) {
+                let tries = 0;
+                while (tries < 5 && this.lastSendingTry > 0) {
+                    tries++;
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
+            
+            // don't interfer with a running request
             if (this.lastSendingTry > 0) {
                 return false;
             }
-            this.lastSendingTry = Date.now();
-
-            const changesStore = useChangesStore();
+            
             if (changesStore.countChanges() > 0) {
-
-                const commentsStore = useCommentsStore();
-                const pointsStore = usePointsStore();
-                const summariesStore = useSummariesStore();
-
+                this.lastSendingTry = Date.now();
+                
                 const data = {
                     comments: await commentsStore.getChangedData(this.lastSendingTry),
                     points: await pointsStore.getChangedData(this.lastSendingTry),
@@ -503,7 +511,7 @@ export const useApiStore = defineStore('api', {
                     
                     await commentsStore.updateKeys(response.data.comments);
                     await pointsStore.changeCommentKeys(response.data.comments);
-                    await pointsStore.updateKeys(response.data.points, this.lastSendingTry);
+                    await pointsStore.updateKeys(response.data.points);
 
                     await changesStore.cleanupChanges(this.lastSendingTry);
                     await changesStore.updateKeys(Change.TYPE_COMMENT, response.data.comments);
@@ -514,8 +522,10 @@ export const useApiStore = defineStore('api', {
                     this.lastSendingTry = 0;
                     return false;
                 }
+                
+                this.lastSendingTry = 0;
             }
-            this.lastSendingTry = 0;
+            
             return true;
         },
 

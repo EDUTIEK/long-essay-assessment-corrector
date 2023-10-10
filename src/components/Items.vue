@@ -3,14 +3,12 @@
   import { useItemsStore } from '@/store/items';
   import { useSummariesStore } from "@/store/summaries";
   import { useEssayStore } from "@/store/essay";
-  import { useChangesStore } from '@/store/changes';
   import { ref, nextTick } from 'vue';
 
   const apiStore = useApiStore();
   const itemsStore = useItemsStore();
   const summariesStore = useSummariesStore();
   const essayStore = useEssayStore();
-  const changesStore = useChangesStore();
 
   const menuOpen = ref(false);
   const selectionShown=ref(false);
@@ -21,7 +19,6 @@
   async function showSelection() {
     await nextTick();
     if (menuOpen.value) {
-      console.log('menu is open');
       selectionShown.value=true;
       selectedKey.value='';
     }
@@ -36,12 +33,11 @@
   
   async function changeItem(newKey) {
     loading.value = true;
-    await apiStore.saveChangesToBackend();
-    if (changesStore.countChanges > 0) {
-      apiStore.setShowSendFailure(true);
+    if (await apiStore.saveChangesToBackend(true)) {
+      await apiStore.loadItemFromBackend(newKey);
     }
     else {
-      await apiStore.loadItemFromBackend(newKey);
+      apiStore.setShowSendFailure(true);
     }
     loading.value = false;
   }

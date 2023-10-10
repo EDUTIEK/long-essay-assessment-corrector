@@ -17,6 +17,10 @@ function isSent() {
   return changesStore.countChanges == 0;
 }
 
+function isSending() {
+  return apiStore.lastSendingTry > 0;
+}
+
 function openNavigation() {
     document.getElementById('app-navigation-drawer').dispatchEvent(new Event('mouseenter'));
 }
@@ -137,8 +141,8 @@ function getCorrectorIcon(corrector) {
           <v-list>
             <v-list-item
                 :disabled="isSent()"
-                :prepend-icon="isSent() ? 'mdi-cloud-check-outline' : 'mdi-cloud-upload'"
-                :title="isSent() ? 'Alles gesendet' : 'Letzte Änderung senden'"
+                :prepend-icon="IsSending() ? 'mdi-cloud-upload' : isSent() ? 'mdi-cloud-check-outline' : 'mdi-cloud-alert-outline'"
+                :title="IsSending() ? 'Änderungen werden gesendet' : isSent() ? 'Alles gesendet' : 'Letzte Änderung senden'"
                 @click="apiStore.saveChangesToBackend()"></v-list-item>
           </v-list>
         </template>

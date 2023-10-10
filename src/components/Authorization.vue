@@ -4,50 +4,43 @@ import { useApiStore } from '@/store/api';
 import { useTaskStore } from '@/store/task';
 import { useItemsStore } from '@/store/items';
 import { useSettingsStore } from '@/store/settings';
-import { useChangesStore } from '@/store/changes';
 import { useSummariesStore } from '@/store/summaries';
 
 const apiStore = useApiStore();
 const taskStore = useTaskStore();
 const itemsStore = useItemsStore();
 const settingsStore = useSettingsStore();
-const changesStore = useChangesStore();
 const summariesStore = useSummariesStore();
 
 
 const showAuthorization = ref(false);
 
 async function setAuthorizedAndContinue() {
-
-    await summariesStore.setOwnAuthorized();
-    await apiStore.saveChangesToBackend();
   
-    if (changesStore.countChanges > 0) {
-      showAuthorization.value = false;
-      apiStore.setShowSendFailure(true);
-      return;
+    await summariesStore.setOwnAuthorized();
+    if (await apiStore.saveChangesToBackend(true)) {
+      let newKey = itemsStore.nextKey(apiStore.itemKey);
+      if (newKey != '') {
+        apiStore.loadItemFromBackend(newKey);
+        showAuthorization.value = false;
+      }
     }
     else {
-        let newKey = itemsStore.nextKey(apiStore.itemKey);
-        if (newKey != '') {
-          apiStore.loadItemFromBackend(newKey);
-        }
       showAuthorization.value = false;
+      apiStore.setShowSendFailure(true);
     }
 }
 
 async function setAuthorizedAndClose() {
 
   await summariesStore.setOwnAuthorized();
-  await apiStore.saveChangesToBackend();
-  
-  if (changesStore.countChanges > 0) {
+  if (await apiStore.saveChangesToBackend(true)) {
+    window.location = apiStore.returnUrl;
+  } 
+  else {
     showAuthorization.value = false;
     apiStore.setShowSendFailure(true);
     return;
-  }
-  else {
-    window.location = apiStore.returnUrl;
   }
 }
 
