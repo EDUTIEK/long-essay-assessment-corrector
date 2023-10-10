@@ -512,10 +512,10 @@ export const useApiStore = defineStore('api', {
                     await commentsStore.updateKeys(response.data.comments);
                     await pointsStore.changeCommentKeys(response.data.comments);
                     await pointsStore.updateKeys(response.data.points);
-
-                    await changesStore.cleanupChanges(this.lastSendingTry);
-                    await changesStore.updateKeys(Change.TYPE_COMMENT, response.data.comments);
-                    await changesStore.updateKeys(Change.TYPE_POINTS, response.data.points);
+                    
+                    await changesStore.setChangesSent(Change.TYPE_COMMENT, response.data.comments, this.lastSendingTry);
+                    await changesStore.setChangesSent(Change.TYPE_POINTS, response.data.points, this.lastSendingTry);
+                    await changesStore.setChangesSent(Change.TYPE_SUMMARY, response.data.summaries, this.lastSendingTry);
                 }
                 catch (error) {
                     console.error(error);
