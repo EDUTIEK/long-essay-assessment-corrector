@@ -66,6 +66,7 @@ export const useChangesStore = defineStore('changes',{
          * @param {string} type - dsee Change.ALLOWED_TYPES
          * @param {integer} maxTime - maximum last change or 0 to get all
          * @return {array} Change objects
+         * @see setChangesSent
          */
         getChangesFor(state) {
             
@@ -76,7 +77,7 @@ export const useChangesStore = defineStore('changes',{
                 const changes = [];
                 for (const key in state[type]) {
                     const change = state[type][key];
-                    if (maxTime == 0 || change.last_change < maxTime) {
+                    if (maxTime == 0 || change.last_change <= maxTime) {
                         changes.push(change);
                     }
                 }
@@ -178,58 +179,40 @@ export const useChangesStore = defineStore('changes',{
                 await this.saveChangesOfTypeToStorage(change.type);
             }
         },
+        
 
         /**
          * Cleanup changes that have been sent to the backend
-         *
-         * @param {integer} maxTime - timestamp of the sending
-         */
-        async cleanupChanges(maxTime) {
-
-            for (const type in this.$state) {
-                let cleaned = false;
-                for (const key in this.$state[type]) {
-                    const change = this.$state[type][key];
-                    if (change.last_change < maxTime) {
-                        delete this.$state[type][key];
-                        cleaned = true;
-                    }
-                }
-                if (cleaned) {
-                    await this.saveChangesOfTypeToStorage(type);
-                }
-            }
-        },
-
-
-        /**
-         * Cleanup changes that have been sent to the backend
+         * The will delete all changes thet are noted as processed and that are not newer than the sending time
          *
          * @param {string} type see Change.ALLOWED_TYPES
-         * @param {object} matches - old key: new key
+         * @param {object} processed - old key: new key or null if the data has been deleted
+         * @param {integer} maxTime maximum timestamp until processed changes should be deleted
+         * @see getChangesFor
          */
-        async updateKeys(type, matches) {
+        async setChangesSent(type, processed, maxTime) {
 
             const changes = this.$state[type];
+            const toStore = false;
             
-            const matched = false;
-            for (const old_key in matches) {
-                const new_key = matches[old_key];
+            for (const old_key in processed) {
+                const new_key = processed[old_key];
                 const change = changes[old_key];
+                
                 if (change) {
-                    if (new_key == null) {
+                    if (change.last_change <= maxTime) {
                         delete changes[old_key];
-                        matched = true;
+                        toStore = true;
                     }
-                    else if (new_key != old_key) {
+                    else if (new_key == null || new_key != old_key) {
                         change.key = new_key;
                         changes[new_key] = change;
                         delete changes[old_key];
-                        matched = true;
+                        toStore = true;
                     }
                 }
             }
-            if (matched) {
+            if (toStore) {
                 await this.saveChangesOfTypeToStorage(type);
             }
         }
