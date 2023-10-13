@@ -14,9 +14,10 @@ import {useCriteriaStore} from "./criteria";
 import {useCorrectorsStore} from "./correctors";
 import {useCommentsStore} from "./comments";
 import {usePointsStore} from "./points";
+import { useChangesStore } from '@/store/changes';
+
 import md5 from 'md5';
 import comment from '@/data/Comment';
-import { useChangesStore } from '@/store/changes';
 import Change from '@/data/Change';
 
 const sendInterval = 5000;      // time (ms) to wait for sending open savings to the backend
@@ -334,7 +335,7 @@ export const useApiStore = defineStore('api', {
             await criteriaStore.loadFromStorage();
             await layoutStore.loadFromStorage();
             await itemsStore.loadFromStorage();
-            await changesStore.loadDataFromStorage();
+            await changesStore.loadFromStorage();
 
             return true;
         },
@@ -495,7 +496,7 @@ export const useApiStore = defineStore('api', {
                 return false;
             }
             
-            if (changesStore.countChanges() > 0) {
+            if (changesStore.countChanges > 0) {
                 this.lastSendingTry = Date.now();
                 
                 const data = {

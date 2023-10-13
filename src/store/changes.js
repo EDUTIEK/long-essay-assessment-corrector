@@ -9,9 +9,11 @@ const storage = localForage.createInstance({
 
 
 function startState() {
-    const state = {};
+    const state = {
+        changes: {}
+    };
     for (const type of Change.ALLOWED_TYPES) {
-        state[type] = {};   // changes of objects of the type that have to be sent to the backend: key => Change
+        state.changes[type] = {};   // changes of objects of the type that have to be sent to the backend: key => Change
     }
     return state;
 }
@@ -25,7 +27,7 @@ function startState() {
  */
 export const useChangesStore = defineStore('changes',{
     state: () => {
-        return statState();
+        return startState();
     },
 
     /**
@@ -35,54 +37,57 @@ export const useChangesStore = defineStore('changes',{
 
         /**
          * Count the number of changes
-         * @returns {integer}
+         * @param {object} state
+         * @returns {number}
          */
         countChanges: state => {
             let count = 0;
-            for (const type in state) {
-                count += Object.keys(state[type]).length;
+            for (const type in state.changes) {
+                count += Object.keys(state.changes[type]).length;
             }
             return count;
         },
 
-        /**
-         * Get the count of changes for an object type
-         * @param {string} type see Change.ALLOWED_TYPES
-         * @returns {integer}
-         */
-        getCountOfChangesFor: state => {
-            
-            return type => {
+         getCountOfChangesFor: state => {
+
+            /**
+             * Get the count of changes for an object type
+             * @param {string} type see Change.ALLOWED_TYPES
+             * @returns {number}
+             */
+            const fn = function(type) {
                 if (!Change.ALLOWED_TYPES.includes(type)) {
-                    console.log ('wrong type' + type);
+                    console.log('wrong type' + type);
                     return 0;
                 }
-                return Object.keys(state[type]).length;
+                return Object.keys(state.changes[type]).length;
             }
+            return fn;
         },
         
-        /**
-         * Get the changes of a type
-         * @param {string} type - dsee Change.ALLOWED_TYPES
-         * @param {integer} maxTime - maximum last change or 0 to get all
-         * @return {array} Change objects
-         * @see setChangesSent
-         */
-        getChangesFor(state) {
-            
-             return (type, maxTime = 0) => {
+        getChangesFor: state =>  {
+
+            /**
+             * Get the changes of a type
+             * @param {string} type - see Change.ALLOWED_TYPES
+             * @param {number} maxTime - maximum last change or 0 to get all
+             * @return {array} Change objects
+             * @see setChangesSent
+             */
+            const fn = function(type, maxTime = 0) {
                 if (!Change.ALLOWED_TYPES.includes(type)) {
                     return [];
                 }
                 const changes = [];
-                for (const key in state[type]) {
-                    const change = state[type][key];
+                for (const key in state.changes[type]) {
+                    const change = state.changes[type][key];
                     if (maxTime == 0 || change.last_change <= maxTime) {
                         changes.push(change);
                     }
                 }
                 return changes;
             }
+            return fn;
         },
     },
     
@@ -99,7 +104,8 @@ export const useChangesStore = defineStore('changes',{
             catch (err) {
                 console.log(err);
             }
-            this.$state = startState();
+            // initialize the state
+            this.$reset();
         },
 
         /**
@@ -111,13 +117,13 @@ export const useChangesStore = defineStore('changes',{
             const state = startState();
             
             try {
-                for (const type in state) {
+                for (const type in state.changes) {
                     const stored = await storage.getItem(type);
                     if (stored) {
                         const parsed = JSON.parse(stored);
                         if (typeof parsed === 'object' && parsed !== null) {
                             for (const key in parsed) {
-                                state[type][key] = new Change(parsed[key]);
+                                state.changes[type][key] = new Change(parsed[key]);
                             }    
                         }
                     }
@@ -126,7 +132,8 @@ export const useChangesStore = defineStore('changes',{
                 console.log(err);
             }
             
-            this.$state = state;
+            // replace the state with a new one
+            this.$patch(state);
         },
 
         /**
@@ -136,8 +143,8 @@ export const useChangesStore = defineStore('changes',{
          */
         async saveChangesOfTypeToStorage(type) {
             const data = {};
-            for (const key in this.$state[type]) {
-                const change = this.$state[type][key];
+            for (const key in this.changes[type]) {
+                const change = this.changes[type][key];
                 data[key] = change.getData();
             }
             await storage.setItem(type, JSON.stringify(data));
@@ -148,10 +155,13 @@ export const useChangesStore = defineStore('changes',{
          * (called from api store at initialisation)
          */
         async hasChangesInStorage() {
-            for (const type in this.$state) {
+            for (const type in this.changes) {
                 const stored = await storage.getItem(type);
                 if (stored) {
-                    return true;
+                    const parsed = JSON.parse(stored);
+                    if (Object.keys(parsed).length > 0) {
+                        return true;
+                    }
                 }
             }
             return false;
@@ -164,7 +174,7 @@ export const useChangesStore = defineStore('changes',{
          */
         async setChange(change) {
             if (change.isValid()) {
-                this.$state[change.type][change.key] = change;
+                this.changes[change.type][change.key] = change;
                 await this.saveChangesOfTypeToStorage(change.type);
             }
         },
@@ -175,7 +185,7 @@ export const useChangesStore = defineStore('changes',{
          */
         async unsetChange(change) {
             if (change.isValid()) {
-                delete this.$state[change.type][change.key];
+                delete this.changes[change.type][change.key];
                 await this.saveChangesOfTypeToStorage(change.type);
             }
         },
@@ -192,8 +202,8 @@ export const useChangesStore = defineStore('changes',{
          */
         async setChangesSent(type, processed, maxTime) {
 
-            const changes = this.$state[type];
-            const toStore = false;
+            const changes = this.changes[type];
+            let toStore = false;
             
             for (const old_key in processed) {
                 const new_key = processed[old_key];

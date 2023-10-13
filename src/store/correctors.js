@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import localForage from "localforage";
+import { useApiStore } from '@/store/api';
 
 const storage = localForage.createInstance({
     storeName: "corrector-correctors",
@@ -14,16 +15,31 @@ export const useCorrectorsStore = defineStore('correctors',{
         return {
             // saved in storage
             keys: [],               // list of string keys
-            correctors: [],         // list of corrector objects
+            correctors: [],         // list of corrector objects (key, title)
         }
     },
 
-
+    /**
+     * Getter functions (with params) start with 'get', simple state queries not
+     */
     getters: {
-        hasCorrectors: (state) => state.correctors.length > 0,
 
-        getCorrector(state) {
-            return (key) => state.correctors.find(element => element.key == key)
+        otherCorrectors: state => {
+            const apiStore = useApiStore();
+            return state.correctors.filter(element => element.key != apiStore.correctorKey)
+        },
+
+        getCorrector: state => {
+            
+            /**
+             * Get a corrector object by key
+             * @param {string}  key  - key of the corrector
+             * @return {object}
+             */
+           const fn = function(key) {
+               return state.correctors.find(element => element.key == key)
+           }
+           return fn;
         },
     },
 

@@ -21,7 +21,7 @@ import 'tinymce/plugins/paste';
 /* Import tiny vue integration */
 import Editor from '@tinymce/tinymce-vue'
 
-import {useSummarieStore} from '@/store/summaries';
+import {useSummariesStore} from '@/store/summaries';
 const summariesStore = useSummariesStore();
 
 function toolbar() {
@@ -76,7 +76,7 @@ const id = "summary";
           :id="id"
           v-model="summariesStore.editSummary.text"
           @change="summariesStore.updateContent(true)"
-          @keyup="summaryiesStore.updateContent(true)"
+          @keyup="summariesStore.updateContent(true)"
           api-key="no-api-key"
           :init="{
             height: '100%',

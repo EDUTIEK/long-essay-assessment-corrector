@@ -5,6 +5,7 @@ import { useTaskStore } from '@/store/task';
 import { useItemsStore } from '@/store/items';
 import { useSettingsStore } from '@/store/settings';
 import { useSummariesStore } from '@/store/summaries';
+import { ref } from 'vue';
 
 const apiStore = useApiStore();
 const taskStore = useTaskStore();
@@ -68,9 +69,9 @@ async function setAuthorizedAndClose() {
             </div>
             
             <hr>
-            <p v-show="summariesStore.areOthersAuthorized && summariesStore.getStitchReasonText != '' ">
+            <p v-show="summariesStore.areOthersAuthorized && summariesStore.stitchReasonText != '' ">
               <strong>Ihre Punktevergabe wird einen Stichentscheid erfordern:</strong>
-              <br>{{ summaryStore.getStitchReasonText }}
+              <br>{{ summariesStore.stitchReasonText }}
             </p>
             <br>
             <p>

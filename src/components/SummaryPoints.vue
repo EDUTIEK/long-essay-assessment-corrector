@@ -1,22 +1,22 @@
 <script setup>
 import { ref } from 'vue';
-import { useCorrectorsStore } from '@/store/correctors';
 import { useSettingsStore} from '@/store/settings';
 import { useLevelsStore } from '@/store/levels';
+import { useSummariesStore } from '@/store/summaries';
 
-const correctorsStore = useCorrectorsStore();
 const settingsStore = useSettingsStore();
 const levelsStore = useLevelsStore();
+const summariesStore = useSummariesStore();
 
 const props = defineProps(['corrector_key']);
 
 const points = ref(0);
 const grade = ref('');
 
-const corrector = correctorsStore.getCorrector(props.corrector_key);
-if (corrector) {
-  points.value = corrector.points;
-  const level = levelsStore.getLevel(corrector.grade_key);
+const summary = summariesStore.getForCorrector(props.corrector_key);
+if (summary) {
+  points.value = summary.points;
+  const level = levelsStore.getLevel(summary.grade_key);
   if (level) {
     grade.value = level.title;
   }

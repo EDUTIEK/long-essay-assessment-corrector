@@ -74,7 +74,7 @@ class Change {
     if (data.action !== undefined && Change.ALLOWED_ACTIONS.includes(data.action)) {
       this.action = data.action.toString()
     }
-    if (data.type !== undefined && Change.ALLOWED_TYPES.includes(data.types)) {
+    if (data.type !== undefined && Change.ALLOWED_TYPES.includes(data.type)) {
       this.type = data.type.toString()
     }
     if (data.key !== undefined && data.key !== null) {

@@ -1,15 +1,15 @@
 <script setup>
 
-import { useCorrectorsStore } from '@/store/correctors';
+import { useSummariesStore } from '@/store/summaries';
 import { reactive } from 'vue';
-const correctorsStore = useCorrectorsStore();
+const summariesStore = useSummariesStore();
 
 const props = defineProps(['corrector_key']);
 
 function text() {
-    let corrector = correctorsStore.getCorrector(props.corrector_key);
-    if (corrector) {
-        return corrector.text;
+    let summary = summariesStore.getForCorrector(props.corrector_key);
+    if (summary) {
+        return summary.text;
     }
 }
 </script>

@@ -11,7 +11,6 @@ import Summary from "@/data/Summary";
 import Change from "@/data/Change";
 
 
-
 const storage = localForage.createInstance({
     storeName: "corrector-summaries",
     description: "Corrector summaries data",
@@ -25,8 +24,8 @@ function startState() {
     return {
         // saved in storage
         keys: [],                   // list of string keys of all summaries in the storage
-        editSummary: new Summary(), // summary of the acticve corrector that is edited
-        summaries: {},              // list of all summary objects for the current correction item, indexed by key
+        editSummary: new Summary(), // summary of the currector corrector that is actively edited
+        summaries: {},              // list of all summary objects for the current item, indexed by key
 
         // not saved in storage
         lastCheck: 0,               // timestamp (ms) of the last check if an update needs a storage
@@ -37,7 +36,7 @@ let lockUpdate = 0;             // prevent updates during a processing
 
 
 /**
- * Comments Store
+ * Summaries Store
  */
 export const useSummariesStore = defineStore('summaries',{
     state: () => {
@@ -49,18 +48,26 @@ export const useSummariesStore = defineStore('summaries',{
      */
     getters: {
 
+        /**
+         * Is the summary of thecorrent corrector and item authorized
+         * @returns {bool}
+         */
         isOwnAuthorized: state => state.editSummary.is_authorized,
         
         areOthersAuthorized: state => {
-            for (key in state.summaries) {
+            for (const key in state.summaries) {
                 const summary = state.summaries[key];
                 if (summary.getKey() != state.editSummary.getKey() && !summary.is_authorized) {
                     return false;
                 }
             }
             return true;
-        },        
-        
+        },
+
+        /**
+         * Resulting grade title from the summary of the currentcorrector and item
+         * @returns {string}
+         */
         currentGradeTitle(state) {
             if (state.editSummary.grade_key) {
                 const levelsStore = useLevelsStore();
@@ -72,14 +79,37 @@ export const useSummariesStore = defineStore('summaries',{
             return 'ohne Notenstufe';
         },
 
-        getStitchReasonText(state) {
+        getForCorrector: state => {
+
+            /**
+             * Get a summary of a specific corrector for the current item
+             * @param {string} corrector_key
+             * @returns {Summary}
+             */
+            const fn = function(corrector_key) {
+              for (const key in state.summaries) {
+                  const summary = state.summaries[key];
+                  if (summary.corrector_key == corrector_key) {
+                      return summary;
+                  }
+              }
+              return null;
+          }
+          return fn;
+        },
+
+        /**
+         * Text why a stitch decision will be needed the current item
+         * @returns {string}
+         */
+        stitchReasonText: state => {
             let min_points = null;
             let max_points = null;
             let sum_points = 0;
             let count_points = 0;
             
             // loop over all summaries for the current correction item
-            for (key in state.summaries) {
+            for (const key in state.summaries) {
                 const points = state.summaries[key].points;
                 if (points !== null) {
                     sum_points += points;
@@ -114,9 +144,13 @@ export const useSummariesStore = defineStore('summaries',{
             return '';
         },
 
-        minPoints(state) {
+        /**
+         * Minimum points all summaries for the current item
+         * @returns {number|null}
+         */
+        minPoints: state => {
             let minPoints = null;
-            for (key in state.summaries) {
+            for (const key in state.summaries) {
                 const points = state.summaries[key].points;
                 if (minPoints === null || points < minPoints) {
                     minPoints = points;
@@ -125,9 +159,13 @@ export const useSummariesStore = defineStore('summaries',{
             return minPoints;
         },
 
-        maxPoints(state) {
+        /**
+         * Maximum points all summaries for the current item
+         * @returns {number|null}
+         */
+        maxPoints: state => {
             let maxPoints = null;
-            for (key in state.summaries) {
+            for (const key in state.summaries) {
                 const points = state.summaries[key].points;
                 if (maxPoints === null || points > maxPoints) {
                     maxPoints = points;
@@ -150,7 +188,7 @@ export const useSummariesStore = defineStore('summaries',{
             catch (err) {
                 console.log(err);
             }
-            this.$state = startState();
+            this.$reset();
         },
 
         /**
@@ -164,7 +202,7 @@ export const useSummariesStore = defineStore('summaries',{
         async loadFromStorage(currentItemKey, correctorKey) {
             
             try {
-                this.$state = startState();
+                this.$reset();
                 
                 const keys = await storage.getItem('keys');
                 if (keys) {
@@ -199,7 +237,7 @@ export const useSummariesStore = defineStore('summaries',{
          */
         async loadFromData(data, currentItemKey, correctorKey) {
             try {
-                this.$state = startState();
+                this.$reset();
                 
                 await storage.clear();
 
@@ -330,7 +368,7 @@ export const useSummariesStore = defineStore('summaries',{
             const changes = [];
             for (const change of changesStore.getChangesFor(Change.TYPE_SUMMARY, sendingTime)) {
                 if (change.action == Change.ACTION_SAVE) {
-                    const data = await storage.getItem(Change.key);
+                    const data = await storage.getItem(change.key);
                     if (data) {
                         change.payload = JSON.parse(data);
                     } 

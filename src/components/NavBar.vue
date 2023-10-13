@@ -118,7 +118,7 @@ function getCorrectorIcon(corrector) {
 
             <v-divider class="border-opacity-75" ></v-divider>
 
-            <v-list-item v-for="corrector in correctorsStore.correctors"
+            <v-list-item v-for="corrector in correctorsStore.otherCorrectors"
                          @click="selectCorrector(corrector); closeNavigation();"
                          :prepend-icon="getCorrectorIcon(corrector)"
                          :title="corrector.title"
@@ -141,8 +141,8 @@ function getCorrectorIcon(corrector) {
           <v-list>
             <v-list-item
                 :disabled="isSent()"
-                :prepend-icon="IsSending() ? 'mdi-cloud-upload' : isSent() ? 'mdi-cloud-check-outline' : 'mdi-cloud-alert-outline'"
-                :title="IsSending() ? 'Änderungen werden gesendet' : isSent() ? 'Alles gesendet' : 'Letzte Änderung senden'"
+                :prepend-icon="isSending() ? 'mdi-cloud-upload' : (isSent() ? 'mdi-cloud-check-outline' : 'mdi-cloud-outline')"
+                :title="isSending() ? 'Änderungen werden gesendet' : (isSent() ? 'Alles gesendet' : 'Letzte Änderung senden')"
                 @click="apiStore.saveChangesToBackend()"></v-list-item>
           </v-list>
         </template>

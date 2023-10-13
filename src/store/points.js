@@ -299,7 +299,7 @@ export const usePointsStore = defineStore('points',{
             const changes = [];
             for (const change of changesStore.getChangesFor(Change.TYPE_POINTS, sendingTime)) {
                 if (change.action == Change.ACTION_SAVE) {
-                    const data = await storage.getItem(Change.key);
+                    const data = await storage.getItem(change.key);
                     if (data) {
                         change.payload = JSON.parse(data);
                     }

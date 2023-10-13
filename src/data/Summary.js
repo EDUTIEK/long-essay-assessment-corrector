@@ -194,7 +194,7 @@ class Summary {
    * @param other
    */
   isEqual(other) {
-    for (key in this) {
+    for (const key in this) {
       if (this[key] !== other[key]) {
         return false;
       }
