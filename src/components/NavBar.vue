@@ -45,14 +45,14 @@ function selectCorrector(corrector) {
 function getResourceIcon(resource) {
     switch (resource.type) {
         case "url":
-            return (resourcesStore.isActive(resource) && layoutStore.isResourcesVisible) ? "mdi-file-link" : "mdi-file-link-outline"
+            return (resourcesStore.getResourceIsActive(resource) && layoutStore.isResourcesVisible) ? "mdi-file-link" : "mdi-file-link-outline"
         default:
-            return (resourcesStore.isActive(resource) && layoutStore.isResourcesVisible) ? "mdi-file" : "mdi-file-outline"
+            return (resourcesStore.getResourceIsActive(resource) && layoutStore.isResourcesVisible) ? "mdi-file" : "mdi-file-outline"
     }
 }
 
 function getCorrectorIcon(corrector) {
-    return (layoutStore.isCorrectorVisible(corrector)) ? "mdi-account-school" : "mdi-account-school-outline"
+    return (layoutStore.getCorrectorIsVisible(corrector.key)) ? "mdi-account-school" : "mdi-account-school-outline"
 }
 
 
@@ -94,7 +94,7 @@ function getCorrectorIcon(corrector) {
                     </v-list-item>
                 </template>
 
-                <v-list-item v-for="resource in resourcesStore.getFileOrUrlResources"
+                <v-list-item v-for="resource in resourcesStore.fileOrUrlResources"
                              @click="selectResource(resource); closeNavigation();"
                              :prepend-icon="getResourceIcon(resource)"
                              :title="resource.title"

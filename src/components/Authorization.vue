@@ -20,7 +20,7 @@ async function setAuthorizedAndContinue() {
   
     await summariesStore.setOwnAuthorized();
     if (await apiStore.saveChangesToBackend(true)) {
-      let newKey = itemsStore.nextKey(apiStore.itemKey);
+      let newKey = itemsStore.getNextKey(apiStore.itemKey);
       if (newKey != '') {
         apiStore.loadItemFromBackend(newKey);
         showAuthorization.value = false;

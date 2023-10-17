@@ -2,7 +2,7 @@
 import {useResourcesStore} from '@/store/resources';
 
 const resourcesStore = useResourcesStore();
-const resource = resourcesStore.getInstruction;
+const resource = resourcesStore.instruction;
 
 </script>
 

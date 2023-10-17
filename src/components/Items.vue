@@ -48,7 +48,7 @@
 
 <template>
   
-   <v-btn :disabled="apiStore.itemKey == itemsStore.firstKey" @click="changeItem(itemsStore.previousKey(apiStore.itemKey))">
+   <v-btn :disabled="apiStore.itemKey == itemsStore.firstKey" @click="changeItem(itemsStore.getPreviousKey(apiStore.itemKey))">
      <v-icon left icon="mdi-arrow-left-bold"></v-icon>
    </v-btn>
   
@@ -88,7 +88,7 @@
     ></v-autocomplete>
   </v-menu>
   
-   <v-btn :disabled="apiStore.itemKey == itemsStore.lastKey" @click="changeItem(itemsStore.nextKey(apiStore.itemKey))">
+   <v-btn :disabled="apiStore.itemKey == itemsStore.lastKey" @click="changeItem(itemsStore.getNextKey(apiStore.itemKey))">
      <v-icon left icon="mdi-arrow-right-bold"></v-icon>
    </v-btn>
 </template>

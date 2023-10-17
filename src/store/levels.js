@@ -18,16 +18,35 @@ export const useLevelsStore = defineStore('levels',{
         }
     },
 
-
+    /**
+     * Getter functions (with params) start with 'get', simple state queries not
+     */
     getters: {
-        hasLevels: (state) => state.levels.length > 0,
+        hasLevels: state => state.levels.length > 0,
 
-        getLevel(state) {
-            return (key) => state.levels.find(element => element.key == key)
+        getLevel: state => {
+
+            /**
+             * Get a level by its key
+             * 
+             * @param {string} key
+             * @returns {object|null}
+             */
+            const fn = function(key) {
+                return state.levels.find(element => element.key == key);
+            }
+            return fn;
         },
 
-        getLevelForPoints(state) {
-            return function (points) {
+        getLevelForPoints: state => {
+
+            /**
+             * Get the level for reached points
+             * 
+             * @param {number} points
+             * @returns {null}
+             */
+            const fn = function(points) {
                 let level = null;
                 let last_points = 0;
                 for (let i = 0; i < state.levels.length; i++) {
@@ -39,6 +58,7 @@ export const useLevelsStore = defineStore('levels',{
                 }
                 return level;
             }
+            return fn;
         },
     },
 

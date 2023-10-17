@@ -326,7 +326,7 @@ export const useSummariesStore = defineStore('summaries',{
                     const apiStore = useApiStore();
                     const changesStore = useChangesStore();
                     
-                    clonedSummary.last_change = apiStore.serverTime(Date.now());
+                    clonedSummary.last_change = apiStore.getServerTime(Date.now());
                    
                     this.editSummary.setData(clonedSummary.getData());
                     this.summaries[clonedSummary.getKey()] = clonedSummary;

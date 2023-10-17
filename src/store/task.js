@@ -30,10 +30,10 @@ export const useTaskStore = defineStore('task',{
     },
 
     getters: {
-        hasInstructions: (state) => !!state.instructions,
-        hasSolution: (state) => !!state.solution,
-        hasCorrectionEnd: (state) => !!state.correction_end,
-        correctionEndReached: (state) => state.remaining_time === 0,
+        hasInstructions: state => !!state.instructions,
+        hasSolution: state => !!state.solution,
+        hasCorrectionEnd: state => !!state.correction_end,
+        correctionEndReached: state => state.remaining_time === 0,
     },
 
     actions: {
@@ -79,7 +79,7 @@ export const useTaskStore = defineStore('task',{
             const apiStore = useApiStore();
 
             if (this.correction_end) {
-                this.remaining_time = Math.max(0, this.correction_end - apiStore.serverTime(Date.now()));
+                this.remaining_time = Math.max(0, this.correction_end - apiStore.getServerTime(Date.now()));
             }
             else {
                 this.remaining_time = null;

@@ -70,7 +70,7 @@ export const useCommentsStore = defineStore('comments',{
             return '';
         },
 
-        activeComments(state) {
+        activeComments: state => {
             const apiStore = useApiStore();
             const correctorsStore = useCorrectorsStore();
             return state.comments.filter(comment =>
@@ -79,78 +79,163 @@ export const useCommentsStore = defineStore('comments',{
             );
         },
 
-        currentCommentKeys(state) {
+        currentCommentKeys: state => {
             let keys = [];
             state.comments.forEach(comment => keys.push(comment.key));
             return keys;
         },
 
-        isOtherCorrectorsShown(state) {
+        isOtherCorrectorsShown: state => {
             return state.showOtherCorrectors
         },
 
-        isFilterActive(state) {
+        isFilterActive: state => {
           return state.filterKeys.length > 0;
         },
 
-        getComment(state) {
-            return (key) => state.comments.find(element => element.key == key);
+        getComment: state => {
+
+            /**
+             * Get a comment by its key
+             * 
+             * @param {string} key
+             * @returns {Comment|null}
+             */
+            const fn = function(key) {
+                return state.comments.find(element => element.key == key);
+            }
+            return fn;
         },
 
-        getCommentByMarkKey(state) {
-            return (key) => state.comments.find(element => element.hasMarkKey(key));
+        getCommentByMarkKey: state => {
+
+            /**
+             * Get a comment by the key if its mark key
+             * 
+             * @param {string} key
+             * @returns {Comment|null}
+             */
+            const fn = function(key) {
+                return state.comments.find(element => element.hasMarkKey(key));
+            }
+            return fn;
         },
 
-        getActiveCommentsInRange(state) {
-            return (start_position, end_position) => state.activeComments.filter(comment =>
-               comment.start_position <= end_position && comment.end_position >= start_position
-            );
+        getActiveCommentsInRange: state => {
+
+            /**
+             * Get the active comments in a range of marked text
+             * 
+             * @param {number} start_position
+             * @param {number} end_position
+             * @returns {Comment[]}
+             */
+            const fn = function(start_position, end_position) {
+                return state.activeComments.filter(comment =>
+                  comment.start_position <= end_position && comment.end_position >= start_position
+                );
+            };
+            return fn;
         },
 
-        getActiveCommentsByStartPosition(state) {
-            return (start_position) => state.activeComments.filter(comment =>
-                comment.start_position == start_position
-            );
+        getActiveCommentsByStartPosition: state => {
+
+            /**
+             * Get the active comments with a start position
+             * 
+             * @param {number] }start_position
+             * @returns {Comment[]}
+             */
+            const fn = function(start_position) {
+                return state.activeComments.filter(comment =>
+                  comment.start_position == start_position
+                );
+            }
+            return fn;
         },
 
-        getActiveCommentsByParentNumber(state) {
-            return (parent_number) => state.activeComments.filter(comment =>
-              comment.parent_number == parent_number
-            );
+        getActiveCommentsByParentNumber: state => {
+
+            /**
+             * Get the active comments with a parent number
+             * 
+             * @param {number} parent_number
+             * @returns {Comment[]}
+             */
+            const fn = function(parent_number) {
+                return state.activeComments.filter(comment =>
+                  comment.parent_number == parent_number
+                );
+            }
+            return fn;
         },
 
-        getKeysOfCorrector(state) {
-            return (corrector_key) => {
+        getKeysOfCorrector: state => {
+
+            /**
+             * Get the comment keys of a corrector
+             * 
+             * @param {string} corrector_key
+             * @returns {string[]}
+             */
+            const fn = function(corrector_key) {
                 let keys = [];
                 state.comments
                     .filter(comment => comment.corrector_key == corrector_key)
                     .forEach(comment => keys.push(comment.key));
                 return keys;
             };
+            return fn;
         },
 
-        getPointsOfCorrector(state) {
-            return (corrector_key) => {
+        getPointsOfCorrector: state => {
+
+            /**
+             * Get the points given by a corrector
+             * 
+             * @param {string} corrector_key
+             * @returns {number}
+             */
+            const fn = function(corrector_key) {
                 let points = 0;
                 state.comments
                 .filter(comment => comment.corrector_key == corrector_key)
                 .forEach(comment => points += comment.points);
                 return points;
             };
+            return fn;
         },
 
-        getCountOfExcellent(state) {
-            return (corrector_key) =>
-                state.comments
+        getCountOfExcellent: state => {
+
+            /**
+             * Get the number of comments of a corrector marked as excellent
+             * 
+             * @param {string} corrector_key
+             * @returns {number}
+             */
+            const fn = function(corrector_key) {
+                return state.comments
                 .filter(comment => comment.corrector_key == corrector_key && comment.rating_excellent)
-                .length
+                  .length
+            }
+            return fn;
+                
         },
 
-        getCountOfCardinal(state) {
-            return (corrector_key) =>
-                state.comments
+        getCountOfCardinal: state => {
+
+            /**
+             * Get the number of comments of a corrector marked as cardinal failure
+             *
+             * @param {string} corrector_key
+             * @returns {number}
+             */
+            const fn = function(corrector_key) {
+                return state.comments
                 .filter(comment => comment.corrector_key == corrector_key && comment.rating_cardinal)
-                .length
+                  .length
+            }
         }
 
     },
@@ -333,7 +418,7 @@ export const useCommentsStore = defineStore('comments',{
                 && comment.comment == ''
                 && !comment.rating_excellent
                 && !comment.rating_cardinal
-                && !pointsStore.hasCommentPoints(comment.key)
+                && !pointsStore.getCommentHasPoints(comment.key)
             );
 
             for (const comment of comments) {
@@ -422,7 +507,7 @@ export const useCommentsStore = defineStore('comments',{
             this.filterKeys = [];
             for (const comment of this.comments) {
                 if (comment.corrector_key == corrector_key) {
-                    if (pointsStore.hasPointsForCommentAndCriterionKeys(comment.key, criterion_key)) {
+                    if (pointsStore.getCommentHasPointsForCriterion(comment.key, criterion_key)) {
                         this.filterKeys.push(comment.key);
                     }
                 }

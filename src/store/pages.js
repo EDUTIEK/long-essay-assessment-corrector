@@ -36,7 +36,7 @@ export const usePagesStore = defineStore('pages',{
         
         hasPages: state => state.pages.length > 0,
 
-        selectedPageNo(state) {
+        selectedPageNo: state => {
             let page = state.getPage(state.selectedKey);
             if (page) {
                 return page.page_no;
@@ -44,19 +44,41 @@ export const usePagesStore = defineStore('pages',{
             return null;
         },
         
-        currentPageKeys(state) {
+        currentPageKeys: state => {
             let keys = [];
             state.pages.forEach(page => keys.push(page.key));
             return keys;
         },
         
-        getPage(state) {
-            return (key) => state.pages.find(element => element.key == key);
+        getPage: state => {
+
+            /**
+             * Get a page by its key
+             * 
+             * @param {string] }key
+             * @returns {Page|null}
+             */
+            const fn = function(key) {
+                return state.pages.find(element => element.key == key);
+            }
+            return fn;
+            
         },
 
-        getPageByPageNo(state) {
-            return (number) => state.pages.find(element => element.page_no == number);
-        },
+        getPageByPageNo: state => {
+
+            /**
+             * Get a page by its page number
+             * 
+             * @param {string} number
+             * @returns {Page|null}
+             */
+            const fn = function (number) {
+                return state.pages.find(element => element.page_no == number);
+            }
+            return fn;
+        }
+            
     },
 
     actions: {
@@ -175,8 +197,8 @@ export const usePagesStore = defineStore('pages',{
 
                 for (const page_data of data) {
                     const page = new Page(page_data);
-                    page.url = apiStore.imageUrl(page.key, page.item_key);
-                    page.thumb_url = apiStore.thumbUrl(page.key, page.item_key);
+                    page.url = apiStore.getImageUrl(page.key, page.item_key);
+                    page.thumb_url = apiStore.getThumbUrl(page.key, page.item_key);
                     this.keys.push(page.key);
                     await storage.setItem(page.key, JSON.stringify(page.getData()));
                     if (page.item_key == currentItemKey) {

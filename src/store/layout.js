@@ -29,55 +29,67 @@ export const useLayoutStore = defineStore('layout', {
         }
     },
 
+    /**
+     * Getter functions (with params) start with 'get', simple state queries not
+     */
     getters: {
-        isLeftVisible: (state) => state.expandedColumn != 'right',
-        isRightVisible: (state) => state.expandedColumn != 'left',
+        isLeftVisible: state => state.expandedColumn != 'right',
+        isRightVisible: state => state.expandedColumn != 'left',
 
-        isLeftExpanded: (state) => state.expandedColumn == 'left',
-        isRightExpanded: (state) => state.expandedColumn == 'right',
+        isLeftExpanded: state => state.expandedColumn == 'left',
+        isRightExpanded: state => state.expandedColumn == 'right',
 
-        isInstructionsSelected: (state) => state.leftContent == 'instructions',
-        isInstructionsPdfSelected: (state) => state.leftContent == 'instructionsPdf',
-        isSolutionSelected: (state) => state.leftContent == 'solution',
-        isSolutionPdfSelected: (state) => state.leftContent == 'solutionPdf',
-        isResourcesSelected: (state) => state.leftContent == 'resources',
-        isEssaySelected: (state) => state.leftContent == 'essay',
-        isSummarySelected: (state) => state.rightContent == 'summary',
-        isMarkingSelected: (state) => state.rightContent == 'marking',
-        isLeftCorrectorSelected: (state) => state.leftContent == 'corrector',
-        isRightCorrectorSelected: (state) => state.rightContent == 'corrector',
+        isInstructionsSelected: state => state.leftContent == 'instructions',
+        isInstructionsPdfSelected: state => state.leftContent == 'instructionsPdf',
+        isSolutionSelected: state => state.leftContent == 'solution',
+        isSolutionPdfSelected: state => state.leftContent == 'solutionPdf',
+        isResourcesSelected: state => state.leftContent == 'resources',
+        isEssaySelected: state => state.leftContent == 'essay',
+        isSummarySelected: state => state.rightContent == 'summary',
+        isMarkingSelected: state => state.rightContent == 'marking',
+        isLeftCorrectorSelected: state => state.leftContent == 'corrector',
+        isRightCorrectorSelected: state => state.rightContent == 'corrector',
 
-        isInstructionsVisible: (state) => (state.isInstructionsSelected && state.isLeftVisible),
-        isInstructionsPdfVisible: (state) => (state.isInstructionsPdfSelected && state.isLeftVisible),
-        isSolutionVisible: (state) => (state.isSolutionSelected && state.isLeftVisible),
-        isSolutionPdfVisible: (state) => (state.isSolutionPdfSelected && state.isLeftVisible),
-        isResourcesVisible: (state) => (state.isResourcesSelected && state.isLeftVisible),
-        isEssayVisible: (state) => (state.isEssaySelected && state.isLeftVisible),
-        isSummaryVisible: (state) => (state.isSummarySelected && state.isRightVisible),
-        isMarkingVisible: (state) => (state.isMarkingSelected && state.isRightVisible),
-        isLeftCorrectorVisible: (state) => (state.isLeftCorrectorSelected && state.isLeftVisible),
-        isRightCorrectorVisible: (state) => (state.isRightCorrectorSelected && state.isRightVisible),
+        isInstructionsVisible: state => (state.isInstructionsSelected && state.isLeftVisible),
+        isInstructionsPdfVisible: state => (state.isInstructionsPdfSelected && state.isLeftVisible),
+        isSolutionVisible: state => (state.isSolutionSelected && state.isLeftVisible),
+        isSolutionPdfVisible: state => (state.isSolutionPdfSelected && state.isLeftVisible),
+        isResourcesVisible: state => (state.isResourcesSelected && state.isLeftVisible),
+        isEssayVisible: state => (state.isEssaySelected && state.isLeftVisible),
+        isSummaryVisible: state => (state.isSummarySelected && state.isRightVisible),
+        isMarkingVisible: state => (state.isMarkingSelected && state.isRightVisible),
+        isLeftCorrectorVisible: state => (state.isLeftCorrectorSelected && state.isLeftVisible),
+        isRightCorrectorVisible: state => (state.isRightCorrectorSelected && state.isRightVisible),
 
-        isMarkingPointsExpanded: (state) => state.markingPointsExpansion > 0,
-        isLeftSummaryTextExpanded: (state) => state.leftSummaryTextExpansion > 0,
-        isRightSummaryTextExpanded: (state) => state.rightSummaryTextExpansion > 0,
+        isMarkingPointsExpanded: state => state.markingPointsExpansion > 0,
+        isLeftSummaryTextExpanded: state => state.leftSummaryTextExpansion > 0,
+        isRightSummaryTextExpanded: state => state.rightSummaryTextExpansion > 0,
 
-        leftCorrectorTitle: (state) => {
+        leftCorrectorTitle: state => {
             const correctorsStore = useCorrectorsStore();
             const corrector = correctorsStore.getCorrector(state.leftCorrectorKey);
             return corrector ? 'Korrektur von ' + corrector.title : ''
         },
 
-        rightCorrectorTitle: (state) => {
+        rightCorrectorTitle: state => {
             const correctorsStore = useCorrectorsStore();
             const corrector = correctorsStore.getCorrector(state.rightCorrectorKey);
             return corrector ? 'Korrektur von ' + corrector.title : ''
         },
 
-        isCorrectorVisible(state) {
-            return (corrector) =>
-                state.leftCorrectorKey == corrector.key && state.isLeftCorrectorVisible
+        getCorrectorIsVisible: state => {
+
+            /**
+             * Get if a corrector's summary is visible
+             * 
+             * @param {string} corrector_key
+             * @returns {boolean}
+             */
+            const fn = function(corrector_key) {
+                return state.leftCorrectorKey == corrector.key && state.isLeftCorrectorVisible
                 || state.rightCorrectorKey == corrector.key && state.isRightCorrectorVisible
+            }
+            return fn;
         },
     },
 

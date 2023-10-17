@@ -21,51 +21,72 @@ export const useResourcesStore = defineStore('resources',{
         }
     },
 
-
+    /**
+     * Getter functions (with params) start with 'get', simple state queries not
+     */
     getters: {
-        hasResources: (state) => state.resources.length > 0,
+        hasResources: state => state.resources.length > 0,
 
-        hasInstruction(state) {
+        hasInstruction: state => {
             const resource = state.resources.find(element => element.type == 'instruct');
             return resource ? true : false;
         },
 
-        hasSolution(state) {
+        hasSolution: state => {
             const resource = state.resources.find(element => element.type == 'solution');
             return resource ? true : false;
         },
 
 
-        getInstruction(state) {
+        instruction: state => {
             return state.resources.find(element => element.type == 'instruct');
         },
 
-        getSolution(state) {
+        solution: state => {
             return state.resources.find(element => element.type == 'solution');
 
         },
 
-        hasFileOrUrlResources(state) {
+        hasFileOrUrlResources: state =>  {
             const resource = state.resources.find(element => element.type == 'file' || element.type == 'url');
             return resource ? true : false;
         },
 
-        getFileOrUrlResources(state) {
+        fileOrUrlResources: state =>  {
             return state.resources.filter(element => element.type == 'file' || element.type == 'url');
         },
 
-        activeTitle(state) {
+        activeTitle: state => {
           const resource = state.resources.find(element => element.key == state.activeKey);
-
           return resource ? resource.title : ""
         },
 
-        getResource(state) {
-            return (key) => state.resources.find(element => element.key == key)
+        getResource: state => {
+
+            /**
+             * Get a resource by its key
+             * 
+             * @param {string} key
+             * @returns {object|null}
+             */
+            const fn = function(key) {
+                return state.resources.find(element => element.key == key);
+            }
+            return fn;
         },
 
-        isActive(state) {
-            return (resource) => state.activeKey == resource.key
+        getResourceIsActive: state => {
+
+            /**
+             * Get if a resource is active
+             * 
+             * @param {object} resource
+             * @returns {boolean}
+             */
+            const fn = function(resource) {
+                return state.activeKey == resource.key;
+            }
+            return fn;
         }
     },
 
@@ -111,7 +132,7 @@ export const useResourcesStore = defineStore('resources',{
                 this.$reset();
                 
                 for (const resource of data) {
-                    resource.url = apiStore.resourceUrl(resource.key);
+                    resource.url = apiStore.getResourceUrl(resource.key);
                     this.resources.push(resource);
                     this.keys.push(resource.key);
                     await storage.setItem(resource.key, resource);

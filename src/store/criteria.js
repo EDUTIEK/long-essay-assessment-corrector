@@ -20,31 +20,61 @@ export const useCriteriaStore = defineStore('criteria',{
         }
     },
 
+    /**
+     * Getter functions (with params) start with 'get', simple state queries not
+     */
     getters: {
         hasOwnCriteria: state => {
             const apiStore = useApiStore();
             return !!state.criteria.find(criterion => criterion.corrector_key == '' || criterion.corrector_key == apiStore.correctorKey);
         },
 
-        hasCriteria(state) {
-            return (corrector_key) => {
+        ownCriteria: state => {
+            const apiStore = useApiStore();
+            return state.criteria.filter((criterion => criterion.corrector_key == '' || criterion.corrector_key == apiStore.correctorKey));
+        },
+
+        getCriterion: state => {
+
+            /**
+             * Get a criterion by its key
+             *
+             * @param {string }key
+             * @returns {Criterion|null}
+             */
+            const fn = function(key) {
+                return state.criteria.find(element => element.key == key)
+            }
+            return fn;
+        },
+
+        getCorrectorHasCriteria: state => {
+
+            /**
+             * Get if a corrector has criteria defined
+             * 
+             * @param {string} corrector_key
+             * @returns {boolean}
+             */
+            const fn = function (corrector_key) {
                 return !!state.criteria.find(criterion => criterion.corrector_key == '' || criterion.corrector_key == corrector_key);
             };
+            return fn;
         },
         
-        getCriterion(state) {
-            return (key) => state.criteria.find(element => element.key == key)
-        },
-
-       getOwnCriteria: (state) => {
-           const apiStore = useApiStore();
-           return state.criteria.filter((criterion => criterion.corrector_key == '' || criterion.corrector_key == apiStore.correctorKey));
-        },
-
-       getCriteria(state) {
-            return (corrector_key) => {
+        
+       getCorrectorCriteria: state => {
+            
+           /**
+            * Get the criteria of a corrector
+            * 
+            * @param corrector_key
+            * @returns {Criterion[]}
+            */
+           const fn = function (corrector_key) {
                 return state.criteria.filter((criterion => criterion.corrector_key == '' || criterion.corrector_key == corrector_key));
-            };
+           };
+           return fn;
        },
     },
 

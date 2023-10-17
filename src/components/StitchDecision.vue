@@ -21,7 +21,7 @@
       showSendFailure.value= true;
     }
     else {
-      let newKey = itemsStore.nextKey(apiStore.itemKey);
+      let newKey = itemsStore.getNextKey(apiStore.itemKey);
       if (newKey != '') {
         apiStore.loadItemFromBackend(newKey);
       }

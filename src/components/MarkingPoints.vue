@@ -24,7 +24,7 @@ function loadPoints() {
       corrector_key.value = '';
     }
 
-    criteriaStore.getCriteria(corrector_key.value).forEach(criterion => {
+    criteriaStore.getCorrectorCriteria(corrector_key.value).forEach(criterion => {
       let value = pointsStore.getValueByRelation(commentsStore.selectedKey, criterion.key);
       let el = document.getElementById('pointsInput' + criterion.key);
       if (el !== undefined && el !== null) {
@@ -65,7 +65,7 @@ function savePoints(criterionKey) {
             </tr>
             </thead>
             <tbody>
-                <tr v-for="criterion in criteriaStore.getCriteria(corrector_key)" :key="criterion.key">
+                <tr v-for="criterion in criteriaStore.getCorrectorCriteria(corrector_key)" :key="criterion.key">
                     <td class="text-rigth">
                         <label :for="'pointsInput' + criterion.key">{{ criterion.title}}</label>
                     </td>

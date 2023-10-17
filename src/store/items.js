@@ -18,14 +18,23 @@ export const useItemsStore = defineStore('items',{
         }
     },
 
-
+    /**
+     * Getter functions (with params) start with 'get', simple state queries not
+     */
     getters: {
-        hasItems: (state) => state.keys.length > 0,
-        firstKey: (state) => state.keys.length > 0 ? state.keys[0] : '',
-        lastKey: (state) => state.keys.length > 0 ? state.keys[state.keys.length -1] : '',
+        hasItems: state => state.keys.length > 0,
+        firstKey: state => state.keys.length > 0 ? state.keys[0] : '',
+        lastKey: state => state.keys.length > 0 ? state.keys[state.keys.length -1] : '',
 
-        previousKey(state) {
-            return function (key) {
+        getPreviousKey: state =>  {
+
+            /**
+             * Get the key of the previous item
+             * 
+             * @param {string} key
+             * @returns {string}
+             */
+            const fn = function(key) {
                 for (let i = 1; i < state.keys.length; i++) {
                     if (state.keys[i] == key) {
                         return state.keys[i - 1];
@@ -33,10 +42,18 @@ export const useItemsStore = defineStore('items',{
                 }
                 return '';
             }
+            return fn;
         },
 
-        nextKey(state) {
-            return function (key) {
+        getNextKey: state =>  {
+
+            /**
+             * Get the key of the next item
+             *
+             * @param {string} key
+             * @returns {string}
+             */
+            const fn = function(key) {
                 for (let i = 0; i < state.keys.length - 1; i++) {
                     if (state.keys[i] == key) {
                         return state.keys[i + 1];
@@ -44,10 +61,22 @@ export const useItemsStore = defineStore('items',{
                 }
                 return '';
             }
+            return fn;
         },
 
-        getItem(state) {
-            return (key) => state.items.find(element => element.key == key)
+        
+        getItem: state => {
+
+            /**
+             * Get the item of a key
+             *
+             * @param {string} key
+             * @returns {object}
+             */
+            const fn = function(key) {
+               return  state.items.find(element => element.key == key);
+            }
+            return fn;
         },
     },
 

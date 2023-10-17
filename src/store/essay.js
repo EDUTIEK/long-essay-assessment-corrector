@@ -28,11 +28,14 @@ export const useEssayStore = defineStore('essay',{
         }
     },
 
+    /**
+     * Getter functions (with params) start with 'get', simple state queries not
+     */
     getters: {
 
-        isFinalized: (state) => state.correction_finalized,
+        isFinalized: state => state.correction_finalized,
 
-        grade: (state) => {
+        grade: state => {
             const levelsStore = useLevelsStore();
             let level = levelsStore.getLevelForPoints(state.final_points);
             if (level !== null) {
@@ -40,7 +43,8 @@ export const useEssayStore = defineStore('essay',{
             }
             return '';
         },
-        gradeKey: (state) => {
+        
+        gradeKey: state => {
             const levelsStore = useLevelsStore();
             let level = levelsStore.getLevelForPoints(state.final_points);
             if (level !== null) {
@@ -84,7 +88,7 @@ export const useEssayStore = defineStore('essay',{
         async saveStitchDecision() {
 
             const apiStore = useApiStore();
-            const correction_finalized = apiStore.serverTime(Date.now());
+            const correction_finalized = apiStore.getServerTime(Date.now());
             const data = {
                 'final_points': this.final_points,
                 'stitch_comment': this.stitch_comment,

@@ -24,33 +24,37 @@ export const usePointsStore = defineStore('points',{
         }
     },
 
+    /**
+     * Getter functions (with params) start with 'get', simple state queries not
+     */
     getters: {
 
-        hasPoints: (state) => state.points.length > 0,
+        hasPoints: state => state.points.length > 0,
 
-        hasCommentPoints(state) {
-            return (commentKey) => state.points.find(element => element.comment_key == commentKey) !== undefined
+        getCommentHasPoints(state) {
+
+            /**
+             * Check if a comment has points
+             * 
+             * @param {string} commentKey
+             * @returns {boolean}
+             */
+            const fn = function(commentKey) {
+                return state.points.find(element => element.comment_key == commentKey) !== undefined;
+            }
+            return fn;
         },
 
-        getObjectByKey(state) {
-            return (key) => state.points.find(element => element.key == key)
-        },
+        getCommentHasPointsForCriterion: state => {
 
-        /**
-         * Get the points for a set of comment keys
-         * @param state
-         * @return {function(array): Points}
-         */
-        getObjectsByCommentKeys(state) {
-            return (commentKeys) => state.points.filter(element => commentKeys.includes(element.comment_key));
-        },
-
-        /**
-         * Check if points for a comment and criterion exist
-         * @param state
-         */
-        hasPointsForCommentAndCriterionKeys(state) {
-            return (comment_key, criterion_key) => {
+            /**
+             * Check if points for a comment and criterion exist
+             * 
+             * @param {string} comment_key
+             * @param {string} criterion_key
+             * @returns {boolean}
+             */
+            const fn = function(comment_key, criterion_key) {
                 for (const points of state.points) {
                     if (points.comment_key == comment_key && points.criterion_key == criterion_key && points.points > 0) {
                         return true;
@@ -58,15 +62,48 @@ export const usePointsStore = defineStore('points',{
                 }
                 return false;
             }
+            return fn;
         },
 
-        /**
-         * Get the sum op points given to criteria for a comment
-         * @param state
-         * @return {function(*): number}
-         */
-        getSumOfPointsForComment(state) {
-            return (comment_key) => {
+        getObjectByKey: state => {
+
+            /**
+             * Get a points object by its key
+             * 
+             * @param {string} key
+             * @returns {Points |null}
+             */
+            const fn = function(key) {
+                return state.points.find(element => element.key == key);
+            }
+            return fn;
+            
+        },
+
+        getObjectsByCommentKeys: state => {
+
+            /**
+             * Get the points for a set of comment keys
+             * 
+             * @param {string[]} commentKeys
+             * @returns {Points[]}
+             */
+            const fn = function(commentKeys) {
+                return state.points.filter(element => commentKeys.includes(element.comment_key));
+            }
+            return fn;
+        },
+
+
+        getSumOfPointsForComment: state => {
+
+            /**
+             * Get the sum op points given to criteria for a comment
+             * 
+             * @param {string} comment_key
+             * @returns {number}
+             */
+            const fn = function (comment_key) {
                 let sum = 0;
                 for (const points of state.points) {
                     if (points.comment_key == comment_key && points.points > 0) {
@@ -75,30 +112,41 @@ export const usePointsStore = defineStore('points',{
                 }
                 return sum;
             }
+            return fn;
         },
 
-        /**
-         * Get a points object by its relations
-         * @param state
-         * @return {function(string, string): Points}
-         */
-        getObjectByRelation(state) {
-            return (commentKey, criterionKey) => state.points.find(element => element.comment_key == commentKey &&  element.criterion_key == criterionKey);
+        getObjectByRelation: state => {
+
+            /**
+             * Get a points object by its relations
+             * 
+             * @param {string} commentKey
+             * @param {string} criterionKey
+             * @returns {Point|null}
+             */
+            const fn = function(commentKey, criterionKey) {
+                return state.points.find(element => element.comment_key == commentKey &&  element.criterion_key == criterionKey);
+            }
+            return fn;
         },
 
-        /**
-         * Get a points value by its relations
-         * @param state
-         * @return {function(string, string): integer}
-         */
-        getValueByRelation(state) {
-            return (commentKey, criterionKey) => {
+        getValueByRelation: state => {
+
+            /**
+             * Get a points value by its relations
+             * 
+             * @param {string} commentKey
+             * @param {string} criterionKey
+             * @returns {number}
+             */
+            const fn = (commentKey, criterionKey) => {
                 let pointsObject = state.getObjectByRelation(commentKey, criterionKey)
                 if (pointsObject) {
                     return pointsObject.points;
                 }
                 return 0;
             }
+            return fn;
         },
     },
 

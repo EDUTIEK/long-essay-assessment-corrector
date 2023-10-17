@@ -54,16 +54,22 @@ export const useApiStore = defineStore('api', {
         }
     },
 
+    /**
+     * Getter functions (with params) start with 'get', simple state queries not
+     */
     getters: {
 
         isForReviewOrStitch: state => state.isReview || state.isStitchDecision,
 
-        /**
-         * Get the config object for REST requests
-         */
-        requestConfig(state) {
+        getRequestConfig: state => {
 
-            return function(token) {
+            /**
+             * Get the config object for REST requests
+             * 
+             * @param {string} token
+             * @returns {{baseURL: (string|*), responseType: string, responseEncoding: string, params: URLSearchParams, timeout: number}}
+             */
+            const fn = function(token) {
                 let baseURL = state.backendUrl;
                 let params = new URLSearchParams();
 
@@ -91,45 +97,72 @@ export const useApiStore = defineStore('api', {
                     responseEncoding: 'utf8',   // default
                 }
             }
+            return fn;
 
         },
 
-        /**
-         * Get the Url for loading a file ressource
-         */
-        resourceUrl() {
-            return function (resourceKey) {
-                const config = this.requestConfig(this.fileToken);
+        getResourceUrl: state => {
+
+            /**
+             * Get the Url for loading a file ressource
+             * 
+             * @param {string} resourceKey
+             * @returns {string}
+             */
+            const fn = function (resourceKey) {
+                const config = this.getRequestConfig(this.fileToken);
                 return config.baseURL + '/file/' + resourceKey + '?' + config.params.toString();
             }
+            return fn;
         },
 
         /**
          * Get the Url for loading a page image
          */
-        imageUrl() {
-            return function (pageKey, itemKey) {
-                const config = this.requestConfig(this.fileToken);
+        getImageUrl: state => {
+
+            /**
+             * Get the Url for loading a page image
+             * @param {string} pageKey
+             * @param {string} itemKey
+             * @returns {string}
+             */
+            const fn = function (pageKey, itemKey) {
+                const config = this.getRequestConfig(this.fileToken);
                 return config.baseURL + '/image/' + itemKey + '/' + pageKey + '?' + config.params.toString();
             }
+            return fn;
         },
 
-        /**
-         * Get the Url for loading a page thumbnail
-         */
-        thumbUrl() {
-            return function (pageKey, itemKey) {
-                const config = this.requestConfig(this.fileToken);
+        getThumbUrl: state => {
+
+            /**
+             * Get the Url for loading a page thumbnail
+             * 
+             * @param {string} pageKey
+             * @param {string} itemKey
+             * @returns {string}
+             */
+            const fn = function (pageKey, itemKey) {
+                const config = this.getRequestConfig(this.fileToken);
                 return config.baseURL + '/thumb/' + itemKey + '/' + pageKey + '?' + config.params.toString();
             }
+            return fn;
         },
 
 
-        /**
-         * Get the server unix timestamp (s) corresponding to a client timestamp (ms)
-         */
-        serverTime(state) {
-            return (clientTime) => Math.floor((clientTime - state.timeOffset) / 1000);
+        getServerTime: state => {
+
+            /**
+             * Get the server unix timestamp (s) corresponding to a client timestamp (ms)
+             * 
+             * @param {number} clientTime
+             * @returns {number}
+             */
+            const fn = function(clientTime) {
+                return  Math.floor((clientTime - state.timeOffset) / 1000);
+            }
+            return fn;
         },
 
     },
@@ -376,7 +409,7 @@ export const useApiStore = defineStore('api', {
 
             let response = {};
             try {
-                response = await axios.get( '/data', this.requestConfig(this.dataToken));
+                response = await axios.get( '/data', this.getRequestConfig(this.dataToken));
                 this.setTimeOffset(response);
                 this.refreshToken(response);
             }
@@ -432,7 +465,7 @@ export const useApiStore = defineStore('api', {
 
             let response = {};
             try {
-                response = await axios.get( '/item/' + itemKey, this.requestConfig(this.dataToken));
+                response = await axios.get( '/item/' + itemKey, this.getRequestConfig(this.dataToken));
                 this.setTimeOffset(response);
                 this.refreshToken(response);
             }
@@ -506,7 +539,7 @@ export const useApiStore = defineStore('api', {
                 };
                 
                 try {
-                    const response = await axios.put( '/changes/' + this.itemKey, data, this.requestConfig(this.dataToken));
+                    const response = await axios.put( '/changes/' + this.itemKey, data, this.getRequestConfig(this.dataToken));
                     this.setTimeOffset(response);
                     this.refreshToken(response);
                     
@@ -537,7 +570,7 @@ export const useApiStore = defineStore('api', {
         async saveStitchDecisionToBackend(data) {
             let response = {};
             try {
-                response = await axios.put( '/stitch/' + this.itemKey, data, this.requestConfig(this.dataToken));
+                response = await axios.put( '/stitch/' + this.itemKey, data, this.getRequestConfig(this.dataToken));
                 this.setTimeOffset(response);
                 this.refreshToken(response);
                 return true;
