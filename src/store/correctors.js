@@ -52,21 +52,21 @@ export const useCorrectorsStore = defineStore('correctors',{
             catch (err) {
                 console.log(err);
             }
+             this.$reset();
         },
 
         async loadFromStorage() {
             try {
+                this.$reset();
+                
                 const keys = await storage.getItem('correctorKeys');
                 if (keys) {
                     this.keys =  JSON.parse(keys);
                 }
-                this.correctors = [];
-
-                let index = 0;
-                while (index < this.correctors.length) {
-                    let corrector = await storage.getItem(this.keys[index]);
+                
+                for (const key of this.keys) {
+                    const corrector = await storage.getItem(key);
                     this.correctors.push(corrector);
-                    index++;
                 }
 
             } catch (err) {
@@ -78,17 +78,12 @@ export const useCorrectorsStore = defineStore('correctors',{
 
             try {
                 await storage.clear();
-
-                this.keys = [];
-                this.correctors = [];
-
-                let index = 0;
-                while (index < data.length) {
-                    let corrector = data[index];
+                this.$reset();
+                
+                for (const corrector of data) {
                     this.correctors.push(corrector);
                     this.keys.push(corrector.key);
                     await storage.setItem(corrector.key, corrector);
-                    index++;
                 }
 
                 await storage.setItem('correctorKeys', JSON.stringify(this.keys));

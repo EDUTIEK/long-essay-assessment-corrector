@@ -120,6 +120,8 @@ export const usePagesStore = defineStore('pages',{
             catch (err) {
                 console.log(err);
             }
+            this.purgeFiles();
+            this.$reset();
         },
 
         /**
@@ -131,18 +133,16 @@ export const usePagesStore = defineStore('pages',{
          */
         async loadFromStorage(currentItemKey) {
             try {
+                this.purgeFiles();
+                this.$reset();
+                
                 const keys = await storage.getItem('keys');
                 if (keys) {
                     this.keys = JSON.parse(keys);
                 }
 
-                this.purgeFiles();
-                
-                this.pages = [];
-                this.selectedKey = '';
-
                 for (const key of this.keys) {
-                    let page = new Page(JSON.parse(await storage.getItem(key)));
+                    const page = new Page(JSON.parse(await storage.getItem(key)));
                     if (page.item_key == currentItemKey) {
                         this.pages.push(page);
                     }
@@ -170,15 +170,11 @@ export const usePagesStore = defineStore('pages',{
             const apiStore = useApiStore();
             try {
                 await storage.clear();
-                
                 this.purgeFiles();
-
-                this.keys = [];
-                this.pages = [];
-                this.selectedKey = '';
+                this.$reset();
 
                 for (const page_data of data) {
-                    let page = new Page(page_data);
+                    const page = new Page(page_data);
                     page.url = apiStore.imageUrl(page.key, page.item_key);
                     page.thumb_url = apiStore.thumbUrl(page.key, page.item_key);
                     this.keys.push(page.key);

@@ -60,21 +60,21 @@ export const useItemsStore = defineStore('items',{
             catch (err) {
                 console.log(err);
             }
+             this.$reset();
         },
 
         async loadFromStorage() {
             try {
+                this.$reset();
+                
                 const keys = await storage.getItem('itemKeys');
                 if (keys) {
                     this.keys =  JSON.parse(keys);
                 }
-                this.items = [];
-
-                let index = 0;
-                while (index < this.keys.length) {
-                    let item = await storage.getItem(this.keys[index]);
+                
+                for(const key of this.keys) {
+                    const item = await storage.getItem(key);
                     this.items.push(item);
-                    index++;
                 }
 
             } catch (err) {
@@ -86,17 +86,12 @@ export const useItemsStore = defineStore('items',{
 
             try {
                 await storage.clear();
-
-                this.keys = [];
-                this.items = [];
-
-                let index = 0;
-                while (index < data.length) {
-                    let item = data[index];
+                this.$reset();
+                
+                for (const item of data) {
                     this.items.push(item);
                     this.keys.push(item.key);
                     await storage.setItem(item.key, item);
-                    index++;
                 }
 
                 await storage.setItem('itemKeys', JSON.stringify(this.keys));

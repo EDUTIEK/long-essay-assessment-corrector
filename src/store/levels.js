@@ -51,21 +51,21 @@ export const useLevelsStore = defineStore('levels',{
             catch (err) {
                 console.log(err);
             }
+            this.$reset();
         },
 
         async loadFromStorage() {
             try {
+                this.$reset();
+                
                 const keys = await storage.getItem('levelKeys');
                 if (keys) {
                     this.keys =  JSON.parse(keys);
                 }
-                this.levels = [];
-
-                let index = 0;
-                while (index < this.keys.length) {
-                    let level = await storage.getItem(this.keys[index]);
+                
+                for (const key of this.keys) {
+                    const level = await storage.getItem(key);
                     this.levels.push(level);
-                    index++;
                 }
 
             } catch (err) {
@@ -76,17 +76,12 @@ export const useLevelsStore = defineStore('levels',{
         async loadFromData(data) {
             try {
                 await storage.clear();
-
-                this.keys = [];
-                this.levels = [];
-
-                let index = 0;
-                while (index < data.length) {
-                    let level = data[index];
+                this.$reset();
+                
+                for (const level of data) {
                     this.levels.push(level);
                     this.keys.push(level.key);
                     await storage.setItem(level.key, level);
-                    index++;
                 }
 
                 await storage.setItem('levelKeys', JSON.stringify(this.keys));

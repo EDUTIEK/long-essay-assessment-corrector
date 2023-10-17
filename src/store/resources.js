@@ -78,22 +78,22 @@ export const useResourcesStore = defineStore('resources',{
             catch (err) {
                 console.log(err);
             }
+            this.$reset();
         },
 
         async loadFromStorage() {
             try {
+                this.$reset();
+                
                 const keys = await storage.getItem('resourceKeys');
                 if (keys) {
                     this.keys =  JSON.parse(keys);
                 }
                 this.activeKey = await storage.getItem('activeKey') ?? '';
-                this.resources = [];
-
-                let index = 0;
-                while (index < this.keys.length) {
-                    let resource = await storage.getItem(this.keys[index]);
+                
+               for (const key of this.keys) {
+                    const resource = await storage.getItem(key);
                     this.resources.push(resource);
-                    index++;
                 }
 
                 this.loadFiles();
@@ -108,18 +108,13 @@ export const useResourcesStore = defineStore('resources',{
 
             try {
                 await storage.clear();
-
-                this.keys = [];
-                this.resources = [];
-
-                let index = 0;
-                while (index < data.length) {
-                    let resource = data[index];
+                this.$reset();
+                
+                for (const resource of data) {
                     resource.url = apiStore.resourceUrl(resource.key);
                     this.resources.push(resource);
                     this.keys.push(resource.key);
                     await storage.setItem(resource.key, resource);
-                    index++;
                 }
 
                 await storage.setItem('resourceKeys', JSON.stringify(this.keys));
@@ -145,9 +140,8 @@ export const useResourcesStore = defineStore('resources',{
          * https://stackoverflow.com/a/50387899
          */
         async loadFiles() {
-            let index = 0;
-            while (index < this.keys.length) {
-                let resource = this.getResource(this.keys[index]);
+            for (const key of this.keys) {
+                let resource = this.getResource(key);
                 let response = null;
                 if (resource.type != 'url') {
                     try {
@@ -161,7 +155,6 @@ export const useResourcesStore = defineStore('resources',{
                         return false;
                     }
                 }
-                index++;
             }
         }
 

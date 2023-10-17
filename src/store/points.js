@@ -18,7 +18,7 @@ export const usePointsStore = defineStore('points',{
         return {
             // saved in storage
             keys: [],               // list of string keys of all points in the storage
-            points: [],             // list of comment objects for the currrent correction item
+            points: [],             // list of points objects for the currrent correction item
             unsentChanges: {},      // assoc array of changes that have to be sent to the backend: key => UnsentChange
 
         }
@@ -226,6 +226,7 @@ export const usePointsStore = defineStore('points',{
             catch (err) {
                 console.log(err);
             }
+            this.$reset();
         },
 
         /**
@@ -237,6 +238,8 @@ export const usePointsStore = defineStore('points',{
          */
         async loadFromStorage(currentItemKey) {
             try {
+                this.$reset();
+                
                 const keys = await storage.getItem('keys');
                 if (keys) {
                     this.keys =  JSON.parse(keys);
@@ -268,12 +271,10 @@ export const usePointsStore = defineStore('points',{
         async loadFromData(data, currentItemKey) {
             try {
                 await storage.clear();
-
-                this.keys = [];
-                this.points = [];
+                this.$reset();
 
                 for (const points_data of data) {
-                    let points = new Points(points_data);
+                    const points = new Points(points_data);
                     this.keys.push(points.key);
                     await storage.setItem(points.key, points.getData());
                     if (points.item_key == currentItemKey) {

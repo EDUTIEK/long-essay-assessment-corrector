@@ -7,7 +7,6 @@ import AppBar from "@/components/AppBar.vue";
 import NavBar from "@/components/NavBar.vue";
 import MainContent from "@/components/MainContent.vue";
 import StartupContent from "@/components/StartupContent.vue";
-import Labs from "@/components/Labs.vue";
 import {useApiStore} from '@/store/api';
 import {useLayoutStore} from "@/store/layout";
 

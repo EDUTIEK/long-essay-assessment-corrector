@@ -51,16 +51,6 @@ export const useEssayStore = defineStore('essay',{
     },
 
     actions: {
-        setData(data) {
-            this.text = data.text;
-            this.started = data.started;
-            this.ended = data.ended;
-            this.authorized = data.authorized;
-            this.correction_finalized = data.correction_finalized;
-            this.final_points = data.final_points;
-            this.stitch_comment = data.stitch_comment;
-        },
-
         async clearStorage() {
             try {
                 await storage.clear();
@@ -68,13 +58,14 @@ export const useEssayStore = defineStore('essay',{
             catch (err) {
                 console.log(err);
             }
+            this.$reset();
         },
 
 
         async loadFromStorage() {
             try {
                 const data = await storage.getItem('settings');
-                this.setData(data);
+                this.$patch(data);
             } catch (err) {
                 console.log(err);
             }
@@ -83,7 +74,7 @@ export const useEssayStore = defineStore('essay',{
         async loadFromData(data) {
             try {
                 await storage.setItem('settings', data);
-                this.setData(data);
+                this.$patch(data);
             } catch (err) {
                 console.log(err);
             }
@@ -103,9 +94,17 @@ export const useEssayStore = defineStore('essay',{
 
             if (await apiStore.saveStitchDecisionToBackend(data)) {
                 this.correction_finalized = correction_finalized;
-                await storage.setItem('final_points', this.final_points);
-                await storage.setItem('stitch_comment', this.stitch_comment);
-                await storage.setItem('correction_finalized', this.correction_finalized);
+                
+                await storage.setItem('settings', {
+                    text: this.text,
+                    started: this.started,
+                    ended: this.ended,
+                    authorized: this.authorized,
+
+                    correction_finalized: this.correction_finalized,
+                    final_points: this.final_points,
+                    stitch_comment: this.stitch_comment
+                });
             }
         },
     }

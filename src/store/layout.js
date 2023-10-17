@@ -23,9 +23,9 @@ export const useLayoutStore = defineStore('layout', {
             leftCorrectorKey: '',               // key of the corrector shown on the left side
             rightCorrectorKey: '',              // key of the corrector shown on the right side
 
-            markingPointsExpansion: 0,           // vertical expansion of the rating points: 0=hidden, 0.5=half, 1=full
-            leftSummaryTextExpansion: 0,         // vertical expansion of the left summary text: 0=hidden, 0.5=half, 1=full
-            rightSummaryTextExpansion: 0,        // vertical expansion of the right summary text: 0=hidden, 0.5=half, 1=full
+            markingPointsExpansion: 0.5,           // vertical expansion of the rating points: 0=hidden, 0.5=half, 1=full
+            leftSummaryTextExpansion: 0.5,         // vertical expansion of the left summary text: 0=hidden, 0.5=half, 1=full
+            rightSummaryTextExpansion: 0.5,        // vertical expansion of the right summary text: 0=hidden, 0.5=half, 1=full
         }
     },
 
@@ -89,12 +89,14 @@ export const useLayoutStore = defineStore('layout', {
             } catch (err) {
                 console.log(err);
             }
+            this.$reset();
         },
 
         async loadFromStorage() {
             try {
+                this.$reset();
+                
                 const data = await storage.getItem('layout');
-
                 if (data) {
                     this.expandedColumn = data.expandedColumn;
                     // resources may not be ready, PDF is not shown instantly

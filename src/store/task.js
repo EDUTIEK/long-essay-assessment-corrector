@@ -37,14 +37,6 @@ export const useTaskStore = defineStore('task',{
     },
 
     actions: {
-        setData(data) {
-            this.title = data.title;
-            this.instructions = data.instructions;
-            this.solution = data.solution;
-            this.correction_end = data.correction_end;
-            this.correction_allowed = !!data.correction_allowed;
-            this.authorization_allowed = !!data.authorization_allowed;
-        },
 
         async clearStorage() {
             try {
@@ -53,12 +45,13 @@ export const useTaskStore = defineStore('task',{
             catch (err) {
                 console.log(err);
             }
+            this.$reset();
         },
 
         async loadFromStorage() {
             try {
                 const data = await storage.getItem('task');
-                this.setData(data);
+                this.$patch(data);
             } catch (err) {
                 console.log(err);
             }
@@ -70,7 +63,7 @@ export const useTaskStore = defineStore('task',{
         async loadFromData(data) {
             try {
                 await storage.setItem('task', data);
-                this.setData(data);
+                this.$patch(data);
             } catch (err) {
                 console.log(err);
             }

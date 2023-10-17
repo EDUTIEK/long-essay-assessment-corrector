@@ -57,21 +57,21 @@ export const useCriteriaStore = defineStore('criteria',{
             catch (err) {
                 console.log(err);
             }
+            this.$reset();
         },
 
         async loadFromStorage() {
             try {
+                this.$reset();
+                
                 const keys = await storage.getItem('criterionKeys');
                 if (keys) {
                     this.keys =  JSON.parse(keys);
                 }
-                this.criteria = [];
-
-                let index = 0;
-                while (index < this.keys.length) {
-                    let criterion = await storage.getItem(this.keys[index]);
+                
+                for (const key of this.keys) {
+                    const criterion = await storage.getItem(key);
                     this.criteria.push(criterion);
-                    index++;
                 }
 
             } catch (err) {
@@ -82,18 +82,13 @@ export const useCriteriaStore = defineStore('criteria',{
         async loadFromData(data) {
             try {
                 await storage.clear();
-
-                this.keys = [];
-                this.criteria = [];
-
-                let index = 0;
-                while (index < data.length) {
-                    let criterion_data = data[index];
-                    let criterion = new Criterion(criterion_data);
+                this.$reset();
+                
+                for (const criterion_data of data){
+                    const criterion = new Criterion(criterion_data);
                     this.criteria.push(criterion);
                     this.keys.push(criterion.key);
                     await storage.setItem(criterion.key, criterion.getData());
-                    index++;
                 }
 
                 await storage.setItem('criterionKeys', JSON.stringify(this.keys));

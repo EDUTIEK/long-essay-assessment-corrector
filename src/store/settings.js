@@ -25,15 +25,6 @@ export const useSettingsStore = defineStore('settings',{
     },
 
     actions: {
-        setData(data) {
-            this.mutual_visibility = data.mutual_visibility;
-            this.multi_color_highlight = data.multi_color_highlight;
-            this.max_points = data.max_points;
-            this.max_auto_distance = data.max_auto_distance;
-            this.stitch_when_distance = data.stitch_when_distance;
-            this.stitch_when_decimals = data.stitch_when_decimals;
-        },
-
         async clearStorage() {
             try {
                 await storage.clear();
@@ -41,13 +32,14 @@ export const useSettingsStore = defineStore('settings',{
             catch (err) {
                 console.log(err);
             }
+            this.$reset();
         },
 
 
         async loadFromStorage() {
             try {
                 const data = await storage.getItem('settings');
-                this.setData(data);
+                this.$patch(data);
             } catch (err) {
                 console.log(err);
             }
@@ -56,7 +48,7 @@ export const useSettingsStore = defineStore('settings',{
         async loadFromData(data) {
             try {
                 await storage.setItem('settings', data);
-                this.setData(data);
+                this.$patch(data);
             } catch (err) {
                 console.log(err);
             }

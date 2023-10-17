@@ -456,6 +456,7 @@ export const useCommentsStore = defineStore('comments',{
             catch (err) {
                 console.log(err);
             }
+            this.$reset();
         },
 
         /**
@@ -467,16 +468,16 @@ export const useCommentsStore = defineStore('comments',{
          */
         async loadFromStorage(currentItemKey) {
             try {
+                this.$reset();
+                
                 const keys = await storage.getItem('keys');
                 if (keys) {
                     this.keys = JSON.parse(keys);
                 }
                 this.showOtherCorrectors = !! JSON.parse(await storage.getItem('showOtherCorrectors'));
-
-                this.comments = [];
-                this.currentKey = '';
+                
                 for (const key of this.keys) {
-                    let comment = new Comment(JSON.parse(await storage.getItem(key)));
+                    const comment = new Comment(JSON.parse(await storage.getItem(key)));
                     if (comment.item_key == currentItemKey) {
                         this.comments.push(comment);
                     }
@@ -503,14 +504,10 @@ export const useCommentsStore = defineStore('comments',{
         async loadFromData(data, currentItemKey) {
             try {
                 await storage.clear();
-
-                this.keys = [];
-                this.comments = [];
-                this.selectedKey = '';
-                this.showOtherCorrectors = false;
+                this.$reset();
 
                 for (const comment_data of data) {
-                    let comment = new Comment(comment_data);
+                    const comment = new Comment(comment_data);
                     this.keys.push(comment.key);
                     await storage.setItem(comment.key, JSON.stringify(comment.getData()));
                     if (comment.item_key == currentItemKey) {
