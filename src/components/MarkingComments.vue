@@ -184,6 +184,7 @@ async function selectComment(comment) {
                             :readonly="summariesStore.isOwnAuthorized || comment.corrector_key != apiStore.correctorKey"
                             @click="commentsStore.selectComment(comment.key)"
                             @change="commentsStore.updateComment(comment)"
+                            @keyup="commentsStore.updateComment(comment)"
                             v-show="comment.comment != '' || comment.key == commentsStore.selectedKey"
                             v-model="comment.comment"></v-textarea>
                 </div>
