@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import localForage from "localforage";
+import { useApiStore } from '@/store/api';
 import {useChangesStore} from "@/store/changes";
 import Points from '@/data/Points'
 import Comment from '@/data/Comment';
@@ -183,15 +184,17 @@ export const usePointsStore = defineStore('points',{
          * @public
          */
         async createPoints(commentKey, criterionKey, pointsValue) {
-            let pointsObject = new Points({
+            const apiStore = useApiStore();
+            const pointsObject = new Points({
                 comment_key: commentKey,
                 criterion_key: criterionKey,
+                item_key: apiStore.itemKey,
                 points: pointsValue
             });
             this.keys.push(pointsObject.key);
             this.points.push(pointsObject);
 
-            await storage.setItem(pointsObject.key, pointsObject.getData());
+            await storage.setItem(pointsObject.key, JSON.stringify(pointsObject.getData()));
             await storage.setItem('keys', JSON.stringify(this.keys));
 
             const changesStore = useChangesStore();
@@ -211,7 +214,7 @@ export const usePointsStore = defineStore('points',{
         async updatePoints(pointsObject) {
             
             if (this.keys.includes(pointsObject.key)) {
-                await storage.setItem(pointsObject.key, pointsObject.getData());
+                await storage.setItem(pointsObject.key, JSON.stringify(pointsObject.getData()));
                 const changesStore = useChangesStore();
                 await changesStore.setChange(new Change({
                     type: Change.TYPE_POINTS,
@@ -230,7 +233,7 @@ export const usePointsStore = defineStore('points',{
         async deletePoints(removeKey) {
             const points = this.points.find(element => element.key == removeKey);
 
-            this.points = this.points.filter(pointsObject => pointsObject.key != removeKey)
+            this.points = this.points.filter(pointsObject => pointsObject.key != removeKey);
             if (this.keys.includes(removeKey)) {
                 this.keys = this.keys.filter(key => key != removeKey)
                 await storage.setItem('keys', JSON.stringify(this.keys));
@@ -241,8 +244,8 @@ export const usePointsStore = defineStore('points',{
             const change = new Change({
                 type: Change.TYPE_POINTS,
                 action: Change.ACTION_DELETE,
-                key: pointsObject.key,
-                item_key: pointsObject.item_key
+                key: points.key,
+                item_key: points.item_key
             });
 
             if (removeKey.substr(0, 4) == 'temp') {
@@ -295,7 +298,7 @@ export const usePointsStore = defineStore('points',{
 
                 this.points = [];
                 for (const key of this.keys) {
-                    let points_data = await storage.getItem(key);
+                    let points_data = JSON.parse(await storage.getItem(key));
                     let points = new Points(points_data);
                     if (points.item_key == currentItemKey) {
                         this.points.push(points);
@@ -324,7 +327,7 @@ export const usePointsStore = defineStore('points',{
                 for (const points_data of data) {
                     const points = new Points(points_data);
                     this.keys.push(points.key);
-                    await storage.setItem(points.key, points.getData());
+                    await storage.setItem(points.key, JSON.stringify(points.getData()));
                     if (points.item_key == currentItemKey) {
                         this.points.push(points);
                     }
@@ -352,8 +355,8 @@ export const usePointsStore = defineStore('points',{
                     if (data) {
                         change.payload = JSON.parse(data);
                     }
-                    changes.push(change);
                 }
+                changes.push(change);
             };
             return changes;
         },
@@ -406,7 +409,7 @@ export const usePointsStore = defineStore('points',{
                 await storage.removeItem(key);
             }
             for (const points of changedPoints) {
-                await storage.setItem(points.key, points.getData());
+                await storage.setItem(points.key, JSON.stringify(points.getData()));
             }
             await storage.setItem('keys', JSON.stringify(this.keys));
         },
@@ -448,7 +451,7 @@ export const usePointsStore = defineStore('points',{
                 await storage.removeItem(key);
             }
             for (const points of changedPoints) {
-                await storage.setItem(points.key, points.getData());
+                await storage.setItem(points.key, JSON.stringify(points.getData()));
             }
             this.keys = this.keys.filter(key => !removedKeys.includes(key));
             await storage.setItem('keys', JSON.stringify(this.keys));

@@ -86,8 +86,8 @@ export const useLayoutStore = defineStore('layout', {
              * @returns {boolean}
              */
             const fn = function(corrector_key) {
-                return state.leftCorrectorKey == corrector.key && state.isLeftCorrectorVisible
-                || state.rightCorrectorKey == corrector.key && state.isRightCorrectorVisible
+                return state.leftCorrectorKey == corrector_key && state.isLeftCorrectorVisible
+                || state.rightCorrectorKey == corrector_key && state.isRightCorrectorVisible
             }
             return fn;
         },

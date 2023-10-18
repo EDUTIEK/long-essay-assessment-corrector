@@ -236,6 +236,7 @@ export const useCommentsStore = defineStore('comments',{
                 .filter(comment => comment.corrector_key == corrector_key && comment.rating_cardinal)
                   .length
             }
+            return fn;
         }
 
     },
@@ -627,8 +628,8 @@ export const useCommentsStore = defineStore('comments',{
                     if (data) {
                         change.payload = JSON.parse(data);
                     }
-                    changes.push(change);
                 }
+                changes.push(change);
             };
             return changes;
         },

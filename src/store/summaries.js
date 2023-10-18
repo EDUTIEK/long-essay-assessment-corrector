@@ -371,9 +371,9 @@ export const useSummariesStore = defineStore('summaries',{
                     const data = await storage.getItem(change.key);
                     if (data) {
                         change.payload = JSON.parse(data);
-                    } 
-                    changes.push(change);
+                    }
                 }
+                changes.push(change);
             };
             return changes;
         },

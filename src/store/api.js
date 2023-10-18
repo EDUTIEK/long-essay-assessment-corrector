@@ -532,13 +532,13 @@ export const useApiStore = defineStore('api', {
             if (changesStore.countChanges > 0) {
                 this.lastSendingTry = Date.now();
                 
-                const data = {
-                    comments: await commentsStore.getChangedData(this.lastSendingTry),
-                    points: await pointsStore.getChangedData(this.lastSendingTry),
-                    summaries: await summariesStore.getChangedData(this.lastSendingTry)
-                };
-                
                 try {
+                    const data = {
+                        comments: await commentsStore.getChangedData(this.lastSendingTry),
+                        points: await pointsStore.getChangedData(this.lastSendingTry),
+                        summaries: await summariesStore.getChangedData(this.lastSendingTry)
+                    };
+
                     const response = await axios.put( '/changes/' + this.itemKey, data, this.getRequestConfig(this.dataToken));
                     this.setTimeOffset(response);
                     this.refreshToken(response);
