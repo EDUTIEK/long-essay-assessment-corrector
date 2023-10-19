@@ -68,13 +68,13 @@ export const useLayoutStore = defineStore('layout', {
         leftCorrectorTitle: state => {
             const correctorsStore = useCorrectorsStore();
             const corrector = correctorsStore.getCorrector(state.leftCorrectorKey);
-            return corrector ? 'Korrektur von ' + corrector.title : ''
+            return corrector ? 'Korrektur von ' + corrector.title  + ' ' + correctorsStore.getPositionText(corrector.corrector_key) : ''
         },
 
         rightCorrectorTitle: state => {
             const correctorsStore = useCorrectorsStore();
             const corrector = correctorsStore.getCorrector(state.rightCorrectorKey);
-            return corrector ? 'Korrektur von ' + corrector.title : ''
+            return corrector ? 'Korrektur von ' + corrector.title + ' ' + correctorsStore.getPositionText(corrector.corrector_key) : ''
         },
 
         getCorrectorIsVisible: state => {

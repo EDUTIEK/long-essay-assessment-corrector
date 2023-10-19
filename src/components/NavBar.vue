@@ -39,7 +39,7 @@ function selectResource(resource) {
 }
 
 function selectCorrector(corrector) {
-    layoutStore.selectCorrector(corrector.key);
+    layoutStore.selectCorrector(corrector.corrector_key);
 }
 
 function getResourceIcon(resource) {
@@ -52,7 +52,7 @@ function getResourceIcon(resource) {
 }
 
 function getCorrectorIcon(corrector) {
-    return (layoutStore.getCorrectorIsVisible(corrector.key)) ? "mdi-account-school" : "mdi-account-school-outline"
+    return (layoutStore.getCorrectorIsVisible(corrector.corrector_key)) ? "mdi-account-school" : "mdi-account-school-outline"
 }
 
 
@@ -121,8 +121,8 @@ function getCorrectorIcon(corrector) {
             <v-list-item v-for="corrector in correctorsStore.otherCorrectors"
                          @click="selectCorrector(corrector); closeNavigation();"
                          :prepend-icon="getCorrectorIcon(corrector)"
-                         :title="corrector.title"
-                         :key="corrector.key">
+                         :title="corrector.title + ' - ' + corrector.initials + ' ' + correctorsStore.getPositionText(corrector.corrector_key)"
+                         :key="corrector.corrector_key">
             </v-list-item>
 
 

@@ -237,9 +237,8 @@ export const useSummariesStore = defineStore('summaries',{
          */
         async loadFromData(data, currentItemKey, correctorKey) {
             try {
-                this.$reset();
-                
                 await storage.clear();
+                this.$reset();
 
                 for (const summary_data of data) {
                     const summary = new Summary(summary_data);

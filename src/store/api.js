@@ -300,8 +300,8 @@ export const useApiStore = defineStore('api', {
             if (this.isForReviewOrStitch) {
                 commentsStore.setShowOtherCorrectors(true);
                 let i = 0;
-                for (const key of correctorsStore.keys) {
-                    layoutStore.selectCorrector(key);
+                for (const corrector of correctorsStore.correctors) {
+                    layoutStore.selectCorrector(corrector.corrector_key);
                     i++;
                     if (i == 2) {
                         break;
@@ -390,8 +390,8 @@ export const useApiStore = defineStore('api', {
 
             // todo: add item key as parameter when store has data of all items
             await essayStore.loadFromStorage();
-            await correctorsStore.loadFromStorage();
-
+            
+            await correctorsStore.loadFromStorage(itemKey);
             await pagesStore.loadFromStorage(itemKey);
             await commentsStore.loadFromStorage(itemKey);
             await pointsStore.loadFromStorage(itemKey);
@@ -426,19 +426,19 @@ export const useApiStore = defineStore('api', {
             const criteriaStore = useCriteriaStore();
             const itemsStore = useItemsStore();
 
-            const layoutStore = useLayoutStore();
-            const correctorsStore = useCorrectorsStore();
-            const summariesStore = useSummariesStore();
-            const commentsStore = useCommentsStore();
-            const pointsStore = usePointsStore();
-            const changesStore = useChangesStore();
-            
             await taskStore.loadFromData(response.data.task);
             await settingsStore.loadFromData(response.data.settings);
             await resourcesStore.loadFromData(response.data.resources);
             await levelsStore.loadFromData(response.data.levels);
             await criteriaStore.loadFromData(response.data.criteria);
             await itemsStore.loadFromData(response.data.items);
+
+            const layoutStore = useLayoutStore();
+            const correctorsStore = useCorrectorsStore();
+            const summariesStore = useSummariesStore();
+            const commentsStore = useCommentsStore();
+            const pointsStore = usePointsStore();
+            const changesStore = useChangesStore();
             
             await layoutStore.clearStorage();
             await correctorsStore.clearStorage();
@@ -477,16 +477,17 @@ export const useApiStore = defineStore('api', {
 
             const taskStore = useTaskStore();
             const essayStore = useEssayStore();
-            const pagesStore = usePagesStore();
-            const correctorsStore = useCorrectorsStore();
-            const summariesStore = useSummariesStore();
-            const commentsStore = useCommentsStore();
-            const pointsStore = usePointsStore();
 
             await taskStore.loadFromData(response.data.task);
             await essayStore.loadFromData(response.data.essay);
-            await correctorsStore.loadFromData(response.data.correctors);
-
+            
+            const correctorsStore = useCorrectorsStore();
+            const pagesStore = usePagesStore();
+            const summariesStore = useSummariesStore();
+            const commentsStore = useCommentsStore();
+            const pointsStore = usePointsStore();
+            
+            await correctorsStore.loadFromData(response.data.correctors, itemKey);
             await pagesStore.loadFromData(response.data.pages, itemKey);
             await commentsStore.loadFromData(response.data.comments, itemKey);
             await pointsStore.loadFromData(response.data.points, itemKey);

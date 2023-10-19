@@ -3,12 +3,14 @@
   import { useItemsStore } from '@/store/items';
   import { useSummariesStore } from "@/store/summaries";
   import { useEssayStore } from "@/store/essay";
+  import { useCorrectorsStore } from '@/store/correctors';
   import { ref, nextTick } from 'vue';
 
   const apiStore = useApiStore();
   const itemsStore = useItemsStore();
   const summariesStore = useSummariesStore();
   const essayStore = useEssayStore();
+  const correctorsStore = useCorrectorsStore();
 
   const menuOpen = ref(false);
   const selectionShown=ref(false);
@@ -57,7 +59,8 @@
         Lade Daten ...
       </span>
       <span v-show="!loading">
-       {{ itemsStore.getItem(apiStore.itemKey).title }}
+       {{ itemsStore.currentItem.title }}
+        {{ correctorsStore.getPositionText(apiStore.correctorKey) }}
         {{ apiStore.isForReviewOrStitch
           ? (essayStore.isFinalized ? ' - finalisiert' : ' - offen')
           : (summariesStore.isOwnAuthorized ? ' - autorisiert' : ' - offen')}}

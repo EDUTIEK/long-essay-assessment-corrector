@@ -72,7 +72,6 @@ export const useCommentsStore = defineStore('comments',{
 
         activeComments: state => {
             const apiStore = useApiStore();
-            const correctorsStore = useCorrectorsStore();
             return state.comments.filter(comment =>
                 (state.showOtherCorrectors || comment.corrector_key == apiStore.correctorKey)
                 && (state.filterKeys.length == 0 || state.filterKeys.includes(comment.key))
@@ -439,29 +438,24 @@ export const useCommentsStore = defineStore('comments',{
             this.comments = this.comments.sort(compareComments);
 
             let parent = 0;
-            let number = 0;
+            let numbers = {};
+            
             for (const comment of this.comments) {
-                if (comment.corrector_key != apiStore.correctorKey) {
-                    const corrector = correctorsStore.getCorrector(comment.corrector_key);
-                    if (corrector) {
-                        comment.label = corrector.title;
-                        comment.prefix = 'other';
+                const corrector = correctorsStore.getCorrector(comment.corrector_key);
+                const initials = corrector ? corrector.initials : '??';
+
+                if (comment.parent_number > parent) {
+                    parent = comment.parent_number;
+                    for (const key in numbers) {
+                        numbers[key] = 1;
                     }
-                    else {
-                        comment.label = 'Corrector ' + comment.corrector_key;
-                        comment.prefix = 'other';
-                    }
+                    numbers[comment.corrector_key] = 1; // may not yet be set
+                    
+                } else {
+                    numbers[comment.corrector_key]++;
                 }
-                else {
-                    if (comment.parent_number > parent) {
-                        parent = comment.parent_number;
-                        number = 1;
-                    } else {
-                        number++;
-                    }
-                    comment.label = parent.toString() + '.' + number.toString();
-                    comment.prefix = 'own';
-                }
+                comment.label = initials + ' ' + parent.toString() + '.' + numbers[comment.corrector_key].toString();
+                comment.prefix = (comment.corrector_key == apiStore.correctorKey) ? 'own' : 'other';
             }
         },
 

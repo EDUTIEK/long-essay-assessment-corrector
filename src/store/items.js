@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import localForage from "localforage";
+import { useApiStore } from '@/store/api';
 
 const storage = localForage.createInstance({
     storeName: "corrector-items",
@@ -25,6 +26,11 @@ export const useItemsStore = defineStore('items',{
         hasItems: state => state.keys.length > 0,
         firstKey: state => state.keys.length > 0 ? state.keys[0] : '',
         lastKey: state => state.keys.length > 0 ? state.keys[state.keys.length -1] : '',
+
+        currentItem: state => {
+            const apiStore = useApiStore();
+            return  state.items.find(element => element.key == apiStore.itemKey);
+        },
 
         getPreviousKey: state =>  {
 

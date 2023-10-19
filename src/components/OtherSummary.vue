@@ -3,9 +3,6 @@ import SummaryCriteria from '@/components/SummaryCriteria.vue';
 import SummaryPoints from "@/components/SummaryPoints.vue";
 import SummaryText from "@/components/SummaryText.vue";
 
-import { useCorrectorsStore } from '@/store/correctors';
-const correctorsStore = useCorrectorsStore();
-
 const props = defineProps(['corrector_key', 'textExpansion']);
 
 function textExpansionClass() {

@@ -9,9 +9,9 @@
   import OwnSummary from "@/components/OwnSummary.vue";
   import OtherSummary from '@/components/OtherSummary.vue';
   import Marking from "@/components/Marking.vue";
-  import {useApiStore} from "../store/api";
-  import {useLayoutStore} from "../store/layout";
-  import {useResourcesStore} from "../store/resources";
+  import { useApiStore } from "@/store/api";
+  import { useLayoutStore } from "@/store/layout";
+  import { useResourcesStore} from "@/store/resources";
   import { useCommentsStore } from '@/store/comments';
   import { useCriteriaStore} from '@/store/criteria';
   import { usePagesStore } from '@/store/pages';
