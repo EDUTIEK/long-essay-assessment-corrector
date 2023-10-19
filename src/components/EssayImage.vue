@@ -39,13 +39,13 @@
           const mark = new Mark(created);
           switch (selectedTool.value) {
             case 'check':
-              mark.symbol = '✓';
+              mark.symbol = Mark.SYMBOL_CHECK;
               break;
             case 'cross':
-              mark.symbol = '✗';
+              mark.symbol = Mark.SYMBOL_CROSS;
               break;
             case 'question':
-              mark.symbol = '?';
+              mark.symbol = Mark.SYMBOL_QUESTION;
               break;
           }
           
@@ -132,7 +132,8 @@
         for (const mark of comment.marks) {
           const mark_data = {
             ...mark.getData(),
-            label: comment.key == commentsStore.selectedKey ? comment.label : '',
+            label: comment.label,
+            // label: comment.key == commentsStore.selectedKey ? comment.label : '',
             color: getColor(comment, mark.shape),
             selectedColor: getSelectedColor(comment, mark.shape),
           }

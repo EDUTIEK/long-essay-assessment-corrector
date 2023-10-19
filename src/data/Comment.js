@@ -156,6 +156,17 @@ class Comment {
     }
 
     /**
+     * Get the icon of the mark
+     * @return string|null
+     */
+    getMarkIcon() {
+        for (const mark of this.marks) {
+            return mark.getIcon();
+        }
+        return null;
+    }
+     
+    /**
      * Calculate the start position as lowest y position of all marks
      */
     calculateStartPositon() {

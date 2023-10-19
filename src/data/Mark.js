@@ -14,6 +14,11 @@ class Mark {
     static ALLOWED_SHAPES = [Mark.SHAPE_CIRCLE, Mark.SHAPE_RECTANGLE, Mark.SHAPE_POLYGON, Mark.SHAPE_LINE, Mark.SHAPE_WAVE];
     
     
+    static SYMBOL_CHECK = '✓';
+    static SYMBOL_CROSS = '✗';
+    static SYMBOL_QUESTION = '?';
+    
+    
     /**
      * Key of a graphical mark (is kept in database)
      * @type {string}
@@ -116,6 +121,35 @@ class Mark {
             polygon: polygon,
             symbol: this.symbol,
         }
+    }
+
+
+    /**
+     * Get the icon of the mark
+     * @return string
+     */
+    getIcon() {
+        switch (this.shape) {
+            case Mark.SHAPE_LINE:
+                return 'mdi-minus';
+            case Mark.SHAPE_WAVE:
+                return 'mdi-wave';
+            case Mark.SHAPE_RECTANGLE:
+                return 'mdi-rectangle-outline';
+            case Mark.SHAPE_POLYGON:
+                return 'mdi-vector-triangle';
+            case Mark.SHAPE_CIRCLE:
+                switch (this.symbol) {
+                    case Mark.SYMBOL_CHECK:
+                        return 'mdi-check';
+                    case Mark.SYMBOL_CROSS:
+                        return 'mdi-close';
+                    case Mark.SYMBOL_QUESTION:
+                        return 'mdi-help';
+                }
+        }
+        return '';
+        
     }
 }
 

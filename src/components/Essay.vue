@@ -32,7 +32,7 @@
   function refreshSelection() {
       //console.log('refreshSelection');
       marker.hideAllMarksOfClass('selected');
-      marker.hideAllMarksOfClass('labelled');
+      //marker.hideAllMarksOfClass('labelled');
 
       let comment = commentsStore.getComment(commentsStore.selectedKey);
       if (comment) {
@@ -61,6 +61,7 @@
               marker.showMark(comment.prefix, comment.start_position, comment.end_position);
           }
       }
+      marker.addLabel('labelled', comment.label, comment.start_position);
   }
 
   /**

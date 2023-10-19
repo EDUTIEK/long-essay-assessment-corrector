@@ -116,6 +116,7 @@ async function selectComment(comment) {
         <v-container :id="'appCommentContainer' + comment.key" v-for="comment in commentsStore.activeComments" :key="comment.key">
             <v-row class="row" dense>
                 <v-col class="col">
+                    <v-icon size="small" :icon="comment.getMarkIcon()"></v-icon> &nbsp;
                     <span 
                         :class="'commentLabel ' + (comment.key == commentsStore.selectedKey ? 'selected' : '')"
                         @click="commentsStore.selectComment(comment.key)">
