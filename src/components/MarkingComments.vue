@@ -112,86 +112,105 @@ async function selectComment(comment) {
 
 
 <template>
-    <div id="appMarkingComments">
-        <v-container :id="'appCommentContainer' + comment.key" v-for="comment in commentsStore.activeComments" :key="comment.key">
-            <v-row class="row" dense>
-                <v-col class="col">
-                    <v-icon size="small" :icon="comment.getMarkIcon()"></v-icon> &nbsp;
-                    <span 
-                        :class="'commentLabel ' + (comment.key == commentsStore.selectedKey ? 'selected' : '')"
-                        @click="commentsStore.selectComment(comment.key)">
-                      {{comment.label}}
+  <div id="appMarkingComments">
+    <v-container :id="'appCommentContainer' + comment.key" v-for="comment in commentsStore.activeComments"
+                 :key="comment.key">
+      <v-row class="row" dense>
+
+        <!-- icon and label -->
+
+        <v-col class="col">
+          <v-icon size="small" :icon="comment.getMarkIcon()"></v-icon> &nbsp;
+          <span
+              :class="'commentLabel ' + (comment.key == commentsStore.selectedKey ? 'selected' : '')"
+              @click="commentsStore.selectComment(comment.key)">
+                      {{ comment.label }}
                     </span>
+        </v-col>
 
-                </v-col>
+        <!-- trash -->
 
-                <v-col class="col">
-                  
-                  <v-btn density="compact" size="small" variant="text" prepend-icon="mdi-delete-outline"
-                         v-show="comment.corrector_key == apiStore.correctorKey && !summariesStore.isOwnAuthorized"
-                         @click="commentsStore.deleteComment(comment.key)" ></v-btn>
+        <v-col class="col">
+          <v-btn density="compact" size="small" variant="text" prepend-icon="mdi-delete-outline"
+                 v-show="comment.corrector_key == apiStore.correctorKey && !summariesStore.isOwnAuthorized"
+                 @click="commentsStore.deleteComment(comment.key)"></v-btn>
+        </v-col>
 
-                </v-col>
-                <v-col class="col">
-                      <input v-if="criteriaStore.hasOwnCriteria"
-                             class="pointsInput"
-                             disabled="disabled"
-                             :id="'pointsInput' + comment.key"
-                             :value="pointsStore.getSumOfPointsForComment(comment.key)"/>
+        <!-- points -->
 
-                      <input v-if="!criteriaStore.hasOwnCriteria"
-                             class="pointsInput"
-                             type="number"
-                             min="0"
-                             :style="'color: ' + getPointsColor(comment) + ';'"
-                             :id="'pointsInput' + comment.key"
-                             :max="settingsStore.max_points"
-                             :disabled="summariesStore.isOwnAuthorized || comment.corrector_key != apiStore.correctorKey"
-                             @change="commentsStore.updateComment(comment)"
-                             v-model="comment.points" />
-                  
-                  <label :for="'pointsInput' + comment.key"
-                         @click="commentsStore.selectComment(comment.key)"> Pkt.</label>
+        <v-col class="col">
+          <span v-show="commentsStore.isPointsAndRatingsShown || comment.key == commentsStore.selectedKey">
+            <input v-if="criteriaStore.hasOwnCriteria"
+                  class="pointsInput"
+                  disabled="disabled"
+                  :id="'pointsInput' + comment.key"
+                  :value="pointsStore.getSumOfPointsForComment(comment.key)"/>
+            
+            <input v-if="!criteriaStore.hasOwnCriteria"
+                 class="pointsInput"
+                 type="number"
+                 min="0"
+                 :style="'color: ' + getPointsColor(comment) + ';'"
+                 :id="'pointsInput' + comment.key"
+                 :max="settingsStore.max_points"
+                 :disabled="summariesStore.isOwnAuthorized || comment.corrector_key != apiStore.correctorKey"
+                 @change="commentsStore.updateComment(comment)"
+                 v-model="comment.points"/>
+            
+            <label :for="'pointsInput' + comment.key"
+                   @click="commentsStore.selectComment(comment.key)"> Pkt.</label>
+          </span>
 
-                </v-col>
-              
-                <v-col class="col">
-                      <input type="checkbox"
+        </v-col>
+
+        <!-- rating excellent -->
+
+        <v-col class="col">
+          <span v-show="commentsStore.isPointsAndRatingsShown  || comment.key == commentsStore.selectedKey">
+           <input type="checkbox"
                              class="ratingInput"
                              v-model="comment.rating_excellent"
                              :id="'ratingExcellent' + comment.key"
                              :disabled="summariesStore.isOwnAuthorized || comment.corrector_key != apiStore.correctorKey"
-                             @change="toggleExcellent(comment)" />
-                  
-                  <label :for="'ratingExcellent' + comment.key"
-                         @click="commentsStore.selectComment(comment.key)"> Excellent</label>
+                             @change="toggleExcellent(comment)"/>
 
-                </v-col>
+            <label :for="'ratingExcellent' + comment.key"
+                 @click="commentsStore.selectComment(comment.key)"> Excellent</label>
+          </span>
+          
+        </v-col>
 
-                <v-col class="col">
-                  <input type="checkbox"
-                           class="ratingInput"
-                           v-model="comment.rating_cardinal"
-                           :id="'ratingCardinal' + comment.key"
-                           :disabled="summariesStore.isOwnAuthorized || comment.corrector_key != apiStore.correctorKey"
-                           @change="toggleCardinal(comment)"/>
-                  <label :for="'ratingCardinal' + comment.key"
-                         @click="commentsStore.selectComment(comment.key)"> Kardinal</label>
-                </v-col>
-            </v-row>
-            <v-row>
-                <div :id="'appCommentWrapper' + comment.key" class="commentWrapper">
-                <v-textarea class="comment" :bg-color="getBgColor(comment)" rounded="0" density="compact" variant="solo" rows="1" auto-grow
-                            :readonly="summariesStore.isOwnAuthorized || comment.corrector_key != apiStore.correctorKey"
-                            @click="commentsStore.selectComment(comment.key)"
-                            @change="commentsStore.updateComment(comment)"
-                            @keyup="commentsStore.updateComment(comment)"
-                            v-show="comment.comment != '' || comment.key == commentsStore.selectedKey"
-                            v-model="comment.comment"></v-textarea>
-                </div>
-            </v-row>
-        </v-container>
-    </div>
+        <!-- rating cardinal -->
+
+        <v-col class="col">
+          <span v-show="commentsStore.isPointsAndRatingsShown  || comment.key == commentsStore.selectedKey">
+            <input type="checkbox"
+                   class="ratingInput"
+                   v-model="comment.rating_cardinal"
+                   :id="'ratingCardinal' + comment.key"
+                   :disabled="summariesStore.isOwnAuthorized || comment.corrector_key != apiStore.correctorKey"
+                   @change="toggleCardinal(comment)"/>
+            <label :for="'ratingCardinal' + comment.key"
+                   @click="commentsStore.selectComment(comment.key)"> Kardinal</label>
+          </span>
+        </v-col>
+      </v-row>
+      
+      
+      <v-row>
+        <div :id="'appCommentWrapper' + comment.key" class="commentWrapper">
+          <v-textarea class="comment" :bg-color="getBgColor(comment)" rounded="0" density="compact" variant="solo"
+                      rows="1" auto-grow
+                      :readonly="summariesStore.isOwnAuthorized || comment.corrector_key != apiStore.correctorKey"
+                      @click="commentsStore.selectComment(comment.key)"
+                      @change="commentsStore.updateComment(comment)"
+                      @keyup="commentsStore.updateComment(comment)"
+                      v-show="comment.comment != '' || comment.key == commentsStore.selectedKey"
+                      v-model="comment.comment"></v-textarea>
+        </div>
+      </v-row>
+    </v-container>
+  </div>
 
 </template>
 
