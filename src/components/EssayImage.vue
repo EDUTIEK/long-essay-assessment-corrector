@@ -16,6 +16,9 @@
   const markerNode = ref();
   const selectedTool = ref('rectangle');
   const zoomLevel = ref(1);
+  const pageMenuOpen = ref(false);
+  const pageMenuInput = ref(0);
+  
   
   let marker;
   let currentKeys = [];
@@ -95,6 +98,7 @@
         document.querySelector('.long-essay-image-marker').scrollTop = 0;
         currentKeys = [];
         refreshMarks();
+        pageMenuInput.value = page_no;
       }
     }
   }
@@ -235,9 +239,19 @@
   }
 
   function selectPage(page_no) {
+    pageMenuOpen.value = false;
     showPage(page_no);
   }
 
+  async function updatePageMenu() {
+    if (pageMenuOpen.value) {
+      await nextTick();
+      await new Promise(resolve => setTimeout(resolve, 250));
+      const input = document.getElementById('app-pages-menu-input');
+      input.select();
+      input.select();
+    }
+  }
 
   function zoomIn() {
       zoomLevel.value += 0.1;
@@ -321,8 +335,24 @@
 
 
 
-          <v-menu activator="#app-pages-menu-activator">
+          <v-menu activator="#app-pages-menu-activator" v-model="pageMenuOpen" :close-on-content-click="false" @update:modelValue="updatePageMenu()">
+            
             <v-list>
+              <v-list-item>
+                <v-text-field
+                    id="app-pages-menu-input"
+                    v-model="pageMenuInput"
+                    density="compact"
+                    variant="solo" 
+                    label="Number"
+                    single-line
+                    hide-details
+                    prepend-inner-icon="mdi-magnify"
+                    @change="selectPage(pageMenuInput)"
+                >
+                </v-text-field>
+    
+              </v-list-item>
               <v-list-item v-for="page in pagesStore.pages"
                            @click="selectPage(page.page_no)"
                            :title="page.page_no"
