@@ -22,8 +22,8 @@ function textExpansionClass() {
 <template>
     <div id="app-marking-wrapper">
         <marking-comments id="app-marking-comments"></marking-comments>
-        <div :class="textExpansionClass()">
-          <marking-points id="app-marking-points" v-show="criteriaStore.hasOwnCriteria && layoutStore.isMarkingPointsExpanded"></marking-points>
+        <div v-show="criteriaStore.hasOwnCriteria && layoutStore.isMarkingPointsExpanded" :class="textExpansionClass()">
+          <marking-points id="app-marking-points"></marking-points>
         </div>
     </div>
 </template>
