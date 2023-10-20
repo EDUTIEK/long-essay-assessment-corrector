@@ -270,7 +270,7 @@ export const useSummariesStore = defineStore('summaries',{
          */
         async updateContent(fromEditor = false, force = false) {
 
-            const storedSummary = this.summaries[this.editSummary.getKey()];
+            const storedSummary = this.summaries[this.editSummary.getKey()] ?? new Summary();
             
             // don't update if authorized
             if (storedSummary.is_authorized) {
