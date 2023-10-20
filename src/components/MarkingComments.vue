@@ -151,7 +151,7 @@ async function selectComment(comment) {
                              v-model="comment.points" />
                   
                   <label :for="'pointsInput' + comment.key"
-                         @click="commentsStore.selectComment(comment.key)"> Punkte</label>
+                         @click="commentsStore.selectComment(comment.key)"> Pkt.</label>
 
                 </v-col>
               

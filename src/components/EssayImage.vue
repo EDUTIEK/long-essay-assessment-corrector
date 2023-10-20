@@ -92,6 +92,7 @@
         catch {
           // do nothing
         }
+        document.querySelector('.long-essay-image-marker').scrollTop = 0;
         currentKeys = [];
         refreshMarks();
       }
@@ -291,13 +292,6 @@
     <div id="app-essay-image-wrapper">
         <div class = "appImageButtons">
 
-          <v-btn-group density="comfortable" variant="outlined" divided>
-            <v-btn size="small" icon="mdi-menu-left" @click="prevPage()"></v-btn>
-            <v-btn size="small" id="app-pages-menu-activator">{{pagesStore.selectedPageNo}}</v-btn>
-            <v-btn size="small" icon="mdi-menu-right" @click="nextPage()"></v-btn>
-          </v-btn-group>
-
-          &nbsp;
 
           <v-btn-group density="comfortable" variant="outlined" divided>
             <v-btn size="small" icon="mdi-magnify-minus-outline" @click="zoomOut()"></v-btn>
@@ -317,6 +311,16 @@
             <v-btn size="small" icon="mdi-vector-triangle" value="polygon"></v-btn>
           </v-btn-toggle>
 
+          &nbsp;
+
+          <v-btn-group density="comfortable" variant="outlined" divided>
+            <v-btn size="small" icon="mdi-menu-left" @click="prevPage()"></v-btn>
+            <v-btn size="small" id="app-pages-menu-activator">{{pagesStore.selectedPageNo}}</v-btn>
+            <v-btn size="small" icon="mdi-menu-right" @click="nextPage()"></v-btn>
+          </v-btn-group>
+
+
+
           <v-menu activator="#app-pages-menu-activator">
             <v-list>
               <v-list-item v-for="page in pagesStore.pages"
@@ -335,6 +339,15 @@
       
       <div class="appImageMarker" ref="markerNode"></div>
 
+      
+      <div class="appImageBottomNav">
+        <v-btn-group variant="outlined" divided>
+          <v-btn :disabled="pagesStore.selectedPageNo <= pagesStore.minPage" size="small" icon="mdi-menu-left" @click="prevPage()"></v-btn>
+          <v-btn :disabled="pagesStore.selectedPageNo >= pagesStore.maxPage" size="small" icon="mdi-menu-right" @click="nextPage()"></v-btn>
+        </v-btn-group>
+      </div>
+      
+
     </div>
 </template>
 
@@ -346,9 +359,22 @@
       flex-direction: column;
   }
 
+
+  
+  .appImageButtons {
+    text-align: center;  
+  }
+  
   .appImageMarker {
     flex-grow: 1;
     width: 100%;
+  }
+  
+
+  .appImageBottomNav {
+    position: absolute;
+    bottom: 5px;
+    right: calc(50% + 40px);
   }
 
 </style>
