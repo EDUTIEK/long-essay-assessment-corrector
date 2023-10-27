@@ -8,20 +8,21 @@ const apiStore = useApiStore();
 
 const props = defineProps(['textExpansion']);
 
-function textExpansionClass() {
-  switch (props.textExpansion) {
+function expansionClass(expansion) {
+  switch (expansion) {
     case 0: return 'hidden';
     case 1: return 'full';
     default: return 'half';
   }
 }
+
 </script>
 
 <template>
     <div id="app-own-summary-wrapper">
         <summary-criteria id="app-own-summary-criteria" :corrector_key="apiStore.correctorKey"></summary-criteria>
-        <div :class="textExpansionClass()">
-          <own-summary-text></own-summary-text>
+        <div :class="expansionClass(props.textExpansion)">
+          <own-summary-text :editorId="'summary'"></own-summary-text>
         </div>
         <own-summary-points id="app-own-summary-points"></own-summary-points>
     </div>

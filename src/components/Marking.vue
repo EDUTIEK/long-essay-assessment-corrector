@@ -1,16 +1,18 @@
 <script setup>
 import MarkingComments from "@/components/MarkingComments.vue";
 import MarkingPoints from "@/components/MarkingPoints.vue";
-import {useLayoutStore} from "../store/layout";
+import OwnSummaryText from "@/components/OwnSummaryText.vue";
+
+import { useLayoutStore } from "@/store/layout";
 import { useCriteriaStore } from '@/store/criteria';
 
 const layoutStore = useLayoutStore();
 const criteriaStore = useCriteriaStore();
 
-const props = defineProps(['textExpansion']);
+const props = defineProps(['pointsExpansion', 'textExpansion']);
 
-function textExpansionClass() {
-  switch (props.textExpansion) {
+function expansionClass(expansion) {
+  switch (expansion) {
     case 0: return 'hidden';
     case 1: return 'full';
     default: return 'half';
@@ -22,9 +24,12 @@ function textExpansionClass() {
 <template>
     <div id="app-marking-wrapper">
         <marking-comments id="app-marking-comments"></marking-comments>
-        <div v-show="criteriaStore.hasOwnCriteria && layoutStore.isMarkingPointsExpanded" :class="textExpansionClass()">
+        <div v-show="criteriaStore.hasOwnCriteria && layoutStore.isMarkingPointsExpanded" :class="expansionClass(props.pointsExpansion)">
           <marking-points id="app-marking-points"></marking-points>
         </div>
+        <div v-if="layoutStore.isMarkingTextExpanded" :class="expansionClass(props.textExpansion)">
+          <own-summary-text :editorId="'marking'"></own-summary-text>
+        </div><!-- v-if neeed to avoid simulaneous data binding with summary text  -->
     </div>
 </template>
 

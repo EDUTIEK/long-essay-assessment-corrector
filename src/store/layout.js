@@ -23,7 +23,8 @@ export const useLayoutStore = defineStore('layout', {
             leftCorrectorKey: '',               // key of the corrector shown on the left side
             rightCorrectorKey: '',              // key of the corrector shown on the right side
 
-            markingPointsExpansion: 0.5,           // vertical expansion of the rating points: 0=hidden, 0.5=half, 1=full
+            markingPointsExpansion: 0.5,           // vertical expansion of the rating points in the marking view: 0=hidden, 0.5=half, 1=full
+            markingTextExpansion: 0.5,             // vertical expansion of the summary text in the marking view: 0=hidden, 0.5=half, 1=full
             leftSummaryTextExpansion: 0.5,         // vertical expansion of the left summary text: 0=hidden, 0.5=half, 1=full
             rightSummaryTextExpansion: 0.5,        // vertical expansion of the right summary text: 0=hidden, 0.5=half, 1=full
         }
@@ -62,6 +63,8 @@ export const useLayoutStore = defineStore('layout', {
         isRightCorrectorVisible: state => (state.isRightCorrectorSelected && state.isRightVisible),
 
         isMarkingPointsExpanded: state => state.markingPointsExpansion > 0,
+        isMarkingTextExpanded: state => state.markingTextExpansion > 0,
+        
         isLeftSummaryTextExpanded: state => state.leftSummaryTextExpansion > 0,
         isRightSummaryTextExpanded: state => state.rightSummaryTextExpansion > 0,
 
@@ -116,6 +119,7 @@ export const useLayoutStore = defineStore('layout', {
                     // this.leftContent = data.leftContent;
                     this.rightContent = data.rightContent;
                     this.markingPointsExpansion = data.markingPointsExpansion;
+                    this.markingTextExpansion = data.markingTextExpansion;
                     this.leftSummaryTextExpansion = data.leftSummaryTextExpansion;
                     this.rightSummaryTextExpansion = data.rightSummaryTextExpansion;
                     this.showTimer = data.showTimer;
@@ -133,6 +137,7 @@ export const useLayoutStore = defineStore('layout', {
                     leftContent: this.leftContent,
                     rightContent: this.rightContent,
                     markingPointsExpansion: this.markingPointsExpansion,
+                    markingTextExpansion: this.markingTextExpansion,
                     leftSummaryTextExpansion: this.leftSummaryTextExpansion,
                     rightSummaryTextExpansion: this.rightSummaryTextExpansion,
                     showTimer: this.showTimer
@@ -228,6 +233,25 @@ export const useLayoutStore = defineStore('layout', {
 
         changeMarkingPointsExpansion() {
             this.markingPointsExpansion = this.changeExpansion(this.markingPointsExpansion);
+            if (this.markingPointsExpansion > 0) {
+                this.markingTextExpansion = 0;
+            }
+            this.saveToStorage();
+        },
+        
+        changeMarkingTextExpansion() {
+            this.markingTextExpansion = this.changeExpansion(this.markingTextExpansion);
+            if (this.markingTextExpansion > 0) {
+                this.markingPointsExpansion = 0;
+            }
+            this.saveToStorage();
+        },
+        
+        syncMarkingTextExpansion() {
+            this.markingTextExpansion = this.rightSummaryTextExpansion;
+            if (this.markingTextExpansion > 0) {
+                this.markingPointsExpansion = 0;
+            }
             this.saveToStorage();
         },
         

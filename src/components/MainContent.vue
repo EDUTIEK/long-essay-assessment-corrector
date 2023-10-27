@@ -121,6 +121,13 @@
                 <v-icon icon="mdi-arrow-up-down"></v-icon>
                 <span>Bewertungen</span>
               </v-btn>
+              
+              <!-- toggle marking text -->
+              <v-btn size="x-small" v-show=" layoutStore.isMarkingVisible" @click="layoutStore.changeMarkingTextExpansion()">
+                <v-icon icon="mdi-arrow-up-down"></v-icon>
+                <span>Text</span>
+              </v-btn>
+
 
               <!-- toggle right summary text  -->
               <v-btn size="x-small" v-show="layoutStore.isSummaryVisible || layoutStore.isRightCorrectorVisible" @click="layoutStore.changeRightSummaryTextExpansion()">
@@ -152,7 +159,10 @@
         <div class="col-content">
           <own-summary v-if="layoutStore.isSummaryVisible" :textExpansion="layoutStore.rightSummaryTextExpansion"/>
           <other-summary v-if= "layoutStore.isRightCorrectorVisible" :corrector_key="layoutStore.rightCorrectorKey" :textExpansion="layoutStore.rightSummaryTextExpansion" />
-          <marking v-show="layoutStore.isMarkingVisible " :textExpansion="layoutStore.markingPointsExpansion"/> <!-- v-show neeed to keep points displayed when switching right content) -->
+          <marking v-show="layoutStore.isMarkingVisible" 
+                   :pointsExpansion="layoutStore.markingPointsExpansion"
+                   :textExpansion="layoutStore.markingTextExpansion"
+          /> <!-- v-show neeed to keep points displayed when switching right content) -->
         </div>
       </div>
     </div>

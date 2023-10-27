@@ -24,6 +24,9 @@ import Editor from '@tinymce/tinymce-vue'
 import {useSummariesStore} from '@/store/summaries';
 const summariesStore = useSummariesStore();
 
+// editorId used for retrieving the editor instance using the tinymce.get('ID') method.
+const props = defineProps(['editorId']);
+
 function toolbar() {
   switch ('full') // corrector always has full formatting options
   {
@@ -66,14 +69,12 @@ function formats() {
   }
 }
 
-// Used for retrieving the editor instance using the tinymce.get('ID') method.
-const id = "summary";
 </script>
 
 <template>
   <div class="app-own-summary-text-wrapper" v-if="!summariesStore.isOwnAuthorized">
       <editor
-          :id="id"
+          :id="props.editorId"
           v-model="summariesStore.editSummary.text"
           @change="summariesStore.updateContent(true)"
           @keyup="summariesStore.updateContent(true)"

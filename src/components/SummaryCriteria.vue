@@ -64,8 +64,11 @@ function getPointsColor(comment) {
 
 async function filterByRating(rating_excellent, rating_cardinal) {
     commentsStore.setFilterByRating(props.corrector_key, rating_excellent, rating_cardinal);
-    if (props.corrector_key != apiStore.correctorKey) {
-        commentsStore.setShowOtherCorrectors(true);
+    if (props.corrector_key == apiStore.correctorKey) {
+      layoutStore.syncMarkingTextExpansion();
+    }
+    else {
+      commentsStore.setShowOtherCorrectors(true);
     }
     await nextTick();
     layoutStore.showEssay();
@@ -74,8 +77,11 @@ async function filterByRating(rating_excellent, rating_cardinal) {
 
 async function filterByPointsInComment() {
     commentsStore.setFilterByPoints(props.corrector_key);
-    if (props.corrector_key != apiStore.correctorKey) {
-        commentsStore.setShowOtherCorrectors(true);
+    if (props.corrector_key == apiStore.correctorKey) {
+      layoutStore.syncMarkingTextExpansion();
+    }
+    else {
+      commentsStore.setShowOtherCorrectors(true);
     }
     await nextTick();
     layoutStore.showEssay();
@@ -84,8 +90,11 @@ async function filterByPointsInComment() {
 
 async function filterByCriterion(criterion_key) {
     commentsStore.setFilterByCriterion(props.corrector_key, criterion_key);
-    if (props.corrector_key != apiStore.correctorKey) {
-        commentsStore.setShowOtherCorrectors(true);
+    if (props.corrector_key == apiStore.correctorKey) {
+      layoutStore.syncMarkingTextExpansion();
+    }
+    else {
+      commentsStore.setShowOtherCorrectors(true);
     }
     await nextTick();
     layoutStore.showEssay();
