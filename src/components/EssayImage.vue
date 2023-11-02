@@ -2,9 +2,15 @@
   import {useCommentsStore} from "@/store/comments";
   import { useSummariesStore } from '@/store/summaries';
   import { usePagesStore } from '@/store/pages';
+
+  // temporary dependencies for development
+  // import createImageMarker from '@/dev/long-essay-image-marker/ImageMarker';
+  // import createMark, { SHAPES } from '@/devlong-essay-image-marker/Mark';
   
+  // normal dependencies as node modules
   import createImageMarker from 'long-essay-image-marker/ImageMarker';
   import createMark, { SHAPES } from 'long-essay-image-marker/Mark';
+  
   import Comment from "@/data/Comment";
   import Mark from '@/data/Mark';
   import { onMounted, nextTick, watch, ref, reactive } from 'vue';
