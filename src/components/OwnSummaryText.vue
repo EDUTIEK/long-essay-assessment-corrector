@@ -72,6 +72,7 @@ function formats() {
 </script>
 
 <template>
+  <div class="headline">Abschlussvotum</div>
   <div class="app-own-summary-text-wrapper" v-if="!summariesStore.isOwnAuthorized">
       <editor
           :id="props.editorId"
@@ -103,12 +104,18 @@ function formats() {
 
 <style scoped>
 
+.headline {
+  font-weight: bold;
+  height: 40px;
+  padding-top: 10px;
+}
+
 .app-own-summary-text-wrapper {
-  height: 100%;
+  height: calc(100% - 40px);
 }
 
 .app-summary-text-wrapper {
-  height:100%;
+  height: calc(100% - 40px);
   border: 1px solid #cccccc;
   padding: 10px;
   overflow-y: scroll;

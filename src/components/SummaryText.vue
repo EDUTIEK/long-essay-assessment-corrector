@@ -17,6 +17,7 @@ function text() {
 
 
 <template>
+  <div class="headline">Abschlussvotum</div>
   <div class="app-summary-text-wrapper">
     <div class="app-summary-text-display" v-html="text()">
     </div>
@@ -25,8 +26,14 @@ function text() {
 
 <style scoped>
 
+.headline {
+  font-weight: bold;
+  height: 40px;
+  padding-top: 10px;
+}
+
 .app-summary-text-wrapper {
-    height:100%;
+    height: calc(100% - 40px);
     border: 1px solid #cccccc;
     padding: 10px;
     overflow-y: scroll;
