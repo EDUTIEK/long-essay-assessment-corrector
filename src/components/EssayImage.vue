@@ -24,6 +24,7 @@
   const zoomLevel = ref(1);
   const pageMenuOpen = ref(false);
   const pageMenuInput = ref(0);
+  const showLabels = ref(true);
   
   
   let marker;
@@ -44,8 +45,6 @@
    * @param {Mark} created
    */
   async function onCreation(created) {
-      console.log(Date.now() + ' onSelection');
-    
       if (!!created && !summariesStore.isOwnAuthorized) {
         
           const mark = new Mark(created);
@@ -76,16 +75,13 @@
    * Callback for selection
    * @param {Mark} selected
    */
-  function onSelection(selected) {
-      console.log(Date.now() + ' onSelection');
-      
+  function onSelection(selected) {     
       if (!!selected && !summariesStore.isOwnAuthorized) {
           selectedKey = selected.key;
         
           let comment = commentsStore.getCommentByMarkKey(selected.key);
           if (comment) {
             commentsStore.selectComment(comment.key);
-              console.log(selected);
               const oldData = comment.getData();
               if (selected.symbol == '') {
                 selected.symbol = null;
@@ -160,7 +156,7 @@
         for (const mark of comment.marks) {
           const mark_data = {
             ...mark.getData(),
-            label: comment.label,
+            label: showLabels.value ? comment.label : '',
             // label: comment.key == commentsStore.selectedKey ? comment.label : '',
             color: getColor(comment, mark.shape),
             selectedColor: getSelectedColor(comment, mark.shape),
@@ -325,6 +321,15 @@
     }
   }
 
+  function toggleLabels() {
+    if (showLabels.value == 1) {
+      showLabels.value = 0;
+    }
+    else {
+      showLabels.value = 1;
+    }
+    refreshMarks();
+  }
 
 </script>
 
@@ -350,6 +355,12 @@
             <v-btn size="small" icon="mdi-rectangle-outline" value="rectangle"></v-btn>
             <v-btn size="small" icon="mdi-vector-triangle" value="polygon"></v-btn>
           </v-btn-toggle>
+
+          &nbsp;
+          
+          <v-btn-group density="comfortable" variant="outlined" divided>
+            <v-btn size="small" :active="showLabels" icon="mdi-label-outline" @click="toggleLabels()"></v-btn>
+          </v-btn-group>
 
           &nbsp;
 
