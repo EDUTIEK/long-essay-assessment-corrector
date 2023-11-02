@@ -148,13 +148,26 @@ class Comment {
     
     /**
      * Add a new mark by its data
-     * @param mark_data
+     * @param {object} mark_data
      */
     addMarkData(mark_data) {
         this.marks.push(new Mark(mark_data));
         this.calculateStartPositon();
     }
 
+    /**
+     * Set the marks to a new mark
+     * @param {object} mark_data
+     */
+    updateMarkData(mark_data) {
+        for (const mark of this.marks) {
+            if (mark.key == mark_data.key) {
+                mark.setData(mark_data);
+            }
+        }
+        this.calculateStartPositon();
+    }
+    
     /**
      * Get the icon of the mark
      * @return string|null

@@ -73,7 +73,14 @@ class Mark {
      * @param {object} data
      */
     constructor(data = {}) {
+        this.setData(data);
+    }
 
+    /**
+     * Set the data from a plain object
+     * @param {object} data
+     */
+    setData(data) {
         if (data.key !== undefined && data.key !== null) {
             this.key = data.key;
         }

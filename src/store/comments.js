@@ -274,8 +274,9 @@ export const useCommentsStore = defineStore('comments',{
          */
         async selectComment(key) {
             if (this.selectedKey != key) {
-                await this.removeEmptyComments(key);
-                await this.sortAndLabelComments();
+                //28.7.2023: empty comments should be kept
+                //await this.removeEmptyComments(key);
+                //await this.sortAndLabelComments();
                 this.selectedKey = key;
             }
         },
@@ -340,7 +341,7 @@ export const useCommentsStore = defineStore('comments',{
          * @param {Comment} comment
          * @public
          */
-        async updateComment(comment) {
+        async updateComment(comment, sort = false) {
             const changesStore = useChangesStore();
 
             if (this.keys.includes(comment.key)) {
@@ -351,6 +352,11 @@ export const useCommentsStore = defineStore('comments',{
                     key: comment.key,
                     item_key: comment.item_key
                 }))
+                
+                if (sort) {
+                    await this.sortAndLabelComments();
+                    this.setMarkerChange();
+                }
             }
         },
 

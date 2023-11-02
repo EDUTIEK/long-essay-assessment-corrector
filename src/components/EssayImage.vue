@@ -22,6 +22,7 @@
   
   let marker;
   let currentKeys = [];
+  let selectedKey = null;
 
 
   onMounted(() => {
@@ -37,6 +38,8 @@
    * @param {Mark} created
    */
   async function onCreation(created) {
+      console.log(Date.now() + ' onSelection');
+    
       if (!!created && !summariesStore.isOwnAuthorized) {
         
           const mark = new Mark(created);
@@ -68,10 +71,24 @@
    * @param {Mark} selected
    */
   function onSelection(selected) {
-      if (selected) {
+      console.log(Date.now() + ' onSelection');
+      
+      if (!!selected && !summariesStore.isOwnAuthorized) {
+          selectedKey = selected.key;
+        
           let comment = commentsStore.getCommentByMarkKey(selected.key);
           if (comment) {
-              commentsStore.selectComment(comment.key);
+            commentsStore.selectComment(comment.key);
+              console.log(selected);
+              const oldData = comment.getData();
+              if (selected.symbol == '') {
+                selected.symbol = null;
+              }
+              comment.updateMarkData(selected);
+              const newData = comment.getData();
+              if (JSON.stringify(oldData) != JSON.stringify(newData)) {
+                commentsStore.updateComment(comment, true);
+              }
               return;
           }
       }
@@ -149,7 +166,10 @@
           }
           newKeys.push(mark.key);
           if (comment.key == commentsStore.selectedKey) {
-            marker.selectMark(mark.key);
+            if (mark.key != selectedKey) {
+              marker.selectMark(mark.key);
+              selectedKey = mark.key;
+            }
           }
         }
       }
