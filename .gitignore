@@ -4,6 +4,9 @@ node_modules
 # /dist
 # edu.
 
+# Temporary developments dependencies
+# e.g. git clones of node modules to allow a direct edit and commit
+/src/dev
 
 # local env files
 .env.local
