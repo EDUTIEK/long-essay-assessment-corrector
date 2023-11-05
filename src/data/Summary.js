@@ -209,7 +209,7 @@ class Summary {
       comma = ', ';
     }
     if (this.include_writer_notes != Summary.INCLUDE_NOT) {
-      text = text + comma + 'Abgabe-Notizen';
+      text = text + comma + 'Notizen';
       comma = ', ';
     }
     

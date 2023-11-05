@@ -5,6 +5,7 @@ import { useTaskStore } from '@/store/task';
 import { useItemsStore } from '@/store/items';
 import { useSettingsStore } from '@/store/settings';
 import { useSummariesStore } from '@/store/summaries';
+import OwnSummaryIncludes from '@/components/OwnSummaryIncludes.vue';
 import { ref } from 'vue';
 
 const apiStore = useApiStore();
@@ -15,6 +16,7 @@ const summariesStore = useSummariesStore();
 
 
 const showAuthorization = ref(false);
+const showIncludes = ref(false);
 
 async function setAuthorizedAndContinue() {
   
@@ -55,14 +57,24 @@ async function setAuthorizedAndClose() {
         <span>Autorisieren...</span>
       </v-btn>
 
-      <v-dialog persistent v-model="showAuthorization">
+      <v-dialog max-width="50%" persistent v-model="showAuthorization">
         <v-card>
+          <v-card-title>Korrektur von {{itemsStore.currentItem.title}} autorisieren</v-card-title>
           <v-card-text>
             
             <label for="appOwnSummaryPoints"><strong>Eigene Wertung:</strong></label>
             <input class="appPoints" type="number" min="0" :max="settingsStore.max_points" v-model="summariesStore.editSummary.points" />Punkte
             &nbsp;
             <strong>Notenstufe:</strong> {{ summariesStore.currentGradeTitle }}
+
+
+            <p>
+              <strong>Einbeziehen:</strong> {{summariesStore.editSummary.getIncludesText()}}
+              <v-btn variant="text" :disabled="summariesStore.isOwnAuthorized" @click="showIncludes=true;">
+                <v-icon left icon="mdi-pencil"></v-icon>
+              </v-btn>
+            </p>
+
 
             <p><strong>Eigener Text:</strong></p>
             <div class="appText" v-html="summariesStore.editSummary.text">
@@ -90,6 +102,22 @@ async function setAuthorizedAndClose() {
             <v-btn @click="showAuthorization=false">
               <v-icon left icon="mdi-close"></v-icon>
               <span>Abbrechen</span>
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+      <v-dialog max-width="50em" persistent v-model="showIncludes">
+        <v-card>
+          <v-card-title>In die Dokumentation der Korrektur einbeziehen</v-card-title>
+          <v-card-text>
+            <own-summary-includes></own-summary-includes>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn @click="showIncludes=false;">
+              <v-icon left icon="mdi-close"></v-icon>
+              <span>Fertig</span>
             </v-btn>
           </v-card-actions>
         </v-card>
