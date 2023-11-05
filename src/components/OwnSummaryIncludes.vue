@@ -1,16 +1,17 @@
 <script setup>
 
 import {useSummariesStore} from '@/store/summaries';
+import {useCriteriaStore} from '@/store/criteria';
 import Summary from '@/data/Summary';
 import { ref } from 'vue';
 
 const summariesStore = useSummariesStore();
-
+const criteriaStore = useCriteriaStore();
 
 const items = ref([
   {title: 'Nicht einbeziehen', value: Summary.INCLUDE_NOT},
   {title: 'informativ', value: Summary.INCLUDE_INFO},
-  {title: 'bewertungsrelevant', valie: Summary.INCLUDE_RELEVANT}
+  {title: 'bewertungsrelevant', value: Summary.INCLUDE_RELEVANT}
 ]);
 
 
@@ -27,7 +28,7 @@ const items = ref([
             <v-select class="select" variant="outlined" density="compact" v-model="summariesStore.editSummary.include_comments" :items = "items"></v-select>
           </v-col>
         </v-row>
-        <v-row>
+        <v-row v-show="summariesStore.editSummary.include_comments > Summary.INCLUDE_NOT">
           <v-col>
             Kardinal und Exzellent
           </v-col>
@@ -35,7 +36,7 @@ const items = ref([
             <v-select class="select" variant="outlined" density="compact" v-model="summariesStore.editSummary.include_comment_ratings" :items = "items"></v-select>
           </v-col>
         </v-row>
-        <v-row>
+        <v-row v-show="summariesStore.editSummary.include_comments > Summary.INCLUDE_NOT">
           <v-col>
             Teilpunkte
           </v-col>
@@ -43,7 +44,7 @@ const items = ref([
             <v-select class="select" variant="outlined" density="compact" v-model="summariesStore.editSummary.include_comment_points" :items = "items"></v-select>
           </v-col>
         </v-row>
-        <v-row>
+        <v-row v-show="criteriaStore.hasOwnCriteria">
           <v-col>
             Bewertungsschema
           </v-col>
