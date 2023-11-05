@@ -172,6 +172,53 @@ class Summary {
       include_writer_notes: this.include_writer_notes
     }
   }
+
+  /**
+   * Get if the correction should include certain information
+   * @return {boolean}
+   */
+  hasIncludes() {
+    return this.include_comments > Summary.INCLUDE_NOT
+    || this.include_comment_ratings > Summary.INCLUDE_NOT
+    || this.include_comment_points > Summary.INCLUDE_NOT
+    || this.include_criteria_points > Summary.INCLUDE_NOT
+    || this.include_writer_notes > Summary.INCLUDE_NOT
+  }
+  
+  /**
+   * Get the text to show the included parts
+   */
+  getIncludesText() {
+    let comma = '';
+    let text = '';
+    
+    if (this.include_comments != Summary.INCLUDE_NOT) {
+      text = text + comma + 'Kommentare';
+      comma = ', ';
+    }
+    if (this.include_comment_ratings != Summary.INCLUDE_NOT) {
+      text = text + comma + 'Kardinal und Exzellent';
+      comma = ', ';
+    }
+    if (this.include_comment_points != Summary.INCLUDE_NOT) {
+      text = text + comma + 'Teilpunkte';
+      comma = ', ';
+    }
+    if (this.include_criteria_points != Summary.INCLUDE_NOT) {
+      text = text + comma + 'Bewertungsschema';
+      comma = ', ';
+    }
+    if (this.include_writer_notes != Summary.INCLUDE_NOT) {
+      text = text + comma + 'Abgabe-Notizen';
+      comma = ', ';
+    }
+    
+    if (text == '') {
+      text = 'keine Detail-Informationen'
+    }
+    
+    return text;
+  }
   
   /**
    * @return {string}
