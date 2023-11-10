@@ -1,6 +1,7 @@
 import {defineStore} from 'pinia';
 import localForage, { setItem } from "localforage";
 import {useCorrectorsStore} from '@/store/correctors';
+import { useApiStore } from '@/store/api';
 
 const storage = localForage.createInstance({
     storeName: "corrector-layout",
@@ -273,23 +274,23 @@ export const useLayoutStore = defineStore('layout', {
           }
         },
 
-
-        setLeftCorrector(corrector_key) {
-            this.leftCorrectorKey = corrector_key;
-            this.saveToStorage();
-        },
-
-        setRightCorrector(corrector_key) {
-            this.leftCorrectorKey = corrector_key;
-            this.saveToStorage();
-        },
-
-
+        
         selectCorrector(corrector_key) {
+            const apiStore = useApiStore();
+            const correctorsStore = useCorrectorsStore();
+            
             if (this.leftCorrectorKey == corrector_key) {
                 this.showLeftCorrector();
             }
             else if (this.rightCorrectorKey == corrector_key) {
+                this.showRightCorrector();
+            }
+            else if (!apiStore.isForReviewOrStitch) {
+                this.leftCorrectorKey = corrector_key;
+                this.showLeftCorrector();
+            }
+            else if (correctorsStore.countCorrectors == 1) {
+                this.rightCorrectorKey = corrector_key;
                 this.showRightCorrector();
             }
             else if (this.leftCorrectorKey == '') {

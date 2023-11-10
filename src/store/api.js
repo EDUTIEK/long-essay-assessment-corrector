@@ -299,18 +299,21 @@ export const useApiStore = defineStore('api', {
 
             if (this.isForReviewOrStitch) {
                 commentsStore.setShowOtherCorrectors(true);
-                let i = 0;
-                for (const corrector of correctorsStore.correctors) {
-                    layoutStore.selectCorrector(corrector.corrector_key);
-                    i++;
-                    if (i == 2) {
-                        break;
-                    }
-                }
             }
             else {
                 setInterval(this.saveChangesToBackend, sendInterval);
             }
+
+           if (this.isStitchDecision) {
+               let i = 0;
+               for (const corrector of correctorsStore.correctors) {
+                   layoutStore.selectCorrector(corrector.corrector_key);
+                   i++;
+                   if (i == 2) {
+                       break;
+                   }
+               }
+           }
 
             this.initialized = true;
         },
@@ -497,8 +500,7 @@ export const useApiStore = defineStore('api', {
 
             this.itemKey = itemKey;
             localStorage.setItem('itemKey', this.itemKey);
-
-            setInterval(this.saveChangesToBackend, sendInterval);
+            
             return true;
         },
 

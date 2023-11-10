@@ -25,6 +25,8 @@ export const useCorrectorsStore = defineStore('correctors',{
      */
     getters: {
 
+        countCorrectors: state => state.correctors.length,
+        
         /**
          * Get alist of corrector objects for other Correctors
          * @param state
