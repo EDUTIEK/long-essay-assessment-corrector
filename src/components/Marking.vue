@@ -3,11 +3,15 @@ import MarkingComments from "@/components/MarkingComments.vue";
 import MarkingPoints from "@/components/MarkingPoints.vue";
 import OwnSummaryText from "@/components/OwnSummaryText.vue";
 
+import { useApiStore } from '@/store/api';
 import { useLayoutStore } from "@/store/layout";
 import { useCriteriaStore } from '@/store/criteria';
+import { useSummariesStore } from '@/store/summaries';
 
+const apiStore = useApiStore();
 const layoutStore = useLayoutStore();
 const criteriaStore = useCriteriaStore();
+const summariesStore = useSummariesStore();
 
 const props = defineProps(['pointsExpansion', 'textExpansion']);
 
@@ -23,13 +27,16 @@ function expansionClass(expansion) {
 
 <template>
     <div id="app-marking-wrapper">
-        <marking-comments id="app-marking-comments"></marking-comments>
-        <div v-show="criteriaStore.hasOwnCriteria && layoutStore.isMarkingPointsExpanded" :class="expansionClass(props.pointsExpansion)">
+        <marking-comments  v-if="!apiStore.isForReviewOrStitch || summariesStore.isOneAuthorized" id="app-marking-comments"></marking-comments>
+        <div  v-if="!apiStore.isForReviewOrStitch || summariesStore.isOneAuthorized" v-show="criteriaStore.hasOwnCriteria && layoutStore.isMarkingPointsExpanded" :class="expansionClass(props.pointsExpansion)">
           <marking-points id="app-marking-points"></marking-points>
         </div>
-        <div v-if="layoutStore.isMarkingTextExpanded" :class="expansionClass(props.textExpansion)">
+        <div  v-if="!apiStore.isForReviewOrStitch && layoutStore.isMarkingTextExpanded" :class="expansionClass(props.textExpansion)">
           <own-summary-text :editorId="'marking'"></own-summary-text>
-        </div><!-- v-if neeed to avoid simulaneous data binding with summary text  -->
+        </div><!-- v-if neeed to avoid simultaneous data binding with summary text  -->
+        <div v-if="apiStore.isForReviewOrStitch && !summariesStore.isOneAuthorized">
+        Für diese Abgabe ist noch keine Korrektur autorisiert.
+      </div>
     </div>
 </template>
 
@@ -37,7 +44,7 @@ function expansionClass(expansion) {
 
 #app-marking-wrapper {
     height: 100%;
-    display: flex;
+  display: flex;
     flex-direction: column;
 }
 
