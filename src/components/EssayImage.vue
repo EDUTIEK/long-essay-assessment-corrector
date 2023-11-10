@@ -85,9 +85,9 @@
           if (comment) {
             commentsStore.selectComment(comment.key);
               const oldData = comment.getData();
-              if (comment.corrector_key == apiStore.corrector_key && !summariesStore.isOwnDisabled) {
+              if (comment.corrector_key == apiStore.correctorKey && !summariesStore.isOwnDisabled) {
                 // comment can be updated
-                selected.symbol = selected.symbol == '' ? null : selected.symbol == '';
+                selected.symbol = selected.symbol == '' ? null : selected.symbol;
                 comment.updateMarkData(selected);
                 const newData = comment.getData();
                 if (JSON.stringify(oldData) != JSON.stringify(newData)) {
