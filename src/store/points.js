@@ -347,6 +347,7 @@ export const usePointsStore = defineStore('points',{
          * @return {array} Change objects
          */
         async getChangedData(sendingTime = 0) {
+            const apiStore = useApiStore();
             const changesStore = useChangesStore();
             const changes = [];
             for (const change of changesStore.getChangesFor(Change.TYPE_POINTS, sendingTime)) {
@@ -354,6 +355,7 @@ export const usePointsStore = defineStore('points',{
                     const data = await storage.getItem(change.key);
                     if (data) {
                         change.payload = JSON.parse(data);
+                        change.server_time = apiStore.getServerTime(change.last_change);
                     }
                 }
                 changes.push(change);
