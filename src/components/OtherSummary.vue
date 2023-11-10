@@ -2,8 +2,10 @@
 import SummaryCriteria from '@/components/SummaryCriteria.vue';
 import SummaryPoints from "@/components/SummaryPoints.vue";
 import SummaryText from "@/components/SummaryText.vue";
+import { useSummariesStore } from '@/store/summaries';
 
 const props = defineProps(['corrector_key', 'textExpansion']);
+const summariesStore = useSummariesStore();
 
 function textExpansionClass() {
   switch (props.textExpansion) {
@@ -16,11 +18,14 @@ function textExpansionClass() {
 
 <template>
     <div id="app-other-summary-wrapper">
-        <summary-criteria id="app-other-summary-criteria" :corrector_key="props.corrector_key"></summary-criteria>
-      <div :class="textExpansionClass()">  
+        <summary-criteria v-if="summariesStore.getAuthorizationForCorrector(props.corrector_key)" id="app-other-summary-criteria" :corrector_key="props.corrector_key"></summary-criteria>
+      <div v-if="summariesStore.getAuthorizationForCorrector(props.corrector_key)" :class="textExpansionClass()">  
         <summary-text :corrector_key="props.corrector_key"></summary-text>
       </div>  
-      <summary-points id="app-summary-points" :corrector_key="props.corrector_key"></summary-points>
+      <summary-points v-if="summariesStore.getAuthorizationForCorrector(props.corrector_key)" id="app-summary-points" :corrector_key="props.corrector_key"></summary-points>
+      <div v-if="!summariesStore.getAuthorizationForCorrector(props.corrector_key)">
+        Diese Korrektur ist noch nicht autorisiert.
+      </div>
     </div>
 </template>
 

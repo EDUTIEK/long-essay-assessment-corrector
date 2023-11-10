@@ -60,6 +60,16 @@ export const useSummariesStore = defineStore('summaries',{
          * @returns {bool}
          */
         isOwnAuthorized: state => state.editSummary.is_authorized,
+
+        isOneAuthorized: state => {
+            for (const key in state.summaries) {
+                const summary = state.summaries[key];
+                if (summary.is_authorized) {
+                    return true;
+                }
+            }
+            return false;
+        },
         
         areOthersAuthorized: state => {
             for (const key in state.summaries) {
@@ -86,6 +96,25 @@ export const useSummariesStore = defineStore('summaries',{
             return 'ohne Notenstufe';
         },
 
+        getAuthorizationForCorrector: state => {
+            /**
+             * Get a summary of a specific corrector for the current item
+             * @param {string} corrector_key
+             * @returns {bool}
+             */
+            const fn = function(corrector_key) {
+                for (const key in state.summaries) {
+                    const summary = state.summaries[key];
+                    if (summary.corrector_key == corrector_key) {
+                        return summary.is_authorized;
+                    }
+                }
+                return false;
+            }
+            return fn;
+        },
+        
+        
         getForCorrector: state => {
 
             /**
