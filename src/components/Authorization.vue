@@ -22,10 +22,10 @@ async function setAuthorizedAndContinue() {
   
     await summariesStore.setOwnAuthorized();
     if (await apiStore.saveChangesToBackend(true)) {
+      showAuthorization.value = false;
       let newKey = itemsStore.getNextKey(apiStore.itemKey);
       if (newKey != '') {
         apiStore.loadItemFromBackend(newKey);
-        showAuthorization.value = false;
       }
     }
     else {
@@ -38,6 +38,7 @@ async function setAuthorizedAndClose() {
 
   await summariesStore.setOwnAuthorized();
   if (await apiStore.saveChangesToBackend(true)) {
+    showAuthorization.value = false;
     window.location = apiStore.returnUrl;
   } 
   else {

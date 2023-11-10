@@ -4,6 +4,7 @@ import {useApiStore} from "@/store/api";
 import {useCorrectorsStore} from "@/store/correctors";
 import {usePointsStore} from "@/store/points";
 import {useChangesStore} from "@/store/changes";
+import { useSummariesStore } from '@/store/summaries';
 import Comment from '@/data/Comment';
 import Change from "@/data/Change";
 
@@ -342,9 +343,14 @@ export const useCommentsStore = defineStore('comments',{
          * @public
          */
         async updateComment(comment, sort = false) {
+            const apiStore = useApiStore();
+            const summariesStore = useSummariesStore();
             const changesStore = useChangesStore();
 
-            if (this.keys.includes(comment.key)) {
+            if (this.keys.includes(comment.key
+                && comment.corrector_key == apiStore.correctorKey
+                && !summariesStore.isOwnAuthorized
+            )) {
                 await storage.setItem(comment.key, JSON.stringify(comment.getData()));
                 await changesStore.setChange(new Change({
                     type: Change.TYPE_COMMENT,

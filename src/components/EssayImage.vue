@@ -1,5 +1,6 @@
 <script setup>
-  import {useCommentsStore} from "@/store/comments";
+  import { useApiStore } from '@/store/api';
+  import { useCommentsStore } from "@/store/comments";
   import { useSummariesStore } from '@/store/summaries';
   import { usePagesStore } from '@/store/pages';
 
@@ -15,12 +16,13 @@
   import Mark from '@/data/Mark';
   import { onMounted, nextTick, watch, ref, reactive } from 'vue';
 
+  const apiStore = useApiStore();
   const commentsStore = useCommentsStore();
   const summariesStore = useSummariesStore();
   const pagesStore = usePagesStore();
   
   const markerNode = ref();
-  const selectedTool = ref('rectangle');
+  const selectedTool = ref('scroll');
   const zoomLevel = ref(1);
   const pageMenuOpen = ref(false);
   const pageMenuInput = ref(0);
@@ -76,25 +78,41 @@
    * @param {Mark} selected
    */
   function onSelection(selected) {     
-      if (!!selected && !summariesStore.isOwnAuthorized) {
+      if (!!selected) {
           selectedKey = selected.key;
         
           let comment = commentsStore.getCommentByMarkKey(selected.key);
           if (comment) {
             commentsStore.selectComment(comment.key);
               const oldData = comment.getData();
-              if (selected.symbol == '') {
-                selected.symbol = null;
+              if (comment.corrector_key == apiStore.corrector_key && !summariesStore.isOwnAuthorized) {
+                // comment can be updated
+                selected.symbol = selected.symbol == '' ? null : selected.symbol == '';
+                comment.updateMarkData(selected);
+                const newData = comment.getData();
+                if (JSON.stringify(oldData) != JSON.stringify(newData)) {
+                  commentsStore.updateComment(comment, true);
+                }
+                return;
               }
-              comment.updateMarkData(selected);
-              const newData = comment.getData();
-              if (JSON.stringify(oldData) != JSON.stringify(newData)) {
-                commentsStore.updateComment(comment, true);
+              else {
+                // comment can't be updated, revert a mark change
+                const mark = comment.getMarkByKey(selected.key);
+                if (mark) {
+                  const mark_data = {
+                    ...mark.getData(),
+                    label: showLabels.value ? comment.label : '',
+                    color: comment.getMarkColor(mark),
+                    selectedColor: comment.getMarkSelectedColor(mark),
+                  }
+                  marker.updateMark(mark_data);
+                }
               }
-              return;
           }
       }
-      commentsStore.selectComment('');
+      else {
+        commentsStore.selectComment('');
+      }
   }
   
   
@@ -157,9 +175,8 @@
           const mark_data = {
             ...mark.getData(),
             label: showLabels.value ? comment.label : '',
-            // label: comment.key == commentsStore.selectedKey ? comment.label : '',
-            color: getColor(comment, mark.shape),
-            selectedColor: getSelectedColor(comment, mark.shape),
+            color: comment.getMarkColor(mark),
+            selectedColor: comment.getMarkSelectedColor(mark),
           }
           if (currentKeys.includes(mark.key)) {
             marker.updateMark(mark_data);
@@ -200,54 +217,7 @@
   }
   watch(() => pagesStore.selectedKey, scrollComments);
   
-
-  /**
-   * Get the background color for the text field of a comment
-   * @param comment
-   * @return {string}
-   */
-  function getColor(comment, shape) {
-
-    const filled = (shape == Mark.SHAPE_CIRCLE || shape == Mark.SHAPE_POLYGON || shape == Mark.SHAPE_RECTANGLE);
-
-    let color = '';
-    if (comment.prefix == 'own') {
-      if (comment.rating_excellent) {
-        return filled ?  '#E3EFDDAA' : '#19e62e';
-      } else if (comment.rating_cardinal) {
-        return filled ? '#FBDED1AA' : '#bc4710';
-      } else {
-        return filled ? '#D8E5F4AA' : '#3365ff';
-      }
-    } else {
-      if (comment.rating_excellent) {
-        return filled ? '#F7F9F7AA' : '#19e62e';
-      } else if (comment.rating_cardinal) {
-        return filled ? '#FCF6F4AA' : '#bc4710';
-      } else {
-        return filled ? '#F5F7FBAA' : '#3365ff';
-      }
-    }
-  }
-
-  /**
-   * Get the background color for the text field of a comment
-   * @param comment
-   * @return {string}
-   */
-  function getSelectedColor(comment, shape) {
-    
-    const filled = (shape == Mark.SHAPE_CIRCLE || shape == Mark.SHAPE_POLYGON || shape == Mark.SHAPE_RECTANGLE);
-    
-    if (comment.rating_excellent) {
-      return filled ? '#BBEBA5AA' : '#19e62e';
-    } else if (comment.rating_cardinal) {
-      return filled ? '#FCB494AA' : '#bc4710';
-    } else {
-      return filled ? '#94C3FCAA' : '#3365ff';
-    }
-  }
-
+  
   function prevPage() {
     if (pagesStore.selectedPageNo > pagesStore.minPage) {
       showPage(pagesStore.selectedPageNo - 1);
@@ -286,6 +256,11 @@
   }
 
   function selectTool() {
+    
+    if (summariesStore.isOwnAuthorized) {
+      selectedTool.value = 'scroll';  
+    }
+    
     switch (selectedTool.value) {
       case 'scroll':
         marker.scrollMode();
@@ -347,13 +322,13 @@
 
           <v-btn-toggle density="comfortable" variant="outlined" divided v-model="selectedTool" @click="selectTool()">
             <v-btn size="small" icon="mdi-cursor-move" value="scroll"></v-btn>
-            <v-btn size="small" icon="mdi-minus" value="line"></v-btn>
-            <v-btn size="small" icon="mdi-wave" value="wave"></v-btn>
-            <v-btn size="small" icon="mdi-check" value="check"></v-btn>
-            <v-btn size="small" icon="mdi-close" value="cross"></v-btn>
-            <v-btn size="small" icon="mdi-help" value="question"></v-btn>
-            <v-btn size="small" icon="mdi-rectangle-outline" value="rectangle"></v-btn>
-            <v-btn size="small" icon="mdi-vector-triangle" value="polygon"></v-btn>
+            <v-btn :disabled="summariesStore.isOwnAuthorized" size="small" icon="mdi-minus" value="line"></v-btn>
+            <v-btn :disabled="summariesStore.isOwnAuthorized" size="small" icon="mdi-wave" value="wave"></v-btn>
+            <v-btn :disabled="summariesStore.isOwnAuthorized" size="small" icon="mdi-check" value="check"></v-btn>
+            <v-btn :disabled="summariesStore.isOwnAuthorized" size="small" icon="mdi-close" value="cross"></v-btn>
+            <v-btn :disabled="summariesStore.isOwnAuthorized" size="small" icon="mdi-help" value="question"></v-btn>
+            <v-btn :disabled="summariesStore.isOwnAuthorized" size="small" icon="mdi-rectangle-outline" value="rectangle"></v-btn>
+            <v-btn :disabled="summariesStore.isOwnAuthorized" size="small" icon="mdi-vector-triangle" value="polygon"></v-btn>
           </v-btn-toggle>
 
           &nbsp;

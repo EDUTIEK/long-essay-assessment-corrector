@@ -183,7 +183,7 @@
   w-p.labelled:before {
       content: attr(label); /* value that that refers to CSS 'content' */
       position: relative;
-      left: -7px;
+      left: -3px;
       top: -7px;
       padding: 3px;
       z-index: 10000;

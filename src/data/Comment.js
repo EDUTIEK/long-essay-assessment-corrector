@@ -178,6 +178,63 @@ class Comment {
         }
         return null;
     }
+
+    /**
+     * Get a mark by its key
+     * @param {string }key
+     * @return {Mark|null}
+     */
+    getMarkByKey(key) {
+        for (const mark of this.marks) {
+            if (mark.key == key) {
+                return mark;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get the color for a mark
+     * @param {Mark} mark
+     */
+    getMarkColor(mark) {
+        const filled = (mark.shape == Mark.SHAPE_CIRCLE || mark.shape == Mark.SHAPE_POLYGON || mark.shape == Mark.SHAPE_RECTANGLE);
+
+        let color = '';
+        if (this.prefix == 'own') {
+            if (this.rating_excellent) {
+                return filled ?  '#E3EFDDAA' : '#19e62e';
+            } else if (this.rating_cardinal) {
+                return filled ? '#FBDED1AA' : '#bc4710';
+            } else {
+                return filled ? '#D8E5F4AA' : '#3365ff';
+            }
+        } else {
+            if (this.rating_excellent) {
+                return filled ? '#F7F9F7AA' : '#19e62e';
+            } else if (this.rating_cardinal) {
+                return filled ? '#FCF6F4AA' : '#bc4710';
+            } else {
+                return filled ? '#F5F7FBAA' : '#3365ff';
+            }
+        }
+    }
+
+    /**
+     * Get the color for a mark
+     * @param {Mark} mark
+     */
+    getMarkSelectedColor(mark) {
+        const filled = (mark.shape == Mark.SHAPE_CIRCLE || mark.shape == Mark.SHAPE_POLYGON || mark.shape == Mark.SHAPE_RECTANGLE);
+        
+        if (this.rating_excellent) {
+            return filled ? '#BBEBA5AA' : '#19e62e';
+        } else if (this.rating_cardinal) {
+            return filled ? '#FCB494AA' : '#bc4710';
+        } else {
+            return filled ? '#94C3FCAA' : '#3365ff';
+        }
+    }
      
     /**
      * Calculate the start position as lowest y position of all marks
