@@ -370,6 +370,7 @@ export const useSummariesStore = defineStore('summaries',{
          * @return {array} Change objects
          */
         async getChangedData(sendingTime = 0) {
+            const apiStore = useApiStore();
             const changesStore = useChangesStore();
             const changes = [];
             for (const change of changesStore.getChangesFor(Change.TYPE_SUMMARY, sendingTime)) {
@@ -377,6 +378,7 @@ export const useSummariesStore = defineStore('summaries',{
                     const data = await storage.getItem(change.key);
                     if (data) {
                         change.payload = JSON.parse(data);
+                        change.server_time = apiStore.getServerTime(change.last_change);
                     }
                 }
                 changes.push(change);

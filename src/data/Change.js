@@ -42,13 +42,21 @@ class Change {
   item_key = '';
   
   /**
-   * Timestamp of the last change
+   * Timestamp of the last change (Microseconds)
    * @type {integer}
    */
   last_change = 0;
 
   /**
+   * Timestamp of the last change in server sime (seconds)
+   * This is instantly set when the change is sent to the backend
+   * @type {integer}
+   */
+  server_time = 0;
+  
+  /**
    * Data payload for sending the change to the backend (if created or updated)
+   * This will instantly be set when the change is sent to the backend
    * 
    * @type {object|null}
    */
@@ -86,9 +94,6 @@ class Change {
     if (data.last_change !== undefined && data.last_change !== null) {
       this.last_change = parseInt(data.last_change);
     }
-    if (data.payload !== undefined && data.last_change !== null) {
-      this.payload = data.payload;
-    }
   }
 
   
@@ -103,7 +108,6 @@ class Change {
       key: this.key,
       item_key: this.item_key,
       last_change: this.last_change,
-      payload: this.payload
     }
   }
 

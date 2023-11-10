@@ -339,6 +339,7 @@ export const useCommentsStore = defineStore('comments',{
 
         /**
          * Update a comment in the store
+         * @param {bool} trigger a dorting and labelling of the comments
          * @param {Comment} comment
          * @public
          */
@@ -645,6 +646,7 @@ export const useCommentsStore = defineStore('comments',{
          * @return {array} Change objects
          */
         async getChangedData(sendingTime = 0) {
+            const apiStore = useApiStore();
             const changesStore = useChangesStore();
             const changes = [];
             for (const change of changesStore.getChangesFor(Change.TYPE_COMMENT, sendingTime)) {
@@ -652,6 +654,7 @@ export const useCommentsStore = defineStore('comments',{
                     const data = await storage.getItem(change.key);
                     if (data) {
                         change.payload = JSON.parse(data);
+                        change.server_time = apiStore.getServerTime(change.last_change);
                     }
                 }
                 changes.push(change);
