@@ -87,7 +87,7 @@
               else {
                   // always create a new comment, even if it overlaps (VC 26.5.2023)
                   marker.removeSelection();
-                  if (!summariesStore.isOwnAuthorized) {
+                  if (!summariesStore.isOwnDisabled) {
                       commentsStore.createComment(selected.firstWord, selected.lastWord, selected.parentNumber);
                   }
 
@@ -103,7 +103,7 @@
          else {
               // no overlapping => create a new comment
               marker.removeSelection();
-              if (!summariesStore.isOwnAuthorized) {
+              if (!summariesStore.isOwnDisabled) {
                   commentsStore.createComment(selected.firstWord, selected.lastWord, selected.parentNumber);
               }
          }
@@ -187,7 +187,7 @@
       top: -7px;
       padding: 3px;
       z-index: 10000;
-      background-color: grey;
+      background-color: #aaaaaaaa;
       color: white;
       font-family: sans-serif;
     
@@ -196,6 +196,9 @@
       font-weight: normal;
   }
 
+  w-p.labelled.selected:before {
+    background-color: grey;
+  }
   /*
   w-p.other {
       background-color: #F5F7FB;

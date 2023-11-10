@@ -73,7 +73,7 @@ function formats() {
 
 <template>
   <div class="headline">Abschlussvotum</div>
-  <div class="app-own-summary-text-wrapper" v-if="!summariesStore.isOwnAuthorized">
+  <div class="app-own-summary-text-wrapper" v-if="!summariesStore.isOwnDisabled">
       <editor
           :id="props.editorId"
           v-model="summariesStore.editSummary.text"
@@ -96,7 +96,7 @@ function formats() {
       />
   </div>
 
-  <div class="app-summary-text-wrapper" v-if="summariesStore.isOwnAuthorized">
+  <div class="app-summary-text-wrapper" v-if="summariesStore.isOwnDisabled">
     <div class="app-summary-text-display" v-html="summariesStore.editSummary.text">
     </div>
   </div>

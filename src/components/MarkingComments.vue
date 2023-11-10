@@ -132,7 +132,7 @@ async function selectComment(comment) {
 
         <v-col class="col">
           <v-btn density="compact" size="small" variant="text" prepend-icon="mdi-delete-outline"
-                 v-show="comment.corrector_key == apiStore.correctorKey && !summariesStore.isOwnAuthorized"
+                 v-show="comment.corrector_key == apiStore.correctorKey && !summariesStore.isOwnDisabled"
                  @click="commentsStore.deleteComment(comment.key)"></v-btn>
         </v-col>
 
@@ -153,7 +153,7 @@ async function selectComment(comment) {
                  :style="'color: ' + getPointsColor(comment) + ';'"
                  :id="'pointsInput' + comment.key"
                  :max="settingsStore.max_points"
-                 :disabled="summariesStore.isOwnAuthorized || comment.corrector_key != apiStore.correctorKey"
+                 :disabled="summariesStore.isOwnDisabled || comment.corrector_key != apiStore.correctorKey"
                  @change="commentsStore.updateComment(comment)"
                  v-model="comment.points"/>
             
@@ -171,7 +171,7 @@ async function selectComment(comment) {
                              class="ratingInput"
                              v-model="comment.rating_excellent"
                              :id="'ratingExcellent' + comment.key"
-                             :disabled="summariesStore.isOwnAuthorized || comment.corrector_key != apiStore.correctorKey"
+                             :disabled="summariesStore.isOwnDisabled || comment.corrector_key != apiStore.correctorKey"
                              @change="toggleExcellent(comment)"/>
 
             <label :for="'ratingExcellent' + comment.key"
@@ -188,7 +188,7 @@ async function selectComment(comment) {
                    class="ratingInput"
                    v-model="comment.rating_cardinal"
                    :id="'ratingCardinal' + comment.key"
-                   :disabled="summariesStore.isOwnAuthorized || comment.corrector_key != apiStore.correctorKey"
+                   :disabled="summariesStore.isOwnDisabled || comment.corrector_key != apiStore.correctorKey"
                    @change="toggleCardinal(comment)"/>
             <label :for="'ratingCardinal' + comment.key"
                    @click="commentsStore.selectComment(comment.key)"> Kardinal</label>
@@ -201,7 +201,7 @@ async function selectComment(comment) {
         <div :id="'appCommentWrapper' + comment.key" class="commentWrapper">
           <v-textarea class="comment" :bg-color="getBgColor(comment)" rounded="0" density="compact" variant="solo"
                       rows="1" auto-grow
-                      :readonly="summariesStore.isOwnAuthorized || comment.corrector_key != apiStore.correctorKey"
+                      :readonly="summariesStore.isOwnDisabled || comment.corrector_key != apiStore.correctorKey"
                       @click="commentsStore.selectComment(comment.key)"
                       @change="commentsStore.updateComment(comment)"
                       @keyup="commentsStore.updateComment(comment)"

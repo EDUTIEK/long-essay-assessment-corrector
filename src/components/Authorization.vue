@@ -53,7 +53,7 @@ async function setAuthorizedAndClose() {
 <template>
     <div id="app-authorization-wrapper">
 
-      <v-btn v-show="!summariesStore.isOwnAuthorized" :disabled="!taskStore.authorization_allowed" @click="showAuthorization=true">
+      <v-btn v-show="!summariesStore.isOwnDisabled" :disabled="!taskStore.authorization_allowed" @click="showAuthorization=true">
           <v-icon left icon="mdi-file-certificate-outline"></v-icon>
         <span>Autorisieren...</span>
       </v-btn>
@@ -71,7 +71,7 @@ async function setAuthorizedAndClose() {
 
             <p>
               <strong>Einbeziehen:</strong> {{summariesStore.editSummary.getIncludesText()}}
-              <v-btn variant="text" :disabled="summariesStore.isOwnAuthorized" @click="showIncludes=true;">
+              <v-btn variant="text" :disabled="summariesStore.isOwnDisabled" @click="showIncludes=true;">
                 <v-icon left icon="mdi-pencil"></v-icon>
               </v-btn>
             </p>

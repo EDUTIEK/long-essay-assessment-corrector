@@ -15,13 +15,13 @@ const showIncludes = ref(false);
     <div id="app-own-summary-points-wrapper">
       <label for="appOwnSummaryPoints"><strong>Eigene Wertung:</strong></label>
       &nbsp;
-      <input :disabled="summariesStore.isOwnAuthorized" id="appOwnSummaryPoints" class="appPoints" type="number" min="0" :max="settingsStore.max_points" v-model="summariesStore.editSummary.points" /> Punkte
+      <input :disabled="summariesStore.isOwnDisabled" id="appOwnSummaryPoints" class="appPoints" type="number" min="0" :max="settingsStore.max_points" v-model="summariesStore.editSummary.points" /> Punkte
       &nbsp;
       <strong>Notenstufe:</strong> {{ summariesStore.currentGradeTitle }}
       
       <p>
         <strong>Einbeziehen:</strong> {{summariesStore.editSummary.getIncludesText()}}
-        <v-btn variant="text" :disabled="summariesStore.isOwnAuthorized" @click="showIncludes=true">
+        <v-btn variant="text" :disabled="summariesStore.isOwnDisabled" @click="showIncludes=true">
           <v-icon left icon="mdi-pencil"></v-icon>
         </v-btn>
       </p>

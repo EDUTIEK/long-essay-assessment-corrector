@@ -349,7 +349,7 @@ export const useCommentsStore = defineStore('comments',{
 
             if (this.keys.includes(comment.key
                 && comment.corrector_key == apiStore.correctorKey
-                && !summariesStore.isOwnAuthorized
+                && !summariesStore.isOwnDisabled
             )) {
                 await storage.setItem(comment.key, JSON.stringify(comment.getData()));
                 await changesStore.setChange(new Change({

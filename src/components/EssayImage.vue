@@ -47,7 +47,7 @@
    * @param {Mark} created
    */
   async function onCreation(created) {
-      if (!!created && !summariesStore.isOwnAuthorized) {
+      if (!!created && !summariesStore.isOwnDisabled) {
         
           const mark = new Mark(created);
           switch (selectedTool.value) {
@@ -85,7 +85,7 @@
           if (comment) {
             commentsStore.selectComment(comment.key);
               const oldData = comment.getData();
-              if (comment.corrector_key == apiStore.corrector_key && !summariesStore.isOwnAuthorized) {
+              if (comment.corrector_key == apiStore.corrector_key && !summariesStore.isOwnDisabled) {
                 // comment can be updated
                 selected.symbol = selected.symbol == '' ? null : selected.symbol == '';
                 comment.updateMarkData(selected);
@@ -257,7 +257,7 @@
 
   function selectTool() {
     
-    if (summariesStore.isOwnAuthorized) {
+    if (summariesStore.isOwnDisabled) {
       selectedTool.value = 'scroll';  
     }
     
@@ -322,13 +322,13 @@
 
           <v-btn-toggle density="comfortable" variant="outlined" divided v-model="selectedTool" @click="selectTool()">
             <v-btn size="small" icon="mdi-cursor-move" value="scroll"></v-btn>
-            <v-btn :disabled="summariesStore.isOwnAuthorized" size="small" icon="mdi-minus" value="line"></v-btn>
-            <v-btn :disabled="summariesStore.isOwnAuthorized" size="small" icon="mdi-wave" value="wave"></v-btn>
-            <v-btn :disabled="summariesStore.isOwnAuthorized" size="small" icon="mdi-check" value="check"></v-btn>
-            <v-btn :disabled="summariesStore.isOwnAuthorized" size="small" icon="mdi-close" value="cross"></v-btn>
-            <v-btn :disabled="summariesStore.isOwnAuthorized" size="small" icon="mdi-help" value="question"></v-btn>
-            <v-btn :disabled="summariesStore.isOwnAuthorized" size="small" icon="mdi-rectangle-outline" value="rectangle"></v-btn>
-            <v-btn :disabled="summariesStore.isOwnAuthorized" size="small" icon="mdi-vector-triangle" value="polygon"></v-btn>
+            <v-btn :disabled="summariesStore.isOwnDisabled" size="small" icon="mdi-minus" value="line"></v-btn>
+            <v-btn :disabled="summariesStore.isOwnDisabled" size="small" icon="mdi-wave" value="wave"></v-btn>
+            <v-btn :disabled="summariesStore.isOwnDisabled" size="small" icon="mdi-check" value="check"></v-btn>
+            <v-btn :disabled="summariesStore.isOwnDisabled" size="small" icon="mdi-close" value="cross"></v-btn>
+            <v-btn :disabled="summariesStore.isOwnDisabled" size="small" icon="mdi-help" value="question"></v-btn>
+            <v-btn :disabled="summariesStore.isOwnDisabled" size="small" icon="mdi-rectangle-outline" value="rectangle"></v-btn>
+            <v-btn :disabled="summariesStore.isOwnDisabled" size="small" icon="mdi-vector-triangle" value="polygon"></v-btn>
           </v-btn-toggle>
 
           &nbsp;

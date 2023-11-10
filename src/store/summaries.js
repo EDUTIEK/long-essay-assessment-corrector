@@ -49,7 +49,14 @@ export const useSummariesStore = defineStore('summaries',{
     getters: {
 
         /**
-         * Is the summary of thecorrent corrector and item authorized
+         * Is an editing of the current corrector and item isabled
+         * @param state
+         * @return {bool|boolean|*}
+         */
+        isOwnDisabled: state => state.editSummary.corrector_key == '' || state.editSummary.is_authorized,
+        
+        /**
+         * Is the summary of the current corrector and item authorized
          * @returns {bool}
          */
         isOwnAuthorized: state => state.editSummary.is_authorized,

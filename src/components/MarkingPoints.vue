@@ -71,7 +71,7 @@ function savePoints(criterionKey) {
                     </td>
                     <td  class="text-right">
                         <input class="appPoints" type="number" min="0"
-                               :disabled="summariesStore.isOwnAuthorized"
+                               :disabled="summariesStore.isOwnDisabled"
                                :id="'pointsInput' + criterion.key"
                                :max="criterion.points"
                                @change="savePoints(criterion.key)" /> / {{criterion.points}}
