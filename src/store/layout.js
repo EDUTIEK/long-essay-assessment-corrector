@@ -26,7 +26,7 @@ export const useLayoutStore = defineStore('layout', {
             leftSummaryTextExpansion: 0.5,         // vertical expansion of the left summary text: 0=hidden, 0.5=half, 1=full
             rightSummaryTextExpansion: 0.5,        // vertical expansion of the right summary text: 0=hidden, 0.5=half, 1=full
             
-            essayPageZoom: 1,                   // zoom level of the essay page
+            essayPageZoom: 0.25,                // zoom level of the essay page
             essayTextZoom: 1,                   // zoom level of the essay text
 
             // not stored
