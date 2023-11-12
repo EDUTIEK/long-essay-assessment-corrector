@@ -14,7 +14,7 @@ export const useSettingsStore = defineStore('settings',{
     state: () => {
         return {
             // saved in storage
-            mutual_visibility: false,       // corrector sees othercorrectors
+            mutual_visibility: false,       // corrector sees other correctors
             multi_color_highlight: false,   // text can be highlightes in multi colors
             max_points: 0,                  // maximum points that can be given
             max_auto_distance: 0,           // maximum distance between points to allow an automated points calculation
