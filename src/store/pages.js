@@ -19,13 +19,14 @@ export const usePagesStore = defineStore('pages',{
         return {
             // saved in storage
             keys: [],                       // list of string keys of all pages in the storage
-            pages: [],                      // list of page objects for the currrent correction item
+            pages: {},                      // collection of page objects for the currrent correction item, indexed by key
 
             // not saved in storage
             selectedKey: '',                // key of the currently selected page
             minPage: 0,                     // minimum page number
             maxPage: 0,                     // maximum page number
-            pagesLoaded: false              // page files are loaded
+            loadedThumbs: 0,               // counter of loaded thumbnails
+            loadedImages: 0,                // counter of loaded imagesd
         }
     },
 
@@ -34,20 +35,22 @@ export const usePagesStore = defineStore('pages',{
      */
     getters: {
         
-        hasPages: state => state.pages.length > 0,
+        hasPages: state => Object.keys(state.pages).length > 0,
 
-        selectedPageNo: state => {
-            let page = state.getPage(state.selectedKey);
-            if (page) {
-                return page.page_no;
-            }
-            return null;
+        selectedPage: state => {
+            return state.pages[state.selectedKey] ?? null;
         },
         
-        currentPageKeys: state => {
-            let keys = [];
-            state.pages.forEach(page => keys.push(page.key));
-            return keys;
+        selectedPageNo: state => {
+            return state.selectedPage ? state.selectedPage.page_no : null;
+        },
+        
+        currentPages: state => {
+            let pages = [];
+            for (const key in state.pages) {
+                pages.push(state.pages[key]);
+            }
+            return pages
         },
         
         getPage: state => {
@@ -59,7 +62,7 @@ export const usePagesStore = defineStore('pages',{
              * @returns {Page|null}
              */
             const fn = function(key) {
-                return state.pages.find(element => element.key == key);
+                return state.pages[key] ?? null;
             }
             return fn;
             
@@ -74,7 +77,12 @@ export const usePagesStore = defineStore('pages',{
              * @returns {Page|null}
              */
             const fn = function (number) {
-                return state.pages.find(element => element.page_no == number);
+                for (const key in state.pages) {
+                    if (state.pages[key].page_no == number) {
+                        return state.pages[key];
+                    }
+                }
+                return null;
             }
             return fn;
         }
@@ -101,9 +109,9 @@ export const usePagesStore = defineStore('pages',{
          * @param number
          */
         selectByPageNo(number) {
-          for (const page of this.pages) {
-              if (page.page_no == number) {
-                  this.selectedKey = page.key;
+          for (const key in this.pages) {
+              if (this.pages[key].page_no == number) {
+                  this.selectedKey = key;
                   return true;
               }
           }  
@@ -114,12 +122,12 @@ export const usePagesStore = defineStore('pages',{
             
             let min = null;
             let max = null;
-            for (const page of this.pages) {
-                if (min === null || page.page_no < min) {
-                    min = page.page_no;
+            for (const key in this.pages) {
+                if (min === null || this.pages[key].page_no < min) {
+                    min = this.pages[key].page_no;
                 }
-                if (max === null || page.page_no > max) {
-                    max = page.page_no;
+                if (max === null || this.pages[key].page_no > max) {
+                    max = this.pages[key].page_no;
                 }
             }
             
@@ -166,7 +174,7 @@ export const usePagesStore = defineStore('pages',{
                 for (const key of this.keys) {
                     const page = new Page(JSON.parse(await storage.getItem(key)));
                     if (page.item_key == currentItemKey) {
-                        this.pages.push(page);
+                        this.pages[key] = page;
                     }
                 }
                 this.calculateMinMaxPage();
@@ -202,7 +210,7 @@ export const usePagesStore = defineStore('pages',{
                     this.keys.push(page.key);
                     await storage.setItem(page.key, JSON.stringify(page.getData()));
                     if (page.item_key == currentItemKey) {
-                        this.pages.push(page);
+                        this.pages[page.key] = page;
                     }
                 };
 
@@ -226,41 +234,48 @@ export const usePagesStore = defineStore('pages',{
          */
         async loadFiles() {
             try {
-                // thumbnails are loaded faster, so load first
-                for (const page of this.pages) {
-                    console.log('preload thumbnail ' + page.page_no + '...');
-                    const response = await axios( page.thumb_url, {responseType: 'blob', timeout: 60000});
-                    page.thumbObjectUrl = URL.createObjectURL(response.data);
-                }
-                for (const page of this.pages) {
-                    console.log('preload page ' + page.page_no + '...');
-                    const response = await axios( page.url, {responseType: 'blob', timeout: 60000});
-                    page.objectUrl = URL.createObjectURL(response.data);
-                }
+                for (const key in this.pages) {
+                    const page = this.pages[key];
+                    let response;
+                    
+                    if (page) {
+                        console.log('preload page ' + page.page_no + '...');
+                        response = await axios( page.url, {responseType: 'blob', timeout: 60000});
+                        page.objectUrl = URL.createObjectURL(response.data);
+                        this.loadedImages++;
+                        
+                        console.log('preload thumbnail ' + page.page_no + '...');
+                        response = await axios( page.thumb_url, {responseType: 'blob', timeout: 60000});
+                        page.thumbObjectUrl = URL.createObjectURL(response.data);
+                        this.loadedThumbs++;
+                    }
+                 }
             }
             catch (error) {
                 console.error(error);
                 return false;
             }
-
-            this.pagesLoaded = true;
         },
 
         /**
          * Purge the object urls of the page files
          */
         purgeFiles() {
-            for (const page of this.pages) {
-                if (page.thumbObjectUrl !== null)  {
-                    URL.revokeObjectURL(page.thumbObjectUrl);
-                    page.thumbObjectUrl = null;
+            for (const key in this.pages) {
+                const page = this.pages[key];
+                if (page) {
+                    if (page.thumbObjectUrl !== null)  {
+                        URL.revokeObjectURL(page.thumbObjectUrl);
+                        page.thumbObjectUrl = null;
+                    }
+                    if (page.objectUrl !== null)  {
+                        URL.revokeObjectURL(page.objectUrl);
+                        page.objectUrl = null;
+                    }
                 }
-                if (page.objectUrl !== null)  {
-                    URL.revokeObjectURL(page.objectUrl);
-                    page.objectUrl = null;
-                }  
             }
-            this.pagesLoaded = false;
+            this.loadedThumbs = 0;
+            this.loadedImages = 0;
         }
     }
 });

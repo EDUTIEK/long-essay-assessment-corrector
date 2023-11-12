@@ -31,6 +31,7 @@
   
   
   let marker;
+  let shownUrl = '';
   let currentKeys = [];
   let selectedKey = null;
 
@@ -126,7 +127,14 @@
     if (pagesStore.selectByPageNo(page_no)) {
       const page = pagesStore.getPageByPageNo(page_no);
       if (page) {
-        marker.showPage(page.url, []);
+        if (page.objectUrl) {
+          marker.showPage(page.objectUrl, []);
+          shownUrl = page.objectUrl;
+        }
+        else {
+          marker.showPage('' ?? '', []);
+          shownUrl = '';
+        }
         try {
           marker.setZoomLevel(layoutStore.essayPageZoom);
         }
@@ -145,11 +153,12 @@
    * Reload the page when the page image is available
    */
   function reloadPage() {
-    if (pagesStore.pagesLoaded) {
-      showPage(pagesStore.selectedPageNo);
+    const page = pagesStore.selectedPage;
+    if (page && page.objectUrl != shownUrl) {
+      showPage(page.page_no);
     }
   }
-  watch(() => pagesStore.pagesLoaded, reloadPage);
+  watch(() => pagesStore.loadedImages, reloadPage);
   
   
   /**
@@ -241,7 +250,6 @@
       await nextTick();
       await new Promise(resolve => setTimeout(resolve, 250));
       const input = document.getElementById('app-pages-menu-input');
-      input.select();
       input.select();
     }
   }
@@ -366,11 +374,11 @@
                 </v-text-field>
     
               </v-list-item>
-              <v-list-item v-for="page in pagesStore.pages"
+              <v-list-item v-for="page in pagesStore.currentPages"
                            @click="selectPage(page.page_no)"
                            :title="page.page_no"
                            :key="page.key">
-                  <v-img :src="page.thumb_url" width="100">
+                  <v-img v-show="page.thumbObjectUrl !== null" :src="page.thumbObjectUrl" width="100">
                   </v-img>
               </v-list-item>
 
