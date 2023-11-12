@@ -15,30 +15,6 @@ const storage = localForage.createInstance({
 });
 
 /**
- * Compare two comments for sorting
- * @param {Comment} comment1
- * @param {Comment} comment2
- */
-const compareComments = function(comment1, comment2) {
-    if (comment1.parent_number < comment2.parent_number) {
-        return -1;
-    }
-    else if (comment1.parent_number > comment2.parent_number) {
-        return 1;
-    }
-    else if (comment1.start_position < comment2.start_position) {
-        return -1;
-    }
-    else if (comment1.start_position > comment2.start_position) {
-        return 1;
-    }
-    else {
-        return 0;
-    }
-}
-
-
-/**
  * Comments Store
  */
 export const useCommentsStore = defineStore('comments',{
@@ -727,3 +703,27 @@ export const useCommentsStore = defineStore('comments',{
         }
     }
 });
+
+
+/**
+ * Compare two comments for sorting
+ * @param {Comment} comment1
+ * @param {Comment} comment2
+ */
+const compareComments = function(comment1, comment2) {
+    if (comment1.parent_number < comment2.parent_number) {
+        return -1;
+    }
+    else if (comment1.parent_number > comment2.parent_number) {
+        return 1;
+    }
+    else if (comment1.start_position < comment2.start_position) {
+        return -1;
+    }
+    else if (comment1.start_position > comment2.start_position) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
