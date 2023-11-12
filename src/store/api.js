@@ -138,7 +138,6 @@ export const useApiStore = defineStore('api', {
 
             /**
              * Get the Url for loading a page thumbnail
-             * 
              * @param {string} pageKey
              * @param {string} itemKey
              * @returns {string}
@@ -155,7 +154,6 @@ export const useApiStore = defineStore('api', {
 
             /**
              * Get the server unix timestamp (s) corresponding to a client timestamp (ms)
-             * 
              * @param {number} clientTime
              * @returns {number}
              */
@@ -164,6 +162,25 @@ export const useApiStore = defineStore('api', {
             }
             return fn;
         },
+        
+        
+        getChangeDataToSend: state => {
+
+            /**
+             * Get the data of a change to be sent to the backend
+             * @param {Change} change
+             * @param {object|null} payload
+             */
+            const fn = function(change, payload = null) {
+                const data = change.getData();
+                if (payload) {
+                    data.payload = payload;
+                }
+                data.server_time = state.getServerTime(change.last_change);
+                return data;
+            }
+            return fn;
+        }
 
     },
 

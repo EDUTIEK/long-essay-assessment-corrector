@@ -403,14 +403,12 @@ export const useSummariesStore = defineStore('summaries',{
             const changesStore = useChangesStore();
             const changes = [];
             for (const change of changesStore.getChangesFor(Change.TYPE_SUMMARY, sendingTime)) {
-                if (change.action == Change.ACTION_SAVE) {
-                    const data = await storage.getItem(change.key);
-                    if (data) {
-                        change.payload = JSON.parse(data);
-                        change.server_time = apiStore.getServerTime(change.last_change);
-                    }
+                const data = await storage.getItem(change.key);
+                if (data) {
+                    changes.push(apiStore.getChangeDataToSend(change, JSON.parse(data)));
+                } else {
+                    changes.push(apiStore.getChangeDataToSend(change));
                 }
-                changes.push(change);
             };
             return changes;
         },

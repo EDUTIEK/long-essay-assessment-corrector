@@ -47,20 +47,6 @@ class Change {
    */
   last_change = 0;
 
-  /**
-   * Timestamp of the last change in server sime (seconds)
-   * This is instantly set when the change is sent to the backend
-   * @type {integer}
-   */
-  server_time = 0;
-  
-  /**
-   * Data payload for sending the change to the backend (if created or updated)
-   * This will instantly be set when the change is sent to the backend
-   * 
-   * @type {object|null}
-   */
-  payload = null;
 
   /**
    * Constructor - gets properties from a data object
@@ -107,7 +93,7 @@ class Change {
       type: this.type,
       key: this.key,
       item_key: this.item_key,
-      last_change: this.last_change,
+      last_change: this.last_change
     }
   }
 

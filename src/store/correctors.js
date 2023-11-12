@@ -106,7 +106,7 @@ export const useCorrectorsStore = defineStore('correctors',{
                 for (const key of this.keys) {
                     const corrector = new Corrector(JSON.parse(await storage.getItem(key)));
                     if (corrector.item_key == currentItemKey) {
-                        this.correctors.push[corrector];
+                        this.correctors.push(corrector);
                     }
                 }
 

@@ -324,10 +324,10 @@ export const useCommentsStore = defineStore('comments',{
             const summariesStore = useSummariesStore();
             const changesStore = useChangesStore();
 
-            if (this.keys.includes(comment.key
+            if (this.keys.includes(comment.key)
                 && comment.corrector_key == apiStore.correctorKey
                 && !summariesStore.isOwnDisabled
-            )) {
+            ) {
                 await storage.setItem(comment.key, JSON.stringify(comment.getData()));
                 await changesStore.setChange(new Change({
                     type: Change.TYPE_COMMENT,
@@ -626,14 +626,12 @@ export const useCommentsStore = defineStore('comments',{
             const changesStore = useChangesStore();
             const changes = [];
             for (const change of changesStore.getChangesFor(Change.TYPE_COMMENT, sendingTime)) {
-                if (change.action == Change.ACTION_SAVE) {
-                    const data = await storage.getItem(change.key);
-                    if (data) {
-                        change.payload = JSON.parse(data);
-                        change.server_time = apiStore.getServerTime(change.last_change);
-                    }
+                const data = await storage.getItem(change.key);
+                if (data) {
+                    changes.push(apiStore.getChangeDataToSend(change, JSON.parse(data)));
+                } else {
+                    changes.push(apiStore.getChangeDataToSend(change));
                 }
-                changes.push(change);
             };
             return changes;
         },
