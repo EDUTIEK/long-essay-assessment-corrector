@@ -25,6 +25,9 @@ export const useLayoutStore = defineStore('layout', {
             markingTextExpansion: 0.0,             // vertical expansion of the summary text in the marking view: 0=hidden, 0.5=half, 1=full
             leftSummaryTextExpansion: 0.5,         // vertical expansion of the left summary text: 0=hidden, 0.5=half, 1=full
             rightSummaryTextExpansion: 0.5,        // vertical expansion of the right summary text: 0=hidden, 0.5=half, 1=full
+            
+            essayPageZoom: 1,                   // zoom level of the essay page
+            essayTextZoom: 1,                   // zoom level of the essay text
 
             // not stored
             leftCorrectorKey: '',               // key of the corrector shown on the left side
@@ -125,6 +128,8 @@ export const useLayoutStore = defineStore('layout', {
                     this.markingTextExpansion = data.markingTextExpansion;
                     this.leftSummaryTextExpansion = data.leftSummaryTextExpansion;
                     this.rightSummaryTextExpansion = data.rightSummaryTextExpansion;
+                    this.essayPageZoom = data.essayPageZoom ?? this.essayPageZoom;
+                    this.essayTextZoom = data.essayTextZoom ?? this.essayTextZoom;
                 }
 
             } catch (err) {
@@ -142,6 +147,8 @@ export const useLayoutStore = defineStore('layout', {
                     markingTextExpansion: this.markingTextExpansion,
                     leftSummaryTextExpansion: this.leftSummaryTextExpansion,
                     rightSummaryTextExpansion: this.rightSummaryTextExpansion,
+                    essayPageZoom: this.essayPageZoom,
+                    essayTextZoom: this.essayTextZoom
                 })
             } catch (err) {
                 console.log(err);
@@ -233,7 +240,7 @@ export const useLayoutStore = defineStore('layout', {
         },
 
         changeMarkingPointsExpansion() {
-            this.markingPointsExpansion = this.changeExpansion(this.markingPointsExpansion);
+            this.markingPointsExpansion = changeExpansion(this.markingPointsExpansion);
             if (this.markingPointsExpansion > 0) {
                 this.markingTextExpansion = 0;
             }
@@ -241,7 +248,7 @@ export const useLayoutStore = defineStore('layout', {
         },
         
         changeMarkingTextExpansion() {
-            this.markingTextExpansion = this.changeExpansion(this.markingTextExpansion);
+            this.markingTextExpansion = changeExpansion(this.markingTextExpansion);
             if (this.markingTextExpansion > 0) {
                 this.markingPointsExpansion = 0;
             }
@@ -257,21 +264,33 @@ export const useLayoutStore = defineStore('layout', {
         },
         
         changeLeftSummaryTextExpansion() {
-            this.leftSummaryTextExpansion = this.changeExpansion(this.leftSummaryTextExpansion);
+            this.leftSummaryTextExpansion = changeExpansion(this.leftSummaryTextExpansion);
             this.saveToStorage()
         },
 
         changeRightSummaryTextExpansion() {
-            this.rightSummaryTextExpansion = this.changeExpansion(this.rightSummaryTextExpansion);
+            this.rightSummaryTextExpansion = changeExpansion(this.rightSummaryTextExpansion);
             this.saveToStorage();
         },
 
-        changeExpansion(ratio) {
-          switch (ratio) {
-              case 0: return 0.5;
-              case 1: return 0;
-              default: return 1;
-          }
+        zoomEssayPageIn() {
+            this.essayPageZoom = this.essayPageZoom * 1.1;
+            this.saveToStorage();
+        },
+
+        zoomEssayPageOut() {
+            this.essayPageZoom = this.essayPageZoom * 0.9;
+            this.saveToStorage();
+        },
+
+        zoomEssayTextIn() {
+            this.essayTextZoom = this.essayTextZoom * 1.1;
+            this.saveToStorage();
+        },
+
+        zoomEssayTextOut() {
+            this.essayTextZoom = this.essayTextZoom * 0.9;
+            this.saveToStorage();
         },
 
         
@@ -305,6 +324,23 @@ export const useLayoutStore = defineStore('layout', {
                 this.leftCorrectorKey = corrector_key;
                 this.showLeftCorrector();
             }
-        }
+        },
+        
+
     }
 });
+
+
+/**
+ * Change the vertical expansion rate of a page element
+ * @param {number} ratio
+ * @return {number}
+ */
+function changeExpansion(ratio) {
+    switch (ratio) {
+        case 0: return 0.5;
+        case 1: return 0;
+        default: return 1;
+    }
+}
+
