@@ -203,19 +203,19 @@ class Comment {
         let color = '';
         if (this.prefix == 'own') {
             if (this.rating_excellent) {
-                return filled ?  '#E3EFDDAA' : '#19e62e';
+                return filled ?  '#E3EFDD80' : '#19e62e';
             } else if (this.rating_cardinal) {
-                return filled ? '#FBDED1AA' : '#bc4710';
+                return filled ? '#FBDED180' : '#bc4710';
             } else {
-                return filled ? '#D8E5F4AA' : '#3365ff';
+                return filled ? '#D8E5F480' : '#3365ff';
             }
         } else {
             if (this.rating_excellent) {
-                return filled ? '#F7F9F7AA' : '#19e62e';
+                return filled ? '#F7F9F780' : '#19e62e';
             } else if (this.rating_cardinal) {
-                return filled ? '#FCF6F4AA' : '#bc4710';
+                return filled ? '#FCF6F480' : '#bc4710';
             } else {
-                return filled ? '#F5F7FBAA' : '#3365ff';
+                return filled ? '#F5F7FB80' : '#3365ff';
             }
         }
     }
@@ -228,11 +228,11 @@ class Comment {
         const filled = (mark.shape == Mark.SHAPE_CIRCLE || mark.shape == Mark.SHAPE_POLYGON || mark.shape == Mark.SHAPE_RECTANGLE);
         
         if (this.rating_excellent) {
-            return filled ? '#BBEBA5AA' : '#19e62e';
+            return filled ? '#BBEBA5A0' : '#19e62e';
         } else if (this.rating_cardinal) {
-            return filled ? '#FCB494AA' : '#bc4710';
+            return filled ? '#FCB494A0' : '#bc4710';
         } else {
-            return filled ? '#94C3FCAA' : '#3365ff';
+            return filled ? '#94C3FCA0' : '#3365ff';
         }
     }
      

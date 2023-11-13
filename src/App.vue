@@ -74,14 +74,14 @@ html {
 .appImageMarker svg text {
     fill: white;
     font-family: sans-serif;
-    font-size: 14px;
+    font-size: 55px;
     font-style: normal;
     font-weight: normal;
 }
 
 .appImageMarker svg .shape text.symbol {
   font-weight: bold;
-  font-size: 16px;
+  font-size: 100px;
 }
 
 </style>
