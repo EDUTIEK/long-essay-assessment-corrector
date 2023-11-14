@@ -49,7 +49,7 @@
               <!-- toggle left summary text  -->
               <v-btn size="x-small" v-show="layoutStore.isLeftCorrectorVisible" @click="layoutStore.changeLeftSummaryTextExpansion()">
                 <v-icon icon="mdi-arrow-up-down"></v-icon>
-                <span>Text</span>
+                <span>Abschlussvotum</span>
               </v-btn>
               <!-- expand right column -->
               <v-btn size="x-small" @click="layoutStore.setLeftExpanded(false)" v-show="layoutStore.isLeftExpanded">
@@ -125,14 +125,14 @@
               <!-- toggle marking text -->
               <v-btn size="x-small" v-show=" layoutStore.isMarkingVisible" @click="layoutStore.changeMarkingTextExpansion()">
                 <v-icon icon="mdi-arrow-up-down"></v-icon>
-                <span>Text</span>
+                <span>Abschlussvotum</span>
               </v-btn>
 
 
               <!-- toggle right summary text  -->
               <v-btn size="x-small" v-show="layoutStore.isSummaryVisible || layoutStore.isRightCorrectorVisible" @click="layoutStore.changeRightSummaryTextExpansion()">
                 <v-icon icon="mdi-arrow-up-down"></v-icon>
-                <span>Text</span>
+                <span>Abschlussvotum</span>
               </v-btn>
 
               <!-- expand left column -->
