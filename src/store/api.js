@@ -19,6 +19,7 @@ import { useChangesStore } from '@/store/changes';
 import md5 from 'md5';
 import comment from '@/data/Comment';
 import Change from '@/data/Change';
+import { usePreferencesStore } from '@/store/preferences';
 
 const sendInterval = 5000;      // time (ms) to wait for sending open savings to the backend
 
@@ -378,6 +379,7 @@ export const useApiStore = defineStore('api', {
             const levelsStore = useLevelsStore();
             const criteriaStore = useCriteriaStore();
             const layoutStore = useLayoutStore();
+            const preferencesStore = usePreferencesStore();
             const itemsStore = useItemsStore();
             const changesStore = useChangesStore();
 
@@ -387,6 +389,7 @@ export const useApiStore = defineStore('api', {
             await levelsStore.loadFromStorage();
             await criteriaStore.loadFromStorage();
             await layoutStore.loadFromStorage();
+            await preferencesStore.loadFromStorage();
             await itemsStore.loadFromStorage();
             await changesStore.loadFromStorage();
 
@@ -445,6 +448,7 @@ export const useApiStore = defineStore('api', {
             const levelsStore = useLevelsStore();
             const criteriaStore = useCriteriaStore();
             const itemsStore = useItemsStore();
+            const preferencesStore = usePreferencesStore();
 
             await taskStore.loadFromData(response.data.task);
             await settingsStore.loadFromData(response.data.settings);
@@ -452,6 +456,9 @@ export const useApiStore = defineStore('api', {
             await levelsStore.loadFromData(response.data.levels);
             await criteriaStore.loadFromData(response.data.criteria);
             await itemsStore.loadFromData(response.data.items);
+            
+            // prefrences are not yet saved to the backend
+            await preferencesStore.loadFromStorage();
 
             const layoutStore = useLayoutStore();
             const correctorsStore = useCorrectorsStore();

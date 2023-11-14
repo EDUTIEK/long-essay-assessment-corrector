@@ -26,9 +26,6 @@ export const useLayoutStore = defineStore('layout', {
             leftSummaryTextExpansion: 0.5,         // vertical expansion of the left summary text: 0=hidden, 0.5=half, 1=full
             rightSummaryTextExpansion: 0.5,        // vertical expansion of the right summary text: 0=hidden, 0.5=half, 1=full
             
-            essayPageZoom: 0.25,                // zoom level of the essay page
-            essayTextZoom: 1,                   // zoom level of the essay text
-
             // not stored
             leftCorrectorKey: '',               // key of the corrector shown on the left side
             rightCorrectorKey: '',              // key of the corrector shown on the right side
@@ -128,8 +125,6 @@ export const useLayoutStore = defineStore('layout', {
                     this.markingTextExpansion = data.markingTextExpansion;
                     this.leftSummaryTextExpansion = data.leftSummaryTextExpansion;
                     this.rightSummaryTextExpansion = data.rightSummaryTextExpansion;
-                    this.essayPageZoom = data.essayPageZoom ?? this.essayPageZoom;
-                    this.essayTextZoom = data.essayTextZoom ?? this.essayTextZoom;
                 }
 
             } catch (err) {
@@ -146,9 +141,7 @@ export const useLayoutStore = defineStore('layout', {
                     markingPointsExpansion: this.markingPointsExpansion,
                     markingTextExpansion: this.markingTextExpansion,
                     leftSummaryTextExpansion: this.leftSummaryTextExpansion,
-                    rightSummaryTextExpansion: this.rightSummaryTextExpansion,
-                    essayPageZoom: this.essayPageZoom,
-                    essayTextZoom: this.essayTextZoom
+                    rightSummaryTextExpansion: this.rightSummaryTextExpansion
                 })
             } catch (err) {
                 console.log(err);
@@ -272,27 +265,6 @@ export const useLayoutStore = defineStore('layout', {
             this.rightSummaryTextExpansion = changeExpansion(this.rightSummaryTextExpansion);
             this.saveToStorage();
         },
-
-        zoomEssayPageIn() {
-            this.essayPageZoom = this.essayPageZoom * 1.1;
-            this.saveToStorage();
-        },
-
-        zoomEssayPageOut() {
-            this.essayPageZoom = this.essayPageZoom * 0.9;
-            this.saveToStorage();
-        },
-
-        zoomEssayTextIn() {
-            this.essayTextZoom = this.essayTextZoom * 1.1;
-            this.saveToStorage();
-        },
-
-        zoomEssayTextOut() {
-            this.essayTextZoom = this.essayTextZoom * 0.9;
-            this.saveToStorage();
-        },
-
         
         selectCorrector(corrector_key) {
             const apiStore = useApiStore();

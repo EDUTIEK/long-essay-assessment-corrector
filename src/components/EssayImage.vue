@@ -4,6 +4,7 @@
   import { useSummariesStore } from '@/store/summaries';
   import { usePagesStore } from '@/store/pages';
   import { useLayoutStore } from '@/store/layout';
+  import { usePreferencesStore } from '@/store/preferences';
 
   // temporary dependencies for development
   // import createImageMarker from '@/dev/long-essay-image-marker/ImageMarker';
@@ -22,6 +23,7 @@
   const summariesStore = useSummariesStore();
   const pagesStore = usePagesStore();
   const layoutStore = useLayoutStore();
+  const preferencesStore = usePreferencesStore();
   
   const markerNode = ref();
   const selectedTool = ref('scroll');
@@ -136,7 +138,7 @@
           shownUrl = '';
         }
         try {
-          marker.setZoomLevel(layoutStore.essayPageZoom);
+          marker.setZoomLevel(preferencesStore.essay_page_zoom);
         }
         catch {
           // do nothing
@@ -255,13 +257,13 @@
   }
 
   function zoomIn() {
-    layoutStore.zoomEssayPageIn();
-    marker.setZoomLevel(layoutStore.essayPageZoom);
+    preferencesStore.zoomEssayPageIn();
+    marker.setZoomLevel(preferencesStore.essay_page_zoom);
   }
 
   function zoomOut() {
-    layoutStore.zoomEssayPageOut();
-    marker.setZoomLevel(layoutStore.essayPageZoom);
+    preferencesStore.zoomEssayPageOut();
+    marker.setZoomLevel(preferencesStore.essay_page_zoom);
   }
 
   function selectTool() {
