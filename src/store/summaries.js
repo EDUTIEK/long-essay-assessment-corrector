@@ -492,6 +492,8 @@ export const useSummariesStore = defineStore('summaries',{
          */
         async setOwnAuthorized() {
             this.editSummary.is_authorized = true;
+            // ensure that the default inclusion settings are set
+            this.editSummary.setData(this.currentInclusionSettings);
             await this.updateContent(false, true);
         },
 
