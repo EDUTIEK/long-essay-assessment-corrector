@@ -67,15 +67,8 @@ async function setAuthorizedAndClose() {
             <input class="appPoints" type="number" min="0" :max="settingsStore.max_points" v-model="summariesStore.editSummary.points" />Punkte
             &nbsp;
             <strong>Notenstufe:</strong> {{ summariesStore.currentGradeTitle }}
-
-
-            <p>
-              <strong>Einbeziehen:</strong> {{summariesStore.editSummary.getIncludesText()}}
-              <v-btn variant="text" :disabled="summariesStore.isOwnDisabled" @click="showIncludes=true;">
-                <v-icon left icon="mdi-pencil"></v-icon>
-              </v-btn>
-            </p>
-
+            
+            <own-summary-includes></own-summary-includes>
 
             <p><strong>Eigener Text:</strong></p>
             <div class="appText" v-html="summariesStore.editSummary.text">
@@ -107,23 +100,6 @@ async function setAuthorizedAndClose() {
           </v-card-actions>
         </v-card>
       </v-dialog>
-
-      <v-dialog max-width="50em" persistent v-model="showIncludes">
-        <v-card>
-          <v-card-title>In die Dokumentation der Korrektur einbeziehen</v-card-title>
-          <v-card-text>
-            <own-summary-includes></own-summary-includes>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn @click="showIncludes=false;">
-              <v-icon left icon="mdi-close"></v-icon>
-              <span>Fertig</span>
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-
     </div>
 </template>
 

@@ -7,6 +7,8 @@ import {useTaskStore} from "@/store/task";
 import {useSettingsStore} from "@/store/settings";
 import {useLevelsStore} from "@/store/levels";
 import {useChangesStore} from "@/store/changes";
+import { usePreferencesStore } from '@/store/preferences';
+
 import Summary from "@/data/Summary";
 import Change from "@/data/Change";
 
@@ -96,6 +98,16 @@ export const useSummariesStore = defineStore('summaries',{
             return 'ohne Notenstufe';
         },
 
+        /**
+         * Get the effective inclusion settings for the current summary (with defaults)
+         * @param state
+         * @return {{include_comment_points, include_comment_ratings, include_criteria_points, include_comments, include_writer_notes}}
+         */
+        currentInclusionSettings: state => {
+            const preferencesStore = usePreferencesStore();
+            return state.editSummary.getInclusionSettings(preferencesStore.summaryInclusions);
+        },
+        
         getAuthorizationForCorrector: state => {
             /**
              * Get a summary of a specific corrector for the current item
@@ -132,6 +144,68 @@ export const useSummariesStore = defineStore('summaries',{
               return null;
           }
           return fn;
+        },
+
+
+        getInclusionText: state => {
+
+            /**
+             *
+             * @param {Summary} summary
+             * @return {string}
+             */
+            const fn = function (summary) {
+                let text = '';
+                let settings = {};
+                
+                if (summary.corrector_key == state.editSummary.corrector_key) {
+                    settings = state.currentInclusionSettings;
+                } else {
+                    settings = summary.getInclusionSettings();
+                }
+                
+                if (settings.include_comments == Summary.INCLUDE_INFO) {
+                    text = (text ? text + ', ' : '') + 'Kommentare (i)';
+                }
+                else if (settings.include_comments == Summary.INCLUDE_RELEVANT) {
+                    text = (text ? text + ', ' : '') + 'Kommentare (r)';
+                }
+
+                if (settings.include_comment_ratings == Summary.INCLUDE_INFO) {
+                    text = (text ? text + ', ' : '') + 'Kardinal und Exzellent (i)';
+                }
+                else if (settings.include_comment_ratings == Summary.INCLUDE_RELEVANT) {
+                    text = (text ? text + ', ' : '') + 'Kardinal und Exzellent (r)';
+                }
+                
+                if (settings.include_comment_points == Summary.INCLUDE_INFO) {
+                    text = (text ? text + ', ' : '') + 'Teilpunkte (i)';
+                }
+                else if (settings.include_comment_points == Summary.INCLUDE_RELEVANT) {
+                    text = (text ? text + ', ' : '') + 'Teilpunkte (r)';
+                }
+
+                if (settings.include_criteria_points == Summary.INCLUDE_INFO) {
+                    text = (text ? text + ', ' : '') + 'Bewertungsschema (i)';
+                }
+                else if (settings.include_criteria_points == Summary.INCLUDE_RELEVANT) {
+                    text = (text ? text + ', ' : '') + 'Bewertungsschema (r)';
+                }
+
+                // if (settings.include_writer_notes == Summary.INCLUDE_INFO) {
+                //     text = (text ? text + ', ' : '') + 'Notizen (inf)';
+                // }
+                // else if (settings.include_writer_notes == Summary.INCLUDE_RELEVANT) {
+                //     text = (text ? text + ', ' : '') + 'Notizen (r)';
+                // }
+                
+                if (text == '') {
+                    text = 'keine Detail-Informationen'
+                }
+
+                return text;
+            }
+            return fn;
         },
 
         /**

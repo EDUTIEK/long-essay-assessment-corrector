@@ -59,33 +59,33 @@ class Summary {
    * level of including comments to the documentation
    * @type {integer}
    */
-  include_comments = 0;
+  include_comments = null;
 
 
   /**
    * level of including comment ratings to the documentation
    * @type {integer}
    */
-  include_comment_ratings = 0;
+  include_comment_ratings = null;
 
 
   /**
    * level of including comment points to the documentation
    * @type {integer}
    */
-  include_comment_points = 0;
+  include_comment_points = null;
 
   /**
    * level of including criteria points to the documentation
    * @type {integer}
    */
-  include_criteria_points = 0;
+  include_criteria_points = null;
 
   /**
    * level of including writer notes to the documentation
    * @type {integer}
    */
-  include_writer_notes = 0;
+  include_writer_notes = null;
 
 
   /**
@@ -140,6 +140,10 @@ class Summary {
   }
   
   transformInclusion(inclusion) {
+    if (inclusion === null) {
+      return null;
+    }
+    
     inclusion = parseInt(inclusion);
     if (inclusion <= Summary.INCLUDE_NOT) {
         return Summary.INCLUDE_NOT;
@@ -172,53 +176,21 @@ class Summary {
       include_writer_notes: this.include_writer_notes
     }
   }
-
-  /**
-   * Get if the correction should include certain information
-   * @return {boolean}
-   */
-  hasIncludes() {
-    return this.include_comments > Summary.INCLUDE_NOT
-    || this.include_comment_ratings > Summary.INCLUDE_NOT
-    || this.include_comment_points > Summary.INCLUDE_NOT
-    || this.include_criteria_points > Summary.INCLUDE_NOT
-    || this.include_writer_notes > Summary.INCLUDE_NOT
-  }
   
   /**
-   * Get the text to show the included parts
+   * Get the inclusion setting with defaults
+   * @param {object} defaults
    */
-  getIncludesText() {
-    let comma = '';
-    let text = '';
-    
-    if (this.include_comments != Summary.INCLUDE_NOT) {
-      text = text + comma + 'Kommentare';
-      comma = ', ';
-    }
-    if (this.include_comment_ratings != Summary.INCLUDE_NOT) {
-      text = text + comma + 'Kardinal und Exzellent';
-      comma = ', ';
-    }
-    if (this.include_comment_points != Summary.INCLUDE_NOT) {
-      text = text + comma + 'Teilpunkte';
-      comma = ', ';
-    }
-    if (this.include_criteria_points != Summary.INCLUDE_NOT) {
-      text = text + comma + 'Bewertungsschema';
-      comma = ', ';
-    }
-    if (this.include_writer_notes != Summary.INCLUDE_NOT) {
-      text = text + comma + 'Notizen';
-      comma = ', ';
-    }
-    
-    if (text == '') {
-      text = 'keine Detail-Informationen'
-    }
-    
-    return text;
+  getInclusionSettings(defaults= {}) {
+    return {
+      include_comments: this.include_comments ?? defaults.include_comments ?? Summary.INCLUDE_INFO,
+      include_comment_ratings: this.include_comment_ratings ?? defaults.include_comment_ratings  ?? Summary.INCLUDE_INFO,
+      include_comment_points: this.include_comment_points ?? defaults.include_comment_points ?? Summary.INCLUDE_INFO,
+      include_criteria_points: this.include_criteria_points ?? defaults.include_criteria_points ?? Summary.INCLUDE_INFO,
+      include_writer_notes: this.include_writer_notes ?? defaults.include_writer_notes ?? Summary.INCLUDE_INFO
+    };
   }
+  
   
   /**
    * @return {string}

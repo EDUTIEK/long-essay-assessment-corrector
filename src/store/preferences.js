@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import localForage from "localforage";
+import Summary from '@/data/Summary';
 
 const storage = localForage.createInstance({
   storeName: "corrector-preferences",
@@ -25,6 +26,18 @@ export const usePreferencesStore = defineStore('preferences', {
 
       // not saved in storage
       sent: false                        // preferences are sent to the backend
+    }
+  },
+  
+  getters: {
+    summaryInclusions: state => {
+      return {
+        include_comments: state.include_comments,
+        include_comment_ratings: state.include_comment_ratings,
+        include_comment_points: state.include_comment_points,
+        include_criteria_points: state.include_criteria_points,
+        include_writer_notes: state.include_writer_notes
+      }
     }
   },
 
@@ -88,18 +101,12 @@ export const usePreferencesStore = defineStore('preferences', {
     },
 
 
-    setInclusions(
-      include_comments,
-      include_comment_ratings,
-      include_comment_points,
-      include_criteria_points,
-      include_writer_notes
-    ) {
-      this.include_comments = include_comments;
-      this.include_comment_ratings = include_comment_ratings;
-      this.include_comment_points = include_comment_points;
-      this.include_criteria_points = include_criteria_points;
-      this.include_writer_notes = include_writer_notes;
+    setSummaryInclusions(data) {
+      this.include_comments = data.include_comments;
+      this.include_comment_ratings = data.include_comment_ratings;
+      this.include_comment_points = data.include_comment_points;
+      this.include_criteria_points = data.include_criteria_points;
+      this.include_writer_notes = data.include_writer_notes;
       this.sent = false;
       this.saveToStorage();
     },
