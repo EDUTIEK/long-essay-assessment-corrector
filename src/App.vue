@@ -38,6 +38,32 @@ html {
   display: none!important;
 }
 
+/* Make font sizes in the tiny menu independent from changing font sizes in the content area */
+.tox-menu p {
+  font-size:16px!important;
+}
+.tox-menu h1 {
+  font-size:32px!important;
+}
+.tox-menu h2 {
+  font-size:18px!important;
+}
+.tox-menu h3 {
+  font-size:16px!important;
+}
+.tox-menu h4 {
+  font-size:14px!important;
+}
+.tox-menu h5 {
+  font-size:13px!important;
+}
+.tox-menu h6 {
+  font-size:12px!important;
+}
+.tox-menu pre {
+  font-size:16px!important;
+}
+
 /* needed for instructions and review screen, must be global */
 
 .col-content li {

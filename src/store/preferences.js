@@ -163,6 +163,16 @@ export const usePreferencesStore = defineStore('preferences', {
     zoomEssayTextOut() {
       this.essay_text_zoom = this.essay_text_zoom * 0.9;
       this.update();
+    },
+    
+    zoomSummaryTextIn() {
+      this.summary_text_zoom = this.summary_text_zoom * 1.1;
+      this.update();
+    },
+
+    zoomSummaryTextOut() {
+      this.summary_text_zoom = this.summary_text_zoom * 0.9;
+      this.update();
     }
 
   },

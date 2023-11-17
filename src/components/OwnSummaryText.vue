@@ -22,7 +22,10 @@ import 'tinymce/plugins/paste';
 import Editor from '@tinymce/tinymce-vue'
 
 import {useSummariesStore} from '@/store/summaries';
+import { usePreferencesStore } from '@/store/preferences';
 const summariesStore = useSummariesStore();
+const preferencesStore = usePreferencesStore();
+
 
 // editorId used for retrieving the editor instance using the tinymce.get('ID') method.
 const props = defineProps(['editorId']);
@@ -31,7 +34,7 @@ function toolbar() {
   switch ('full') // corrector always has full formatting options
   {
     case 'full':
-      return 'undo redo | formatselect | bold italic underline | bullist numlist | removeformat | charmap | paste';
+      return 'undo redo | formatselect fontsize | bold italic underline | bullist numlist | removeformat | charmap | paste';
     case 'medium':
       return 'undo redo | bold italic underline | bullist numlist | removeformat | charmap | paste';
     case 'minimal':
@@ -69,10 +72,25 @@ function formats() {
   }
 }
 
+function zoomIn() {
+  preferencesStore.zoomSummaryTextIn();
+  const editor = tinymce.get(props.editorId);
+  editor.contentWindow.document.body.style.fontSize= (preferencesStore.summary_text_zoom * 16) + 'px';
+}
+
+function zoomOut() {
+  preferencesStore.zoomSummaryTextOut();
+  const editor = tinymce.get(props.editorId);
+  editor.contentWindow.document.body.style.fontSize= (preferencesStore.summary_text_zoom * 16) + 'px';
+}
+
 </script>
 
 <template>
-  <div class="headline">Abschlussvotum</div>
+  <div class="headline">Abschlussvotum
+  <v-btn @click="zoomIn()">Zoom In</v-btn>
+  <v-btn @click="zoomOut()">ZoomOut</v-btn>
+  </div>
   <div class="app-own-summary-text-wrapper" v-if="!summariesStore.isOwnDisabled">
       <editor
           :id="props.editorId"
@@ -83,7 +101,7 @@ function formats() {
           :init="{
             height: '100%',
             menubar: false,
-            plugins: 'lists charmap paste',
+            plugins: 'lists charmap fontsize paste',
             toolbar: toolbar(),
             valid_elements: validElements(),
             formats: formats(),
@@ -91,7 +109,8 @@ function formats() {
             skin: false,                      // avoid 404 errors for skin css files
             content_css: false,               // avoid 404 error for content css file
             content_style: contentUiCss.toString() + '\n' + contentLocalCss.toString(),
-            paste_block_drop: true
+            paste_block_drop: true,
+            font_size_formats: '8pt 10pt 12pt 14pt 16pt 18pt 24pt 36pt 48pt'
        }"
       />
   </div>
@@ -102,7 +121,7 @@ function formats() {
   </div>
 </template>
 
-<style scoped>
+<style>
 
 .headline {
   font-weight: bold;
@@ -127,5 +146,7 @@ function formats() {
   font-size: 16px;
 
 }
+
+
 
 </style>
