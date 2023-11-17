@@ -23,7 +23,7 @@ function startState() {
  * 
  * This stores unsent change markers for all created, updated or deleted objects of certain types, e.g. Comment
  * The stored changes just give the type, keys and timestamp of the change
- * The actual changed data is added as a payload when the change is sent to the backend
+ * The actual changed will be  added as a payload when the change is sent to the backend
  */
 export const useChangesStore = defineStore('changes',{
     state: () => {
@@ -170,6 +170,8 @@ export const useChangesStore = defineStore('changes',{
 
         /**
          * Set a change and save the changes
+         * Changes with same key and type will be updated, so that only the last change time is saved
+         * This prevents multiple sending of the same data
          * @param {Change} change
          */
         async setChange(change) {
@@ -193,7 +195,7 @@ export const useChangesStore = defineStore('changes',{
 
         /**
          * Cleanup changes that have been sent to the backend
-         * The will delete all changes thet are noted as processed and that are not newer than the sending time
+         * This will delete all changes that are responded as processed and that are not newer than the sending time
          *
          * @param {string} type see Change.ALLOWED_TYPES
          * @param {object} processed - old key: new key or null if the data has been deleted

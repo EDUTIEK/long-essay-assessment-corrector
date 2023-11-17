@@ -12,8 +12,9 @@ class Change {
   static TYPE_COMMENT = 'comment';
   static TYPE_POINTS = 'points';
   static TYPE_SUMMARY = 'summary';
+  static TYPE_PREFERENCES = 'preferences';
 
-  static ALLOWED_TYPES = [Change.TYPE_COMMENT, Change.TYPE_POINTS, Change.TYPE_SUMMARY];
+  static ALLOWED_TYPES = [Change.TYPE_COMMENT, Change.TYPE_POINTS, Change.TYPE_SUMMARY, Change.TYPE_PREFERENCES];
 
 
   /**

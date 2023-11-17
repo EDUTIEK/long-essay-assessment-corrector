@@ -456,9 +456,7 @@ export const useApiStore = defineStore('api', {
             await levelsStore.loadFromData(response.data.levels);
             await criteriaStore.loadFromData(response.data.criteria);
             await itemsStore.loadFromData(response.data.items);
-            
-            // prefrences are not yet saved to the backend
-            await preferencesStore.loadFromStorage();
+            await preferencesStore.loadFromData(response.data.preferences);
 
             const layoutStore = useLayoutStore();
             const correctorsStore = useCorrectorsStore();
@@ -541,8 +539,9 @@ export const useApiStore = defineStore('api', {
             const commentsStore = useCommentsStore();
             const pointsStore = usePointsStore();
             const summariesStore = useSummariesStore();
+            const preferencesStore = usePreferencesStore();
 
-            // give 5 seconds for a running request to finish
+            // wait up to seconds for a running request to finish before giving up
             if (wait) {
                 let tries = 0;
                 while (tries < 5 && this.lastSendingTry > 0) {
@@ -563,7 +562,8 @@ export const useApiStore = defineStore('api', {
                     const data = {
                         comments: await commentsStore.getChangedData(this.lastSendingTry),
                         points: await pointsStore.getChangedData(this.lastSendingTry),
-                        summaries: await summariesStore.getChangedData(this.lastSendingTry)
+                        summaries: await summariesStore.getChangedData(this.lastSendingTry),
+                        preferences: await preferencesStore.getChangedData(this.lastSendingTry),
                     };
 
                     const response = await axios.put( '/changes/' + this.itemKey, data, this.getRequestConfig(this.dataToken));
@@ -577,6 +577,7 @@ export const useApiStore = defineStore('api', {
                     await changesStore.setChangesSent(Change.TYPE_COMMENT, response.data.comments, this.lastSendingTry);
                     await changesStore.setChangesSent(Change.TYPE_POINTS, response.data.points, this.lastSendingTry);
                     await changesStore.setChangesSent(Change.TYPE_SUMMARY, response.data.summaries, this.lastSendingTry);
+                    await changesStore.setChangesSent(Change.TYPE_PREFERENCES, response.data.preferences, this.lastSendingTry);
                 }
                 catch (error) {
                     console.error(error);
