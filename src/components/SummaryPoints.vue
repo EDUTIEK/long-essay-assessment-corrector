@@ -21,7 +21,7 @@ if (summary) {
   if (level) {
     grade.value = level.title;
   }
-  text.value = summariesStore.getIncludesText(summary);
+  text.value = summariesStore.getInclusionText(summary);
 }
 
 
