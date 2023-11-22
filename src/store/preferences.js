@@ -110,12 +110,14 @@ export const usePreferencesStore = defineStore('preferences', {
       const apiStore = useApiStore();
       
       await this.saveToStorage();
-      await changesStore.setChange(new Change({
-        type: Change.TYPE_PREFERENCES,
-        action: Change.ACTION_SAVE,
-        key: 'preferences',         // fixed key, old change will be updated
-        item_key: apiStore.itemKey
-      }))
+      if (apiStore.correctorKey) {
+        await changesStore.setChange(new Change({
+          type: Change.TYPE_PREFERENCES,
+          action: Change.ACTION_SAVE,
+          key: 'preferences',         // fixed key, old change will be updated
+          item_key: apiStore.itemKey
+        }))
+      }
     },
 
     /**
