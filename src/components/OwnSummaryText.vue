@@ -23,6 +23,8 @@ import Editor from '@tinymce/tinymce-vue'
 
 import {useSummariesStore} from '@/store/summaries';
 import { usePreferencesStore } from '@/store/preferences';
+import { onMounted } from 'vue';
+import createImageMarker from 'long-essay-image-marker/ImageMarker';
 const summariesStore = useSummariesStore();
 const preferencesStore = usePreferencesStore();
 
@@ -72,14 +74,21 @@ function formats() {
   }
 }
 
+onMounted(() => {
+  applyZoom();
+});
+
 function zoomIn() {
   preferencesStore.zoomSummaryTextIn();
-  const editor = tinymce.get(props.editorId);
-  editor.contentWindow.document.body.style.fontSize= (preferencesStore.summary_text_zoom * 16) + 'px';
+  applyZoom();
 }
 
 function zoomOut() {
   preferencesStore.zoomSummaryTextOut();
+  applyZoom();
+}
+
+function applyZoom() {
   const editor = tinymce.get(props.editorId);
   editor.contentWindow.document.body.style.fontSize= (preferencesStore.summary_text_zoom * 16) + 'px';
 }
@@ -109,16 +118,8 @@ function zoomOut() {
             paste_block_drop: true,
             font_size_formats: '8pt 10pt 12pt 14pt 16pt 18pt 24pt 36pt 48pt',
             setup: function (editor) {
-              editor.ui.registry.addButton('zoomOut', {
-                tooltip: 'Verkleinern',
-                icon: 'zoom-out',
-                onAction: zoomOut
-              });
-              editor.ui.registry.addButton('zoomIn', {
-                tooltip: 'Vergrößern',
-                icon: 'zoom-in',
-                onAction: zoomIn
-              });
+              editor.ui.registry.addButton('zoomOut', {tooltip: 'Verkleinern', icon: 'zoom-out', onAction: zoomOut});
+              editor.ui.registry.addButton('zoomIn', {tooltip: 'Vergrößern', icon: 'zoom-in', onAction: zoomIn});
               }
             }"
       />
