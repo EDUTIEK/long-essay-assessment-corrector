@@ -2,6 +2,8 @@
   import {useEssayStore} from '@/store/essay';
   import {useCommentsStore} from "@/store/comments";
   import { useSummariesStore } from '@/store/summaries';
+  import { usePreferencesStore } from '@/store/preferences';
+
   import Comment from "@/data/Comment";
   import TextMarker from '@/lib/TextMarker';
   import {onMounted, nextTick, watch, ref} from 'vue';
@@ -9,6 +11,8 @@
   const essayStore = useEssayStore();
   const commentsStore = useCommentsStore();
   const summariesStore = useSummariesStore();
+  const preferencesStore = usePreferencesStore();
+  
   const showMenu = ref(false);
 
   let marker;
@@ -16,6 +20,7 @@
   let menuComment;
 
   onMounted(() => {
+    applyZoom();
     marker = new TextMarker(document.getElementById('app-essay'), onSelection, onIntersection);
     commentsStore.activeComments.forEach(comment => updateMark(comment));
   });
@@ -123,6 +128,20 @@
       }
   }
 
+  function zoomIn() {
+    preferencesStore.zoomEssayTextIn();
+    applyZoom();
+  }
+
+  function zoomOut() {
+    preferencesStore.zoomEssayTextOut();
+    applyZoom();
+  }
+  
+  function applyZoom() {
+    document.getElementById('app-essay').style.fontSize=(preferencesStore.essay_text_zoom * 16) + 'px';
+  }
+
 
   /**
    * Add comment for a previously selected range
@@ -150,7 +169,15 @@
 
 <template>
     <div id="app-essay-wrapper">
-        <div id="app-essay" v-html="essayStore.text"></div>
+      <div class="appTextButtons">
+        <v-btn-group density="comfortable" variant="outlined" divided>
+          <v-btn size="small" icon="mdi-magnify-minus-outline" @click="zoomOut()"></v-btn>
+          <v-btn size="small" icon="mdi-magnify-plus-outline" @click="zoomIn()"></v-btn>
+        </v-btn-group>
+
+      </div>
+      <div id="app-essay" v-html="essayStore.text">
+      </div>
       <v-menu v-model="showMenu">
         <div id="app-essay-menu">
           <v-btn icon="mdi-comment-plus" @click="menuAddComment()"></v-btn>
@@ -165,13 +192,20 @@
   @import '@/styles/content.css';
 
   #app-essay-wrapper {
-      height: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
   }
 
+  .appTextButtons {
+    text-align: center;
+    pading-bottom: 5px;
+  }
+  
   #app-essay {
-    height: 100%;
+    flex-grow: 1;
+    width: 100%;
     padding: 20px;
-    border: 1px solid #cccccc;
     overflow-y: scroll;
   }
 

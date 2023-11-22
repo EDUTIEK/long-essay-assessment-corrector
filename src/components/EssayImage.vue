@@ -321,7 +321,7 @@
 
 <template>
     <div id="app-essay-image-wrapper">
-        <div class = "appImageButtons">
+        <div class="appImageButtons">
 
 
           <v-btn-group density="comfortable" variant="outlined" divided>
@@ -411,8 +411,6 @@
       display: flex;
       flex-direction: column;
   }
-
-
   
   .appImageButtons {
     text-align: center;  
