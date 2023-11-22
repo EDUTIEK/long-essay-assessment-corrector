@@ -34,14 +34,14 @@ function toolbar() {
   switch ('full') // corrector always has full formatting options
   {
     case 'full':
-      return 'undo redo | formatselect fontsize | bold italic underline | bullist numlist | removeformat | charmap | paste';
+      return 'zoomOut zoomIn | undo redo | formatselect | bold italic underline | bullist numlist | removeformat | charmap | paste';
     case 'medium':
-      return 'undo redo | bold italic underline | bullist numlist | removeformat | charmap | paste';
+      return 'zoomOut zoomIn | undo redo | bold italic underline | bullist numlist | removeformat | charmap | paste';
     case 'minimal':
-      return 'undo redo | bold italic underline | removeformat | charmap | paste';
+      return 'zoomOut zoomIn | undo redo | bold italic underline | removeformat | charmap | paste';
     case 'none':
     default:
-      return 'undo redo | charmap |paste';
+      return 'zoomOut zoomIn | undo redo | charmap |paste';
   }
 }
 
@@ -87,10 +87,7 @@ function zoomOut() {
 </script>
 
 <template>
-  <div class="headline">Abschlussvotum
-  <v-btn @click="zoomIn()">Zoom In</v-btn>
-  <v-btn @click="zoomOut()">ZoomOut</v-btn>
-  </div>
+  <div class="headline">Abschlussvotum</div>
   <div class="app-own-summary-text-wrapper" v-if="!summariesStore.isOwnDisabled">
       <editor
           :id="props.editorId"
@@ -101,7 +98,7 @@ function zoomOut() {
           :init="{
             height: '100%',
             menubar: false,
-            plugins: 'lists charmap fontsize paste',
+            plugins: 'lists charmap paste',
             toolbar: toolbar(),
             valid_elements: validElements(),
             formats: formats(),
@@ -110,8 +107,20 @@ function zoomOut() {
             content_css: false,               // avoid 404 error for content css file
             content_style: contentUiCss.toString() + '\n' + contentLocalCss.toString(),
             paste_block_drop: true,
-            font_size_formats: '8pt 10pt 12pt 14pt 16pt 18pt 24pt 36pt 48pt'
-       }"
+            font_size_formats: '8pt 10pt 12pt 14pt 16pt 18pt 24pt 36pt 48pt',
+            setup: function (editor) {
+              editor.ui.registry.addButton('zoomOut', {
+                tooltip: 'Verkleinern',
+                icon: 'zoom-out',
+                onAction: zoomOut
+              });
+              editor.ui.registry.addButton('zoomIn', {
+                tooltip: 'Vergrößern',
+                icon: 'zoom-in',
+                onAction: zoomIn
+              });
+              }
+            }"
       />
   </div>
 
