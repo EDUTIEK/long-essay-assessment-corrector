@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import localForage from "localforage";
 import Criterion from '@/data/Criterion'
 import { useApiStore } from '@/store/api';
+import { useCorrectorsStore } from '@/store/correctors';
 
 const storage = localForage.createInstance({
     storeName: "corrector-criteria",
@@ -24,6 +25,12 @@ export const useCriteriaStore = defineStore('criteria',{
      * Getter functions (with params) start with 'get', simple state queries not
      */
     getters: {
+        hasAnyCriteria: state => {
+            const correctorsStore = useCorrectorsStore();
+            const correctorKeys = correctorsStore.correctorKeys;
+            return !!state.criteria.find(criterion => criterion.corrector_key == '' || correctorKeys.includes(criterion.corrector_key));
+        },
+        
         hasOwnCriteria: state => {
             const apiStore = useApiStore();
             return !!state.criteria.find(criterion => criterion.corrector_key == '' || criterion.corrector_key == apiStore.correctorKey);

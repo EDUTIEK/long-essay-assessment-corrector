@@ -27,8 +27,16 @@ export const useCorrectorsStore = defineStore('correctors',{
 
         countCorrectors: state => state.correctors.length,
         
+        correctorKeys: state => {
+          let keys = [];
+          for (const corrector of state.correctors) {
+              keys.push(corrector.corrector_key);
+          }
+          return keys;
+        },
+        
         /**
-         * Get alist of corrector objects for other Correctors
+         * Get a list of corrector objects for other Correctors
          * @param state
          * @returns {Corrector[]}
          */
@@ -47,7 +55,7 @@ export const useCorrectorsStore = defineStore('correctors',{
              * @returns {string}
              */
             const fn = function(corrector_key) {
-                if (state.correctors.lenght <= 1) {
+                if (state.correctors.length <= 1) {
                     return '';
                 }
 

@@ -117,13 +117,13 @@
               </v-btn>
               
               <!-- toggle marking points -->
-              <v-btn size="x-small" v-show=" criteriaStore.hasOwnCriteria && layoutStore.isMarkingVisible" @click="layoutStore.changeMarkingPointsExpansion()">
+              <v-btn size="x-small" v-show="criteriaStore.hasAnyCriteria && layoutStore.isMarkingVisible" @click="layoutStore.changeMarkingPointsExpansion()">
                 <v-icon icon="mdi-arrow-up-down"></v-icon>
                 <span>Bewertungen</span>
               </v-btn>
               
               <!-- toggle marking text -->
-              <v-btn size="x-small" v-show=" layoutStore.isMarkingVisible" @click="layoutStore.changeMarkingTextExpansion()">
+              <v-btn size="x-small" v-show="!apiStore.isForReviewOrStitch && layoutStore.isMarkingVisible" @click="layoutStore.changeMarkingTextExpansion()">
                 <v-icon icon="mdi-arrow-up-down"></v-icon>
                 <span>Abschlussvotum</span>
               </v-btn>

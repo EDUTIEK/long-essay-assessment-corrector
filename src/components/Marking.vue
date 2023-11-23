@@ -28,7 +28,7 @@ function expansionClass(expansion) {
 <template>
     <div id="app-marking-wrapper">
         <marking-comments  v-if="!apiStore.isForReviewOrStitch || summariesStore.isOneAuthorized" id="app-marking-comments"></marking-comments>
-        <div  v-if="!apiStore.isForReviewOrStitch || summariesStore.isOneAuthorized" v-show="criteriaStore.hasOwnCriteria && layoutStore.isMarkingPointsExpanded" :class="expansionClass(props.pointsExpansion)">
+        <div  v-if="!apiStore.isForReviewOrStitch || summariesStore.isOneAuthorized" v-show="criteriaStore.hasAnyCriteria && layoutStore.isMarkingPointsExpanded" :class="expansionClass(props.pointsExpansion)">
           <marking-points id="app-marking-points"></marking-points>
         </div>
         <div  v-if="!apiStore.isForReviewOrStitch && layoutStore.isMarkingTextExpanded" :class="expansionClass(props.textExpansion)">
