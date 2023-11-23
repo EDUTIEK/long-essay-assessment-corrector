@@ -413,18 +413,21 @@
   }
   
   .appImageButtons {
-    text-align: center;  
+    text-align: center; 
+    padding-bottom: 5px;
   }
   
   .appImageMarker {
     flex-grow: 1;
     width: 100%;
+    background-color: #EEEEEEEE;
+   margin-left: -5px;
   }
   
 
   .appImageBottomNav {
     position: absolute;
-    bottom: 5px;
+    bottom: 15px;
     right: calc(50% + 40px);
   }
 
