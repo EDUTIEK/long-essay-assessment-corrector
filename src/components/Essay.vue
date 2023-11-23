@@ -199,7 +199,7 @@
 
   .appTextButtons {
     text-align: center;
-    pading-bottom: 5px;
+    padding-bottom: 5px;
   }
   
   #app-essay {
