@@ -140,13 +140,13 @@ async function selectComment(comment) {
 
         <v-col class="col">
           <span v-show="commentsStore.isPointsAndRatingsShown || comment.key == commentsStore.selectedKey">
-            <input v-if="criteriaStore.hasOwnCriteria"
+            <input v-if="criteriaStore.getCorrectorHasCriteria(comment.corrector_key)"
                   class="pointsInput"
                   disabled="disabled"
                   :id="'pointsInput' + comment.key"
                   :value="pointsStore.getSumOfPointsForComment(comment.key)"/>
             
-            <input v-if="!criteriaStore.hasOwnCriteria"
+            <input v-if="!criteriaStore.getCorrectorHasCriteria(comment.corrector_key)"
                  class="pointsInput"
                  type="number"
                  min="0"
