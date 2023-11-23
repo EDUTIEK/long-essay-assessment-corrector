@@ -55,10 +55,10 @@
    </v-btn>
   
     <v-btn id="app-items-menu-activator">
-      <span v-show="loading">
+      <span v-if="loading">
         Lade Daten ...
       </span>
-      <span v-show="!loading">
+      <span v-if="!loading && itemsStore.currentItem !== undefined">
        {{ itemsStore.currentItem.title }}
         {{ correctorsStore.getPositionText(apiStore.correctorKey) }}
         {{ apiStore.isForReviewOrStitch

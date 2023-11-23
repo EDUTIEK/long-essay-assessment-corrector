@@ -298,7 +298,7 @@ export const useApiStore = defineStore('api', {
             this.showItemReplaceConfirmation = false;
             this.itemKey = localStorage.getItem('correctorItemKey');
             if (await this.loadDataFromStorage()) {
-                await this.loadItemFromStorage( this.itemKey);
+                await this.loadItemFromStorage(this.itemKey);
                 this.finishInitialisation();
             }
             this.updateConfig();
@@ -403,6 +403,11 @@ export const useApiStore = defineStore('api', {
         async loadItemFromStorage(itemKey) {
             console.log("loadItemFromStorage...");
 
+            const itemsStore = useItemsStore();
+            if (itemKey == '' || itemsStore.getItem(itemKey) == undefined) {
+                itemKey = itemsStore.firstKey
+            }
+
             const essayStore = useEssayStore();
             const pagesStore = usePagesStore();
             const correctorsStore = useCorrectorsStore();
@@ -420,6 +425,11 @@ export const useApiStore = defineStore('api', {
             await pointsStore.loadFromStorage(itemKey);
             await summariesStore.loadFromStorage(itemKey, this.correctorKey);
 
+            commentsStore.setMarkerChange();
+
+            this.itemKey = itemKey;
+            localStorage.setItem('itemKey', this.itemKey);
+            
             return true;
         },
 
@@ -483,8 +493,8 @@ export const useApiStore = defineStore('api', {
 
             console.log("loadItemFromBackend...");
 
-            if (itemKey == '') {
-                const itemsStore = useItemsStore();
+            const itemsStore = useItemsStore();
+            if (itemKey == '' || itemsStore.getItem(itemKey) == undefined) {
                 itemKey = itemsStore.firstKey
             }
 
