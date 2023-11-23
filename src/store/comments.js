@@ -23,7 +23,7 @@ export const useCommentsStore = defineStore('comments',{
             // saved in storage
             keys: [],                       // list of string keys of all comments in the storage
             comments: [],                   // list of comment objects for the currrent correction item
-            showOtherCorrectors: false,     // show the comments of other correctors
+            showOtherCorrectors: true,      // show the comments of other correctors
             showPointsAndRatings: true,     // show the points and ratings above the comments
 
             // not saved in storage
@@ -440,10 +440,10 @@ export const useCommentsStore = defineStore('comments',{
 
                 if (comment.parent_number > parent) {
                     parent = comment.parent_number;
-                    for (const key in numbers) {
-                        numbers[key] = 1;
+                    for (const key of correctorsStore.correctorKeys) {
+                        numbers[key] = 0;                   // reset all numbers for the new parent
                     }
-                    numbers[comment.corrector_key] = 1; // may not yet be set
+                    numbers[comment.corrector_key] = 1;     // set the number of the first comment
                     
                 } else {
                     numbers[comment.corrector_key]++;
