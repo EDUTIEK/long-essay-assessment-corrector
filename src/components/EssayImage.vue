@@ -189,6 +189,7 @@
             label: showLabels.value ? comment.label : '',
             color: comment.getMarkColor(mark),
             selectedColor: comment.getMarkSelectedColor(mark),
+            locked: comment.corrector_key != apiStore.correctorKey || summariesStore.isOwnDisabled
           }
           if (currentKeys.includes(mark.key)) {
             marker.updateMark(mark_data);
