@@ -26,10 +26,10 @@ function startState() {
     return {
         // saved in storage
         keys: [],                   // list of string keys of all summaries in the storage
-        editSummary: new Summary(), // summary of the currector corrector that is actively edited
         summaries: {},              // list of all summary objects for the current item, indexed by key
 
         // not saved in storage
+        editSummary: new Summary(), // summary of the currector corrector that is actively edited
         lastCheck: 0,               // timestamp (ms) of the last check if an update needs a storage
     }
 }

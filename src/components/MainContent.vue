@@ -228,7 +228,6 @@
 
 .headline {
   font-weight: bold;
-  
 }
 
 .v-btn-group {
