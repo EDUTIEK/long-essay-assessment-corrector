@@ -15,21 +15,21 @@ const settingsStore = useSettingsStore();
 const summariesStore = useSummariesStore();
 
 
-const showAuthorization = ref(false);
+
 const showIncludes = ref(false);
 
 async function setAuthorizedAndContinue() {
   
     await summariesStore.setOwnAuthorized();
     if (await apiStore.saveChangesToBackend(true)) {
-      showAuthorization.value = false;
+      apiStore.setShowAuthorization(false);
       let newKey = itemsStore.getNextKey(apiStore.itemKey);
       if (newKey != '') {
         apiStore.loadItemFromBackend(newKey);
       }
     }
     else {
-      showAuthorization.value = false;
+      apiStore.setShowAuthorization(false);
       apiStore.setShowSendFailure(true);
     }
 }
@@ -38,11 +38,11 @@ async function setAuthorizedAndClose() {
 
   await summariesStore.setOwnAuthorized();
   if (await apiStore.saveChangesToBackend(true)) {
-    showAuthorization.value = false;
+    apiStore.setShowAuthorization(false);
     window.location = apiStore.returnUrl;
   } 
   else {
-    showAuthorization.value = false;
+    apiStore.setShowAuthorization(false);
     apiStore.setShowSendFailure(true);
     return;
   }
@@ -53,12 +53,12 @@ async function setAuthorizedAndClose() {
 <template>
     <div id="app-authorization-wrapper">
 
-      <v-btn v-show="!summariesStore.isOwnDisabled" :disabled="!taskStore.authorization_allowed" @click="showAuthorization=true">
+      <v-btn v-show="!summariesStore.isOwnDisabled" :disabled="!taskStore.authorization_allowed" @click="apiStore.setShowAuthorization(true)">
           <v-icon left icon="mdi-file-certificate-outline"></v-icon>
         <span>Autorisieren...</span>
       </v-btn>
 
-      <v-dialog max-width="50%" persistent v-model="showAuthorization">
+      <v-dialog max-width="50%" persistent v-model="apiStore.showAuthorization">
         <v-card>
           <v-card-title>Korrektur von {{itemsStore.currentItem.title}} autorisieren</v-card-title>
           <v-card-text>
@@ -93,7 +93,7 @@ async function setAuthorizedAndClose() {
               <v-icon left icon="mdi-check"></v-icon>
               <span>Autorisieren und Schließen</span>
             </v-btn>
-            <v-btn @click="showAuthorization=false">
+            <v-btn @click="apiStore.setShowAuthorization(false);">
               <v-icon left icon="mdi-close"></v-icon>
               <span>Abbrechen</span>
             </v-btn>
