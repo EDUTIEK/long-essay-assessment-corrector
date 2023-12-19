@@ -29,7 +29,7 @@ watch(() => commentsStore.selectedKey, loadPoints);
 
 
 function savePoints(criterionKey) {
-    pointsStore.setValueByRelation(commentKey, criterionKey, criteriaPoints.value[criterionKey]);
+    pointsStore.setValueByRelation(commentsStore.selectedKey, criterionKey, criteriaPoints.value[criterionKey]);
 }
 
 </script>
