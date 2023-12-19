@@ -148,6 +148,7 @@ export const useSummariesStore = defineStore('summaries',{
 
 
         getInclusionText: state => {
+            const settingsStore = useSettingsStore();
 
             /**
              *
@@ -172,10 +173,10 @@ export const useSummariesStore = defineStore('summaries',{
                 }
 
                 if (settings.include_comment_ratings == Summary.INCLUDE_INFO) {
-                    text = (text ? text + ', ' : '') + 'Kardinal und Exzellent (i)';
+                    text = (text ? text + ', ' : '') + settingsStore.ratingLabels + ' (i)';
                 }
                 else if (settings.include_comment_ratings == Summary.INCLUDE_RELEVANT) {
-                    text = (text ? text + ', ' : '') + 'Kardinal und Exzellent (r)';
+                    text = (text ? text + ', ' : '') + settingsStore.ratingLabels + ' (r)';
                 }
                 
                 if (settings.include_comment_points == Summary.INCLUDE_INFO) {

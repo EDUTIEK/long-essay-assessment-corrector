@@ -1,14 +1,16 @@
 <script setup>
 
-import {useSummariesStore} from '@/store/summaries';
-import {useCriteriaStore} from '@/store/criteria';
+import { useSummariesStore } from '@/store/summaries';
+import { useCriteriaStore } from '@/store/criteria';
 import { usePreferencesStore } from '@/store/preferences';
+import { useSettingsStore } from '@/store/settings';
 import Summary from '@/data/Summary';
 import { ref } from 'vue';
 
 const summariesStore = useSummariesStore();
 const criteriaStore = useCriteriaStore();
 const preferencesStore = usePreferencesStore();
+const settingsStore = useSettingsStore();
 
 const showIncludes = ref(false);
 
@@ -62,7 +64,7 @@ function save() {
             </v-row>
             <v-row v-show="includes.include_comments > Summary.INCLUDE_NOT">
               <v-col>
-                Kardinal und Exzellent
+                {{ settingsStore.ratingLabels }}
               </v-col>
               <v-col>
                 <v-select class="select" variant="outlined" density="compact" v-model="includes.include_comment_ratings" :items = "items"></v-select>

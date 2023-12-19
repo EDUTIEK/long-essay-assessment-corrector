@@ -120,7 +120,7 @@ async function filterByCriterion(criterion_key) {
                     <v-btn density="compact" size="small" variant="text" prepend-icon="mdi-filter-outline"
                            :disabled="commentsStore.getCountOfExcellent(props.corrector_key) == 0"
                            @click="filterByRating(true, false)" ></v-btn>
-                    Exzellente Stellen
+                  {{ settingsStore.positive_rating }}
 
                 </td>
                 <td class="text-right">
@@ -132,7 +132,7 @@ async function filterByCriterion(criterion_key) {
                     <v-btn density="compact" size="small" variant="text" prepend-icon="mdi-filter-outline"
                            :disabled="commentsStore.getCountOfCardinal(props.corrector_key) == 0"
                            @click="filterByRating(false, true)" ></v-btn>
-                    Kardinalfehler
+                  {{ settingsStore.negative_rating }}
                 </td>
                 <td class="text-right">
                     {{commentsStore.getCountOfCardinal(props.corrector_key)}}

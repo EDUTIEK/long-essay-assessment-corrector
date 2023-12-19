@@ -175,7 +175,7 @@ async function selectComment(comment) {
                              @change="toggleExcellent(comment)"/>
 
             <label :for="'ratingExcellent' + comment.key"
-                 @click="commentsStore.selectComment(comment.key)"> Excellent</label>
+                 @click="commentsStore.selectComment(comment.key)">&nbsp;{{ settingsStore.positive_rating }}</label>
           </span>
           
         </v-col>
@@ -191,7 +191,7 @@ async function selectComment(comment) {
                    :disabled="summariesStore.isOwnDisabled || comment.corrector_key != apiStore.correctorKey"
                    @change="toggleCardinal(comment)"/>
             <label :for="'ratingCardinal' + comment.key"
-                   @click="commentsStore.selectComment(comment.key)"> Kardinal</label>
+                   @click="commentsStore.selectComment(comment.key)">&nbsp;{{ settingsStore.negative_rating }}</label>
           </span>
         </v-col>
       </v-row>

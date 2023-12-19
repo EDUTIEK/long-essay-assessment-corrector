@@ -20,10 +20,17 @@ export const useSettingsStore = defineStore('settings',{
             max_auto_distance: 0,           // maximum distance between points to allow an automated points calculation
             stitch_when_distance: false,    // stitch decision is needed when the distance is higher than the max_auto_distance
             stitch_when_decimals: false,    // stitch decision is needed when the average points have decimals
+            positive_rating: 'Exzellent',   // label of a positive rating
+            negative_rating: 'Kardinal',    // label of anegative rating
 
         }
     },
 
+    getters: {
+      ratingLabels: state => '"' + state.positive_rating + '" und "' + state.negative_rating + '"'
+        
+    },
+    
     actions: {
         async clearStorage() {
             try {
