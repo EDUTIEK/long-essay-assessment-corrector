@@ -1,11 +1,15 @@
 <script setup>
 
-import {useSummariesStore} from '@/store/summaries';
-import {useSettingsStore} from '@/store/settings';
+import { useApiStore } from '@/store/api';
+import { useSummariesStore } from '@/store/summaries';
+import { useSettingsStore } from '@/store/settings';
+import { useTaskStore } from '@/store/task';
 import OwnSummaryIncludes from '@/components/OwnSummaryIncludes.vue';
 
+const apiStore = useApiStore();
 const summariesStore = useSummariesStore();
 const settingsStore = useSettingsStore();
+const taskStore = useTaskStore();
 
 </script>
 
@@ -17,6 +21,11 @@ const settingsStore = useSettingsStore();
       &nbsp;
       <strong>Notenstufe:</strong> {{ summariesStore.currentGradeTitle }}
 
+      <v-btn variant="text" v-show="!summariesStore.isOwnDisabled" :disabled="!taskStore.authorization_allowed" @click="apiStore.setShowAuthorization(true)">
+        <v-icon left icon="mdi-file-certificate-outline"></v-icon>
+        <span>Autorisieren...</span>
+      </v-btn>
+
       <own-summary-includes></own-summary-includes>
       
     </div>
@@ -24,5 +33,7 @@ const settingsStore = useSettingsStore();
 
 <style scoped>
 
-
+.appPoints {
+  width: 4em;
+}
 </style>
