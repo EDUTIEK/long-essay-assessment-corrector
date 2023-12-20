@@ -58,7 +58,7 @@ async function setAuthorizedAndClose() {
         <span>Autorisieren...</span>
       </v-btn>
 
-      <v-dialog max-width="50%" persistent v-model="apiStore.showAuthorization">
+      <v-dialog max-width="60em" persistent v-model="apiStore.showAuthorization">
         <v-card>
           <v-card-title>Korrektur von {{itemsStore.currentItem.title}} autorisieren</v-card-title>
           <v-card-text>

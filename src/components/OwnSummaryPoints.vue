@@ -23,7 +23,6 @@ const taskStore = useTaskStore();
 
       <v-btn variant="text" v-show="!summariesStore.isOwnDisabled" :disabled="!taskStore.authorization_allowed" @click="apiStore.setShowAuthorization(true)">
         <v-icon left icon="mdi-file-certificate-outline"></v-icon>
-        <span>Autorisieren...</span>
       </v-btn>
 
       <own-summary-includes></own-summary-includes>
