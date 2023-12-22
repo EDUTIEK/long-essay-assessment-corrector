@@ -3,7 +3,6 @@
 Web app to correct long essays of an exam.
 Used by the [long-essay-assessment-service](https://github.com/EDUTIEK/long-essay-assessment-service).
 
-** Under Development **
 
 ## Project Setup
 
