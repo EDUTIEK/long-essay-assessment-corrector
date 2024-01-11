@@ -19,7 +19,7 @@ const summariesStore = useSummariesStore();
 const showIncludes = ref(false);
 
 async function setAuthorizedAndContinue() {
-  
+
     await summariesStore.setOwnAuthorized();
     if (await apiStore.saveChangesToBackend(true)) {
       apiStore.setShowAuthorization(false);
@@ -40,7 +40,7 @@ async function setAuthorizedAndClose() {
   if (await apiStore.saveChangesToBackend(true)) {
     apiStore.setShowAuthorization(false);
     window.location = apiStore.returnUrl;
-  } 
+  }
   else {
     apiStore.setShowAuthorization(false);
     apiStore.setShowSendFailure(true);
@@ -62,19 +62,19 @@ async function setAuthorizedAndClose() {
         <v-card>
           <v-card-title>Korrektur von {{itemsStore.currentItem.title}} autorisieren</v-card-title>
           <v-card-text>
-            
-            <label for="appOwnSummaryPoints"><strong>Eigene Wertung:</strong></label>
+
+              <p><strong>Gutachten:</strong></p>
+              <div class="appText long-essay-content corrector-summary" v-html="summariesStore.editSummary.text">
+              </div>
+
+              <label for="appOwnSummaryPoints"><strong>Bewertung:</strong></label>
             <input class="appPoints" type="number" min="0" :max="settingsStore.max_points" v-model="summariesStore.editSummary.points" />Punkte
             &nbsp;
             <strong>Notenstufe:</strong> {{ summariesStore.currentGradeTitle }}
-            
+
             <own-summary-includes></own-summary-includes>
 
-            <p><strong>Eigener Text:</strong></p>
-            <div class="appText" v-html="summariesStore.editSummary.text">
-            </div>
-            
-            <hr>
+
             <p v-show="summariesStore.areOthersAuthorized && summariesStore.stitchReasonText != '' ">
               <strong>Ihre Punktevergabe wird einen Stichentscheid erfordern:</strong>
               <br>{{ summariesStore.stitchReasonText }}
@@ -103,6 +103,12 @@ async function setAuthorizedAndClose() {
     </div>
 </template>
 
+<style>
+/* Must be global because of v-html used for the instructions */
+@import '@/styles/content.css';
+@import '@/styles/summary.css';
+</style>
+
 <style scoped>
 
 .appPoints {
@@ -116,6 +122,7 @@ async function setAuthorizedAndClose() {
 .appText {
   height: 12em;
   overflow-y: scroll;
+  border: 1px solid lightgray;
 }
 
 </style>

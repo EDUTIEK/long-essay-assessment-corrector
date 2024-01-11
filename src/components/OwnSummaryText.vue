@@ -13,6 +13,7 @@ import 'tinymce/skins/ui/oxide/skin.css';
 /* Import content css */
 import contentUiCss from 'tinymce/skins/ui/oxide/content.css';
 import contentLocalCss from '@/styles/content.css';
+import summaryLocalCss from '@/styles/summary.css';
 
 /* Import plugins */
 import 'tinymce/plugins/lists';
@@ -96,7 +97,7 @@ function applyZoom() {
 </script>
 
 <template>
-  <div class="headline">Abschlussvotum</div>
+  <div class="headline">Gutachten</div>
   <div class="app-own-summary-text-wrapper" v-if="!summariesStore.isOwnDisabled">
       <editor
           :id="props.editorId"
@@ -114,7 +115,7 @@ function applyZoom() {
             custom_undo_redo_levels: 10,
             skin: false,                      // avoid 404 errors for skin css files
             content_css: false,               // avoid 404 error for content css file
-            content_style: contentUiCss.toString() + '\n' + contentLocalCss.toString(),
+            content_style: contentUiCss.toString() + '\n' + contentLocalCss.toString() + '\n' + summaryLocalCss.toString(),
             paste_block_drop: true,
             font_size_formats: '8pt 10pt 12pt 14pt 16pt 18pt 24pt 36pt 48pt',
             setup: function (editor) {
@@ -126,12 +127,15 @@ function applyZoom() {
   </div>
 
   <div class="app-summary-text-wrapper" v-if="summariesStore.isOwnDisabled">
-    <div class="app-summary-text-display" v-html="summariesStore.editSummary.text">
+    <div class="app-summary-text-display long-essay-content corrector-summary" v-html="summariesStore.editSummary.text">
     </div>
   </div>
 </template>
 
 <style>
+/* Must be global because of v-html used for the instructions */
+@import '@/styles/content.css';
+@import '@/styles/summary.css';
 
 .headline {
   font-weight: bold;
@@ -152,9 +156,6 @@ function applyZoom() {
 
 .app-summary-text-display {
   height:100%;
-  font-family: Serif;
-  font-size: 16px;
-
 }
 
 

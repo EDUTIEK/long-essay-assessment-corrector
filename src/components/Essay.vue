@@ -12,7 +12,7 @@
   const commentsStore = useCommentsStore();
   const summariesStore = useSummariesStore();
   const preferencesStore = usePreferencesStore();
-  
+
   const showMenu = ref(false);
 
   let marker;
@@ -137,7 +137,7 @@
     preferencesStore.zoomEssayTextOut();
     applyZoom();
   }
-  
+
   function applyZoom() {
     document.getElementById('app-essay').style.fontSize=(preferencesStore.essay_text_zoom * 16) + 'px';
   }
@@ -176,7 +176,7 @@
         </v-btn-group>
 
       </div>
-      <div id="app-essay" v-html="essayStore.text">
+      <div id="app-essay" class="long-essay-content" v-html="essayStore.text">
       </div>
       <v-menu v-model="showMenu">
         <div id="app-essay-menu">
@@ -188,8 +188,8 @@
 </template>
 
 <style>
-
-  @import '@/styles/content.css';
+/* Must be global because of v-html used for the instructions */
+@import '@/styles/content.css';
 
   #app-essay-wrapper {
     height: 100%;
@@ -201,7 +201,7 @@
     text-align: center;
     padding-bottom: 5px;
   }
-  
+
   #app-essay {
     flex-grow: 1;
     width: 100%;
@@ -224,7 +224,7 @@
       background-color: #aaaaaaaa;
       color: white;
       font-family: sans-serif;
-    
+
       font-size: 14px;
       font-style: normal;
       font-weight: normal;

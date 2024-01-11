@@ -4,12 +4,15 @@
 </script>
 
 <template>
-  <div id="app-solution" v-html="taskStore.solution"></div>
+  <div id="app-solution" class="long-essay-content" v-html="taskStore.solution"></div>
 </template>
 
-<style scoped>
+<style>
+/* Must be global because of v-html used for the instructions */
+@import '@/styles/content.css';
 
-  @import '@/styles/content.css';
+</style>
+<style scoped>
 
   #app-solution {
     height: 100%;

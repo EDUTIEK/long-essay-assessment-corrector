@@ -49,7 +49,7 @@
               <!-- toggle left summary text  -->
               <v-btn size="x-small" v-show="layoutStore.isLeftCorrectorVisible" @click="layoutStore.changeLeftSummaryTextExpansion()">
                 <v-icon icon="mdi-arrow-up-down"></v-icon>
-                <span>Abschlussvotum</span>
+                <span>Gutachten</span>
               </v-btn>
               <!-- expand right column -->
               <v-btn size="x-small" @click="layoutStore.setLeftExpanded(false)" v-show="layoutStore.isLeftExpanded">
@@ -66,7 +66,7 @@
                 <span>Erweitern</span>
                 <v-icon icon="mdi-chevron-right"></v-icon>
               </v-btn>
-              
+
             </v-btn-group>
         </div>
         <!-- Content -->
@@ -96,43 +96,43 @@
             </span>
 
             <v-btn-group density="comfortable">
-              
+
               <!-- show points and ratings in comments -->
               <v-btn  size="x-small" variant="plain" v-if="layoutStore.isMarkingVisible"
                       @click="commentsStore.setShowPointsAndRatings(!commentsStore.isPointsAndRatingsShown)">
                 <v-icon :icon="commentsStore.isPointsAndRatingsShown ? 'mdi-check-bold' : 'mdi-check-outline'"></v-icon>
               </v-btn>
-              
+
               <!-- show other correctors -->
               <v-btn  size="x-small" variant="plain" v-if="layoutStore.isMarkingVisible"
                      @click="commentsStore.setShowOtherCorrectors(!commentsStore.isOtherCorrectorsShown)">
                 <v-icon :icon="commentsStore.isOtherCorrectorsShown ? 'mdi-account-school' : 'mdi-account-school-outline'"></v-icon>
               </v-btn>
-              
+
               <!-- reset comments filter -->
               <v-btn  size="x-small" variant="plain" v-if="layoutStore.isMarkingVisible"
                      :disabled="!commentsStore.isFilterActive"
                      @click="commentsStore.resetFilter()">
                 <v-icon :icon="commentsStore.isFilterActive ? 'mdi-filter' : 'mdi-filter-outline'"></v-icon>
               </v-btn>
-              
+
               <!-- toggle marking points -->
               <v-btn size="x-small" v-show="criteriaStore.hasAnyCriteria && layoutStore.isMarkingVisible" @click="layoutStore.changeMarkingPointsExpansion()">
                 <v-icon icon="mdi-arrow-up-down"></v-icon>
                 <span>Bewertungen</span>
               </v-btn>
-              
+
               <!-- toggle marking text -->
               <v-btn size="x-small" v-show="!apiStore.isForReviewOrStitch && layoutStore.isMarkingVisible" @click="layoutStore.changeMarkingTextExpansion()">
                 <v-icon icon="mdi-arrow-up-down"></v-icon>
-                <span>Abschlussvotum</span>
+                <span>Gutachten</span>
               </v-btn>
 
 
               <!-- toggle right summary text  -->
               <v-btn size="x-small" v-show="layoutStore.isSummaryVisible || layoutStore.isRightCorrectorVisible" @click="layoutStore.changeRightSummaryTextExpansion()">
                 <v-icon icon="mdi-arrow-up-down"></v-icon>
-                <span>Abschlussvotum</span>
+                <span>Gutachten</span>
               </v-btn>
 
               <!-- expand left column -->
@@ -152,14 +152,14 @@
                 <v-icon icon="mdi-chevron-left"></v-icon>
                 <span>Erweitern</span>
               </v-btn>
-              
+
             </v-btn-group>
           </div>
         <!-- Content -->
         <div class="col-content">
           <own-summary v-if="layoutStore.isSummaryVisible" :textExpansion="layoutStore.rightSummaryTextExpansion"/>
           <other-summary v-if= "layoutStore.isRightCorrectorVisible" :corrector_key="layoutStore.rightCorrectorKey" :textExpansion="layoutStore.rightSummaryTextExpansion" />
-          <marking v-show="layoutStore.isMarkingVisible" 
+          <marking v-show="layoutStore.isMarkingVisible"
                    :pointsExpansion="layoutStore.markingPointsExpansion"
                    :textExpansion="layoutStore.markingTextExpansion"
           /> <!-- v-show neeed to keep points displayed when switching right content) -->

@@ -1,0 +1,22 @@
+/**
+ * Style of corrector summary
+ */
+
+.mce-content-body h1, .corrector-summary h1 {
+    font-size: 1.2em;
+}
+.mce-content-body h2, .corrector-summary h2 {
+    font-size: 1.1em;
+}
+.mce-content-body h3, .corrector-summary h3 {
+    font-size: 1em;
+}
+.mce-content-body h4, .corrector-summary h4 {
+    font-size: 0.9em;
+}
+.mce-content-body h5, .corrector-summary h5 {
+    font-size: 0.8em;
+}
+.mce-content-body h6, .corrector-summary h6 {
+    font-size: 0.7em;
+}

@@ -1,56 +1,27 @@
 /**
- * Copied from tinymce/skins/content/default/content.css
- * Used by Essay, Instructions and Review Components
+ * Style of written contents
  */
 
-.mce-content-body, #app-instructions, #app-essay, .appCorrector, #review-text {
-    font-family: Serif;
+.mce-content-body, .long-essay-content {
+    font-family: serif;
+    font-size: 16px;
+    max-width: 60em;
+    line-height: 150%;
+}
+.mce-content-body h1, .long-essay-content h1,
+.mce-content-body h2, .long-essay-content h2,
+.mce-content-body h3, .long-essay-content h3,
+.mce-content-body h4, .long-essay-content h4,
+.mce-content-body h5, .long-essay-content h5,
+.mce-content-body h6, .long-essay-content h6 {
+    font-size: 16px;
+    padding: 0;
+    margin-top: 0;
+    margin-bottom: 10px;
 }
 
-table {
-    border-collapse: collapse;
+.mce-content-body ol, .long-essay-content ol,
+.mce-content-body ul, .long-essay-content ul {
+    margin-left: 10px;
+    margin-bottom: 20px;
 }
-/* Apply a default padding if legacy cellpadding attribute is missing */
-table:not([cellpadding]) th,
-table:not([cellpadding]) td {
-    padding: 0.4rem;
-}
-/* Set default table styles if a table has a positive border attribute
-   and no inline css */
-table[border]:not([border="0"]):not([style*="border-width"]) th,
-table[border]:not([border="0"]):not([style*="border-width"]) td {
-    border-width: 1px;
-}
-/* Set default table styles if a table has a positive border attribute
-   and no inline css */
-table[border]:not([border="0"]):not([style*="border-style"]) th,
-table[border]:not([border="0"]):not([style*="border-style"]) td {
-    border-style: solid;
-}
-/* Set default table styles if a table has a positive border attribute
-   and no inline css */
-table[border]:not([border="0"]):not([style*="border-color"]) th,
-table[border]:not([border="0"]):not([style*="border-color"]) td {
-    border-color: #ccc;
-}
-figure {
-    display: table;
-    margin: 1rem auto;
-}
-figure figcaption {
-    color: #999;
-    display: block;
-    margin-top: 0.25rem;
-    text-align: center;
-}
-hr {
-    border-color: #ccc;
-    border-style: solid;
-    border-width: 1px 0 0 0;
-}
-code {
-    background-color: #e8e8e8;
-    border-radius: 3px;
-    padding: 0.1rem 0.2rem;
-}
-

@@ -15,7 +15,7 @@ const taskStore = useTaskStore();
 
 <template>
     <div id="app-own-summary-points-wrapper">
-      <label for="appOwnSummaryPoints"><strong>Eigene Wertung:</strong></label>
+      <label for="appOwnSummaryPoints"><strong>Bewertung:</strong></label>
       &nbsp;
       <input :disabled="summariesStore.isOwnDisabled" id="appOwnSummaryPoints" class="appPoints" type="number" min="0" :max="settingsStore.max_points" v-model="summariesStore.editSummary.points" /> Punkte
       &nbsp;
@@ -26,7 +26,7 @@ const taskStore = useTaskStore();
       </v-btn>
 
       <own-summary-includes></own-summary-includes>
-      
+
     </div>
 </template>
 

@@ -4,12 +4,16 @@
 </script>
 
 <template>
-  <div id="app-instructions" v-html="taskStore.instructions"></div>
+  <div id="app-instructions" class="long-essay-content" v-html="taskStore.instructions"></div>
 </template>
 
-<style scoped>
 
-  @import '@/styles/content.css';
+<style>
+/* Must be global because of v-html used for the instructions */
+@import '@/styles/content.css';
+</style>
+
+<style scoped>
 
   #app-instructions {
     height: 100%;
@@ -17,6 +21,5 @@
     border: 1px solid #cccccc;
     overflow-y: scroll;
   }
-
 
 </style>
