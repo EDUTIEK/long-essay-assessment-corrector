@@ -15,6 +15,7 @@
 .mce-content-body h5, .long-essay-content h5,
 .mce-content-body h6, .long-essay-content h6 {
     font-size: 16px;
+    font-weight: bold;
     padding: 0;
     margin-top: 0;
     margin-bottom: 10px;
