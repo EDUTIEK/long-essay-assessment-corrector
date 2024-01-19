@@ -107,7 +107,7 @@ html {
 
 .appImageMarker svg .shape text.symbol {
   font-weight: bold;
-  font-size: 100px;
+  font-size: 70px;
 }
 
 </style>
