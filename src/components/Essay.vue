@@ -140,6 +140,12 @@
 
   function applyZoom() {
     document.getElementById('app-essay').style.fontSize=(preferencesStore.essay_text_zoom * 16) + 'px';
+    for (const element of document.getElementById('app-essay').querySelectorAll("*")) {
+        element.style.fontSize=(preferencesStore.essay_text_zoom * 16) + 'px';
+    }
+      for (const element of document.getElementById('app-essay').querySelectorAll(".ParagraphNumber > *")) {
+          element.style.fontSize=(preferencesStore.essay_text_zoom * 10) + 'px';
+      }
   }
 
 
