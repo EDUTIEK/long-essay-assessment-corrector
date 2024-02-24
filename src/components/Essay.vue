@@ -1,17 +1,18 @@
 <script setup>
   import {useEssayStore} from '@/store/essay';
   import {useCommentsStore} from "@/store/comments";
-  import { useSummariesStore } from '@/store/summaries';
-  import { usePreferencesStore } from '@/store/preferences';
+  import {useSummariesStore} from '@/store/summaries';
+  import {usePreferencesStore} from '@/store/preferences';
+  import {useSettingsStore} from '@/store/settings';
 
-  import Comment from "@/data/Comment";
   import TextMarker from '@/lib/TextMarker';
-  import {onMounted, nextTick, watch, ref} from 'vue';
+  import {onMounted, watch, ref} from 'vue';
 
   const essayStore = useEssayStore();
   const commentsStore = useCommentsStore();
   const summariesStore = useSummariesStore();
   const preferencesStore = usePreferencesStore();
+  const settingsStore = useSettingsStore();
 
   const showMenu = ref(false);
 
@@ -30,7 +31,8 @@
       marker.hideAllMarksAndLabels();
       commentsStore.activeComments.forEach(comment => updateMark(comment));
       refreshSelection();
-  };
+  }
+
   watch(() => commentsStore.markerChange, refreshMarks);
   watch(() => commentsStore.filterKeys, refreshMarks);
 
@@ -45,7 +47,7 @@
           marker.addLabel('labelled', comment.label, comment.start_position);
           marker.scrollToMark(comment.start_position, comment.end_position);
       }
-  };
+  }
   watch(() => commentsStore.selectedKey, refreshSelection);
 
 
@@ -117,8 +119,7 @@
 
   /**
    * Handle a comment geting visible by scrolling
-   * @param {integer} firstWord
-   * @param {integer }lastWord
+   * @param {int} firstWord
    */
   function onIntersection(firstWord) {
       let comments = commentsStore.getActiveCommentsByStartPosition(firstWord);
@@ -140,12 +141,12 @@
 
   function applyZoom() {
     document.getElementById('app-essay').style.fontSize=(preferencesStore.essay_text_zoom * 16) + 'px';
-    for (const element of document.getElementById('app-essay').querySelectorAll("*")) {
-        element.style.fontSize=(preferencesStore.essay_text_zoom * 16) + 'px';
-    }
-      for (const element of document.getElementById('app-essay').querySelectorAll(".ParagraphNumber > *")) {
-          element.style.fontSize=(preferencesStore.essay_text_zoom * 10) + 'px';
-      }
+    // for (const element of document.getElementById('app-essay').querySelectorAll("*")) {
+    //     element.style.fontSize=(preferencesStore.essay_text_zoom * 16) + 'px';
+    // }
+    //   for (const element of document.getElementById('app-essay').querySelectorAll(".ParagraphNumber > *")) {
+    //       element.style.fontSize=(preferencesStore.essay_text_zoom * 10) + 'px';
+    //   }
   }
 
 
@@ -180,9 +181,8 @@
           <v-btn size="small" icon="mdi-magnify-minus-outline" @click="zoomOut()"></v-btn>
           <v-btn size="small" icon="mdi-magnify-plus-outline" @click="zoomIn()"></v-btn>
         </v-btn-group>
-
       </div>
-      <div id="app-essay" class="long-essay-content" v-html="essayStore.text">
+      <div id="app-essay" :class="'long-essay-content ' + settingsStore.headlineClass" v-html="essayStore.text">
       </div>
       <v-menu v-model="showMenu">
         <div id="app-essay-menu">
@@ -195,7 +195,6 @@
 
 <style>
 /* Must be global because of v-html used for the instructions */
-@import '@/styles/content.css';
 
   #app-essay-wrapper {
     height: 100%;

@@ -21,16 +21,16 @@ export const useSettingsStore = defineStore('settings',{
             stitch_when_distance: false,    // stitch decision is needed when the distance is higher than the max_auto_distance
             stitch_when_decimals: false,    // stitch decision is needed when the average points have decimals
             positive_rating: 'Exzellent',   // label of a positive rating
-            negative_rating: 'Kardinal',    // label of anegative rating
-
+            negative_rating: 'Kardinal',    // label of a negative rating
+            headline_scheme: null           // headline scheme of the essay
         }
     },
 
     getters: {
-      ratingLabels: state => '"' + state.positive_rating + '" und "' + state.negative_rating + '"'
-        
+        ratingLabels: state => '"' + state.positive_rating + '" und "' + state.negative_rating + '"',
+        headlineClass: state => state.headline_scheme === 'three' ? 'headlines-three' : ''
     },
-    
+
     actions: {
         async clearStorage() {
             try {

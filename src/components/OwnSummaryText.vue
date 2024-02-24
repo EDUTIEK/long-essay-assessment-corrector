@@ -13,7 +13,7 @@ import 'tinymce/skins/ui/oxide/skin.css';
 /* Import content css */
 import contentUiCss from 'tinymce/skins/ui/oxide/content.css';
 import contentLocalCss from '@/styles/content.css';
-import summaryLocalCss from '@/styles/summary.css';
+import headlinesThreeCss from '@/styles/headlines-three.css';
 
 /* Import plugins */
 import 'tinymce/plugins/lists';
@@ -37,7 +37,7 @@ function toolbar() {
   switch ('full') // corrector always has full formatting options
   {
     case 'full':
-      return 'zoomOut zoomIn | undo redo | formatselect | bold italic underline | bullist numlist | removeformat | charmap | paste';
+      return 'zoomOut zoomIn | undo redo | styleselect | bold italic underline | bullist numlist | removeformat | charmap | paste';
     case 'medium':
       return 'zoomOut zoomIn | undo redo | bold italic underline | bullist numlist | removeformat | charmap | paste';
     case 'minimal':
@@ -73,6 +73,17 @@ function formats() {
   return {
     underline: {inline: 'u', remove: 'all'}
   }
+}
+
+function styleFormats() {
+    return [
+        {title: 'Absatz', format: 'p'},
+        {title: 'Überschrift 1', format: 'h1'},
+        {title: 'Überschrift 2', format: 'h2'},
+        {title: 'Überschrift 3', format: 'h3'},
+        {title: 'Maschinenschrift', format: 'pre'},
+        {title: 'Listenelement', block: 'li'},
+    ];
 }
 
 onMounted(() => {
@@ -112,10 +123,12 @@ function applyZoom() {
             toolbar: toolbar(),
             valid_elements: validElements(),
             formats: formats(),
+            style_formats: styleFormats(),
             custom_undo_redo_levels: 10,
             skin: false,                      // avoid 404 errors for skin css files
             content_css: false,               // avoid 404 error for content css file
-            content_style: contentUiCss.toString() + '\n' + contentLocalCss.toString() + '\n' + summaryLocalCss.toString(),
+            content_style: contentUiCss.toString() + '\n' + contentLocalCss.toString() + '\n' + headlinesThreeCss.toString(),
+            browser_spellcheck: true,
             paste_block_drop: true,
             font_size_formats: '8pt 10pt 12pt 14pt 16pt 18pt 24pt 36pt 48pt',
             setup: function (editor) {
@@ -133,9 +146,14 @@ function applyZoom() {
 </template>
 
 <style>
-/* Must be global because of v-html used for the instructions */
-@import '@/styles/content.css';
-@import '@/styles/summary.css';
+/**
+ * Styles for tiny must be global
+ */
+
+/* hide the statusbar */
+.tox-statusbar {
+    display: none!important;
+}
 
 .headline {
   font-weight: bold;

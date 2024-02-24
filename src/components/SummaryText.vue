@@ -19,16 +19,10 @@ function text() {
 <template>
   <div class="headline">Gutachten</div>
   <div class="app-summary-text-wrapper">
-    <div class="app-summary-text-display long-essay-content corrector-summary" v-html="text()">
+    <div class="app-summary-text-display long-essay-content headlines-three" v-html="text()">
     </div>
   </div>
 </template>
-
-<style>
-/* Must be global because of v-html used for the instructions */
-@import '@/styles/content.css';
-@import '@/styles/summary.css';
-</style>
 
 <style scoped>
 

@@ -64,7 +64,7 @@ async function setAuthorizedAndClose() {
           <v-card-text>
 
               <p><strong>Gutachten:</strong></p>
-              <div class="appText long-essay-content corrector-summary" v-html="summariesStore.editSummary.text">
+              <div class="appText long-essay-content headlines-three" v-html="summariesStore.editSummary.text">
               </div>
 
               <label for="appOwnSummaryPoints"><strong>Bewertung:</strong></label>
@@ -102,12 +102,6 @@ async function setAuthorizedAndClose() {
       </v-dialog>
     </div>
 </template>
-
-<style>
-/* Must be global because of v-html used for the instructions */
-@import '@/styles/content.css';
-@import '@/styles/summary.css';
-</style>
 
 <style scoped>
 
