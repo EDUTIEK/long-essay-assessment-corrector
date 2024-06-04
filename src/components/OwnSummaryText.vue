@@ -130,6 +130,7 @@ function applyZoom() {
             content_style: contentUiCss.toString() + '\n' + contentLocalCss.toString() + '\n' + headlinesThreeCss.toString(),
             browser_spellcheck: true,
             paste_block_drop: true,
+            paste_convert_word_fake_lists: false,
             font_size_formats: '8pt 10pt 12pt 14pt 16pt 18pt 24pt 36pt 48pt',
             setup: function (editor) {
               editor.ui.registry.addButton('zoomOut', {tooltip: 'Verkleinern', icon: 'zoom-out', onAction: zoomOut});
