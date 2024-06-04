@@ -34,17 +34,17 @@ export const usePagesStore = defineStore('pages',{
      * Getter functions (with params) start with 'get', simple state queries not
      */
     getters: {
-        
+
         hasPages: state => Object.keys(state.pages).length > 0,
 
         selectedPage: state => {
             return state.pages[state.selectedKey] ?? null;
         },
-        
+
         selectedPageNo: state => {
             return state.selectedPage ? state.selectedPage.page_no : null;
         },
-        
+
         currentPages: state => {
             let pages = [];
             for (const key in state.pages) {
@@ -52,12 +52,12 @@ export const usePagesStore = defineStore('pages',{
             }
             return pages
         },
-        
+
         getPage: state => {
 
             /**
              * Get a page by its key
-             * 
+             *
              * @param {string] }key
              * @returns {Page|null}
              */
@@ -65,14 +65,14 @@ export const usePagesStore = defineStore('pages',{
                 return state.pages[key] ?? null;
             }
             return fn;
-            
+
         },
 
         getPageByPageNo: state => {
 
             /**
              * Get a page by its page number
-             * 
+             *
              * @param {string} number
              * @returns {Page|null}
              */
@@ -86,11 +86,11 @@ export const usePagesStore = defineStore('pages',{
             }
             return fn;
         }
-            
+
     },
 
     actions: {
-        
+
         /**
          * Set the current page key
          * This should be called when a page is manually selected in the page navigation
@@ -114,12 +114,12 @@ export const usePagesStore = defineStore('pages',{
                   this.selectedKey = key;
                   return true;
               }
-          }  
+          }
           return false;
         },
-        
+
         calculateMinMaxPage() {
-            
+
             let min = null;
             let max = null;
             for (const key in this.pages) {
@@ -130,7 +130,7 @@ export const usePagesStore = defineStore('pages',{
                     max = this.pages[key].page_no;
                 }
             }
-            
+
             if (min !== null) {
                 this.minPage = min;
             }
@@ -138,7 +138,7 @@ export const usePagesStore = defineStore('pages',{
                 this.maxPage = max;
             }
         },
-        
+
         /**
          * Clear the whole storage
          * @public
@@ -165,7 +165,7 @@ export const usePagesStore = defineStore('pages',{
             try {
                 this.purgeFiles();
                 this.$reset();
-                
+
                 const keys = await storage.getItem('keys');
                 if (keys) {
                     this.keys = JSON.parse(keys);
@@ -180,7 +180,7 @@ export const usePagesStore = defineStore('pages',{
                 this.calculateMinMaxPage();
                 this.selectByPageNo(this.minPage);
                 this.loadFiles();
-                
+
             } catch (err) {
                 console.log(err);
             }
@@ -237,23 +237,23 @@ export const usePagesStore = defineStore('pages',{
                 for (const key in this.pages) {
                     const page = this.pages[key];
                     let response;
-                    
+
                     if (page) {
                         console.log('preload page ' + page.page_no + '...');
                         response = await axios( page.url, {responseType: 'blob', timeout: 60000});
-                        page.objectUrl = URL.createObjectURL(response.data);
+                        // page.objectUrl = URL.createObjectURL(response.data);
                         this.loadedImages++;
-                        
+
                         console.log('preload thumbnail ' + page.page_no + '...');
                         response = await axios( page.thumb_url, {responseType: 'blob', timeout: 60000});
-                        page.thumbObjectUrl = URL.createObjectURL(response.data);
+                        // page.thumbObjectUrl = URL.createObjectURL(response.data);
                         this.loadedThumbs++;
                     }
                  }
             }
             catch (error) {
                 console.error(error);
-                return false;
+                // return false;
             }
         },
 

@@ -11,7 +11,7 @@ const resource = resourcesStore.instruction;
         <object
             v-if="resource.mimetype =='application/pdf'"
             type="application/pdf"
-            :data="resource.objectUrl"
+            :data="resource.url"
             width="100%"
             height="100%">
         </object>

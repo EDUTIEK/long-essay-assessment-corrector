@@ -9,11 +9,11 @@
   // temporary dependencies for development
   // import createImageMarker from '@/dev/long-essay-image-marker/ImageMarker';
   // import createMark, { SHAPES } from '@/dev/long-essay-image-marker/Mark';
-  
+
   // normal dependencies as node modules
   import createImageMarker from 'long-essay-image-marker/ImageMarker';
   import createMark, { SHAPES } from 'long-essay-image-marker/Mark';
-  
+
   import Comment from "@/data/Comment";
   import Mark from '@/data/Mark';
   import { onMounted, nextTick, watch, ref, reactive } from 'vue';
@@ -24,14 +24,14 @@
   const pagesStore = usePagesStore();
   const layoutStore = useLayoutStore();
   const preferencesStore = usePreferencesStore();
-  
+
   const markerNode = ref();
   const selectedTool = ref('scroll');
   const pageMenuOpen = ref(false);
   const pageMenuInput = ref(0);
   const showLabels = ref(true);
-  
-  
+
+
   let marker;
   let shownUrl = '';
   let currentKeys = [];
@@ -52,7 +52,7 @@
    */
   async function onCreation(created) {
       if (!!created && !summariesStore.isOwnDisabled) {
-        
+
           const mark = new Mark(created);
           switch (selectedTool.value) {
             case 'check':
@@ -65,7 +65,7 @@
               mark.symbol = Mark.SYMBOL_QUESTION;
               break;
           }
-          
+
           const comment = new Comment({
               parent_number: pagesStore.selectedPageNo,
               marks: [mark]
@@ -81,10 +81,10 @@
    * Callback for selection
    * @param {Mark} selected
    */
-  function onSelection(selected) {     
+  function onSelection(selected) {
       if (!!selected) {
           selectedKey = selected.key;
-        
+
           let comment = commentsStore.getCommentByMarkKey(selected.key);
           if (comment) {
             commentsStore.selectComment(comment.key);
@@ -119,8 +119,8 @@
         commentsStore.selectComment('');
       }
   }
-  
-  
+
+
 
   /**
    * Show a new page with the active marks on it
@@ -130,9 +130,9 @@
     if (pagesStore.selectByPageNo(page_no)) {
       const page = pagesStore.getPageByPageNo(page_no);
       if (page) {
-        if (page.objectUrl) {
-          marker.showPage(page.objectUrl, []);
-          shownUrl = page.objectUrl;
+        if (page.url) {
+          marker.showPage(page.url, []);
+          shownUrl = page.url;
         }
         else {
           marker.showPage('' ?? '', []);
@@ -157,13 +157,13 @@
    */
   function reloadPage() {
     const page = pagesStore.selectedPage;
-    if (page && page.objectUrl != shownUrl) {
+    if (page && page.url != shownUrl) {
       showPage(page.page_no);
     }
   }
   watch(() => pagesStore.loadedImages, reloadPage);
-  
-  
+
+
   /**
    * Refresh by selection of a comment
    */
@@ -230,8 +230,8 @@
     }
   }
   watch(() => pagesStore.selectedKey, scrollComments);
-  
-  
+
+
   function prevPage() {
     if (pagesStore.selectedPageNo > pagesStore.minPage) {
       showPage(pagesStore.selectedPageNo - 1);
@@ -269,21 +269,21 @@
   }
 
   function selectTool() {
-    
+
     if (summariesStore.isOwnDisabled) {
-      selectedTool.value = 'scroll';  
+      selectedTool.value = 'scroll';
     }
-    
+
     switch (selectedTool.value) {
       case 'scroll':
         marker.scrollMode();
         break;
-        
+
       case 'rectangle':
         marker.drawMode();
         marker.setDefaultShape(SHAPES.RECTANGLE);
         break;
-        
+
       case 'line':
         marker.drawMode();
         marker.setDefaultShape(SHAPES.LINE);
@@ -345,7 +345,7 @@
           </v-btn-toggle>
 
           &nbsp;
-          
+
           <v-btn-group density="comfortable" variant="outlined" divided>
             <v-btn size="small" :active="showLabels" icon="mdi-label-outline" @click="toggleLabels()"></v-btn>
           </v-btn-group>
@@ -361,14 +361,14 @@
 
 
           <v-menu activator="#app-pages-menu-activator" v-model="pageMenuOpen" :close-on-content-click="false" @update:modelValue="updatePageMenu()">
-            
+
             <v-list>
               <v-list-item>
                 <v-text-field
                     id="app-pages-menu-input"
                     v-model="pageMenuInput"
                     density="compact"
-                    variant="solo" 
+                    variant="solo"
                     label="Number"
                     single-line
                     hide-details
@@ -376,32 +376,32 @@
                     @change="selectPage(pageMenuInput)"
                 >
                 </v-text-field>
-    
+
               </v-list-item>
               <v-list-item v-for="page in pagesStore.currentPages"
                            @click="selectPage(page.page_no)"
                            :title="page.page_no"
                            :key="page.key">
-                  <v-img v-show="page.thumbObjectUrl !== null" :src="page.thumbObjectUrl" width="100">
+                  <v-img v-show="page.thumb_url !== null" :src="page.thumb_url" width="100">
                   </v-img>
               </v-list-item>
 
             </v-list>
           </v-menu>
 
-          
+
         </div>
-      
+
       <div class="appImageMarker" ref="markerNode"></div>
 
-      
+
       <div class="appImageBottomNav">
         <v-btn-group variant="outlined" divided>
           <v-btn :disabled="pagesStore.selectedPageNo <= pagesStore.minPage" size="small" icon="mdi-menu-left" @click="prevPage()"></v-btn>
           <v-btn :disabled="pagesStore.selectedPageNo >= pagesStore.maxPage" size="small" icon="mdi-menu-right" @click="nextPage()"></v-btn>
         </v-btn-group>
       </div>
-      
+
 
     </div>
 </template>
@@ -413,19 +413,19 @@
       display: flex;
       flex-direction: column;
   }
-  
+
   .appImageButtons {
-    text-align: center; 
+    text-align: center;
     padding-bottom: 5px;
   }
-  
+
   .appImageMarker {
     flex-grow: 1;
     width: 100%;
     background-color: #EEEEEEEE;
    margin-left: -5px;
   }
-  
+
 
   .appImageBottomNav {
     position: absolute;

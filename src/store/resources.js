@@ -65,7 +65,7 @@ export const useResourcesStore = defineStore('resources',{
 
             /**
              * Get a resource by its key
-             * 
+             *
              * @param {string} key
              * @returns {object|null}
              */
@@ -79,7 +79,7 @@ export const useResourcesStore = defineStore('resources',{
 
             /**
              * Get if a resource is active
-             * 
+             *
              * @param {object} resource
              * @returns {boolean}
              */
@@ -105,13 +105,13 @@ export const useResourcesStore = defineStore('resources',{
         async loadFromStorage() {
             try {
                 this.$reset();
-                
+
                 const keys = await storage.getItem('resourceKeys');
                 if (keys) {
                     this.keys =  JSON.parse(keys);
                 }
                 this.activeKey = await storage.getItem('activeKey') ?? '';
-                
+
                for (const key of this.keys) {
                     const resource = await storage.getItem(key);
                     this.resources.push(resource);
@@ -130,7 +130,7 @@ export const useResourcesStore = defineStore('resources',{
             try {
                 await storage.clear();
                 this.$reset();
-                
+
                 for (const resource of data) {
                     resource.url = apiStore.getResourceUrl(resource.key);
                     this.resources.push(resource);
@@ -168,12 +168,12 @@ export const useResourcesStore = defineStore('resources',{
                     try {
                         console.log('preload ' + resource.title + '...');
                         response = await axios( resource.url, {responseType: 'blob', timeout: 60000});
-                        resource.objectUrl = URL.createObjectURL(response.data)
+                        // resource.objectUrl = URL.createObjectURL(response.data)
                         console.log('finished. ');
                     }
                     catch (error) {
                         console.error(error);
-                        return false;
+                        // return false;
                     }
                 }
             }
