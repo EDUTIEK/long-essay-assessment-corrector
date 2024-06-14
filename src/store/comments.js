@@ -40,6 +40,10 @@ export const useCommentsStore = defineStore('comments',{
      */
     getters: {
 
+        selectedComment(state) {
+            return state.getComment(state.selectedKey);
+        },
+
         selectedLabel(state) {
             let comment = state.getComment(state.selectedKey);
             if (comment) {
@@ -69,7 +73,7 @@ export const useCommentsStore = defineStore('comments',{
         isPointsAndRatingsShown: state => {
             return state.showPointsAndRatings
         },
-        
+
         isFilterActive: state => {
           return state.filterKeys.length > 0;
         },
@@ -78,7 +82,7 @@ export const useCommentsStore = defineStore('comments',{
 
             /**
              * Get a comment by its key
-             * 
+             *
              * @param {string} key
              * @returns {Comment|null}
              */
@@ -92,7 +96,7 @@ export const useCommentsStore = defineStore('comments',{
 
             /**
              * Get a comment by the key if its mark key
-             * 
+             *
              * @param {string} key
              * @returns {Comment|null}
              */
@@ -106,7 +110,7 @@ export const useCommentsStore = defineStore('comments',{
 
             /**
              * Get the active comments in a range of marked text
-             * 
+             *
              * @param {number} start_position
              * @param {number} end_position
              * @returns {Comment[]}
@@ -123,7 +127,7 @@ export const useCommentsStore = defineStore('comments',{
 
             /**
              * Get the active comments with a start position
-             * 
+             *
              * @param {number] }start_position
              * @returns {Comment[]}
              */
@@ -139,7 +143,7 @@ export const useCommentsStore = defineStore('comments',{
 
             /**
              * Get the active comments with a parent number
-             * 
+             *
              * @param {number} parent_number
              * @returns {Comment[]}
              */
@@ -155,7 +159,7 @@ export const useCommentsStore = defineStore('comments',{
 
             /**
              * Get the comment keys of a corrector
-             * 
+             *
              * @param {string} corrector_key
              * @returns {string[]}
              */
@@ -173,7 +177,7 @@ export const useCommentsStore = defineStore('comments',{
 
             /**
              * Get the points given by a corrector
-             * 
+             *
              * @param {string} corrector_key
              * @returns {number}
              */
@@ -191,7 +195,7 @@ export const useCommentsStore = defineStore('comments',{
 
             /**
              * Get the number of comments of a corrector marked as excellent
-             * 
+             *
              * @param {string} corrector_key
              * @returns {number}
              */
@@ -201,7 +205,7 @@ export const useCommentsStore = defineStore('comments',{
                   .length
             }
             return fn;
-                
+
         },
 
         getCountOfCardinal: state => {
@@ -285,7 +289,7 @@ export const useCommentsStore = defineStore('comments',{
         async addComment(comment) {
             const apiStore = useApiStore();
             const changesStore = useChangesStore();
-            
+
             comment.item_key = apiStore.itemKey;
             comment.corrector_key = apiStore.correctorKey;
 
@@ -335,7 +339,7 @@ export const useCommentsStore = defineStore('comments',{
                     key: comment.key,
                     item_key: comment.item_key
                 }))
-                
+
                 if (sort) {
                     await this.sortAndLabelComments();
                     this.setMarkerChange();
@@ -370,7 +374,7 @@ export const useCommentsStore = defineStore('comments',{
                 this.selectedKey = '';
             }
             const comment = this.comments.find(element => element.key == removeKey);
-            
+
             this.comments = this.comments.filter(comment => comment.key != removeKey);
             if (this.keys.includes(removeKey)) {
                 this.keys = this.keys.filter(key => key != removeKey)
@@ -384,7 +388,7 @@ export const useCommentsStore = defineStore('comments',{
                 key: comment.key,
                 item_key: comment.item_key
             });
-            
+
             if (removeKey.substr(0, 4) == 'temp') {
                 await changesStore.unsetChange(change);
 
@@ -401,10 +405,10 @@ export const useCommentsStore = defineStore('comments',{
          * @private
          */
         async removeEmptyComments(keepKey) {
-            
+
             // 28.7.2023: empty comments should be kept
             return;
-            
+
             const pointsStore = usePointsStore();
 
             let comments = this.comments.filter(comment =>
@@ -433,7 +437,7 @@ export const useCommentsStore = defineStore('comments',{
 
             let parent = 0;
             let numbers = {};
-            
+
             for (const comment of this.comments) {
                 const corrector = correctorsStore.getCorrector(comment.corrector_key);
                 const initials = corrector ? corrector.initials : '??';
@@ -444,7 +448,7 @@ export const useCommentsStore = defineStore('comments',{
                         numbers[key] = 0;                   // reset all numbers for the new parent
                     }
                     numbers[comment.corrector_key] = 1;     // set the number of the first comment
-                    
+
                 } else {
                     numbers[comment.corrector_key]++;
                 }
@@ -527,7 +531,7 @@ export const useCommentsStore = defineStore('comments',{
             this.showPointsAndRatings = !!show;
             await storage.setItem('showPointsAndRatings', JSON.stringify(this.showPointsAndRatings));
         },
-        
+
         /**
          * Clear the whole storage
          * @public
@@ -552,14 +556,14 @@ export const useCommentsStore = defineStore('comments',{
         async loadFromStorage(currentItemKey) {
             try {
                 this.$reset();
-                
+
                 const keys = await storage.getItem('keys');
                 if (keys) {
                     this.keys = JSON.parse(keys);
                 }
                 this.showOtherCorrectors = !! JSON.parse(await storage.getItem('showOtherCorrectors'));
                 this.showPointsAndRatings = !! JSON.parse(await storage.getItem('showPointsAndRatings'));
-                
+
                 for (const key of this.keys) {
                     const comment = new Comment(JSON.parse(await storage.getItem(key)));
                     if (comment.item_key == currentItemKey) {
@@ -635,7 +639,7 @@ export const useCommentsStore = defineStore('comments',{
             };
             return changes;
         },
-        
+
 
         /**
          * Update the keys of comments after sending to the backend

@@ -11,8 +11,8 @@
   // import createMark, { SHAPES } from '@/dev/long-essay-image-marker/Mark';
 
   // normal dependencies as node modules
-  import createImageMarker from 'long-essay-image-marker/ImageMarker';
-  import createMark, { SHAPES } from 'long-essay-image-marker/Mark';
+  import createImageMarker from '@/dev/long-essay-image-marker/ImageMarker';
+  import createMark, { SHAPES } from '@/dev/long-essay-image-marker/Mark';
 
   import Comment from "@/data/Comment";
   import Mark from '@/data/Mark';
@@ -34,8 +34,8 @@
 
   let marker;
   let shownUrl = '';
-  let currentKeys = [];
-  let selectedKey = null;
+  let currentKeys = [];         // kys of all marks shown on the page
+  let selectedKey = null;       // key of the currently selected mark (to avoid a double selection if mark is moved)
 
 
   onMounted(() => {
@@ -48,9 +48,13 @@
 
   /**
    * Callback for creation
+   * - called after final mouseUp when a mark is interactively drawn on the page
+   * - called when mark is added to a newly shown page
+   *
    * @param {Mark} created
    */
   async function onCreation(created) {
+      //console.log(Date.now(), 'onCreation', created);
       if (!!created && !summariesStore.isOwnDisabled) {
 
           const mark = new Mark(created);
@@ -66,22 +70,38 @@
               break;
           }
 
-          const comment = new Comment({
-              parent_number: pagesStore.selectedPageNo,
-              marks: [mark]
-         });
           currentKeys.push(created.key);
           if (!commentsStore.getCommentByMarkKey(created.key)) {
-              await commentsStore.addComment(comment);
+              // mark is newly drawn
+
+              const selectedComment = commentsStore.selectedComment;
+              if (!!selectedComment && selectedComment.parent_number == pagesStore.selectedPageNo) {
+                  // new mark can be added to an existing comment
+                  selectedComment.addMarkData(mark);
+                  await commentsStore.updateComment(selectedComment, true);
+              }
+              else {
+                  // new mark will create a new comment
+                  const newComment = new Comment({
+                      parent_number: pagesStore.selectedPageNo,
+                      marks: [mark]
+                  });
+                  await commentsStore.addComment(newComment);
+              }
           }
       }
   }
 
   /**
    * Callback for selection
-   * @param {Mark} selected
+   * - called with mark but wihout event when a mark is selected or moved (after mouseUp)
+   * - called without mark, but with event when a new mark is created (directly after intial mouseDown)
+   *
+   * @param {Mark} selected the selected or moved mark
+   * @param {MouseEvent} event the beginning mouseDown when a new mark is created
    */
-  function onSelection(selected) {
+  function onSelection(selected, event) {
+      console.log(Date.now(), 'onSelection', selected, event);
       if (!!selected) {
           selectedKey = selected.key;
 
@@ -90,7 +110,7 @@
             commentsStore.selectComment(comment.key);
               const oldData = comment.getData();
               if (comment.corrector_key == apiStore.correctorKey && !summariesStore.isOwnDisabled) {
-                // comment can be updated
+                // comment can be updated, mark may nave been moved
                 selected.symbol = selected.symbol == '' ? null : selected.symbol;
                 comment.updateMarkData(selected);
                 const newData = comment.getData();
@@ -116,7 +136,13 @@
           }
       }
       else {
-        commentsStore.selectComment('');
+        const comment = commentsStore.selectedComment;
+        if (!!event && !!event.shiftKey && !!comment && comment.parent_number == pagesStore.selectedPageNo) {
+            // keep comment selected if shift key is pressed and comment is on the same page
+        }
+        else {
+            commentsStore.selectComment('');
+        }
       }
   }
 
@@ -184,6 +210,7 @@
 
     for (const comment of commentsStore.activeComments) {
       if (comment.parent_number == pagesStore.selectedPageNo) {
+        let markKeys = [];
         for (const mark of comment.marks) {
           const mark_data = {
             ...mark.getData(),
@@ -198,12 +225,16 @@
             marker.addMark(mark_data);
           }
           newKeys.push(mark.key);
+          markKeys.push(mark.key);
           if (comment.key == commentsStore.selectedKey) {
             if (mark.key != selectedKey) {
-              marker.selectMark(mark.key);
+              // marker.selectMark(mark.key);      // this will deselect all other marks
               selectedKey = mark.key;
             }
           }
+        }
+        if (comment.key == commentsStore.selectedKey) {
+            marker.selectMarks(markKeys);
         }
       }
     }
