@@ -35,7 +35,6 @@
   let marker;
   let shownUrl = '';
   let currentKeys = [];         // kys of all marks shown on the page
-  let selectedKey = null;       // key of the currently selected mark (to avoid a double selection if mark is moved)
 
 
   onMounted(() => {
@@ -103,11 +102,9 @@
   function onSelection(selected, event) {
       console.log(Date.now(), 'onSelection', selected, event);
       if (!!selected) {
-          selectedKey = selected.key;
-
           let comment = commentsStore.getCommentByMarkKey(selected.key);
           if (comment) {
-            commentsStore.selectComment(comment.key);
+              commentsStore.selectComment(comment.key);
               const oldData = comment.getData();
               if (comment.corrector_key == apiStore.correctorKey && !summariesStore.isOwnDisabled) {
                 // comment can be updated, mark may nave been moved
@@ -117,7 +114,6 @@
                 if (JSON.stringify(oldData) != JSON.stringify(newData)) {
                   commentsStore.updateComment(comment, true);
                 }
-                return;
               }
               else {
                 // comment can't be updated, revert a mark change
@@ -137,7 +133,7 @@
       }
       else {
         const comment = commentsStore.selectedComment;
-        if (!!event && !!event.shiftKey && !!comment && comment.parent_number == pagesStore.selectedPageNo) {
+        if (event && event.shiftKey && comment && comment.parent_number == pagesStore.selectedPageNo) {
             // keep comment selected if shift key is pressed and comment is on the same page
         }
         else {
@@ -207,7 +203,6 @@
    */
   function refreshMarks() {
     let newKeys = [];
-
     for (const comment of commentsStore.activeComments) {
       if (comment.parent_number == pagesStore.selectedPageNo) {
         let markKeys = [];
@@ -226,19 +221,12 @@
           }
           newKeys.push(mark.key);
           markKeys.push(mark.key);
-          if (comment.key == commentsStore.selectedKey) {
-            if (mark.key != selectedKey) {
-              // marker.selectMark(mark.key);      // this will deselect all other marks
-              selectedKey = mark.key;
-            }
-          }
         }
         if (comment.key == commentsStore.selectedKey) {
             marker.selectMarks(markKeys);
         }
       }
     }
-
     for (const key of currentKeys) {
       if (!newKeys.includes(key)) {
         marker.removeMark(key);
