@@ -11,8 +11,8 @@
   // import createMark, { SHAPES } from '@/dev/long-essay-image-marker/Mark';
 
   // normal dependencies as node modules
-  import createImageMarker from '@/dev/long-essay-image-marker/ImageMarker';
-  import createMark, { SHAPES } from '@/dev/long-essay-image-marker/Mark';
+  import createImageMarker from 'long-essay-image-marker/ImageMarker';
+  import createMark, { SHAPES } from 'long-essay-image-marker/Mark';
 
   import Comment from "@/data/Comment";
   import Mark from '@/data/Mark';
