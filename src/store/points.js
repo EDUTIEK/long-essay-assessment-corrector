@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import localForage from "localforage";
 import { useApiStore } from '@/store/api';
+import { useCommentsStore } from '@/store/comments';
 import {useChangesStore} from "@/store/changes";
 import Points from '@/data/Points'
 import Comment from '@/data/Comment';
@@ -32,11 +33,22 @@ export const usePointsStore = defineStore('points',{
 
         hasPoints: state => state.points.length > 0,
 
+        ownCriteriaPoints: state => {
+            const commentsStore = useCommentsStore();
+            const comment_keys = commentsStore.ownCommentKeys;
+
+            let sum = 0;
+            state.points
+            .filter(points => comment_keys.includes(points.comment_key))
+            .forEach(points=> sum += points.points);
+            return sum;
+        },
+
         getCommentHasPoints(state) {
 
             /**
              * Check if a comment has points
-             * 
+             *
              * @param {string} commentKey
              * @returns {boolean}
              */
@@ -50,7 +62,7 @@ export const usePointsStore = defineStore('points',{
 
             /**
              * Check if points for a comment and criterion exist
-             * 
+             *
              * @param {string} comment_key
              * @param {string} criterion_key
              * @returns {boolean}
@@ -70,7 +82,7 @@ export const usePointsStore = defineStore('points',{
 
             /**
              * Get a points object by its key
-             * 
+             *
              * @param {string} key
              * @returns {Points |null}
              */
@@ -78,14 +90,14 @@ export const usePointsStore = defineStore('points',{
                 return state.points.find(element => element.key == key);
             }
             return fn;
-            
+
         },
 
         getObjectsByCommentKeys: state => {
 
             /**
              * Get the points for a set of comment keys
-             * 
+             *
              * @param {string[]} commentKeys
              * @returns {Points[]}
              */
@@ -100,7 +112,7 @@ export const usePointsStore = defineStore('points',{
 
             /**
              * Get the sum op points given to criteria for a comment
-             * 
+             *
              * @param {string} comment_key
              * @returns {number}
              */
@@ -120,7 +132,7 @@ export const usePointsStore = defineStore('points',{
 
             /**
              * Get a points object by its relations
-             * 
+             *
              * @param {string} commentKey
              * @param {string} criterionKey
              * @returns {Point|null}
@@ -135,7 +147,7 @@ export const usePointsStore = defineStore('points',{
 
             /**
              * Get a points value by its relations
-             * 
+             *
              * @param {string} commentKey
              * @param {string} criterionKey
              * @returns {number}
@@ -212,7 +224,7 @@ export const usePointsStore = defineStore('points',{
          * @public
          */
         async updatePoints(pointsObject) {
-            
+
             if (this.keys.includes(pointsObject.key)) {
                 await storage.setItem(pointsObject.key, JSON.stringify(pointsObject.getData()));
                 const changesStore = useChangesStore();
@@ -290,7 +302,7 @@ export const usePointsStore = defineStore('points',{
         async loadFromStorage(currentItemKey) {
             try {
                 this.$reset();
-                
+
                 const keys = await storage.getItem('keys');
                 if (keys) {
                     this.keys =  JSON.parse(keys);
@@ -360,7 +372,7 @@ export const usePointsStore = defineStore('points',{
             };
             return changes;
         },
-        
+
 
         /**
          * Set points as sent

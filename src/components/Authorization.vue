@@ -74,11 +74,20 @@ async function setAuthorizedAndClose() {
 
             <own-summary-includes></own-summary-includes>
 
+              <v-alert v-show="summariesStore.editSummary.text == ''"
+                       type="info" variant="text">
+                  Bitte geben Sie einen Gutachten-Text ein.
+              </v-alert>
 
-            <p v-show="summariesStore.areOthersAuthorized && summariesStore.stitchReasonText != '' ">
-              <strong>Ihre Punktevergabe wird einen Stichentscheid erfordern:</strong>
-              <br>{{ summariesStore.stitchReasonText }}
-            </p>
+              <v-alert v-show="(summariesStore.currentPartialPointsAreIncluded && (summariesStore.editSummary.points != summariesStore.currentPartialPoints))"
+                       type="info" variant="text">
+                  Ihre Punktevergabe weicht von der einbezogenen Summe der Teilpunkte ({{ summariesStore.currentPartialPoints }}) ab!
+              </v-alert>
+
+                <v-alert v-show="summariesStore.areOthersAuthorized && summariesStore.stitchReasonText != '' "
+                     type="info" variant="text">
+                    Ihre Punktevergabe wird einen Stichentscheid erfordern: {{ summariesStore.stitchReasonText }}
+                </v-alert>
             <br>
             <p>
               Durch die Autorisierung wird Ihre Korrektur festgeschrieben. Sie können sie anschließend nicht mehr ändern. Möchten Sie Ihre Korrektur autorisieren?

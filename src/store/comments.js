@@ -60,6 +60,24 @@ export const useCommentsStore = defineStore('comments',{
             );
         },
 
+        ownCommentPoints: state => {
+            const apiStore = useApiStore();
+            let points = 0;
+            state.comments
+            .filter(comment => comment.corrector_key == apiStore.correctorKey)
+            .forEach(comment => points += comment.points);
+            return points;
+        },
+
+        ownCommentKeys: state => {
+            const apiStore = useApiStore();
+            let keys = [];
+            state.comments
+            .filter(comment => comment.corrector_key == apiStore.correctorKey)
+            .forEach(comment => keys.push(comment.key));
+            return keys;
+        },
+
         currentCommentKeys: state => {
             let keys = [];
             state.comments.forEach(comment => keys.push(comment.key));

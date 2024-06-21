@@ -2,6 +2,8 @@ import { defineStore } from "pinia";
 import localForage from "localforage";
 import {useApiStore} from "@/store/api";
 import {useCorrectorsStore} from "@/store/correctors";
+import {useCriteriaStore} from "@/store/criteria";
+import {useCommentsStore} from "@/store/comments";
 import {usePointsStore} from "@/store/points";
 import {useTaskStore} from "@/store/task";
 import {useSettingsStore} from "@/store/settings";
@@ -56,7 +58,7 @@ export const useSummariesStore = defineStore('summaries',{
          * @return {bool|boolean|*}
          */
         isOwnDisabled: state => state.editSummary.corrector_key == '' || state.editSummary.is_authorized,
-        
+
         /**
          * Is the summary of the current corrector and item authorized
          * @returns {bool}
@@ -72,7 +74,7 @@ export const useSummariesStore = defineStore('summaries',{
             }
             return false;
         },
-        
+
         areOthersAuthorized: state => {
             for (const key in state.summaries) {
                 const summary = state.summaries[key];
@@ -84,7 +86,41 @@ export const useSummariesStore = defineStore('summaries',{
         },
 
         /**
-         * Resulting grade title from the summary of the currentcorrector and item
+         * Partial points of the current corrector and item
+         * These may be summed up from comment or criteria related points
+         * @return {float}
+         */
+        currentPartialPoints: state => {
+            const criteriaStore = useCriteriaStore();
+            const commentsStore = useCommentsStore();
+            const pointsStore = usePointsStore();
+
+            if (criteriaStore.hasOwnCriteria) {
+                return pointsStore.ownCriteriaPoints;
+            }
+            else {
+                return commentsStore.ownCommentPoints;
+            }
+        },
+
+        /**
+         * Partial points of the current corrector and item are included
+         * These may be summed up from comment or criteria related points
+         * @return {float}
+         */
+        currentPartialPointsAreIncluded: state => {
+            const criteriaStore = useCriteriaStore();
+            if (criteriaStore.hasOwnCriteria) {
+                return (state.currentInclusionSettings.include_criteria_points > Summary.INCLUDE_NOT);
+            }
+            else {
+                return (state.currentInclusionSettings.include_comment_points > Summary.INCLUDE_NOT);
+            }
+        },
+
+
+        /**
+         * Resulting grade title from the summary of the current corrector and item
          * @returns {string}
          */
         currentGradeTitle(state) {
@@ -107,7 +143,7 @@ export const useSummariesStore = defineStore('summaries',{
             const preferencesStore = usePreferencesStore();
             return state.editSummary.getInclusionSettings(preferencesStore.summaryInclusions);
         },
-        
+
         getAuthorizationForCorrector: state => {
             /**
              * Get a summary of a specific corrector for the current item
@@ -125,8 +161,8 @@ export const useSummariesStore = defineStore('summaries',{
             }
             return fn;
         },
-        
-        
+
+
         getForCorrector: state => {
 
             /**
@@ -158,13 +194,13 @@ export const useSummariesStore = defineStore('summaries',{
             const fn = function (summary) {
                 let text = '';
                 let settings = {};
-                
+
                 if (summary.corrector_key == state.editSummary.corrector_key) {
                     settings = state.currentInclusionSettings;
                 } else {
                     settings = summary.getInclusionSettings();
                 }
-                
+
                 if (settings.include_comments == Summary.INCLUDE_INFO) {
                     text = (text ? text + ', ' : '') + 'Kommentare (i)';
                 }
@@ -178,7 +214,7 @@ export const useSummariesStore = defineStore('summaries',{
                 else if (settings.include_comment_ratings == Summary.INCLUDE_RELEVANT) {
                     text = (text ? text + ', ' : '') + settingsStore.ratingLabels + ' (r)';
                 }
-                
+
                 if (settings.include_comment_points == Summary.INCLUDE_INFO) {
                     text = (text ? text + ', ' : '') + 'Teilpunkte (i)';
                 }
@@ -199,7 +235,7 @@ export const useSummariesStore = defineStore('summaries',{
                 // else if (settings.include_writer_notes == Summary.INCLUDE_RELEVANT) {
                 //     text = (text ? text + ', ' : '') + 'Notizen (r)';
                 // }
-                
+
                 if (text == '') {
                     text = 'keine Detail-Informationen'
                 }
@@ -218,7 +254,7 @@ export const useSummariesStore = defineStore('summaries',{
             let max_points = null;
             let sum_points = 0;
             let count_points = 0;
-            
+
             // loop over all summaries for the current correction item
             for (const key in state.summaries) {
                 const points = state.summaries[key].points;
@@ -287,7 +323,7 @@ export const useSummariesStore = defineStore('summaries',{
     },
 
     actions: {
-                
+
         /**
          * Clear the whole storage
          * @public
@@ -311,15 +347,15 @@ export const useSummariesStore = defineStore('summaries',{
          * @public
          */
         async loadFromStorage(currentItemKey, correctorKey) {
-            
+
             try {
                 this.$reset();
-                
+
                 const keys = await storage.getItem('keys');
                 if (keys) {
                     this.keys = JSON.parse(keys);
                 }
-                
+
                 for (const key of this.keys) {
                     const summary = new Summary(JSON.parse(await storage.getItem(key)));
                     if (summary.item_key == currentItemKey) {
@@ -329,7 +365,7 @@ export const useSummariesStore = defineStore('summaries',{
                         this.editSummary = summary.getClone();
                     }
                 }
-                
+
             } catch (err) {
                 console.log(err);
             }
@@ -362,7 +398,7 @@ export const useSummariesStore = defineStore('summaries',{
                         this.editSummary = summary.getClone();
                     }
                 };
-                
+
                 await storage.setItem('keys', JSON.stringify(this.keys));
             }
             catch (err) {
@@ -373,7 +409,7 @@ export const useSummariesStore = defineStore('summaries',{
             setInterval(this.updateContent, checkInterval);
         },
 
-        
+
         /**
          * Update the stored content
          * Triggered from the editor component when the content is changed
@@ -382,7 +418,7 @@ export const useSummariesStore = defineStore('summaries',{
         async updateContent(fromEditor = false, force = false) {
 
             const storedSummary = this.summaries[this.editSummary.getKey()] ?? new Summary();
-            
+
             // don't update if authorized
             if (storedSummary.is_authorized) {
                 return;
@@ -431,13 +467,13 @@ export const useSummariesStore = defineStore('summaries',{
             try {
                 // ensure it is not changed because it is bound to tiny
                 const clonedSummary = this.editSummary.getClone();
-                
+
                 if (!clonedSummary.isEqual(storedSummary) && this.keys.includes(clonedSummary.getKey())) {
                     const apiStore = useApiStore();
                     const changesStore = useChangesStore();
-                    
+
                     clonedSummary.last_change = apiStore.getServerTime(Date.now());
-                   
+
                     this.editSummary.setData(clonedSummary.getData());
                     this.summaries[clonedSummary.getKey()] = clonedSummary;
 
@@ -448,7 +484,7 @@ export const useSummariesStore = defineStore('summaries',{
                         key: clonedSummary.getKey(),
                         item_key: clonedSummary.item_key
                     }))
-                    
+
                     console.log(
                       "Save Change ",
                       "| Editor: ", fromEditor,
@@ -464,7 +500,7 @@ export const useSummariesStore = defineStore('summaries',{
 
             lockUpdate = 0;
         },
-        
+
 
         /**
          * Get all changed summaries from the storage as flat data objects

@@ -10,7 +10,7 @@ class Summary {
 
   static ALLOWED_INCLUSIONS = [Summary.INCLUDE_NOT, Summary.INCLUDE_INFO, Summary.INCLUDE_RELEVANT];
 
-  
+
   /**
    * Key of the correction item to which the summary belongs
    * @type {string}
@@ -138,12 +138,12 @@ class Summary {
       this.include_writer_notes = this.transformInclusion(data.include_writer_notes);
     }
   }
-  
+
   transformInclusion(inclusion) {
     if (inclusion === null) {
       return null;
     }
-    
+
     inclusion = parseInt(inclusion);
     if (inclusion <= Summary.INCLUDE_NOT) {
         return Summary.INCLUDE_NOT;
@@ -176,7 +176,7 @@ class Summary {
       include_writer_notes: this.include_writer_notes
     }
   }
-  
+
   /**
    * Get the inclusion setting with defaults
    * @param {object} defaults
@@ -190,15 +190,26 @@ class Summary {
       include_writer_notes: this.include_writer_notes ?? defaults.include_writer_notes ?? Summary.INCLUDE_INFO
     };
   }
-  
-  
+
+    /**
+     * Get if partial points will be visible
+     * @returns {boolean}
+     */
+  getPartialPointsVisible() {
+
+      // return this.include_comment_points;
+      const settings = this.getInclusionSettings();
+      return
+        settings.include_comment_points > Summary.INCLUDE_NOT
+  }
+
   /**
    * @return {string}
    */
   getKey() {
     return 'ITM-' + this.item_key + '-COR-' + this.corrector_key
   }
-  
+
 
   /**
    * Get a clone of the object
