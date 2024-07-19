@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import localForage from "localforage";
+import Summary from '@/data/Summary';
 
 const storage = localForage.createInstance({
     storeName: "corrector-settings",
@@ -22,13 +23,37 @@ export const useSettingsStore = defineStore('settings',{
             stitch_when_decimals: false,    // stitch decision is needed when the average points have decimals
             positive_rating: 'Exzellent',   // label of a positive rating
             negative_rating: 'Kardinal',    // label of a negative rating
-            headline_scheme: null           // headline scheme of the essay
+            headline_scheme: null,          // headline scheme of the essay
+            fixed_inclusions: false,                        // fix the inclusion settings (don't allow a change)
+            include_comments: Summary.INCLUDE_INFO,          // include comments in the authorized correction
+            include_comment_ratings: Summary.INCLUDE_INFO,   // include comment ratings in the authorized correction
+            include_comment_points: Summary.INCLUDE_INFO,    // include comment points in the authorized correction
+            include_criteria_points: Summary.INCLUDE_INFO   // include criteria points in the authorized correction
         }
     },
 
     getters: {
         ratingLabels: state => '"' + state.positive_rating + '" und "' + state.negative_rating + '"',
-        headlineClass: state => state.headline_scheme === 'three' ? 'headlines-three' : ''
+        headlineClass: state => state.headline_scheme === 'three' ? 'headlines-three' : '',
+
+        summaryInclusions: state => {
+            return {
+                include_comments: state.include_comments,
+                include_comment_ratings: state.include_comment_ratings,
+                include_comment_points: state.include_comment_points,
+                include_criteria_points: state.include_criteria_points
+            };
+        },
+
+        inclusionsChangeable: state => state.fixed_inclusions == false,
+
+        inclusionsPossible: state => {
+            return state.fixed_inclusions == false
+                || state.include_comments != Summary.INCLUDE_NOT
+                || state.include_comment_ratings != Summary.INCLUDE_NOT
+                || state.include_comment_points != Summary.INCLUDE_NOT
+                || state.include_criteria_points != Summary.INCLUDE_NOT;
+        }
     },
 
     actions: {

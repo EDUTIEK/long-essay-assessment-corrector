@@ -137,10 +137,15 @@ export const useSummariesStore = defineStore('summaries',{
         /**
          * Get the effective inclusion settings for the current summary (with defaults)
          * @param state
-         * @return {{include_comment_points, include_comment_ratings, include_criteria_points, include_comments, include_writer_notes}}
+         * @return {{include_comment_points, include_comment_ratings, include_criteria_points, include_comments}}
          */
         currentInclusionSettings: state => {
+            const settingsStore = useSettingsStore();
             const preferencesStore = usePreferencesStore();
+
+            if (settingsStore.fixed_inclusions) {
+                return settingsStore.summaryInclusions
+            }
             return state.editSummary.getInclusionSettings(preferencesStore.summaryInclusions);
         },
 
@@ -185,6 +190,7 @@ export const useSummariesStore = defineStore('summaries',{
 
         getInclusionText: state => {
             const settingsStore = useSettingsStore();
+            const criteriaStore = useCriteriaStore();
 
             /**
              *
@@ -216,25 +222,21 @@ export const useSummariesStore = defineStore('summaries',{
                 }
 
                 if (settings.include_comment_points == Summary.INCLUDE_INFO) {
-                    text = (text ? text + ', ' : '') + 'Teilpunkte (i)';
+                    text = (text ? text + ', ' : '') + 'Punkte zu Kommentaren (i)';
                 }
                 else if (settings.include_comment_points == Summary.INCLUDE_RELEVANT) {
-                    text = (text ? text + ', ' : '') + 'Teilpunkte (r)';
+                    text = (text ? text + ', ' : '') + 'Punkte zu Kommentaren (r)';
                 }
 
-                if (settings.include_criteria_points == Summary.INCLUDE_INFO) {
-                    text = (text ? text + ', ' : '') + 'Bewertungsschema (i)';
-                }
-                else if (settings.include_criteria_points == Summary.INCLUDE_RELEVANT) {
-                    text = (text ? text + ', ' : '') + 'Bewertungsschema (r)';
+                if (criteriaStore.hasOwnCriteria) {
+                    if (settings.include_criteria_points == Summary.INCLUDE_INFO) {
+                        text = (text ? text + ', ' : '') + 'Punkte im Bewertungsschema (i)';
+                    }
+                    else if (settings.include_criteria_points == Summary.INCLUDE_RELEVANT) {
+                        text = (text ? text + ', ' : '') + 'Punkte im Bewertungsschema (r)';
+                    }
                 }
 
-                // if (settings.include_writer_notes == Summary.INCLUDE_INFO) {
-                //     text = (text ? text + ', ' : '') + 'Notizen (inf)';
-                // }
-                // else if (settings.include_writer_notes == Summary.INCLUDE_RELEVANT) {
-                //     text = (text ? text + ', ' : '') + 'Notizen (r)';
-                // }
 
                 if (text == '') {
                     text = 'keine Detail-Informationen'

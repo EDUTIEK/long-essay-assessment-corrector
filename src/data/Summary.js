@@ -82,13 +82,6 @@ class Summary {
   include_criteria_points = null;
 
   /**
-   * level of including writer notes to the documentation
-   * @type {integer}
-   */
-  include_writer_notes = null;
-
-
-  /**
    * Constructor - gets properties from a data object
    * @param {object} data
    */
@@ -134,9 +127,6 @@ class Summary {
     if (data.include_criteria_points !== undefined && data.include_criteria_points !== null) {
       this.include_criteria_points = this.transformInclusion(data.include_criteria_points);
     }
-    if (data.include_writer_notes !== undefined && data.include_writer_notes !== null) {
-      this.include_writer_notes = this.transformInclusion(data.include_writer_notes);
-    }
   }
 
   transformInclusion(inclusion) {
@@ -173,7 +163,6 @@ class Summary {
       include_comment_ratings: this.include_comment_ratings,
       include_comment_points: this.include_comment_points,
       include_criteria_points: this.include_criteria_points,
-      include_writer_notes: this.include_writer_notes
     }
   }
 
@@ -187,7 +176,6 @@ class Summary {
       include_comment_ratings: this.include_comment_ratings ?? defaults.include_comment_ratings  ?? Summary.INCLUDE_INFO,
       include_comment_points: this.include_comment_points ?? defaults.include_comment_points ?? Summary.INCLUDE_INFO,
       include_criteria_points: this.include_criteria_points ?? defaults.include_criteria_points ?? Summary.INCLUDE_INFO,
-      include_writer_notes: this.include_writer_notes ?? defaults.include_writer_notes ?? Summary.INCLUDE_INFO
     };
   }
 

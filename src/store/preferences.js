@@ -27,12 +27,11 @@ export const usePreferencesStore = defineStore('preferences', {
       include_comment_ratings: Summary.INCLUDE_INFO,      // include comment ratings in the authorized correction
       include_comment_points: Summary.INCLUDE_INFO,       // include comment points in the authorized correction
       include_criteria_points: Summary.INCLUDE_INFO,      // include criteria points in the authorized correction
-      include_writer_notes: Summary.INCLUDE_INFO,         // include writer notes in the authorized correction
     }
   },
-  
+
   getters: {
-    
+
     allData: state => {
       return {
         essay_page_zoom: state.essay_page_zoom,
@@ -42,23 +41,21 @@ export const usePreferencesStore = defineStore('preferences', {
         include_comment_ratings: state.include_comment_ratings,
         include_comment_points: state.include_comment_points,
         include_criteria_points: state.include_criteria_points,
-        include_writer_notes: state.include_writer_notes
       }
     },
-    
+
     summaryInclusions: state => {
       return {
         include_comments: state.include_comments,
         include_comment_ratings: state.include_comment_ratings,
         include_comment_points: state.include_comment_points,
         include_criteria_points: state.include_criteria_points,
-        include_writer_notes: state.include_writer_notes
       }
     }
   },
 
   actions: {
-    
+
     async clearStorage() {
       try {
         await storage.clear();
@@ -108,7 +105,7 @@ export const usePreferencesStore = defineStore('preferences', {
     async update() {
       const changesStore = useChangesStore();
       const apiStore = useApiStore();
-      
+
       await this.saveToStorage();
       if (apiStore.correctorKey) {
         await changesStore.setChange(new Change({
@@ -143,7 +140,6 @@ export const usePreferencesStore = defineStore('preferences', {
       this.include_comment_ratings = data.include_comment_ratings;
       this.include_comment_points = data.include_comment_points;
       this.include_criteria_points = data.include_criteria_points;
-      this.include_writer_notes = data.include_writer_notes;
       this.update();
     },
 
@@ -166,7 +162,7 @@ export const usePreferencesStore = defineStore('preferences', {
       this.essay_text_zoom = this.essay_text_zoom * 0.9;
       this.update();
     },
-    
+
     zoomSummaryTextIn() {
       this.summary_text_zoom = this.summary_text_zoom * 1.1;
       this.update();

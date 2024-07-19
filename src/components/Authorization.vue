@@ -82,7 +82,7 @@ function editSummary() {
             &nbsp;
             <strong>Notenstufe:</strong> {{ summariesStore.currentGradeTitle }}
 
-            <own-summary-includes></own-summary-includes>
+            <own-summary-includes v-if="settingsStore.inclusionsPossible"></own-summary-includes>
 
               <v-alert v-show="summariesStore.editSummary.text == ''"
                        type="info" variant="text">

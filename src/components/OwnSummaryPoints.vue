@@ -25,8 +25,7 @@ const taskStore = useTaskStore();
         <v-icon left icon="mdi-file-certificate-outline"></v-icon>
       </v-btn>
 
-      <own-summary-includes></own-summary-includes>
-
+      <own-summary-includes v-if="settingsStore.inclusionsPossible"></own-summary-includes>
     </div>
 </template>
 

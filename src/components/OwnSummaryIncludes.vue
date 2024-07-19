@@ -45,7 +45,7 @@ function save() {
 <template>
   <div>
     <strong>Einbeziehen:</strong> {{summariesStore.getInclusionText(summariesStore.editSummary)}}
-    <v-btn variant="text" :disabled="summariesStore.isOwnDisabled" @click="showIncludes=true;">
+    <v-btn v-if ="!settingsStore.fixed_inclusions" variant="text" :disabled="summariesStore.isOwnDisabled" @click="showIncludes=true;">
       <v-icon left icon="mdi-pencil"></v-icon>
     </v-btn>
 
@@ -72,7 +72,7 @@ function save() {
             </v-row>
             <v-row v-show="includes.include_comments > Summary.INCLUDE_NOT">
               <v-col>
-                Teilpunkte
+                Punkte zu Kommentaren
               </v-col>
               <v-col>
                 <v-select class="select" variant="outlined" density="compact" v-model="includes.include_comment_points" :items = "items"></v-select>
@@ -80,22 +80,12 @@ function save() {
             </v-row>
             <v-row v-show="criteriaStore.hasOwnCriteria">
               <v-col>
-                Bewertungsschema
+                Punkte im Bewertungsschema
               </v-col>
               <v-col>
                 <v-select class="select" variant="outlined" density="compact" v-model="includes.include_criteria_points" :items = "items"></v-select>
               </v-col>
             </v-row>
-            <!--
-            <v-row>
-              <v-col>
-                Notizen
-              </v-col>
-              <v-col>
-                <v-select class="select" variant="outlined" density="compact" v-model="includes.include_writer_notes" :items = "items"></v-select>
-              </v-col>
-            </v-row>
-            -->
           </v-container>
           <v-checkbox v-model="updatePreferences" label="Als Vorgabe für andere Korekturen übernehmen, bei denen noch keine Auswahl getroffen wurde. Bereits aktiv getroffene Auwahlen bleiben unverändert."></v-checkbox>
         </v-card-text>
@@ -113,7 +103,7 @@ function save() {
       </v-card>
     </v-dialog>
   </div>
-  
+
 </template>
 
 <style scoped>
