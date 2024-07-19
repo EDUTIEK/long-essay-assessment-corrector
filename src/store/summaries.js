@@ -445,23 +445,24 @@ export const useSummariesStore = defineStore('summaries',{
 
             // limit the points
             const settingsStore = useSettingsStore();
-            if (this.editSummary.points < 0) {
+            if (isNaN(this.editSummary.points)) {
+                this.editSummary.points = null;
+            }
+            else if (this.editSummary.points < 0) {
                 this.editSummary.points = 0;
             }
-            if (this.editSummary.points > settingsStore.max_points) {
+            else if (this.editSummary.points > settingsStore.max_points) {
                 this.editSummary.points = settingsStore.max_points;
             }
 
             // set the grade key for the points
-            if (this.editSummary.points != storedSummary.points) {
-                const levelsStore = useLevelsStore();
-                let level = levelsStore.getLevelForPoints(this.editSummary.points);
-                if (level) {
-                    this.editSummary.grade_key = level.key
-                }
-                else {
-                    this.editSummary.grade_key = '';
-                }
+            const levelsStore = useLevelsStore();
+            let level = levelsStore.getLevelForPoints(this.editSummary.points);
+            if (level) {
+                this.editSummary.grade_key = level.key
+            }
+            else {
+                this.editSummary.grade_key = '';
             }
 
             try {

@@ -28,7 +28,7 @@ export const useLevelsStore = defineStore('levels',{
 
             /**
              * Get a level by its key
-             * 
+             *
              * @param {string} key
              * @returns {object|null}
              */
@@ -42,11 +42,15 @@ export const useLevelsStore = defineStore('levels',{
 
             /**
              * Get the level for reached points
-             * 
+             *
              * @param {number} points
              * @returns {null}
              */
             const fn = function(points) {
+                if (points === null) {
+                    return null;
+                }
+
                 let level = null;
                 let last_points = 0;
                 for (let i = 0; i < state.levels.length; i++) {
@@ -77,12 +81,12 @@ export const useLevelsStore = defineStore('levels',{
         async loadFromStorage() {
             try {
                 this.$reset();
-                
+
                 const keys = await storage.getItem('levelKeys');
                 if (keys) {
                     this.keys =  JSON.parse(keys);
                 }
-                
+
                 for (const key of this.keys) {
                     const level = await storage.getItem(key);
                     this.levels.push(level);
@@ -97,7 +101,7 @@ export const useLevelsStore = defineStore('levels',{
             try {
                 await storage.clear();
                 this.$reset();
-                
+
                 for (const level of data) {
                     this.levels.push(level);
                     this.keys.push(level.key);

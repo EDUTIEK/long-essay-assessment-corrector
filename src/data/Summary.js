@@ -34,7 +34,7 @@ class Summary {
    * Points directly given to this comment
    * @type {float}
    */
-  points = 0;
+  points = null;
 
   /**
    * Key of the reached Grade

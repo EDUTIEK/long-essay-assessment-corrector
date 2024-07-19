@@ -5,6 +5,8 @@ import { useTaskStore } from '@/store/task';
 import { useItemsStore } from '@/store/items';
 import { useSettingsStore } from '@/store/settings';
 import { useSummariesStore } from '@/store/summaries';
+import { useLevelsStore } from '@/store/levels';
+import { useLayoutStore } from '@/store/layout';
 import OwnSummaryIncludes from '@/components/OwnSummaryIncludes.vue';
 import { ref } from 'vue';
 
@@ -13,8 +15,8 @@ const taskStore = useTaskStore();
 const itemsStore = useItemsStore();
 const settingsStore = useSettingsStore();
 const summariesStore = useSummariesStore();
-
-
+const levelsStore = useLevelsStore();
+const layoutStore = useLayoutStore();
 
 const showIncludes = ref(false);
 
@@ -48,6 +50,11 @@ async function setAuthorizedAndClose() {
   }
 }
 
+function editSummary() {
+    apiStore.showAuthorization = false;
+    layoutStore.showSummary();
+}
+
 </script>
 
 <template>
@@ -62,8 +69,11 @@ async function setAuthorizedAndClose() {
         <v-card>
           <v-card-title>Korrektur von {{itemsStore.currentItem.title}} autorisieren</v-card-title>
           <v-card-text>
-
-              <p><strong>Gutachten:</strong></p>
+              <p><strong>Gutachten:</strong>
+                  <v-btn variant="text" @click="editSummary()">
+                      <v-icon left icon="mdi-pencil"></v-icon>
+                  </v-btn>
+              </p>
               <div class="appText long-essay-content headlines-three" v-html="summariesStore.editSummary.text">
               </div>
 
@@ -79,9 +89,16 @@ async function setAuthorizedAndClose() {
                   Bitte geben Sie einen Gutachten-Text ein.
               </v-alert>
 
-              <v-alert v-show="(summariesStore.currentPartialPointsAreIncluded && (summariesStore.editSummary.points != summariesStore.currentPartialPoints))"
+              <v-alert v-show="(levelsStore.hasLevels && (summariesStore.editSummary.points === null))"
                        type="info" variant="text">
-                  Ihre Punktevergabe weicht von der einbezogenen Summe der Teilpunkte ({{ summariesStore.currentPartialPoints }}) ab!
+                  Bitte geben Sie eine Bewertung ein, damit eine Notenstufe vergeben werden kann.
+              </v-alert>
+
+              <v-alert v-show="(summariesStore.currentPartialPointsAreIncluded
+                                    && summariesStore.editSummary.points !== null
+                                    && summariesStore.editSummary.points != summariesStore.currentPartialPoints)"
+                       type="info" variant="text">
+                  Ihre Bewertung weicht von der einbezogenen Summe der Teilpunkte ({{ summariesStore.currentPartialPoints }}) ab!
               </v-alert>
 
                 <v-alert v-show="summariesStore.areOthersAuthorized && summariesStore.stitchReasonText != '' "
