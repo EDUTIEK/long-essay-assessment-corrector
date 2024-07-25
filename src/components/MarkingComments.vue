@@ -30,11 +30,11 @@ async function focusSelected() {
         }
     }
 }
-watch(() => commentsStore.selectedKey, focusSelected);
+watch(() => commentsStore.selectionChange, focusSelected);
 
 
 /**
- * Set the scripping so that the complete mark is visible
+ * Set the scrolling so that the complete mark is visible
  * @param {integer} firstWord
  * @param {integer} lastWord
  */
@@ -87,7 +87,7 @@ function getPointsColor(comment) {
 }
 
 async function toggleExcellent(comment) {
-    await commentsStore.selectComment(comment.key);
+    commentsStore.selectComment(comment.key);
     if (comment.rating_excellent) {
         comment.rating_cardinal = false;
     }
@@ -96,7 +96,7 @@ async function toggleExcellent(comment) {
 }
 
 async function toggleCardinal(comment) {
-    await commentsStore.selectComment(comment.key);
+    commentsStore.selectComment(comment.key);
     if (comment.rating_cardinal) {
         comment.rating_excellent = false;
     }
@@ -145,7 +145,7 @@ async function selectComment(comment) {
                   disabled="disabled"
                   :id="'pointsInput' + comment.key"
                   :value="pointsStore.getSumOfPointsForComment(comment.key)"/>
-            
+
             <input v-if="!criteriaStore.getCorrectorHasCriteria(comment.corrector_key)"
                  class="pointsInput"
                  type="number"
@@ -156,7 +156,7 @@ async function selectComment(comment) {
                  :disabled="summariesStore.isOwnDisabled || comment.corrector_key != apiStore.correctorKey"
                  @change="commentsStore.updateComment(comment)"
                  v-model="comment.points"/>
-            
+
             <label :for="'pointsInput' + comment.key"
                    @click="commentsStore.selectComment(comment.key)"> Pkt.</label>
           </span>
@@ -177,7 +177,7 @@ async function selectComment(comment) {
             <label :for="'ratingExcellent' + comment.key"
                  @click="commentsStore.selectComment(comment.key)">&nbsp;{{ settingsStore.positive_rating }}</label>
           </span>
-          
+
         </v-col>
 
         <!-- rating cardinal -->
@@ -195,8 +195,8 @@ async function selectComment(comment) {
           </span>
         </v-col>
       </v-row>
-      
-      
+
+
       <v-row>
         <div :id="'appCommentWrapper' + comment.key" class="commentWrapper">
           <v-textarea class="comment" :bg-color="getBgColor(comment)" rounded="0" density="compact" variant="solo"
@@ -231,7 +231,7 @@ async function selectComment(comment) {
     .col {
       font-size: 12px;
     }
-    
+
     .commentLabel {
         font-size: 14px;
         padding: 3px;
@@ -248,7 +248,7 @@ async function selectComment(comment) {
       width: 4em;
       text-align: left;
     }
-    
+
     .commentWrapper {
         width:100%;
     }

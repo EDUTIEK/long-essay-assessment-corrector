@@ -196,7 +196,7 @@
     }
     refreshMarks();
   }
-  watch(() => commentsStore.selectedKey, refreshSelection);
+  watch(() => commentsStore.selectionChange, refreshSelection);
 
   /**
    * Refresh the display of marks on the page
@@ -235,7 +235,7 @@
     currentKeys = newKeys;
   };
   watch(() => commentsStore.markerChange, refreshMarks);
-  watch(() => commentsStore.filterKeys, refreshMarks);
+  watch(() => commentsStore.filterChange, refreshMarks);
 
 
   /**

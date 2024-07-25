@@ -25,7 +25,7 @@ async function loadPoints() {
       criteriaPoints.value[criterion.key] = pointsStore.getValueByRelation(commentsStore.selectedKey, criterion.key);
     }
 }
-watch(() => commentsStore.selectedKey, loadPoints);
+watch(() => commentsStore.selectionChange, loadPoints);
 
 
 function savePoints(criterionKey) {
@@ -58,7 +58,7 @@ function savePoints(criterionKey) {
                         <input class="appPoints" type="number" min="0" v-model="criteriaPoints[criterion.key]"
                                :disabled="summariesStore.isOwnDisabled || corrector_key != apiStore.correctorKey"
                                :max="criterion.points"
-                               @change="savePoints(criterion.key)" 
+                               @change="savePoints(criterion.key)"
                         /> / {{criterion.points}}
                     </td>
                 </tr>
@@ -70,7 +70,7 @@ function savePoints(criterionKey) {
 <style scoped>
 
 th, td {
-  font-size: 14px;  
+  font-size: 14px;
 }
 
 .commentLabel {

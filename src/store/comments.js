@@ -27,10 +27,12 @@ export const useCommentsStore = defineStore('comments',{
             showPointsAndRatings: true,     // show the points and ratings above the comments
 
             // not saved in storage
-            markerChange: 0,                // timestamp of the last change that affects the text markers (not the selection)
-                                            //      (this is watched to update the text markers)
+            markerChange: 0,                // for watchers: timestamp of the last change that affects the text markers (not the selection)
+            selectionChange: 0,             // for watchers: timestamp of the last change of the selected comment
+            filterChange: 0,                // for watchers: timestamp of the last change of the comments filter
+
             selectedKey: '',                // key of the currently selected comment
-            firstVisibleKey: '',            // key of the first vislble comment in the scrolled text
+            firstVisibleKey: '',            // key of the first visible comment in the scrolled text
             filterKeys: [],                 // keys of filtered comments
         }
     },
@@ -263,20 +265,27 @@ export const useCommentsStore = defineStore('comments',{
             this.markerChange = Date.now();
         },
 
+        /**
+         * Set timestamp of the last change that affects the comments filter
+         * @public
+         */
+        setFilterChange() {
+            this.filterChange = Date.now();
+        },
 
         /**
          * Set the currently selected comment
-         * This should be called when a comment is manually selected in the text or comment list
-         * It will also remove a previously created comment that is still empty
+         * Call with set_change=true when a comment is selected, added or removed
+         * Call with set_change=false when just the key of the selected comment is updated
+         *
          * @param {string} key
+         * @param {boolean} set_change
          * @public
          */
-        async selectComment(key) {
-            if (this.selectedKey != key) {
-                //28.7.2023: empty comments should be kept
-                //await this.removeEmptyComments(key);
-                //await this.sortAndLabelComments();
-                this.selectedKey = key;
+        selectComment(key, set_change = true) {
+            this.selectedKey = key;
+            if (set_change) {
+                this.selectionChange = Date.now();
             }
         },
 
@@ -315,12 +324,12 @@ export const useCommentsStore = defineStore('comments',{
             this.keys.push(comment.key);
             if (this.filterKeys.length > 0) {
                 this.filterKeys.push(comment.key);
+                this.setFilterChange();
             }
             this.comments.push(comment);
-            await this.removeEmptyComments(comment.key);
             await this.sortAndLabelComments();
             this.setMarkerChange();
-            this.selectedKey = comment.key;
+            this.selectComment(comment.key, true);
 
             // then save the comment
             await storage.setItem(comment.key, JSON.stringify(comment.getData()));
@@ -389,7 +398,7 @@ export const useCommentsStore = defineStore('comments',{
             await pointsStore.deletePointsOfComment(removeKey);
 
             if (this.selectedKey == removeKey) {
-                this.selectedKey = '';
+                this.selectComment('', true);
             }
             const comment = this.comments.find(element => element.key == removeKey);
 
@@ -412,33 +421,6 @@ export const useCommentsStore = defineStore('comments',{
 
             } else {
                 await changesStore.setChange(change);
-            }
-        },
-
-
-        /**
-         * Remove empty comments of the current item (internally used)
-         *
-         * @param {string} keepKey - key of a (newly created) comment that should be kept
-         * @private
-         */
-        async removeEmptyComments(keepKey) {
-
-            // 28.7.2023: empty comments should be kept
-            return;
-
-            const pointsStore = usePointsStore();
-
-            let comments = this.comments.filter(comment =>
-                comment.key != keepKey
-                && comment.comment == ''
-                && !comment.rating_excellent
-                && !comment.rating_cardinal
-                && !pointsStore.getCommentHasPoints(comment.key)
-            );
-
-            for (const comment of comments) {
-                await this.removeComment(comment.key);
             }
         },
 
@@ -490,6 +472,7 @@ export const useCommentsStore = defineStore('comments',{
                     this.filterKeys.push(comment.key);
                 }
             }
+            this.setFilterChange();
         },
 
         /**
@@ -505,6 +488,7 @@ export const useCommentsStore = defineStore('comments',{
                     this.filterKeys.push(comment.key);
                 }
             }
+            this.setFilterChange();
         },
 
 
@@ -523,6 +507,7 @@ export const useCommentsStore = defineStore('comments',{
                     }
                 }
             }
+            this.setFilterChange();
         },
 
         /**
@@ -530,6 +515,7 @@ export const useCommentsStore = defineStore('comments',{
          */
         resetFilter() {
             this.filterKeys = [];
+            this.setFilterChange();
         },
 
         /**
@@ -588,8 +574,6 @@ export const useCommentsStore = defineStore('comments',{
                         this.comments.push(comment);
                     }
                 }
-
-                await this.removeEmptyComments();
                 await this.sortAndLabelComments();
 
             } catch (err) {
@@ -622,8 +606,6 @@ export const useCommentsStore = defineStore('comments',{
                         this.comments.push(comment);
                     }
                 };
-
-                await this.removeEmptyComments();
                 await this.sortAndLabelComments();
 
                 await storage.setItem('keys', JSON.stringify(this.keys));
@@ -689,7 +671,7 @@ export const useCommentsStore = defineStore('comments',{
 
             // treat the changes in the state (curent correction item)
             if (changedKeys.includes(this.selectedKey)) {
-                this.selectedKey = matches[this.selectedKey];
+                this.selectComment(matches[this.selectedKey], false);
             }
             this.comments = this.comments.filter(comment => !removedKeys.includes(comment.key));
             for (const comment of this.comments) {
@@ -705,7 +687,7 @@ export const useCommentsStore = defineStore('comments',{
                     newFilterKeys.push(key);
                 }
             }
-            this.filterKeys = newFilterKeys;
+            this.filterKeys = newFilterKeys; // no setFilterChange here
 
             // save the changes to the storage
             this.keys = this.keys.filter(key => !removedKeys.includes(key) && !changedKeys.includes(key));

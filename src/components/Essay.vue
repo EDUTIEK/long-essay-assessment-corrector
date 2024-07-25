@@ -14,11 +14,7 @@
   const preferencesStore = usePreferencesStore();
   const settingsStore = useSettingsStore();
 
-  const showMenu = ref(false);
-
   let marker;
-  let menuSelection;
-  let menuComment;
 
   onMounted(() => {
     applyZoom();
@@ -27,17 +23,16 @@
   });
 
   function refreshMarks() {
-      //console.log('refreshMarks');
+      //console.log(Date.now(), 'refreshMarks');
       marker.hideAllMarksAndLabels();
       commentsStore.activeComments.forEach(comment => updateMark(comment));
       refreshSelection();
   }
-
   watch(() => commentsStore.markerChange, refreshMarks);
-  watch(() => commentsStore.filterKeys, refreshMarks);
+  watch(() => commentsStore.filterChange, refreshMarks);
 
   function refreshSelection() {
-      //console.log('refreshSelection');
+      //console.log(Date.now(), 'refreshSelection');
       marker.hideAllMarksOfClass('selected');
       //marker.hideAllMarksOfClass('labelled');
 
@@ -48,7 +43,7 @@
           marker.scrollToMark(comment.start_position, comment.end_position);
       }
   }
-  watch(() => commentsStore.selectedKey, refreshSelection);
+  watch(() => commentsStore.selectionChange, refreshSelection);
 
 
   /**
@@ -76,44 +71,31 @@
    * Decide whether to add a new comment or select an existing comment
    */
   async function onSelection(selected) {
-      if (showMenu.value) {
-          showMenu.value = false;
-      }
-      else {
-          // check if new selection overlaps with own comments
-          let comments = commentsStore.getActiveCommentsInRange(selected.firstWord, selected.lastWord);
-          if (comments.length) {
-              // get the first overlapping comment
-              let comment = comments.shift();
+      // check if new selection overlaps with own comments
+      let comments = commentsStore.getActiveCommentsInRange(selected.firstWord, selected.lastWord);
+      if (comments.length) {
+          // get the first overlapping comment
+          let comment = comments.shift();
 
-              if (selected.isCollapsed) {
-                  // just clicked at a position => select the overlapping comment
-                  marker.removeSelection();
-                  commentsStore.selectComment(comment.key);
-              }
-              else {
-                  // always create a new comment, even if it overlaps (VC 26.5.2023)
-                  marker.removeSelection();
-                  if (!summariesStore.isOwnDisabled) {
-                      commentsStore.createComment(selected.firstWord, selected.lastWord, selected.parentNumber);
-                  }
-
-                  // selected an overlapping range => show menu whether to change boundaries or add a new comment
-                  // menuSelection = selected;
-                  // menuComment = comment;
-                  // showMenu.value=true;
-                  // await nextTick();
-                  // document.getElementById("app-essay-menu").style.left = selected.mouseX + 'px';
-                  // document.getElementById("app-essay-menu").style.top = selected.mouseY + 'px';
-              }
-         }
-         else {
-              // no overlapping => create a new comment
+          if (selected.isCollapsed) {
+              // just clicked at a position => select the overlapping comment
+              marker.removeSelection();
+              commentsStore.selectComment(comment.key);
+          }
+          else {
+              // always create a new comment, even if it overlaps (VC 26.5.2023)
               marker.removeSelection();
               if (!summariesStore.isOwnDisabled) {
                   commentsStore.createComment(selected.firstWord, selected.lastWord, selected.parentNumber);
               }
-         }
+          }
+      }
+      else {
+          // no overlapping => create a new comment
+          marker.removeSelection();
+          if (!summariesStore.isOwnDisabled) {
+              commentsStore.createComment(selected.firstWord, selected.lastWord, selected.parentNumber);
+          }
       }
   }
 
@@ -141,37 +123,7 @@
 
   function applyZoom() {
     document.getElementById('app-essay').style.fontSize=(preferencesStore.essay_text_zoom * 16) + 'px';
-    // for (const element of document.getElementById('app-essay').querySelectorAll("*")) {
-    //     element.style.fontSize=(preferencesStore.essay_text_zoom * 16) + 'px';
-    // }
-    //   for (const element of document.getElementById('app-essay').querySelectorAll(".ParagraphNumber > *")) {
-    //       element.style.fontSize=(preferencesStore.essay_text_zoom * 10) + 'px';
-    //   }
   }
-
-
-  /**
-   * Add comment for a previously selected range
-   */
-  function menuAddComment() {
-      showMenu.value = false;
-      marker.removeSelection();
-      commentsStore.createComment(menuSelection.firstWord, menuSelection.lastWord, menuSelection.parentNumber);
-  }
-
-  /**
-   * Edit the comment from a previously selected range
-   */
-  function menuEditComment() {
-      showMenu.value = false;
-      marker.removeSelection();
-      menuComment.start_position = menuSelection.firstWord;
-      menuComment.end_position = menuSelection.lastWord;
-      menuComment.parent_number = menuSelection.parentNumber;
-      commentsStore.updateComment(menuComment);
-      commentsStore.selectComment(menuComment.key);
-  }
-
 </script>
 
 <template>
@@ -184,12 +136,6 @@
       </div>
       <div id="app-essay" :class="'long-essay-content ' + settingsStore.headlineClass" v-html="essayStore.text">
       </div>
-      <v-menu v-model="showMenu">
-        <div id="app-essay-menu">
-          <v-btn icon="mdi-comment-plus" @click="menuAddComment()"></v-btn>
-          <v-btn icon="mdi-marker" @click="menuEditComment()"></v-btn>
-        </div>
-      </v-menu>
     </div>
 </template>
 
