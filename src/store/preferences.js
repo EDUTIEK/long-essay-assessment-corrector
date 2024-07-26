@@ -87,11 +87,11 @@ export const usePreferencesStore = defineStore('preferences', {
       }
     },
 
-    loadFromData(data) {
+    async loadFromData(data) {
       try {
         this.$patch(data);
         this.sent = true;
-        this.saveToStorage();
+        await this.saveToStorage();
 
       }
       catch (err) {

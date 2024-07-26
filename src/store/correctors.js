@@ -26,7 +26,7 @@ export const useCorrectorsStore = defineStore('correctors',{
     getters: {
 
         countCorrectors: state => state.correctors.length,
-        
+
         correctorKeys: state => {
           let keys = [];
           for (const corrector of state.correctors) {
@@ -34,7 +34,7 @@ export const useCorrectorsStore = defineStore('correctors',{
           }
           return keys;
         },
-        
+
         /**
          * Get a list of corrector objects for other Correctors
          * @param state
@@ -46,7 +46,7 @@ export const useCorrectorsStore = defineStore('correctors',{
                 .filter(element => element.corrector_key != apiStore.correctorKey)
                 .sort((a, b) => a.position - b.position);
         },
-        
+
         getPositionText: state => {
 
             /**
@@ -77,7 +77,7 @@ export const useCorrectorsStore = defineStore('correctors',{
         },
 
         getCorrector: state => {
-            
+
             /**
              * Get a corrector object by its corrector_key
              * @param {string}  corrector_key  - key of the corrector
@@ -102,18 +102,25 @@ export const useCorrectorsStore = defineStore('correctors',{
              this.$reset();
         },
 
-        async loadFromStorage(currentItemKey) {
+        /**
+         * Load the correctors data from the storage
+         * Only the pages of the current item are loaded to the state
+         *
+         * @public
+         */
+        async loadFromStorage() {
+            const apiStore = useApiStore();
             try {
                 this.$reset();
-                
+
                 const keys = await storage.getItem('correctorKeys');
                 if (keys) {
                     this.keys = JSON.parse(keys);
                 }
-                
+
                 for (const key of this.keys) {
                     const corrector = new Corrector(JSON.parse(await storage.getItem(key)));
-                    if (corrector.item_key == currentItemKey) {
+                    if (corrector.item_key == apiStore.itemKey) {
                         this.correctors.push(corrector);
                     }
                 }
@@ -123,17 +130,18 @@ export const useCorrectorsStore = defineStore('correctors',{
             }
         },
 
-        async loadFromData(data, currentItemKey) {
+        async loadFromData(data) {
 
+             const apiStore = useApiStore();
             try {
                 await storage.clear();
                 this.$reset();
-                
+
                 for (const corrector_data of data) {
                     const corrector = new Corrector(corrector_data);
                     this.keys.push(corrector.getKey());
                     await storage.setItem(corrector.getKey(), JSON.stringify(corrector.getData()));
-                    if (corrector.item_key == currentItemKey) {
+                    if (corrector.item_key == apiStore.itemKey) {
                         this.correctors.push(corrector);
                     }
                 }

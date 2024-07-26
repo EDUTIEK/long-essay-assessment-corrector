@@ -554,10 +554,10 @@ export const useCommentsStore = defineStore('comments',{
          * Load the comments data from the storage
          * Only the comments of the current item are loaded to the state
          *
-         * @param {string} currentItemKey - key of the correction item that is shown
          * @public
          */
-        async loadFromStorage(currentItemKey) {
+        async loadFromStorage() {
+            const apiStore = useApiStore();
             try {
                 this.$reset();
 
@@ -570,7 +570,7 @@ export const useCommentsStore = defineStore('comments',{
 
                 for (const key of this.keys) {
                     const comment = new Comment(JSON.parse(await storage.getItem(key)));
-                    if (comment.item_key == currentItemKey) {
+                    if (comment.item_key == apiStore.itemKey) {
                         this.comments.push(comment);
                     }
                 }
@@ -588,10 +588,11 @@ export const useCommentsStore = defineStore('comments',{
          * Only the comments of the current item are loaded to the state
          *
          * @param {array} data - array of plain objects
-         * @param {string} currentItemKey - key of the correction item that is shown
          * @public
          */
-        async loadFromData(data, currentItemKey) {
+        async loadFromData(data) {
+
+            const apiStore = useApiStore();
             try {
                 this.$reset();
                 this.showOtherCorrectors = !! JSON.parse(await storage.getItem('showOtherCorrectors'));
@@ -602,7 +603,7 @@ export const useCommentsStore = defineStore('comments',{
                     const comment = new Comment(comment_data);
                     this.keys.push(comment.key);
                     await storage.setItem(comment.key, JSON.stringify(comment.getData()));
-                    if (comment.item_key == currentItemKey) {
+                    if (comment.item_key == apiStore.itemKey) {
                         this.comments.push(comment);
                     }
                 };

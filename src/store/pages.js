@@ -158,10 +158,10 @@ export const usePagesStore = defineStore('pages',{
          * Load the pages data from the storage
          * Only the pages of the current item are loaded to the state
          *
-         * @param {string} currentItemKey - key of the correction item that is shown
          * @public
          */
-        async loadFromStorage(currentItemKey) {
+        async loadFromStorage() {
+            const apiStore = useApiStore();
             try {
                 this.purgeFiles();
                 this.$reset();
@@ -173,7 +173,7 @@ export const usePagesStore = defineStore('pages',{
 
                 for (const key of this.keys) {
                     const page = new Page(JSON.parse(await storage.getItem(key)));
-                    if (page.item_key == currentItemKey) {
+                    if (page.item_key == apiStore.itemKey) {
                         this.pages[key] = page;
                     }
                 }
@@ -193,10 +193,9 @@ export const usePagesStore = defineStore('pages',{
          * Only the pages of the current item are loaded to the state
          *
          * @param {array} data - array of plain objects
-         * @param {string} currentItemKey - key of the correction item that is shown
          * @public
          */
-        async loadFromData(data, currentItemKey) {
+        async loadFromData(data) {
             const apiStore = useApiStore();
             try {
                 await storage.clear();
@@ -209,7 +208,7 @@ export const usePagesStore = defineStore('pages',{
                     page.thumb_url = apiStore.getThumbUrl(page.key, page.item_key);
                     this.keys.push(page.key);
                     await storage.setItem(page.key, JSON.stringify(page.getData()));
-                    if (page.item_key == currentItemKey) {
+                    if (page.item_key == apiStore.itemKey) {
                         this.pages[page.key] = page;
                     }
                 };

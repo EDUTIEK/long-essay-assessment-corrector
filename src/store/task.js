@@ -49,6 +49,7 @@ export const useTaskStore = defineStore('task',{
         },
 
         async loadFromStorage() {
+            const apiStore = useApiStore();
             try {
                 const data = await storage.getItem('task');
                 this.$patch(data);
@@ -57,10 +58,11 @@ export const useTaskStore = defineStore('task',{
             }
 
             this.updateRemainingTime();
-            setInterval(this.updateRemainingTime, 1000);
+            apiStore.setInterval('taskStore.updateRemainingTime', this.updateRemainingTime, 1000);
         },
 
         async loadFromData(data) {
+            const apiStore = useApiStore();
             try {
                 await storage.setItem('task', data);
                 this.$patch(data);
@@ -69,7 +71,7 @@ export const useTaskStore = defineStore('task',{
             }
 
             this.updateRemainingTime();
-            setInterval(this.updateRemainingTime, 1000);
+            apiStore.setInterval('taskStore.updateRemainingTime', this.updateRemainingTime, 1000);
         },
 
         /**

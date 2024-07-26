@@ -344,12 +344,10 @@ export const useSummariesStore = defineStore('summaries',{
          * Load the comments data from the storage
          * Only the comments of the current item are loaded to the state
          *
-         * @param {string} currentItemKey - key of the correction item that is shown
-         * @param {string} correctorKey - key of the active corrector
          * @public
          */
-        async loadFromStorage(currentItemKey, correctorKey) {
-
+        async loadFromStorage() {
+            const apiStore = useApiStore();
             try {
                 this.$reset();
 
@@ -360,10 +358,10 @@ export const useSummariesStore = defineStore('summaries',{
 
                 for (const key of this.keys) {
                     const summary = new Summary(JSON.parse(await storage.getItem(key)));
-                    if (summary.item_key == currentItemKey) {
+                    if (summary.item_key == apiStore.itemKey) {
                         this.summaries[key] = summary;
                     }
-                    if (summary.corrector_key == correctorKey) {
+                    if (summary.corrector_key == apiStore.correctorKey) {
                         this.editSummary = summary.getClone();
                     }
                 }
@@ -371,6 +369,9 @@ export const useSummariesStore = defineStore('summaries',{
             } catch (err) {
                 console.log(err);
             }
+
+            lockUpdate = 0;
+            apiStore.setInterval('summariesStore.updateContent', this.updateContent, checkInterval);
         },
 
         /**
@@ -380,11 +381,10 @@ export const useSummariesStore = defineStore('summaries',{
          * Only the summaries of the current item are loaded to the state
          *
          * @param {array} data - array of plain objects
-         * @param {string} currentItemKey - key of the correction item that is shown
-         * @param {string} correctorKey - key of the active corrector
          * @public
          */
-        async loadFromData(data, currentItemKey, correctorKey) {
+        async loadFromData(data) {
+            const apiStore = useApiStore();
             try {
                 await storage.clear();
                 this.$reset();
@@ -393,10 +393,10 @@ export const useSummariesStore = defineStore('summaries',{
                     const summary = new Summary(summary_data);
                     this.keys.push(summary.getKey());
                     await storage.setItem(summary.getKey(), JSON.stringify(summary.getData()));
-                    if (summary.item_key == currentItemKey) {
+                    if (summary.item_key == apiStore.itemKey) {
                         this.summaries[summary.getKey()] = summary;
                     }
-                    if (summary.corrector_key == correctorKey) {
+                    if (summary.corrector_key == apiStore.correctorKey) {
                         this.editSummary = summary.getClone();
                     }
                 };
@@ -408,7 +408,7 @@ export const useSummariesStore = defineStore('summaries',{
             }
 
             lockUpdate = 0;
-            setInterval(this.updateContent, checkInterval);
+            apiStore.setInterval('summariesStore.updateContent', this.updateContent, checkInterval);
         },
 
 

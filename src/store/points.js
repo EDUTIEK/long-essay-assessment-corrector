@@ -296,10 +296,10 @@ export const usePointsStore = defineStore('points',{
          * Load the points data from the storage
          * Only the points of the current item are loaded to the state
          *
-         * @param {string} currentItemKey - key of the correction item that is shown
          * @public
          */
-        async loadFromStorage(currentItemKey) {
+        async loadFromStorage() {
+            const apiStore = useApiStore();
             try {
                 this.$reset();
 
@@ -312,7 +312,7 @@ export const usePointsStore = defineStore('points',{
                 for (const key of this.keys) {
                     let points_data = JSON.parse(await storage.getItem(key));
                     let points = new Points(points_data);
-                    if (points.item_key == currentItemKey) {
+                    if (points.item_key == apiStore.itemKey) {
                         this.points.push(points);
                     }
                 }
@@ -328,10 +328,10 @@ export const usePointsStore = defineStore('points',{
          * Only the comments of the current item are loaded to the state
          *
          * @param {array} data - array of plain objects
-         * @param {string} currentItemKey - key of the correction item that is shown
          * @public
          */
-        async loadFromData(data, currentItemKey) {
+        async loadFromData(data) {
+            const apiStore = useApiStore();
             try {
                 await storage.clear();
                 this.$reset();
@@ -340,7 +340,7 @@ export const usePointsStore = defineStore('points',{
                     const points = new Points(points_data);
                     this.keys.push(points.key);
                     await storage.setItem(points.key, JSON.stringify(points.getData()));
-                    if (points.item_key == currentItemKey) {
+                    if (points.item_key == apiStore.itemKey) {
                         this.points.push(points);
                     }
                 };

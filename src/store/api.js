@@ -52,7 +52,8 @@ export const useApiStore = defineStore('api', {
             showSendFailure: false,             // show a message about a sending failure
             showDataReplaceConfirmation: false, // show a confirmation that the stored data should be replaced by another task or user
             showItemReplaceConfirmation: false, // show a confirmation that the stored item should be replaced by another item
-            lastSendingTry: 0                   // timestamp of the last try to send changes
+            lastSendingTry: 0,                  // timestamp of the last try to send changes
+            intervals: {}                       // list of all registered timer intervals, indexed by their name
         }
     },
 
@@ -67,7 +68,7 @@ export const useApiStore = defineStore('api', {
 
             /**
              * Get the config object for REST requests
-             * 
+             *
              * @param {string} token
              * @returns {{baseURL: (string|*), responseType: string, responseEncoding: string, params: URLSearchParams, timeout: number}}
              */
@@ -107,7 +108,7 @@ export const useApiStore = defineStore('api', {
 
             /**
              * Get the Url for loading a file ressource
-             * 
+             *
              * @param {string} resourceKey
              * @returns {string}
              */
@@ -164,8 +165,8 @@ export const useApiStore = defineStore('api', {
             }
             return fn;
         },
-        
-        
+
+
         getChangeDataToSend: state => {
 
             /**
@@ -305,7 +306,7 @@ export const useApiStore = defineStore('api', {
             this.updateConfig();
         },
 
-        
+
         /**
          * Finish the initialisation
          * set config dependent layout states
@@ -319,11 +320,8 @@ export const useApiStore = defineStore('api', {
             if (this.isForReviewOrStitch) {
                 commentsStore.setShowOtherCorrectors(true);
             }
-            else {
-                setInterval(this.saveChangesToBackend, sendInterval);
-            }
 
-           if (this.isStitchDecision) {
+            if (this.isStitchDecision) {
                let i = 0;
                for (const corrector of correctorsStore.correctors) {
                    layoutStore.selectCorrector(corrector.corrector_key);
@@ -332,7 +330,7 @@ export const useApiStore = defineStore('api', {
                        break;
                    }
                }
-           }
+            }
 
             this.initialized = true;
         },
@@ -373,6 +371,7 @@ export const useApiStore = defineStore('api', {
          */
         async loadDataFromStorage() {
             console.log("loadDataFromStorage...");
+            this.clearAllIntervals();
 
             const settingsStore = useSettingsStore();
             const taskStore = useTaskStore();
@@ -403,11 +402,15 @@ export const useApiStore = defineStore('api', {
          */
         async loadItemFromStorage(itemKey) {
             console.log("loadItemFromStorage...");
+             this.clearAllIntervals();
 
             const itemsStore = useItemsStore();
             if (itemKey == '' || itemsStore.getItem(itemKey) == undefined) {
                 itemKey = itemsStore.firstKey
             }
+
+            this.itemKey = itemKey;
+            localStorage.setItem('itemKey', this.itemKey);
 
             const essayStore = useEssayStore();
             const pagesStore = usePagesStore();
@@ -417,20 +420,15 @@ export const useApiStore = defineStore('api', {
             const pointsStore = usePointsStore();
             const layoutStore = useLayoutStore();
 
-            // todo: add item key as parameter when store has data of all items
             await essayStore.loadFromStorage();
-            
-            await correctorsStore.loadFromStorage(itemKey);
-            await pagesStore.loadFromStorage(itemKey);
-            await commentsStore.loadFromStorage(itemKey);
-            await pointsStore.loadFromStorage(itemKey);
-            await summariesStore.loadFromStorage(itemKey, this.correctorKey);
+            await correctorsStore.loadFromStorage();
+            await pagesStore.loadFromStorage();
+            await commentsStore.loadFromStorage();
+            await pointsStore.loadFromStorage();
+            await summariesStore.loadFromStorage();
 
             commentsStore.setMarkerChange();
-
-            this.itemKey = itemKey;
-            localStorage.setItem('itemKey', this.itemKey);
-            
+            this.setInterval('apiStore.saveChangesToBackend', this.saveChangesToBackend, sendInterval);
             return true;
         },
 
@@ -440,6 +438,7 @@ export const useApiStore = defineStore('api', {
          */
         async loadDataFromBackend() {
             console.log("loadDataFromBackend...");
+            this.clearAllIntervals();
 
             let response = {};
             try {
@@ -475,7 +474,7 @@ export const useApiStore = defineStore('api', {
             const commentsStore = useCommentsStore();
             const pointsStore = usePointsStore();
             const changesStore = useChangesStore();
-            
+
             await layoutStore.clearStorage();
             await correctorsStore.clearStorage();
             await summariesStore.clearStorage();
@@ -491,8 +490,8 @@ export const useApiStore = defineStore('api', {
          * Load the data of a new correction item from the backend
          */
         async loadItemFromBackend(itemKey) {
-
             console.log("loadItemFromBackend...");
+            this.clearAllIntervals();
 
             const itemsStore = useItemsStore();
             if (itemKey == '' || itemsStore.getItem(itemKey) == undefined) {
@@ -511,29 +510,34 @@ export const useApiStore = defineStore('api', {
                 return false;
             }
 
+            // set it here before loading and check it in the loadFromData() functions
+            // otherwise a fast navigation between writers may cause wrong assignments (race condition)
+            this.itemKey = itemKey;
+            localStorage.setItem('itemKey', this.itemKey);
+
             const taskStore = useTaskStore();
             const essayStore = useEssayStore();
-
-            await taskStore.loadFromData(response.data.task);
-            await essayStore.loadFromData(response.data.essay);
-            
             const correctorsStore = useCorrectorsStore();
             const pagesStore = usePagesStore();
             const summariesStore = useSummariesStore();
             const commentsStore = useCommentsStore();
             const pointsStore = usePointsStore();
-            
-            await correctorsStore.loadFromData(response.data.correctors, itemKey);
-            await pagesStore.loadFromData(response.data.pages, itemKey);
-            await commentsStore.loadFromData(response.data.comments, itemKey);
-            await pointsStore.loadFromData(response.data.points, itemKey);
-            await summariesStore.loadFromData(response.data.summaries, itemKey, this.correctorKey);
+            const changesStore = useChangesStore();
+
+            await taskStore.loadFromData(response.data.task);
+            await essayStore.loadFromData(response.data.essay);
+            await correctorsStore.loadFromData(response.data.correctors);
+            await pagesStore.loadFromData(response.data.pages);
+            await commentsStore.loadFromData(response.data.comments);
+            await pointsStore.loadFromData(response.data.points);
+            await summariesStore.loadFromData(response.data.summaries);
+
+            // dismiss open changes from other items
+            // this avoids a race condition on quick navigation between writers
+            await changesStore.clearStorage();
 
             commentsStore.setMarkerChange();
-
-            this.itemKey = itemKey;
-            localStorage.setItem('itemKey', this.itemKey);
-            
+            this.setInterval('apiStore.saveChangesToBackend', this.saveChangesToBackend, sendInterval);
             return true;
         },
 
@@ -541,7 +545,7 @@ export const useApiStore = defineStore('api', {
         /**
          * Periodically send changes to the backend
          * Timer is set in initialisation
-         * 
+         *
          * @param bool wait    wait some seconds for a running sending to finish (if not called by timer)
          * @return bool
          */
@@ -560,15 +564,15 @@ export const useApiStore = defineStore('api', {
                     await new Promise(resolve => setTimeout(resolve, 1000));
                 }
             }
-            
+
             // don't interfer with a running request
             if (this.lastSendingTry > 0) {
                 return false;
             }
-            
+
             if (changesStore.countChanges > 0) {
                 this.lastSendingTry = Date.now();
-                
+
                 try {
                     const data = {
                         comments: await commentsStore.getChangedData(this.lastSendingTry),
@@ -580,11 +584,11 @@ export const useApiStore = defineStore('api', {
                     const response = await axios.put( '/changes/' + this.itemKey, data, this.getRequestConfig(this.dataToken));
                     this.setTimeOffset(response);
                     this.refreshToken(response);
-                    
+
                     await commentsStore.updateKeys(response.data.comments);
                     await pointsStore.changeCommentKeys(response.data.comments);
                     await pointsStore.updateKeys(response.data.points);
-                    
+
                     await changesStore.setChangesSent(Change.TYPE_COMMENT, response.data.comments, this.lastSendingTry);
                     await changesStore.setChangesSent(Change.TYPE_POINTS, response.data.points, this.lastSendingTry);
                     await changesStore.setChangesSent(Change.TYPE_SUMMARY, response.data.summaries, this.lastSendingTry);
@@ -595,10 +599,10 @@ export const useApiStore = defineStore('api', {
                     this.lastSendingTry = 0;
                     return false;
                 }
-                
+
                 this.lastSendingTry = 0;
             }
-            
+
             return true;
         },
 
@@ -669,5 +673,31 @@ export const useApiStore = defineStore('api', {
           this.showSendFailure = active
         },
 
+        /**
+         * Set a timer interval
+         * @param {string} name unique name of the interval to set
+         * @param {function} handler function that is called
+         * @param {integer} interval milliseconds between each call
+         */
+        setInterval(name, handler, interval) {
+            if (name in this.intervals) {
+                console.log('clear interval ' + name)
+                clearInterval(this.intervals[name]);
+            }
+            console.log('set interval ' + name)
+            this.intervals[name] = setInterval(handler, interval);
+        },
+
+        /**
+         * Clear all timer intervals
+         */
+        clearAllIntervals() {
+            console.log('clear all intervals ');
+            for (const name in this.intervals) {
+                console.log('clear interval ' + name);
+                clearInterval(this.intervals[name]);
+                delete this.intervals[name];
+            }
+        }
     }
 })
