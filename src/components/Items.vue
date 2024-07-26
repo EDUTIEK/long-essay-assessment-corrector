@@ -28,18 +28,20 @@
 
   async function selectItem() {
     menuOpen.value=false;
-    if (selectedKey.value != '') {
+    if (!apiStore.isLoading && selectedKey.value != '') {
       changeItem(selectedKey.value);
     }
   }
 
   async function changeItem(newKey) {
-    if (await apiStore.saveChangesToBackend(true)) {
-        await apiStore.loadItemFromBackend(newKey);
-    }
-    else {
-      apiStore.setShowSendFailure(true);
-    }
+      if (!apiStore.isLoading) {
+          if (await apiStore.saveChangesToBackend(true)) {
+              await apiStore.loadItemFromBackend(newKey);
+          }
+          else {
+              apiStore.setShowSendFailure(true);
+          }
+      }
   }
 
 
