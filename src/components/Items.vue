@@ -32,16 +32,14 @@
       changeItem(selectedKey.value);
     }
   }
-  
+
   async function changeItem(newKey) {
-    loading.value = true;
     if (await apiStore.saveChangesToBackend(true)) {
-      await apiStore.loadItemFromBackend(newKey);
+        await apiStore.loadItemFromBackend(newKey);
     }
     else {
       apiStore.setShowSendFailure(true);
     }
-    loading.value = false;
   }
 
 
@@ -49,16 +47,16 @@
 </script>
 
 <template>
-  
-   <v-btn :disabled="apiStore.itemKey == itemsStore.firstKey" @click="changeItem(itemsStore.getPreviousKey(apiStore.itemKey))">
+
+   <v-btn :disabled="apiStore.isLoading || apiStore.itemKey == itemsStore.firstKey" @click="changeItem(itemsStore.getPreviousKey(apiStore.itemKey))">
      <v-icon left icon="mdi-arrow-left-bold"></v-icon>
    </v-btn>
-  
-    <v-btn id="app-items-menu-activator">
-      <span v-if="loading">
+
+    <v-btn :disabled="apiStore.isLoading" id="app-items-menu-activator">
+      <span v-show="apiStore.isLoading">
         Lade Daten ...
       </span>
-      <span v-if="!loading && itemsStore.currentItem !== undefined">
+      <span v-show="!apiStore.isLoading && itemsStore.currentItem !== undefined">
        {{ itemsStore.currentItem.title }}
         {{ correctorsStore.getPositionText(apiStore.correctorKey) }}
         {{ apiStore.isForReviewOrStitch
@@ -68,7 +66,7 @@
       </span>
     </v-btn>
 
-  <v-menu v-model="menuOpen" activator="#app-items-menu-activator" :close-on-content-click="false" @update:modelValue="showSelection()">
+  <v-menu :disabled="apiStore.isLoading" v-model="menuOpen" activator="#app-items-menu-activator" :close-on-content-click="false" @update:modelValue="showSelection()">
     <v-autocomplete
         id="app-items-autocomplete"
         v-if="selectionShown"
@@ -90,8 +88,8 @@
         @update:modelValue="selectItem()"
     ></v-autocomplete>
   </v-menu>
-  
-   <v-btn :disabled="apiStore.itemKey == itemsStore.lastKey" @click="changeItem(itemsStore.getNextKey(apiStore.itemKey))">
+
+   <v-btn :disabled="apiStore.isLoading || apiStore.itemKey == itemsStore.lastKey" @click="changeItem(itemsStore.getNextKey(apiStore.itemKey))">
      <v-icon left icon="mdi-arrow-right-bold"></v-icon>
    </v-btn>
 </template>

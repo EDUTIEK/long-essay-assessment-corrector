@@ -52,7 +52,8 @@ export const useApiStore = defineStore('api', {
             showSendFailure: false,             // show a message about a sending failure
             showDataReplaceConfirmation: false, // show a confirmation that the stored data should be replaced by another task or user
             showItemReplaceConfirmation: false, // show a confirmation that the stored item should be replaced by another item
-            lastSendingTry: 0,                  // timestamp of the last try to send changes
+            lastSendingTry: 0,                  // timestamp of the last try to send changes (milliseconds)
+            lastLoadingTry: 0,                  // timestamp of the last try to load data (milliseconds)
             intervals: {}                       // list of all registered timer intervals, indexed by their name
         }
     },
@@ -61,6 +62,8 @@ export const useApiStore = defineStore('api', {
      * Getter functions (with params) start with 'get', simple state queries not
      */
     getters: {
+
+        isLoading: state => state.lastLoadingTry > 0,
 
         isForReviewOrStitch: state => state.isReview || state.isStitchDecision,
 
@@ -371,6 +374,7 @@ export const useApiStore = defineStore('api', {
          */
         async loadDataFromStorage() {
             console.log("loadDataFromStorage...");
+            this.setLoading(true);
             this.clearAllIntervals();
 
             const settingsStore = useSettingsStore();
@@ -393,6 +397,7 @@ export const useApiStore = defineStore('api', {
             await itemsStore.loadFromStorage();
             await changesStore.loadFromStorage();
 
+            this.setLoading(false);
             return true;
         },
 
@@ -402,6 +407,7 @@ export const useApiStore = defineStore('api', {
          */
         async loadItemFromStorage(itemKey) {
             console.log("loadItemFromStorage...");
+            this.setLoading(true);
              this.clearAllIntervals();
 
             const itemsStore = useItemsStore();
@@ -428,6 +434,7 @@ export const useApiStore = defineStore('api', {
             await summariesStore.loadFromStorage();
 
             commentsStore.setMarkerChange();
+            this.setLoading(false);
             this.setInterval('apiStore.saveChangesToBackend', this.saveChangesToBackend, sendInterval);
             return true;
         },
@@ -438,6 +445,7 @@ export const useApiStore = defineStore('api', {
          */
         async loadDataFromBackend() {
             console.log("loadDataFromBackend...");
+            this.setLoading(true);
             this.clearAllIntervals();
 
             let response = {};
@@ -449,6 +457,7 @@ export const useApiStore = defineStore('api', {
             catch (error) {
                 console.error(error);
                 this.showInitFailure = true;
+                this.setLoading(false);
                 return false;
             }
 
@@ -482,6 +491,7 @@ export const useApiStore = defineStore('api', {
             await pointsStore.clearStorage();
             await changesStore.clearStorage();
 
+            this.setLoading(false);
             return true;
         },
 
@@ -491,6 +501,7 @@ export const useApiStore = defineStore('api', {
          */
         async loadItemFromBackend(itemKey) {
             console.log("loadItemFromBackend...");
+            this.setLoading(true);
             this.clearAllIntervals();
 
             const itemsStore = useItemsStore();
@@ -507,6 +518,7 @@ export const useApiStore = defineStore('api', {
             catch (error) {
                 console.error(error);
                 this.showItemLoadFailure = true;
+                this.setLoading(false);
                 return false;
             }
 
@@ -537,6 +549,7 @@ export const useApiStore = defineStore('api', {
             await changesStore.clearStorage();
 
             commentsStore.setMarkerChange();
+            this.setLoading(false);
             this.setInterval('apiStore.saveChangesToBackend', this.saveChangesToBackend, sendInterval);
             return true;
         },
@@ -556,23 +569,9 @@ export const useApiStore = defineStore('api', {
             const summariesStore = useSummariesStore();
             const preferencesStore = usePreferencesStore();
 
-            // wait up to seconds for a running request to finish before giving up
-            if (wait) {
-                let tries = 0;
-                while (tries < 5 && this.lastSendingTry > 0) {
-                    tries++;
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                }
-            }
-
             // don't interfer with a running request
-            if (this.lastSendingTry > 0) {
-                return false;
-            }
-
-            if (changesStore.countChanges > 0) {
-                this.lastSendingTry = Date.now();
-
+            if (!(await this.isSending(true))) {
+                this.setSending(true);
                 try {
                     const data = {
                         comments: await commentsStore.getChangedData(this.lastSendingTry),
@@ -596,11 +595,10 @@ export const useApiStore = defineStore('api', {
                 }
                 catch (error) {
                     console.error(error);
-                    this.lastSendingTry = 0;
+                    this.setSending(false);
                     return false;
                 }
-
-                this.lastSendingTry = 0;
+                this.setSending(false);
             }
 
             return true;
@@ -658,6 +656,49 @@ export const useApiStore = defineStore('api', {
                 localStorage.setItem('correctorFileToken', this.fileToken);
             }
         },
+
+        /**
+         * Check if a sending of changes is still running
+         *
+         * @param {boolean} wait - wait up to 5 seconds for a sending to complete
+         * @return boolean  sending is still going on
+         */
+        async isSending(wait = false) {
+            if (wait) {
+                let tries = 0;
+                while (tries < 5 && this.lastSendingTry > 0) {
+                    tries++;
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
+            return this.lastSendingTry > 0;
+        },
+
+        /**
+         * Set the sending status
+         * @param {boolean} sending status
+         */
+        setSending(sending) {
+            if (sending) {
+              this.lastSendingTry = Date.now();
+            } else {
+              this.lastSendingTry = 0;
+            }
+         },
+
+
+        /**
+         * Set the sending status
+         * @param {boolean} sending status
+         */
+        setLoading(loading) {
+            if (loading) {
+                this.lastLoadingTry = Date.now();
+            } else {
+                this.lastLoadingTry = 0;
+            }
+        },
+
 
         /**
          * Set the activation for showing the authorization dialogue
