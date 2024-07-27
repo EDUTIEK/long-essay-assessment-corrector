@@ -1,6 +1,10 @@
 <script setup>
 import {useApiStore} from '@/store/api';
+import {useTaskStore} from '@/store/task';
+import {useItemsStore} from '@/store/items';
 const apiStore = useApiStore();
+const taskStore = useTaskStore();
+const itemsStore = useItemsStore();
 </script>
 
 <template>
@@ -47,14 +51,14 @@ const apiStore = useApiStore();
     <v-dialog persistent v-model="apiStore.showDataReplaceConfirmation">
       <v-card>
         <v-card-text>
-          <p>In Ihrem Browser sind Daten eines anderen Benutzers oder einer anderen Aufgabe vorhanden, die noch nicht übertragen wurden.
-            Durch das Laden werden diese Daten gelöscht.</p>
-          <p>Möchten Sie die neuen Daten laden?</p>
+            <p>In Ihrem Browser sind Daten eines anderen Korrektors oder einer anderen Aufgabe vorhanden, die noch nicht übertragen wurden:</p>
+            <p><strong>{{ taskStore.title }}:  {{ itemsStore.getItem(apiStore.storedItemKey, {key: 0, title: 'Unbekannt'}).title }}</strong></p>
+            <p>Durch das Laden der neuen Korrektur werden diese Daten gelöscht. Möchten Sie die neuen Daten laden?</p>
         </v-card-text>
         <v-card-actions>
           <v-btn @click="apiStore.initAfterReplaceDataConfirmed">
             <v-icon left icon="mdi-reload"></v-icon>
-            <span>Laden</span>
+            <span>Verwerfen und Laden</span>
           </v-btn>
           <v-btn :href="apiStore.returnUrl">
             <v-icon left icon="mdi-logout-variant"></v-icon>
@@ -67,8 +71,9 @@ const apiStore = useApiStore();
     <v-dialog persistent v-model="apiStore.showItemReplaceConfirmation">
       <v-card>
         <v-card-text>
-          <p>In Ihrem Browser sind Daten Ihrer vorherigen Bearbeitung vorhanden, die noch nicht übertragen wurden!</p>
-          <p>Sie können mit diesen Daten weiter arbeiten, um sie nachträglich zu übertragen oder sie verwerfen.</p>
+            <p>In Ihrem Browser sind Daten Ihrer vorherigen Bearbeitung vorhanden, die noch nicht übertragen wurden:</p>
+            <p><strong>{{ taskStore.title }}:  {{ itemsStore.getItem(apiStore.storedItemKey, {key: 0, title: 'Unbekannt'}).title }}</strong></p>
+            <p>Sie können mit diesen Daten weiter arbeiten, um sie nachträglich zu übertragen oder sie verwerfen.</p>
         </v-card-text>
         <v-card-actions>
           <v-btn @click="apiStore.initAfterKeepDataConfirmed">

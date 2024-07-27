@@ -27,9 +27,9 @@ export const useItemsStore = defineStore('items',{
         firstKey: state => state.keys.length > 0 ? state.keys[0] : '',
         lastKey: state => state.keys.length > 0 ? state.keys[state.keys.length -1] : '',
 
-        
-        
-        
+
+
+
         currentItem: state => {
             const apiStore = useApiStore();
             return  state.items.find(element => element.key == apiStore.itemKey);
@@ -39,7 +39,7 @@ export const useItemsStore = defineStore('items',{
 
             /**
              * Get the key of the previous item
-             * 
+             *
              * @param {string} key
              * @returns {string}
              */
@@ -73,17 +73,23 @@ export const useItemsStore = defineStore('items',{
             return fn;
         },
 
-        
+
         getItem: state => {
 
             /**
              * Get the item of a key
              *
              * @param {string} key
+             * @param {object} key
              * @returns {object}
              */
-            const fn = function(key) {
-               return  state.items.find(element => element.key == key);
+            const fn = function(key, dummy = null) {
+                for (const item of state.items) {
+                    if (item.key == key) {
+                        return item;
+                    }
+                }
+               return dummy;
             }
             return fn;
         },
@@ -104,12 +110,12 @@ export const useItemsStore = defineStore('items',{
         async loadFromStorage() {
             try {
                 this.$reset();
-                
+
                 const keys = await storage.getItem('itemKeys');
                 if (keys) {
                     this.keys =  JSON.parse(keys);
                 }
-                
+
                 for(const key of this.keys) {
                     const item = await storage.getItem(key);
                     this.items.push(item);
@@ -121,11 +127,10 @@ export const useItemsStore = defineStore('items',{
         },
 
         async loadFromData(data) {
-
             try {
                 await storage.clear();
                 this.$reset();
-                
+
                 for (const item of data) {
                     this.items.push(item);
                     this.keys.push(item.key);
@@ -138,5 +143,19 @@ export const useItemsStore = defineStore('items',{
                 console.log(err);
             }
         },
+
+        async addItem(item) {
+            try {
+                if (!this.keys.includes(item.key)) {
+                    this.items.unshift(item);           // add to beginning
+                    this.keys.unshift(item.key);
+                    await storage.setItem(item.key, item);
+                    await storage.setItem('itemKeys', JSON.stringify(this.keys));
+                }
+            }
+            catch (err) {
+                console.log(err);
+            }
+        }
     }
 });

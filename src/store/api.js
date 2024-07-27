@@ -67,6 +67,8 @@ export const useApiStore = defineStore('api', {
 
         isForReviewOrStitch: state => state.isReview || state.isStitchDecision,
 
+        storedItemKey: state => localStorage.getItem('correctorItemKey'),
+
         getRequestConfig: state => {
 
             /**
@@ -201,6 +203,7 @@ export const useApiStore = defineStore('api', {
         async init () {
 
             let newContext = false;
+            let newItem = false;
 
             // take values formerly stored
             this.backendUrl = localStorage.getItem('correctorBackendUrl');
@@ -243,6 +246,7 @@ export const useApiStore = defineStore('api', {
             // these values can be changed without forcing a reload
             if (Cookies.get('LongEssayItem') != undefined && Cookies.get('LongEssayItem') !== this.itemKey) {
                 this.itemKey = Cookies.get('LongEssayItem');
+                newItem = true;
             }
             if (Cookies.get('LongEssayBackend') != undefined  && Cookies.get('LongEssayBackend') !== this.backendUrl) {
                 this.backendUrl = Cookies.get('LongEssayBackend');
@@ -263,14 +267,16 @@ export const useApiStore = defineStore('api', {
             if (await changesStore.hasChangesInStorage()) {
                 if (newContext) {
                     console.log('init: open saving, new context');
+                    await this.loadDataFromStorage();
                     this.showDataReplaceConfirmation = true;
                 }
-                else if (!!Cookies.get('LongEssayUser')) {
-                    console.log('init: open saving, same context, call from backend');
+                else if (newItem) {
+                    console.log('init: open saving, same context, new item');
+                    await this.loadDataFromStorage();
                     this.showItemReplaceConfirmation = true;
                 }
                 else {
-                    console.log('init: open saving, same context, simple reload');
+                    console.log('init: open saving, same context, same item');
                     this.initAfterKeepDataConfirmed();
                 }
             }
@@ -287,6 +293,7 @@ export const useApiStore = defineStore('api', {
             console.log('initAfterReplaceDataConfirmed');
             this.showDataReplaceConfirmation = false;
             this.showItemReplaceConfirmation = false;
+
             if (await this.loadDataFromBackend()) {
                 await this.loadItemFromBackend(this.itemKey);
                 this.finishInitialisation();
@@ -295,14 +302,19 @@ export const useApiStore = defineStore('api', {
         },
 
         /**
-         * init after the keeping of all data is confirmed
+         * init after the keeping the data of the item with open sendings
          */
         async initAfterKeepDataConfirmed() {
             console.log('initAfterKeepDataConfirmed');
+            const itemsStore = useItemsStore();
             this.showDataReplaceConfirmation = false;
             this.showItemReplaceConfirmation = false;
+
             this.itemKey = localStorage.getItem('correctorItemKey');
-            if (await this.loadDataFromStorage()) {
+            const item = itemsStore.getItem(this.itemKey);
+
+            if (await this.loadDataFromBackend()) {
+                await itemsStore.addItem(item);
                 await this.loadItemFromStorage(this.itemKey);
                 this.finishInitialisation();
             }
@@ -377,25 +389,23 @@ export const useApiStore = defineStore('api', {
             this.setLoading(true);
             this.clearAllIntervals();
 
+            const criteriaStore = useCriteriaStore();
+            const itemsStore = useItemsStore();
+            const layoutStore = useLayoutStore();
+            const levelsStore = useLevelsStore();
+            const preferencesStore = usePreferencesStore();
+            const resourcesStore = useResourcesStore();
             const settingsStore = useSettingsStore();
             const taskStore = useTaskStore();
-            const resourcesStore = useResourcesStore();
-            const levelsStore = useLevelsStore();
-            const criteriaStore = useCriteriaStore();
-            const layoutStore = useLayoutStore();
-            const preferencesStore = usePreferencesStore();
-            const itemsStore = useItemsStore();
-            const changesStore = useChangesStore();
 
+            await criteriaStore.loadFromStorage();
+            await itemsStore.loadFromStorage();
+            await layoutStore.loadFromStorage();
+            await levelsStore.loadFromStorage();
+            await preferencesStore.loadFromStorage();
+            await resourcesStore.loadFromStorage();
             await settingsStore.loadFromStorage();
             await taskStore.loadFromStorage();
-            await resourcesStore.loadFromStorage();
-            await levelsStore.loadFromStorage();
-            await criteriaStore.loadFromStorage();
-            await layoutStore.loadFromStorage();
-            await preferencesStore.loadFromStorage();
-            await itemsStore.loadFromStorage();
-            await changesStore.loadFromStorage();
 
             this.setLoading(false);
             return true;
@@ -418,18 +428,19 @@ export const useApiStore = defineStore('api', {
             this.itemKey = itemKey;
             localStorage.setItem('itemKey', this.itemKey);
 
+            const changesStore = useChangesStore();
+            const commentsStore = useCommentsStore();
+            const correctorsStore = useCorrectorsStore();
             const essayStore = useEssayStore();
             const pagesStore = usePagesStore();
-            const correctorsStore = useCorrectorsStore();
-            const summariesStore = useSummariesStore();
-            const commentsStore = useCommentsStore();
             const pointsStore = usePointsStore();
-            const layoutStore = useLayoutStore();
+            const summariesStore = useSummariesStore();
 
-            await essayStore.loadFromStorage();
-            await correctorsStore.loadFromStorage();
-            await pagesStore.loadFromStorage();
+            await changesStore.loadFromStorage();
             await commentsStore.loadFromStorage();
+            await correctorsStore.loadFromStorage();
+            await essayStore.loadFromStorage();
+            await pagesStore.loadFromStorage();
             await pointsStore.loadFromStorage();
             await summariesStore.loadFromStorage();
 
@@ -461,35 +472,23 @@ export const useApiStore = defineStore('api', {
                 return false;
             }
 
-            const taskStore = useTaskStore();
-            const settingsStore = useSettingsStore();
-            const resourcesStore = useResourcesStore();
-            const levelsStore = useLevelsStore();
             const criteriaStore = useCriteriaStore();
             const itemsStore = useItemsStore();
+            const layoutStore = useLayoutStore();
+            const levelsStore = useLevelsStore();
             const preferencesStore = usePreferencesStore();
+            const resourcesStore = useResourcesStore();
+            const settingsStore = useSettingsStore();
+            const taskStore = useTaskStore();
 
-            await taskStore.loadFromData(response.data.task);
-            await settingsStore.loadFromData(response.data.settings);
-            await resourcesStore.loadFromData(response.data.resources);
-            await levelsStore.loadFromData(response.data.levels);
             await criteriaStore.loadFromData(response.data.criteria);
             await itemsStore.loadFromData(response.data.items);
-            await preferencesStore.loadFromData(response.data.preferences);
-
-            const layoutStore = useLayoutStore();
-            const correctorsStore = useCorrectorsStore();
-            const summariesStore = useSummariesStore();
-            const commentsStore = useCommentsStore();
-            const pointsStore = usePointsStore();
-            const changesStore = useChangesStore();
-
             await layoutStore.clearStorage();
-            await correctorsStore.clearStorage();
-            await summariesStore.clearStorage();
-            await commentsStore.clearStorage();
-            await pointsStore.clearStorage();
-            await changesStore.clearStorage();
+            await levelsStore.loadFromData(response.data.levels);
+            await preferencesStore.loadFromData(response.data.preferences);
+            await resourcesStore.loadFromData(response.data.resources);
+            await settingsStore.loadFromData(response.data.settings);
+            await taskStore.loadFromData(response.data.task);
 
             this.setLoading(false);
             return true;
@@ -527,26 +526,23 @@ export const useApiStore = defineStore('api', {
             this.itemKey = itemKey;
             localStorage.setItem('itemKey', this.itemKey);
 
-            const taskStore = useTaskStore();
-            const essayStore = useEssayStore();
-            const correctorsStore = useCorrectorsStore();
-            const pagesStore = usePagesStore();
-            const summariesStore = useSummariesStore();
-            const commentsStore = useCommentsStore();
-            const pointsStore = usePointsStore();
             const changesStore = useChangesStore();
-
-            await taskStore.loadFromData(response.data.task);
-            await essayStore.loadFromData(response.data.essay);
-            await correctorsStore.loadFromData(response.data.correctors);
-            await pagesStore.loadFromData(response.data.pages);
-            await commentsStore.loadFromData(response.data.comments);
-            await pointsStore.loadFromData(response.data.points);
-            await summariesStore.loadFromData(response.data.summaries);
+            const correctorsStore = useCorrectorsStore();
+            const commentsStore = useCommentsStore();
+            const essayStore = useEssayStore();
+            const pagesStore = usePagesStore();
+            const pointsStore = usePointsStore();
+            const summariesStore = useSummariesStore();
 
             // dismiss open changes from other items
             // this avoids a race condition on quick navigation between writers
             await changesStore.clearStorage();
+            await correctorsStore.loadFromData(response.data.correctors);
+            await commentsStore.loadFromData(response.data.comments);
+            await essayStore.loadFromData(response.data.essay);
+            await pagesStore.loadFromData(response.data.pages);
+            await pointsStore.loadFromData(response.data.points);
+            await summariesStore.loadFromData(response.data.summaries);
 
             commentsStore.setMarkerChange();
             this.setLoading(false);

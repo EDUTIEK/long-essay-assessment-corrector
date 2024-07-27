@@ -264,11 +264,11 @@ export const usePagesStore = defineStore('pages',{
                 const page = this.pages[key];
                 if (page) {
                     if (page.thumbObjectUrl !== null)  {
-                        URL.revokeObjectURL(page.thumbObjectUrl);
+                        // URL.revokeObjectURL(page.thumbObjectUrl);
                         page.thumbObjectUrl = null;
                     }
                     if (page.objectUrl !== null)  {
-                        URL.revokeObjectURL(page.objectUrl);
+                        // URL.revokeObjectURL(page.objectUrl);
                         page.objectUrl = null;
                     }
                 }
