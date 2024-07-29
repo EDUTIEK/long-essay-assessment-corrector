@@ -1,7 +1,6 @@
 <script setup>
 
 import { useApiStore } from '@/store/api';
-import { useTaskStore } from '@/store/task';
 import { useItemsStore } from '@/store/items';
 import { useSettingsStore } from '@/store/settings';
 import { useSummariesStore } from '@/store/summaries';
@@ -11,7 +10,6 @@ import OwnSummaryIncludes from '@/components/OwnSummaryIncludes.vue';
 import { ref } from 'vue';
 
 const apiStore = useApiStore();
-const taskStore = useTaskStore();
 const itemsStore = useItemsStore();
 const settingsStore = useSettingsStore();
 const summariesStore = useSummariesStore();
@@ -60,7 +58,7 @@ function editSummary() {
 <template>
     <div id="app-authorization-wrapper">
 
-      <v-btn v-show="!summariesStore.isOwnDisabled" :disabled="apiStore.isLoading || !taskStore.authorization_allowed" @click="apiStore.setShowAuthorization(true)">
+      <v-btn v-show="!summariesStore.isOwnDisabled" :disabled="apiStore.isLoading || !itemsStore.authorizationAllowed" @click="apiStore.setShowAuthorization(true)">
           <v-icon left icon="mdi-file-certificate-outline"></v-icon>
         <span>Autorisieren...</span>
       </v-btn>

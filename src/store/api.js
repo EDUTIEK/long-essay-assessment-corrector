@@ -1,24 +1,24 @@
 import { defineStore } from 'pinia';
 import axios from 'axios'
 import Cookies from 'js-cookie';
-import {useSettingsStore} from "./settings";
-import {useTaskStore} from "./task";
-import {useLayoutStore} from "./layout";
-import {useResourcesStore} from "./resources";
-import {useItemsStore} from "./items";
-import {useEssayStore} from "./essay";
-import {usePagesStore} from './pages';
-import {useSummariesStore} from "./summaries";
-import {useLevelsStore} from "./levels";
-import {useCriteriaStore} from "./criteria";
-import {useCorrectorsStore} from "./correctors";
-import {useCommentsStore} from "./comments";
-import {usePointsStore} from "./points";
+import { useSettingsStore } from "./settings";
+import { useTaskStore } from "./task";
+import { useLayoutStore } from "./layout";
+import { useResourcesStore } from "./resources";
+import { useItemsStore } from "./items";
+import { useEssayStore } from "./essay";
+import { usePagesStore } from './pages';
+import { useSummariesStore } from "./summaries";
+import { useLevelsStore } from "./levels";
+import { useCriteriaStore } from "./criteria";
+import { useCorrectorsStore } from "./correctors";
+import { useCommentsStore } from "./comments";
+import { usePointsStore } from "./points";
 import { useChangesStore } from '@/store/changes';
 
 import md5 from 'md5';
-import comment from '@/data/Comment';
 import Change from '@/data/Change';
+import Item from '@/data/Item';
 import { usePreferencesStore } from '@/store/preferences';
 
 const sendInterval = 5000;      // time (ms) to wait for sending open savings to the backend
@@ -446,7 +446,9 @@ export const useApiStore = defineStore('api', {
 
             commentsStore.setMarkerChange();
             this.setLoading(false);
-            this.setInterval('apiStore.saveChangesToBackend', this.saveChangesToBackend, sendInterval);
+            if (itemsStore.correctionAllowed) {
+                this.setInterval('apiStore.saveChangesToBackend', this.saveChangesToBackend, sendInterval);
+            }
             return true;
         },
 
@@ -521,10 +523,11 @@ export const useApiStore = defineStore('api', {
                 return false;
             }
 
-            // set it here before loading and check it in the loadFromData() functions
+            // set the itemKey here before loading and check it in the loadFromData() functions
             // otherwise a fast navigation between writers may cause wrong assignments (race condition)
             this.itemKey = itemKey;
             localStorage.setItem('itemKey', this.itemKey);
+            itemsStore.updateItem(new Item(response.data.item));
 
             const changesStore = useChangesStore();
             const correctorsStore = useCorrectorsStore();
@@ -546,7 +549,9 @@ export const useApiStore = defineStore('api', {
 
             commentsStore.setMarkerChange();
             this.setLoading(false);
-            this.setInterval('apiStore.saveChangesToBackend', this.saveChangesToBackend, sendInterval);
+            if (itemsStore.correctionAllowed) {
+                this.setInterval('apiStore.saveChangesToBackend', this.saveChangesToBackend, sendInterval);
+            }
             return true;
         },
 

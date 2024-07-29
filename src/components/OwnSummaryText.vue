@@ -102,7 +102,9 @@ function zoomOut() {
 
 function applyZoom() {
   const editor = tinymce.get(props.editorId);
-  editor.contentWindow.document.body.style.fontSize= (preferencesStore.summary_text_zoom * 16) + 'px';
+  if (editor) {
+      editor.contentWindow.document.body.style.fontSize= (preferencesStore.summary_text_zoom * 16) + 'px';
+  }
 }
 
 </script>

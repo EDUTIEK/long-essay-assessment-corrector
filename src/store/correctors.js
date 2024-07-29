@@ -132,7 +132,7 @@ export const useCorrectorsStore = defineStore('correctors',{
 
         async loadFromData(data) {
 
-             const apiStore = useApiStore();
+            const apiStore = useApiStore();
             try {
                 await storage.clear();
                 this.$reset();

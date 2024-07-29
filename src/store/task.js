@@ -21,11 +21,9 @@ export const useTaskStore = defineStore('task',{
             instructions: null,             // instructions - shown in the left column
             solution: null,                 // solution - shown in the left column
             correction_end: null,           // correction end (sec in server time) - accept no writing step after this time
-            correction_allowed: false,      // allowed to enter a correction
-            authorization_allowed: false,   // allowed to authorize the correction
 
             // not saved in storage
-            remaining_time: null     // remaining correction time in seconds (updated per interval)
+            remaining_time: null            // remaining correction time in seconds (updated per interval)
         }
     },
 

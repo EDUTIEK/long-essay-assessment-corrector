@@ -4,6 +4,7 @@
   import { useSummariesStore } from "@/store/summaries";
   import { useEssayStore } from "@/store/essay";
   import { useCorrectorsStore } from '@/store/correctors';
+  import { useChangesStore} from '@/store/changes';
   import { ref, nextTick } from 'vue';
 
   const apiStore = useApiStore();
@@ -11,6 +12,7 @@
   const summariesStore = useSummariesStore();
   const essayStore = useEssayStore();
   const correctorsStore = useCorrectorsStore();
+  const changesStore = useChangesStore();
 
   const menuOpen = ref(false);
   const selectionShown=ref(false);
@@ -35,7 +37,7 @@
 
   async function changeItem(newKey) {
       if (!apiStore.isLoading) {
-          if (await apiStore.saveChangesToBackend(true)) {
+          if (!(await changesStore.hasChangesInStorage()) || await apiStore.saveChangesToBackend(true)) {
               await apiStore.loadItemFromBackend(newKey);
           }
           else {
