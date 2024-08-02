@@ -97,12 +97,6 @@
 
             <v-btn-group density="comfortable">
 
-              <!-- show points and ratings in comments -->
-              <v-btn  size="x-small" variant="plain" v-if="layoutStore.isMarkingVisible"
-                      @click="commentsStore.setShowPointsAndRatings(!commentsStore.isPointsAndRatingsShown)">
-                <v-icon :icon="commentsStore.isPointsAndRatingsShown ? 'mdi-check-bold' : 'mdi-check-outline'"></v-icon>
-              </v-btn>
-
               <!-- show other correctors -->
               <v-btn  size="x-small" variant="plain" v-if="layoutStore.isMarkingVisible"
                      @click="commentsStore.setShowOtherCorrectors(!commentsStore.isOtherCorrectorsShown)">

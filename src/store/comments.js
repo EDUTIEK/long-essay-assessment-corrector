@@ -24,7 +24,6 @@ export const useCommentsStore = defineStore('comments',{
             keys: [],                       // list of string keys of all comments in the storage
             comments: [],                   // list of comment objects for the currrent correction item
             showOtherCorrectors: true,      // show the comments of other correctors
-            showPointsAndRatings: true,     // show the points and ratings above the comments
 
             // not saved in storage
             markerChange: 0,                // for watchers: timestamp of the last change that affects the text markers (not the selection)
@@ -88,10 +87,6 @@ export const useCommentsStore = defineStore('comments',{
 
         isOtherCorrectorsShown: state => {
             return state.showOtherCorrectors
-        },
-
-        isPointsAndRatingsShown: state => {
-            return state.showPointsAndRatings
         },
 
         isFilterActive: state => {
@@ -529,14 +524,6 @@ export const useCommentsStore = defineStore('comments',{
 
 
         /**
-         * Set if comments from other correctors should be shown
-         */
-        async setShowPointsAndRatings(show) {
-            this.showPointsAndRatings = !!show;
-            await storage.setItem('showPointsAndRatings', JSON.stringify(this.showPointsAndRatings));
-        },
-
-        /**
          * Clear the whole storage
          * @public
          */
@@ -566,7 +553,6 @@ export const useCommentsStore = defineStore('comments',{
                     this.keys = JSON.parse(keys);
                 }
                 this.showOtherCorrectors = !! JSON.parse(await storage.getItem('showOtherCorrectors'));
-                this.showPointsAndRatings = !! JSON.parse(await storage.getItem('showPointsAndRatings'));
 
                 for (const key of this.keys) {
                     const comment = new Comment(JSON.parse(await storage.getItem(key)));
@@ -596,7 +582,6 @@ export const useCommentsStore = defineStore('comments',{
             try {
                 this.$reset();
                 this.showOtherCorrectors = !! JSON.parse(await storage.getItem('showOtherCorrectors'));
-                this.showPointsAndRatings = !! JSON.parse(await storage.getItem('showPointsAndRatings'));
                 await storage.clear();
 
                 for (const comment_data of data) {
@@ -611,7 +596,6 @@ export const useCommentsStore = defineStore('comments',{
 
                 await storage.setItem('keys', JSON.stringify(this.keys));
                 await storage.setItem('showOtherCorrectors', JSON.stringify(this.showOtherCorrectors));
-                await storage.setItem('showPointsAndRatings', JSON.stringify(this.showPointsAndRatings));
 
             }
             catch (err) {

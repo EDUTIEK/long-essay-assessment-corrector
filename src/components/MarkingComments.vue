@@ -35,8 +35,6 @@ watch(() => commentsStore.selectionChange, focusSelected);
 
 /**
  * Set the scrolling so that the complete mark is visible
- * @param {integer} firstWord
- * @param {integer} lastWord
  */
 async function scrollToFirstVisible() {
     await nextTick();
@@ -139,15 +137,20 @@ async function selectComment(comment) {
         <!-- points -->
 
         <v-col class="col">
-          <span v-show="commentsStore.isPointsAndRatingsShown || comment.key == commentsStore.selectedKey">
-            <input v-if="criteriaStore.getCorrectorHasCriteria(comment.corrector_key)"
-                  class="pointsInput"
+          <span v-if="criteriaStore.getCorrectorHasCriteria(comment.corrector_key)"
+                v-show="comment.key == commentsStore.selectedKey || pointsStore.getCommentHasPoints(comment.key)"
+          >
+            <input class="pointsInput"
                   disabled="disabled"
                   :id="'pointsInput' + comment.key"
                   :value="pointsStore.getSumOfPointsForComment(comment.key)"/>
-
-            <input v-if="!criteriaStore.getCorrectorHasCriteria(comment.corrector_key)"
-                 class="pointsInput"
+            <label :for="'pointsInput' + comment.key"
+                   @click="commentsStore.selectComment(comment.key)"> Pkt.</label>
+          </span>
+          <span v-if="!criteriaStore.getCorrectorHasCriteria(comment.corrector_key)"
+              v-show = "comment.key == commentsStore.selectedKey || comment.points > 0"
+          >
+            <input class="pointsInput"
                  type="number"
                  min="0"
                  :style="'color: ' + getPointsColor(comment) + ';'"
@@ -156,7 +159,6 @@ async function selectComment(comment) {
                  :disabled="summariesStore.isOwnDisabled || comment.corrector_key != apiStore.correctorKey"
                  @change="commentsStore.updateComment(comment)"
                  v-model="comment.points"/>
-
             <label :for="'pointsInput' + comment.key"
                    @click="commentsStore.selectComment(comment.key)"> Pkt.</label>
           </span>
@@ -166,7 +168,7 @@ async function selectComment(comment) {
         <!-- rating excellent -->
 
         <v-col class="col">
-          <span v-show="commentsStore.isPointsAndRatingsShown  || comment.key == commentsStore.selectedKey">
+          <span v-show="comment.rating_excellent || comment.key == commentsStore.selectedKey">
            <input type="checkbox"
                              class="ratingInput"
                              v-model="comment.rating_excellent"
@@ -183,7 +185,7 @@ async function selectComment(comment) {
         <!-- rating cardinal -->
 
         <v-col class="col">
-          <span v-show="commentsStore.isPointsAndRatingsShown  || comment.key == commentsStore.selectedKey">
+          <span v-show="comment.rating_cardinal || comment.key == commentsStore.selectedKey">
             <input type="checkbox"
                    class="ratingInput"
                    v-model="comment.rating_cardinal"
@@ -217,9 +219,11 @@ async function selectComment(comment) {
 <style scoped>
 
     .v-container {
-        margin-top: 1px;
+        margin-top: 2px;
+        margin-bottom: 4px;
         padding-right: 20px;
-        padding-bottom: 8px;
+        padding-bottom: 4px;
+        border-bottom: 1px dotted gray;
     }
 
     .row {
