@@ -6,25 +6,33 @@ import OwnSummaryText from "@/components/OwnSummaryText.vue";
 import {useApiStore} from "@/store/api";
 const apiStore = useApiStore();
 
-const props = defineProps(['textExpansion']);
+const props = defineProps(['showCriteria', 'showText']);
 
-function expansionClass(expansion) {
-  switch (expansion) {
-    case 0: return 'hidden';
-    case 1: return 'full';
-    default: return 'half';
-  }
+function expansionClass() {
+    const sum = (props.showCriteria ? 1 : 0) + (props.showText ? 1 : 0) ;
+    switch (sum) {
+        case 0: return 'hidden';
+        case 1: return 'full';
+        case 2: return 'half';
+    }
 }
 
 </script>
 
 <template>
     <div id="app-own-summary-wrapper">
-        <summary-criteria id="app-own-summary-criteria" :corrector_key="apiStore.correctorKey"></summary-criteria>
-        <div :class="expansionClass(props.textExpansion)">
-          <own-summary-text :editorId="'summary'"></own-summary-text>
+        <div v-if="props.showCriteria" :class="expansionClass()">
+            <div class="headline">Übersicht</div>
+            <summary-criteria class="content" :corrector_key="apiStore.correctorKey"></summary-criteria>
         </div>
-        <own-summary-points id="app-own-summary-points"></own-summary-points>
+        <div v-if="props.showText" :class="expansionClass()">
+            <div class="headline">Gutachten</div>
+          <own-summary-text class="content" :editorId="'summary'"></own-summary-text>
+        </div>
+        <div id="app-own-summary-points">
+            <div class="headline">Gesamtbewertung</div>
+            <own-summary-points class="content"></own-summary-points>
+        </div>
     </div>
 </template>
 
@@ -32,17 +40,22 @@ function expansionClass(expansion) {
 
 #app-own-summary-wrapper {
     height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-#app-own-summary-criteria {
-    flex-grow: 1;
-    overflow-y: scroll;
 }
 
 #app-own-summary-points {
-    min-height: 50px;
+    height: 100px;
+}
+
+.headline {
+    height: 40px;
+    padding-top: 10px;
+    padding-left: 10px;
+    background-color: #f0f0f0;
+}
+
+.content {
+    height: calc(100% - 40px);
+    overflow-y: scroll;
 }
 
 .hidden {
@@ -50,11 +63,11 @@ function expansionClass(expansion) {
 }
 
 .full {
-  min-height: calc(100% - 50px);
+  height: calc(100% - 100px);
 }
 
 .half {
-  min-height: 50%;
+    height: calc((100% - 100px) / 2);
 }
 
 

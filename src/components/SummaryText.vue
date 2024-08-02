@@ -17,7 +17,6 @@ function text() {
 
 
 <template>
-  <div class="headline">Gutachten</div>
   <div class="app-summary-text-wrapper">
     <div class="app-summary-text-display long-essay-content headlines-three" v-html="text()">
     </div>
@@ -26,14 +25,8 @@ function text() {
 
 <style scoped>
 
-.headline {
-  font-weight: bold;
-  height: 40px;
-  padding-top: 10px;
-}
-
 .app-summary-text-wrapper {
-    height: calc(100% - 40px);
+    height: 100%;
     border: 1px solid #cccccc;
     padding: 10px;
     overflow-y: scroll;

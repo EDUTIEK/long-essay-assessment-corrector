@@ -6,6 +6,7 @@
   import { useCorrectorsStore } from '@/store/correctors';
   import { useChangesStore} from '@/store/changes';
   import { ref, nextTick } from 'vue';
+  import { useLayoutStore } from '@/store/layout';
 
   const apiStore = useApiStore();
   const itemsStore = useItemsStore();
@@ -13,6 +14,7 @@
   const essayStore = useEssayStore();
   const correctorsStore = useCorrectorsStore();
   const changesStore = useChangesStore();
+  const layoutStore = useLayoutStore();
 
   const menuOpen = ref(false);
   const selectionShown=ref(false);

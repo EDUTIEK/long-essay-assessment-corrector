@@ -46,11 +46,21 @@
                 }}
             </span>
             <v-btn-group density="comfortable">
-              <!-- toggle left summary text  -->
-              <v-btn size="x-small" v-show="layoutStore.isLeftCorrectorVisible" @click="layoutStore.changeLeftSummaryTextExpansion()">
-                <v-icon icon="mdi-arrow-up-down"></v-icon>
-                <span>Gutachten</span>
-              </v-btn>
+
+                <!-- toggle left summary criteria  -->
+                <v-btn size="x-small" v-show="layoutStore.isLeftCorrectorVisible" @click="layoutStore.toggleLeftSummaryCriteria()">
+                    <v-icon v-show="layoutStore.showLeftSummaryCriteria" icon="mdi-checkbox-outline"></v-icon>
+                    <v-icon v-show="!layoutStore.showLeftSummaryCriteria" icon="mdi-checkbox-blank-outline"></v-icon>
+                    <span>Übersicht</span>
+                </v-btn>
+
+                <!-- toggle ledt summary text  -->
+                <v-btn size="x-small" v-show="layoutStore.isLeftCorrectorVisible" @click="layoutStore.toggleLeftSummaryText()">
+                    <v-icon v-show="layoutStore.showLeftSummaryText" icon="mdi-checkbox-outline"></v-icon>
+                    <v-icon v-show="!layoutStore.showLeftSummaryText" icon="mdi-checkbox-blank-outline"></v-icon>
+                    <span>Gutachten</span>
+                </v-btn>
+
               <!-- expand right column -->
               <v-btn size="x-small" @click="layoutStore.setLeftExpanded(false)" v-show="layoutStore.isLeftExpanded">
                 <v-icon icon="mdi-chevron-left"></v-icon>
@@ -78,7 +88,11 @@
           <essay v-if="layoutStore.isEssayVisible && !pagesStore.hasPages" />
           <essay-image v-if="layoutStore.isEssayVisible && pagesStore.hasPages" />
           <resources v-if="layoutStore.isResourcesVisible" />
-          <other-summary v-if= "layoutStore.isLeftCorrectorVisible" :corrector_key="layoutStore.leftCorrectorKey" :textExpansion="layoutStore.leftSummaryTextExpansion" />
+          <other-summary v-if= "layoutStore.isLeftCorrectorVisible"
+                         :corrector_key="layoutStore.leftCorrectorKey"
+                         :showCriteria="layoutStore.showLeftSummaryCriteria"
+                         :showText="layoutStore.showLeftSummaryText"
+          />
         </div>
       </div>
 
@@ -131,11 +145,19 @@
                 <span>Gutachten</span>
               </v-btn>
 
-              <!-- toggle right summary text  -->
-              <v-btn size="x-small" v-show="layoutStore.isSummaryVisible || layoutStore.isRightCorrectorVisible" @click="layoutStore.changeRightSummaryTextExpansion()">
-                <v-icon icon="mdi-arrow-up-down"></v-icon>
+            <!-- toggle right summary criteria  -->
+            <v-btn size="x-small" v-show="layoutStore.isSummaryVisible || layoutStore.isRightCorrectorVisible" @click="layoutStore.toggleRightSummaryCriteria()">
+                <v-icon v-show="layoutStore.showRightSummaryCriteria" icon="mdi-checkbox-outline"></v-icon>
+                <v-icon v-show="!layoutStore.showRightSummaryCriteria" icon="mdi-checkbox-blank-outline"></v-icon>
+                <span>Übersicht</span>
+            </v-btn>
+
+            <!-- toggle right summary text  -->
+            <v-btn size="x-small" v-show="layoutStore.isSummaryVisible || layoutStore.isRightCorrectorVisible" @click="layoutStore.toggleRightSummaryText()">
+                <v-icon v-show="layoutStore.showRightSummaryText" icon="mdi-checkbox-outline"></v-icon>
+                <v-icon v-show="!layoutStore.showRightSummaryText" icon="mdi-checkbox-blank-outline"></v-icon>
                 <span>Gutachten</span>
-              </v-btn>
+            </v-btn>
 
               <!-- expand left column -->
               <v-btn size="x-small" @click="layoutStore.setRightExpanded(false)" v-show="layoutStore.isRightExpanded">
@@ -159,9 +181,16 @@
           </div>
         <!-- Content -->
         <div class="col-content">
-          <own-summary v-if="layoutStore.isSummaryVisible" :textExpansion="layoutStore.rightSummaryTextExpansion"/>
-          <other-summary v-if= "layoutStore.isRightCorrectorVisible" :corrector_key="layoutStore.rightCorrectorKey" :textExpansion="layoutStore.rightSummaryTextExpansion" />
-          <marking v-show="layoutStore.isMarkingVisible"/> <!-- v-show neeed to keep points displayed when switching right content) -->
+          <own-summary v-if="layoutStore.isSummaryVisible"
+                       :showCriteria="layoutStore.showRightSummaryCriteria"
+                       :showText="layoutStore.showRightSummaryText"
+          />
+          <other-summary v-if= "layoutStore.isRightCorrectorVisible"
+                         :corrector_key="layoutStore.rightCorrectorKey"
+                         :showCriteria="layoutStore.showRightSummaryCriteria"
+                         :showText="layoutStore.showRightSummaryText"
+          />
+          <marking v-if="layoutStore.isMarkingVisible"/>
         </div>
       </div>
     </div>

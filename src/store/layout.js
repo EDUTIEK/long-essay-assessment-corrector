@@ -21,17 +21,19 @@ export const useLayoutStore = defineStore('layout', {
             leftContent: 'essay',               // instructions|instructionsPdf|solution|solutionPdf|resources|essay|corrector
             rightContent: 'marking',            // summary|marking|corrector
 
-            showMarkingComments: true,         // expansion of the comments
-            showMarkingPoints: true,           // expansion of the rating points
-            showMarkingText: false,            // expansion of the summary text in the marking view
+            showMarkingComments: true,          // display of the comments on marking column
+            showMarkingPoints: true,            // display of the rating points on marking column
+            showMarkingText: false,             // display of the summary text on marking column
 
-            leftSummaryTextExpansion: 0.5,         // vertical expansion of the left summary text: 0=hidden, 0.5=half, 1=full
-            rightSummaryTextExpansion: 0.5,        // vertical expansion of the right summary text: 0=hidden, 0.5=half, 1=full
+            showLeftSummaryCriteria: true,      // display of the criteria table on the left summary column
+            showRightSummaryCriteria: true,     // display of the criteria table on the right summary column
+
+            showLeftSummaryText: true,          // display of the summary text on the left summary column
+            showRightSummaryText: true,         // display of the summary text on the right summary column
 
             // not stored
             leftCorrectorKey: '',               // key of the corrector shown on the left side
             rightCorrectorKey: '',              // key of the corrector shown on the right side
-
         }
     },
 
@@ -39,9 +41,6 @@ export const useLayoutStore = defineStore('layout', {
      * Getter functions (with params) start with 'get', simple state queries not
      */
     getters: {
-        isLeftVisible: state => state.expandedColumn != 'right',
-        isRightVisible: state => state.expandedColumn != 'left',
-
         isLeftExpanded: state => state.expandedColumn == 'left',
         isRightExpanded: state => state.expandedColumn == 'right',
 
@@ -67,8 +66,15 @@ export const useLayoutStore = defineStore('layout', {
         isLeftCorrectorVisible: state => (state.isLeftCorrectorSelected && state.isLeftVisible),
         isRightCorrectorVisible: state => (state.isRightCorrectorSelected && state.isRightVisible),
 
-        isLeftSummaryTextExpanded: state => state.leftSummaryTextExpansion > 0,
-        isRightSummaryTextExpanded: state => state.rightSummaryTextExpansion > 0,
+        isLeftVisible: state => {
+            const apiStore = useApiStore();
+            return !apiStore.isLoading && state.expandedColumn != 'right'
+        },
+
+        isRightVisible: state => {
+            const apiStore = useApiStore();
+            return !apiStore.isLoading && state.expandedColumn != 'left'
+        },
 
         leftCorrectorTitle: state => {
             const correctorsStore = useCorrectorsStore();
@@ -123,12 +129,20 @@ export const useLayoutStore = defineStore('layout', {
                     this.showMarkingComments = !!data.showMarkingComments,
                     this.showMarkingPoints = !!data.showMarkingPoints,
                     this.showMarkingText = !!data.showMarkingText,
-                    this.leftSummaryTextExpansion = data.leftSummaryTextExpansion;
-                    this.rightSummaryTextExpansion = data.rightSummaryTextExpansion;
+                    this.showLeftSummaryCriteria = !!data.showLeftSummaryCriteria;
+                    this.showRightSummaryCriteria = !!data.showRightSummaryCriteria;
+                    this.showLeftSummaryText = !!data.showLeftSummaryText;
+                    this.showRightSummaryText = !!data.showRightSummaryText;
                 }
 
                 if (!this.showMarkingComments && ! this.showMarkingPoints && !this.showMarkingPoints) {
                     this.showMarkingComments = true;
+                }
+                if (!this.showLeftSummaryCriteria && ! this.showLeftSummaryText) {
+                    this.showLeftSummaryCriteria = true;
+                }
+                if (!this.showRightSummaryCriteria && ! this.showRightSummaryText) {
+                    this.showRightSummaryCriteria = true;
                 }
             }
             catch (err) {
@@ -145,8 +159,10 @@ export const useLayoutStore = defineStore('layout', {
                     showMarkingComments: this.showMarkingComments,
                     showMarkingPoints: this.showMarkingPoints,
                     showMarkingText: this.showMarkingText,
-                    leftSummaryTextExpansion: this.leftSummaryTextExpansion,
-                    rightSummaryTextExpansion: this.rightSummaryTextExpansion
+                    showLeftSummaryCriteria: this.showLeftSummaryCriteria,
+                    showRightSummaryCriteria: this.showRightSummaryCriteria,
+                    showLeftSummaryText: this.showLeftSummaryText,
+                    showRightSummaryText: this.showRightSummaryText
                 })
             }
             catch (err) {
@@ -256,14 +272,24 @@ export const useLayoutStore = defineStore('layout', {
             this.saveToStorage();
         },
 
-        changeLeftSummaryTextExpansion() {
-            this.leftSummaryTextExpansion = changeExpansion(this.leftSummaryTextExpansion);
+        toggleLeftSummaryCriteria() {
+            this.showLeftSummaryCriteria = !this.showLeftSummaryCriteria
             this.saveToStorage()
         },
 
-        changeRightSummaryTextExpansion() {
-            this.rightSummaryTextExpansion = changeExpansion(this.rightSummaryTextExpansion);
-            this.saveToStorage();
+        toggleRightSummaryCriteria() {
+            this.showRightSummaryCriteria = !this.showRightSummaryCriteria
+            this.saveToStorage()
+        },
+
+        toggleLeftSummaryText() {
+            this.showLeftSummaryText = !this.showLeftSummaryText
+            this.saveToStorage()
+        },
+
+        toggleRightSummaryText() {
+            this.showRightSummaryText = !this.showRightSummaryText
+            this.saveToStorage()
         },
 
         selectCorrector(corrector_key) {

@@ -162,17 +162,12 @@ function applyZoom() {
   height: 100%;
 }
 
-.app-summary-text-wrapper {
-  height: 100%;
-  border: 1px solid #cccccc;
-  padding: 10px;
-  overflow-y: scroll;
-}
-
 .app-summary-text-display {
   height:100%;
+    border: 1px solid #cccccc;
+    padding: 10px;
+    overflow-y: scroll;
 }
-
 
 
 </style>

@@ -39,12 +39,11 @@ function expansionClass() {
 
 <template>
     <div id="app-marking-wrapper">
-        <div v-show="markingCommentsShown()" :class="expansionClass()">
+        <div v-if="markingCommentsShown()" :class="expansionClass()">
             <div class="headline">Anmerkungen</div>
             <marking-comments class="content"></marking-comments>
         </div>
 
-        <!-- v-show neeed to immediately show the points for active comment when toggled-->
         <div v-if="markingPointsShown()" :class="expansionClass()" >
             <div class="headline">Bewertung</div>
             <marking-points class="content"></marking-points>
