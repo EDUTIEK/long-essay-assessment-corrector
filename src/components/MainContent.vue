@@ -55,7 +55,7 @@
               <v-btn size="x-small" @click="layoutStore.setLeftExpanded(false)" v-show="layoutStore.isLeftExpanded">
                 <v-icon icon="mdi-chevron-left"></v-icon>
                 <span> {{
-                    layoutStore.isMarkingSelected ? "Anmerkungen"
+                    layoutStore.isMarkingSelected ? "Korrektur"
                         : layoutStore.isSummarySelected ? "Gesamteindruck"
                             : layoutStore.isRightCorrectorSelected ? layoutStore.rightCorrectorTitle : ""
                   }}
@@ -89,7 +89,7 @@
           <!-- Header -->
           <div class="col-header">
             <span class="headline"> {{
-                      layoutStore.isMarkingVisible ? "Anmerkungen"
+                      layoutStore.isMarkingVisible ? "Korrektur"
                           : layoutStore.isSummaryVisible ? "Eigener Gesamteindruck"
                               : layoutStore.isRightCorrectorVisible ? layoutStore.rightCorrectorTitle : ""
                   }}
@@ -110,18 +110,26 @@
                 <v-icon :icon="commentsStore.isFilterActive ? 'mdi-filter' : 'mdi-filter-outline'"></v-icon>
               </v-btn>
 
-              <!-- toggle marking points -->
-              <v-btn size="x-small" v-show="criteriaStore.hasAnyCriteria && layoutStore.isMarkingVisible" @click="layoutStore.changeMarkingPointsExpansion()">
-                <v-icon icon="mdi-arrow-up-down"></v-icon>
-                <span>Bewertungen</span>
+              <!-- toggle marking Comments -->
+              <v-btn size="x-small" v-show="layoutStore.isMarkingVisible" @click="layoutStore.toggleMarkingComments()">
+                    <v-icon v-show="layoutStore.showMarkingComments" icon="mdi-checkbox-outline"></v-icon>
+                    <v-icon v-show="!layoutStore.showMarkingComments" icon="mdi-checkbox-blank-outline"></v-icon>
+                    <span>Anmerkungen</span>
+              </v-btn>
+
+                <!-- toggle marking points -->
+              <v-btn size="x-small" v-show="criteriaStore.hasAnyCriteria && layoutStore.isMarkingVisible" @click="layoutStore.toggleMarkingPoints()">
+                <v-icon v-show="layoutStore.showMarkingPoints" icon="mdi-checkbox-outline"></v-icon>
+                <v-icon v-show="!layoutStore.showMarkingPoints" icon="mdi-checkbox-blank-outline"></v-icon>
+                <span>Bewertung</span>
               </v-btn>
 
               <!-- toggle marking text -->
-              <v-btn size="x-small" v-show="!apiStore.isForReviewOrStitch && layoutStore.isMarkingVisible" @click="layoutStore.changeMarkingTextExpansion()">
-                <v-icon icon="mdi-arrow-up-down"></v-icon>
+              <v-btn size="x-small" v-show="!apiStore.isForReviewOrStitch && layoutStore.isMarkingVisible" @click="layoutStore.toggleMarkingText()">
+                  <v-icon v-show="layoutStore.showMarkingText" icon="mdi-checkbox-outline"></v-icon>
+                  <v-icon v-show="!layoutStore.showMarkingText" icon="mdi-checkbox-blank-outline"></v-icon>
                 <span>Gutachten</span>
               </v-btn>
-
 
               <!-- toggle right summary text  -->
               <v-btn size="x-small" v-show="layoutStore.isSummaryVisible || layoutStore.isRightCorrectorVisible" @click="layoutStore.changeRightSummaryTextExpansion()">
@@ -153,10 +161,7 @@
         <div class="col-content">
           <own-summary v-if="layoutStore.isSummaryVisible" :textExpansion="layoutStore.rightSummaryTextExpansion"/>
           <other-summary v-if= "layoutStore.isRightCorrectorVisible" :corrector_key="layoutStore.rightCorrectorKey" :textExpansion="layoutStore.rightSummaryTextExpansion" />
-          <marking v-show="layoutStore.isMarkingVisible"
-                   :pointsExpansion="layoutStore.markingPointsExpansion"
-                   :textExpansion="layoutStore.markingTextExpansion"
-          /> <!-- v-show neeed to keep points displayed when switching right content) -->
+          <marking v-show="layoutStore.isMarkingVisible"/> <!-- v-show neeed to keep points displayed when switching right content) -->
         </div>
       </div>
     </div>

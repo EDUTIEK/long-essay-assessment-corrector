@@ -109,11 +109,11 @@ function getCorrectorIcon(corrector) {
                          :prepend-icon="layoutStore.isEssayVisible ? 'mdi-file': 'mdi-file-outline'"
                          title="Abgegebener Text">
             </v-list-item>
-          
+
 
             <v-list-item @click="layoutStore.showMarking(); closeNavigation();"
                          :prepend-icon="layoutStore.isMarkingVisible ? 'mdi-comment-edit': 'mdi-comment-edit-outline'"
-                         title="Anmerkungen">
+                         title="Korrektur">
             </v-list-item>
 
             <v-divider class="border-opacity-75" ></v-divider>

@@ -37,12 +37,11 @@ function savePoints(criterionKey) {
 
 <template>
     <div class="appMarkingPointsWrapper">
-        <hr>
         <v-table density="compact">
             <thead>
             <tr>
                 <th class="text-left">
-                    Bewertungskriterien <span class="commentLabel" v-show="commentsStore.selectedKey != ''">{{commentsStore.selectedLabel}}</span>
+                    Kriterium <span class="commentLabel" v-show="commentsStore.selectedKey != ''">{{commentsStore.selectedLabel}}</span>
                 </th>
                 <th class="text-right">
                     Punkte / max

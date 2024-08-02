@@ -110,9 +110,9 @@ function applyZoom() {
 </script>
 
 <template>
-  <div class="headline">Gutachten</div>
-  <div class="app-own-summary-text-wrapper" v-if="!summariesStore.isOwnDisabled">
+  <div class="app-own-summary-text-wrapper">
       <editor
+          v-if="!summariesStore.isOwnDisabled"
           :id="props.editorId"
           v-model="summariesStore.editSummary.text"
           @change="summariesStore.updateContent(true)"
@@ -140,10 +140,10 @@ function applyZoom() {
               }
             }"
       />
-  </div>
 
-  <div class="app-summary-text-wrapper" v-if="summariesStore.isOwnDisabled">
-    <div class="app-summary-text-display long-essay-content corrector-summary" v-html="summariesStore.editSummary.text">
+    <div class="app-summary-text-display long-essay-content corrector-summary"
+         v-if="summariesStore.isOwnDisabled"
+         v-html="summariesStore.editSummary.text">
     </div>
   </div>
 </template>
@@ -158,18 +158,12 @@ function applyZoom() {
     display: none!important;
 }
 
-.headline {
-  font-weight: bold;
-  height: 40px;
-  padding-top: 10px;
-}
-
 .app-own-summary-text-wrapper {
-  height: calc(100% - 40px);
+  height: 100%;
 }
 
 .app-summary-text-wrapper {
-  height: calc(100% - 40px);
+  height: 100%;
   border: 1px solid #cccccc;
   padding: 10px;
   overflow-y: scroll;

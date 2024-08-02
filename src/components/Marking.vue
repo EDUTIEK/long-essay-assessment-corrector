@@ -13,27 +13,49 @@ const layoutStore = useLayoutStore();
 const criteriaStore = useCriteriaStore();
 const summariesStore = useSummariesStore();
 
-const props = defineProps(['pointsExpansion', 'textExpansion']);
+function markingCommentsShown() {
+    return layoutStore.showMarkingComments && (!apiStore.isForReviewOrStitch || summariesStore.isOneAuthorized)
+}
 
-function expansionClass(expansion) {
-  switch (expansion) {
-    case 0: return 'hidden';
-    case 1: return 'full';
-    default: return 'half';
-  }
+function markingPointsShown() {
+    return layoutStore.showMarkingPoints && criteriaStore.hasAnyCriteria && (!apiStore.isForReviewOrStitch || summariesStore.isOneAuthorized)
+}
+
+function markingTextShown() {
+    return layoutStore.showMarkingText && (!apiStore.isForReviewOrStitch || summariesStore.isOneAuthorized)
+}
+
+function expansionClass() {
+    const sum = (markingCommentsShown() ? 1 : 0) + (markingPointsShown() ? 1 : 0) + (markingTextShown() ? 1 : 0);
+    switch (sum) {
+        case 0: return 'hidden';
+        case 1: return 'full';
+        case 2: return 'half';
+        case 3: return 'third';
+    }
 }
 
 </script>
 
 <template>
     <div id="app-marking-wrapper">
-        <marking-comments  v-if="!apiStore.isForReviewOrStitch || summariesStore.isOneAuthorized" id="app-marking-comments"></marking-comments>
-        <div  v-if="!apiStore.isForReviewOrStitch || summariesStore.isOneAuthorized" v-show="criteriaStore.hasAnyCriteria && layoutStore.isMarkingPointsExpanded" :class="expansionClass(props.pointsExpansion)">
-          <marking-points id="app-marking-points"></marking-points>
+        <div v-show="markingCommentsShown()" :class="expansionClass()">
+            <div class="headline">Anmerkungen</div>
+            <marking-comments class="content"></marking-comments>
         </div>
-        <div  v-if="!apiStore.isForReviewOrStitch && layoutStore.isMarkingTextExpanded" :class="expansionClass(props.textExpansion)">
-          <own-summary-text :editorId="'marking'"></own-summary-text>
-        </div><!-- v-if neeed to avoid simultaneous data binding with summary text  -->
+
+        <!-- v-show neeed to immediately show the points for active comment when toggled-->
+        <div v-if="markingPointsShown()" :class="expansionClass()" >
+            <div class="headline">Bewertung</div>
+            <marking-points class="content"></marking-points>
+        </div>
+
+        <!-- v-if neeed to avoid simultaneous data binding with summary text  -->
+        <div v-if="markingTextShown()" :class="expansionClass()" >
+            <div class="headline">Gutachten</div>
+            <own-summary-text class="content" :editorId="'marking'"></own-summary-text>
+        </div>
+
         <div v-if="apiStore.isForReviewOrStitch && !summariesStore.isOneAuthorized">
         Für diese Abgabe ist noch keine Korrektur autorisiert.
       </div>
@@ -44,32 +66,34 @@ function expansionClass(expansion) {
 
 #app-marking-wrapper {
     height: 100%;
-  display: flex;
-    flex-direction: column;
 }
 
-#app-marking-comments {
-    flex-grow: 1;
+.headline {
+    height: 40px;
+    padding-top: 10px;
+    padding-left: 10px;
+    background-color: #f0f0f0;
+}
+
+.content {
+    height: calc(100% - 40px);
     overflow-y: scroll;
 }
-
-#app-marking-points {
-    height:100%;
-    overflow-y: scroll;
-}
-
 
 .hidden {
   display: none;
 }
 
 .full {
-  min-height: 100%;
+  height: 100%;
 }
 
 .half {
-  min-height: 50%;
+  height: 50%;
 }
 
+.third {
+  height: 33%;
+}
 
 </style>

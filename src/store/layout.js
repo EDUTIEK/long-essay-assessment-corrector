@@ -1,6 +1,6 @@
-import {defineStore} from 'pinia';
+import { defineStore } from 'pinia';
 import localForage, { setItem } from "localforage";
-import {useCorrectorsStore} from '@/store/correctors';
+import { useCorrectorsStore } from '@/store/correctors';
 import { useApiStore } from '@/store/api';
 
 const storage = localForage.createInstance({
@@ -21,15 +21,17 @@ export const useLayoutStore = defineStore('layout', {
             leftContent: 'essay',               // instructions|instructionsPdf|solution|solutionPdf|resources|essay|corrector
             rightContent: 'marking',            // summary|marking|corrector
 
-            markingPointsExpansion: 0.5,           // vertical expansion of the rating points in the marking view: 0=hidden, 0.5=half, 1=full
-            markingTextExpansion: 0.0,             // vertical expansion of the summary text in the marking view: 0=hidden, 0.5=half, 1=full
+            showMarkingComments: true,         // expansion of the comments
+            showMarkingPoints: true,           // expansion of the rating points
+            showMarkingText: false,            // expansion of the summary text in the marking view
+
             leftSummaryTextExpansion: 0.5,         // vertical expansion of the left summary text: 0=hidden, 0.5=half, 1=full
             rightSummaryTextExpansion: 0.5,        // vertical expansion of the right summary text: 0=hidden, 0.5=half, 1=full
-            
+
             // not stored
             leftCorrectorKey: '',               // key of the corrector shown on the left side
             rightCorrectorKey: '',              // key of the corrector shown on the right side
-            
+
         }
     },
 
@@ -65,35 +67,34 @@ export const useLayoutStore = defineStore('layout', {
         isLeftCorrectorVisible: state => (state.isLeftCorrectorSelected && state.isLeftVisible),
         isRightCorrectorVisible: state => (state.isRightCorrectorSelected && state.isRightVisible),
 
-        isMarkingPointsExpanded: state => state.markingPointsExpansion > 0,
-        isMarkingTextExpanded: state => state.markingTextExpansion > 0,
-        
         isLeftSummaryTextExpanded: state => state.leftSummaryTextExpansion > 0,
         isRightSummaryTextExpanded: state => state.rightSummaryTextExpansion > 0,
 
         leftCorrectorTitle: state => {
             const correctorsStore = useCorrectorsStore();
             const corrector = correctorsStore.getCorrector(state.leftCorrectorKey);
-            return corrector ? 'Korrektur von ' + corrector.title  + ' ' + correctorsStore.getPositionText(corrector.corrector_key) : ''
+            return corrector ? 'Korrektur von ' + corrector.title + ' ' + correctorsStore.getPositionText(
+                corrector.corrector_key) : ''
         },
 
         rightCorrectorTitle: state => {
             const correctorsStore = useCorrectorsStore();
             const corrector = correctorsStore.getCorrector(state.rightCorrectorKey);
-            return corrector ? 'Korrektur von ' + corrector.title + ' ' + correctorsStore.getPositionText(corrector.corrector_key) : ''
+            return corrector ? 'Korrektur von ' + corrector.title + ' ' + correctorsStore.getPositionText(
+                corrector.corrector_key) : ''
         },
 
         getCorrectorIsVisible: state => {
 
             /**
              * Get if a corrector's summary is visible
-             * 
+             *
              * @param {string} corrector_key
              * @returns {boolean}
              */
-            const fn = function(corrector_key) {
+            const fn = function (corrector_key) {
                 return state.leftCorrectorKey == corrector_key && state.isLeftCorrectorVisible
-                || state.rightCorrectorKey == corrector_key && state.isRightCorrectorVisible
+                    || state.rightCorrectorKey == corrector_key && state.isRightCorrectorVisible
             }
             return fn;
         },
@@ -104,7 +105,8 @@ export const useLayoutStore = defineStore('layout', {
         async clearStorage() {
             try {
                 await storage.clear();
-            } catch (err) {
+            }
+            catch (err) {
                 console.log(err);
             }
             this.$reset();
@@ -113,21 +115,23 @@ export const useLayoutStore = defineStore('layout', {
         async loadFromStorage() {
             try {
                 this.$reset();
-                
+
                 const data = await storage.getItem('layout');
                 if (data) {
                     this.expandedColumn = data.expandedColumn;
-                    // resources may not be ready, PDF is not shown instantly
-                    // so show show the instructions as default left content
-                    // this.leftContent = data.leftContent;
                     this.rightContent = data.rightContent;
-                    this.markingPointsExpansion = data.markingPointsExpansion;
-                    this.markingTextExpansion = data.markingTextExpansion;
+                    this.showMarkingComments = !!data.showMarkingComments,
+                    this.showMarkingPoints = !!data.showMarkingPoints,
+                    this.showMarkingText = !!data.showMarkingText,
                     this.leftSummaryTextExpansion = data.leftSummaryTextExpansion;
                     this.rightSummaryTextExpansion = data.rightSummaryTextExpansion;
                 }
 
-            } catch (err) {
+                if (!this.showMarkingComments && ! this.showMarkingPoints && !this.showMarkingPoints) {
+                    this.showMarkingComments = true;
+                }
+            }
+            catch (err) {
                 console.log(err);
             }
         },
@@ -138,12 +142,14 @@ export const useLayoutStore = defineStore('layout', {
                     expandedColumn: this.expandedColumn,
                     leftContent: this.leftContent,
                     rightContent: this.rightContent,
-                    markingPointsExpansion: this.markingPointsExpansion,
-                    markingTextExpansion: this.markingTextExpansion,
+                    showMarkingComments: this.showMarkingComments,
+                    showMarkingPoints: this.showMarkingPoints,
+                    showMarkingText: this.showMarkingText,
                     leftSummaryTextExpansion: this.leftSummaryTextExpansion,
                     rightSummaryTextExpansion: this.rightSummaryTextExpansion
                 })
-            } catch (err) {
+            }
+            catch (err) {
                 console.log(err);
             }
         },
@@ -195,10 +201,13 @@ export const useLayoutStore = defineStore('layout', {
             this.leftContent = 'essay';
             this.saveToStorage();
         },
-        
+
         showMarking() {
             this.setRightVisible();
             this.rightContent = 'marking';
+            this.showMarkingComments = true;
+            this.showMarkingPoints = true;
+            this.showMarkingText = false;
             this.saveToStorage();
         },
 
@@ -232,30 +241,21 @@ export const useLayoutStore = defineStore('layout', {
             this.saveToStorage();
         },
 
-        changeMarkingPointsExpansion() {
-            this.markingPointsExpansion = changeExpansion(this.markingPointsExpansion);
-            if (this.markingPointsExpansion > 0) {
-                this.markingTextExpansion = 0;
-            }
+        toggleMarkingComments() {
+            this.showMarkingComments = !this.showMarkingComments
             this.saveToStorage();
         },
-        
-        changeMarkingTextExpansion() {
-            this.markingTextExpansion = changeExpansion(this.markingTextExpansion);
-            if (this.markingTextExpansion > 0) {
-                this.markingPointsExpansion = 0;
-            }
+
+        toggleMarkingPoints() {
+            this.showMarkingPoints = !this.showMarkingPoints
             this.saveToStorage();
         },
-        
-        syncMarkingTextExpansion() {
-            this.markingTextExpansion = this.rightSummaryTextExpansion;
-            if (this.markingTextExpansion > 0) {
-                this.markingPointsExpansion = 0;
-            }
+
+        toggleMarkingText() {
+            this.showMarkingText = !this.showMarkingText
             this.saveToStorage();
         },
-        
+
         changeLeftSummaryTextExpansion() {
             this.leftSummaryTextExpansion = changeExpansion(this.leftSummaryTextExpansion);
             this.saveToStorage()
@@ -265,40 +265,32 @@ export const useLayoutStore = defineStore('layout', {
             this.rightSummaryTextExpansion = changeExpansion(this.rightSummaryTextExpansion);
             this.saveToStorage();
         },
-        
+
         selectCorrector(corrector_key) {
             const apiStore = useApiStore();
             const correctorsStore = useCorrectorsStore();
-            
+
             if (this.leftCorrectorKey == corrector_key) {
                 this.showLeftCorrector();
-            }
-            else if (this.rightCorrectorKey == corrector_key) {
+            } else if (this.rightCorrectorKey == corrector_key) {
                 this.showRightCorrector();
-            }
-            else if (!apiStore.isForReviewOrStitch) {
+            } else if (!apiStore.isForReviewOrStitch) {
                 this.leftCorrectorKey = corrector_key;
                 this.showLeftCorrector();
-            }
-            else if (correctorsStore.countCorrectors == 1) {
+            } else if (correctorsStore.countCorrectors == 1) {
                 this.rightCorrectorKey = corrector_key;
                 this.showRightCorrector();
-            }
-            else if (this.leftCorrectorKey == '') {
+            } else if (this.leftCorrectorKey == '') {
                 this.leftCorrectorKey = corrector_key;
                 this.showLeftCorrector();
-            }
-            else if (this.rightCorrectorKey == '') {
+            } else if (this.rightCorrectorKey == '') {
                 this.rightCorrectorKey = corrector_key;
                 this.showRightCorrector();
-            }
-            else {
+            } else {
                 this.leftCorrectorKey = corrector_key;
                 this.showLeftCorrector();
             }
         },
-        
-
     }
 });
 
@@ -310,9 +302,12 @@ export const useLayoutStore = defineStore('layout', {
  */
 function changeExpansion(ratio) {
     switch (ratio) {
-        case 0: return 0.5;
-        case 1: return 0;
-        default: return 1;
+        case 0:
+            return 0.5;
+        case 1:
+            return 0;
+        default:
+            return 1;
     }
 }
 
