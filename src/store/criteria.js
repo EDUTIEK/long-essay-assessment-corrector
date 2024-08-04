@@ -30,7 +30,7 @@ export const useCriteriaStore = defineStore('criteria',{
             const correctorKeys = correctorsStore.correctorKeys;
             return !!state.criteria.find(criterion => criterion.corrector_key == '' || correctorKeys.includes(criterion.corrector_key));
         },
-        
+
         hasOwnCriteria: state => {
             const apiStore = useApiStore();
             return !!state.criteria.find(criterion => criterion.corrector_key == '' || criterion.corrector_key == apiStore.correctorKey);
@@ -39,6 +39,12 @@ export const useCriteriaStore = defineStore('criteria',{
         ownCriteria: state => {
             const apiStore = useApiStore();
             return state.criteria.filter((criterion => criterion.corrector_key == '' || criterion.corrector_key == apiStore.correctorKey));
+        },
+
+        sumOfMaxPoints: state => {
+          let sum = 0;
+          state.criteria.forEach(criterion => sum += criterion.points);
+          return sum;
         },
 
         getCriterion: state => {
@@ -59,7 +65,7 @@ export const useCriteriaStore = defineStore('criteria',{
 
             /**
              * Get if a corrector has criteria defined
-             * 
+             *
              * @param {string} corrector_key
              * @returns {boolean}
              */
@@ -68,13 +74,13 @@ export const useCriteriaStore = defineStore('criteria',{
             };
             return fn;
         },
-        
-        
+
+
        getCorrectorCriteria: state => {
-            
+
            /**
             * Get the criteria of a corrector
-            * 
+            *
             * @param corrector_key
             * @returns {Criterion[]}
             */
@@ -100,12 +106,12 @@ export const useCriteriaStore = defineStore('criteria',{
         async loadFromStorage() {
             try {
                 this.$reset();
-                
+
                 const keys = await storage.getItem('criterionKeys');
                 if (keys) {
                     this.keys =  JSON.parse(keys);
                 }
-                
+
                 for (const key of this.keys) {
                     const criterion = await storage.getItem(key);
                     this.criteria.push(criterion);
@@ -120,7 +126,7 @@ export const useCriteriaStore = defineStore('criteria',{
             try {
                 await storage.clear();
                 this.$reset();
-                
+
                 for (const criterion_data of data){
                     const criterion = new Criterion(criterion_data);
                     this.criteria.push(criterion);

@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import localForage from "localforage";
 import { useApiStore } from '@/store/api';
 import { useCommentsStore } from '@/store/comments';
-import {useChangesStore} from "@/store/changes";
+import { useChangesStore } from "@/store/changes";
 import Points from '@/data/Points'
 import Comment from '@/data/Comment';
 import Change from '@/data/Change';
@@ -111,7 +111,7 @@ export const usePointsStore = defineStore('points',{
         getSumOfPointsForComment: state => {
 
             /**
-             * Get the sum op points given to criteria for a comment
+             * Get the sum of points given to criteria for a comment
              *
              * @param {string} comment_key
              * @returns {number}
@@ -127,6 +127,72 @@ export const usePointsStore = defineStore('points',{
             }
             return fn;
         },
+
+        getSumOfPointsForCriterion: state => {
+
+            /**
+             * Get the sum of points given to a criterion by a corrector
+             *
+             * @param {Criterion} criterion
+             * @param {string} comment_key
+             * @returns {number}
+             */
+            const fn = function (criterion, corrector_key) {
+                const commentsStore = useCommentsStore();
+                const comment_keys = commentsStore.getKeysOfCorrector(corrector_key);
+
+                let sum = 0;
+                state.points
+                .filter(points => points.criterion_key == criterion.key && comment_keys.includes(points.comment_key))
+                .forEach(points => sum += points.points);
+                return sum;
+            }
+            return fn;
+        },
+
+        getPointsOfCriterionExceeded: state => {
+
+            /**
+             * Get if the sum of points given to a criterion by a corrector exceeds the maximum points of this criterion
+             *
+             * @param {Criterion} criterion
+             * @param {string} comment_key
+             * @returns {number}
+             */
+            const fn = function (criterion, corrector_key) {
+                const commentsStore = useCommentsStore();
+                const comment_keys = commentsStore.getKeysOfCorrector(corrector_key);
+
+                let sum = 0;
+                state.points
+                .filter(points => points.criterion_key == criterion.key && comment_keys.includes(points.comment_key))
+                .forEach(points => sum += points.points);
+                return sum > criterion.points;
+            }
+            return fn;
+        },
+
+        getSumOfPointsForCorrector: state => {
+
+            /**
+             * Get the sum of points given by a corrector
+             *
+             * @param {string} corrector_key
+             * @returns {number}
+             */
+            const fn = function (corrector_key) {
+                const commentsStore = useCommentsStore();
+                const comment_keys = commentsStore.getKeysOfCorrector(corrector_key);
+
+                let sum = 0;
+                state.points
+                .filter(points => comment_keys.includes(points.comment_key))
+                .forEach(points => sum += points.points);
+                return sum;
+            }
+            return fn;
+        },
+
 
         getObjectByRelation: state => {
 
