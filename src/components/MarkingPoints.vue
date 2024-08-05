@@ -50,7 +50,7 @@ function savePoints(criterionKey) {
                 <th class="col-left">
                     Kriterium
                 </th>
-                <th class="col-mid">
+                <th class="col-mid text-right">
                     Punkte <span v-show="commentsStore.selectedKey != ''" class="commentLabel">{{commentsStore.selectedLabel}}</span>
                 </th>
                 <th class="col-right text-right">
@@ -63,9 +63,9 @@ function savePoints(criterionKey) {
                     <td class="col-left">
                         <label :for="'pointsInput' + criterion.key">{{ criterion.title}}</label>
                     </td>
-                    <td class="col-mid">
+                    <td class="col-mid text-right">
                         <input class="appPoints" type="number" min="0" v-model="criteriaPoints[criterion.key]"
-                               :disabled="summariesStore.isOwnDisabled || corrector_key != apiStore.correctorKey"
+                               :disabled="summariesStore.isOwnDisabled || comment_key == '' || corrector_key != apiStore.correctorKey"
                                :max="criterion.points"
                                @change="savePoints(criterion.key)"
                         />
@@ -75,15 +75,15 @@ function savePoints(criterionKey) {
                     </td>
                 </tr>
                 <tr>
-                    <th class="col-left">
+                    <td class="col-left">
                         <strong>Summe</strong>
-                    </th>
-                    <th class="col-mid">
-                        <strong>{{pointsStore.getSumOfPointsForComment(comment_key)}}</strong>
-                    </th>
-                    <th class="col-right text-right">
+                    </td>
+                    <td class="col-mid text-right">
+                        <strong class="sum-points">{{pointsStore.getSumOfPointsForComment(comment_key)}}</strong>
+                    </td>
+                    <td class="col-right text-right">
                         <strong>{{pointsStore.getSumOfPointsForCorrector(corrector_key) + ' / ' + criteriaStore.sumOfMaxPoints}}</strong>
-                    </th>
+                    </td>
                 </tr>
             </tbody>
         </v-table>
@@ -128,6 +128,10 @@ th, td {
 
 .red {
     color: red;
+}
+
+.sum-points {
+    margin-right: 50px;
 }
 
 </style>

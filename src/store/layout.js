@@ -230,6 +230,8 @@ export const useLayoutStore = defineStore('layout', {
         showSummary() {
             this.setRightVisible();
             this.rightContent = 'summary';
+            this.showRightSummaryText = true;
+            this.showRightSummaryCriteria = false;
             this.saveToStorage();
         },
 
