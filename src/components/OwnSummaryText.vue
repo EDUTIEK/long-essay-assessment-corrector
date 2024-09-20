@@ -1,26 +1,37 @@
 <script setup>
 /*
 * Import TinyMCE
+* @see https://www.tiny.cloud/docs/tinymce/latest/vite-es6-npm/
 */
-import 'tinymce';
-// Default icons are required for TinyMCE 5.3 or above
-import 'tinymce/icons/default';
-// A theme is also required
-import 'tinymce/themes/silver';
-// Import the skin
-import 'tinymce/skins/ui/oxide/skin.css';
+import tinymce from 'tinymce';
 
-/* Import content css */
-import contentUiCss from 'tinymce/skins/ui/oxide/content.css';
-import contentLocalCss from '@/styles/content.css';
-import headlinesThreeCss from '@/styles/headlines-three.css';
+/* Default icons are required. After that, import custom icons if applicable */
+import 'tinymce/icons/default/icons.min.js';
+
+/* Required TinyMCE components */
+import 'tinymce/themes/silver/theme.min.js';
+import 'tinymce/models/dom/model.min.js';
+
+/* Import a skin (can be a custom skin instead of the default) */
+import 'tinymce/skins/ui/oxide/skin.js';
 
 /* Import plugins */
+import '@/plugins/tiny_de.js';
 import 'tinymce/plugins/lists';
 import 'tinymce/plugins/charmap';
-import 'tinymce/plugins/paste';
-/* Import tiny vue integration */
+import 'tinymce/plugins/wordcount';
+
+/* content UI CSS is required */
+import 'tinymce/skins/ui/oxide/content.js';
+
+/* The default content CSS can be changed or replaced with appropriate CSS for the editor content. */
+import 'tinymce/skins/content/default/content.js';
+
+// Import tiny vue integration
 import Editor from '@tinymce/tinymce-vue'
+
+import contentLocalCss from '@/styles/content.css?inline';
+import headlinesThreeCss from '@/styles/headlines-three.css?inline';
 
 import { useSummariesStore } from '@/store/summaries';
 import { usePreferencesStore } from '@/store/preferences';
@@ -34,36 +45,16 @@ const preferencesStore = usePreferencesStore();
 const props = defineProps(['editorId']);
 
 function toolbar() {
-  switch ('full') // corrector always has full formatting options
-  {
-    case 'full':
-      return 'zoomOut zoomIn | undo redo | styleselect | bold italic underline | bullist numlist | removeformat | charmap | paste';
-    case 'medium':
-      return 'zoomOut zoomIn | undo redo | bold italic underline | bullist numlist | removeformat | charmap | paste';
-    case 'minimal':
-      return 'zoomOut zoomIn | undo redo | bold italic underline | removeformat | charmap | paste';
-    case 'none':
-    default:
-      return 'zoomOut zoomIn | undo redo | charmap |paste';
-  }
+  // corrector always has full formatting options
+  return 'zoomOut zoomIn undo redo styles bold italic underline bullist numlist removeformat charmap';
 }
 
 /**
  * @see https://www.tiny.cloud/docs/configure/content-filtering/#valid_elements
  */
 function validElements() {
-  switch ('full') // corrector always has full formatting options
-  {
-    case 'full':
-      return 'p/div,br,strong/b,em/i,u,ol,ul,li,h1,h2,h3,h4,h5,h6,pre';
-    case 'medium':
-      return 'p/div,br,strong/b,em/i,u,ol,ul,li';
-    case 'minimal':
-      return 'p/div,p/li,br,strong/b,em/i,u';
-    case 'none':
-    default:
-      return 'p/div,p/li,br';
-  }
+  // corrector always has full formatting options
+  return 'p/div,br,strong/b,em/i,u,ol,ul,li,h1,h2,h3,h4,h5,h6,pre';
 }
 
 /**
@@ -86,9 +77,20 @@ function styleFormats() {
   ];
 }
 
-onMounted(() => {
+function handleInit() {
   applyZoom();
-});
+  applyFormat();
+}
+
+function handleChange() {
+  summariesStore.updateContent(true);
+  applyZoom();
+}
+
+function handleKeyUp() {
+  summariesStore.updateContent(true);
+}
+
 
 function zoomIn() {
   preferencesStore.zoomSummaryTextIn();
@@ -101,9 +103,33 @@ function zoomOut() {
 }
 
 function applyZoom() {
-  const editor = tinymce.get(props.editorId);
-  if (editor) {
-    editor.contentWindow.document.body.style.fontSize = (preferencesStore.summary_text_zoom * 16) + 'px';
+  try {
+    const editor = tinymce.get(props.editorId);
+    if (editor) {
+      editor.dom.setStyle(editor.dom.doc.body, 'font-size', (preferencesStore.summary_text_zoom) + 'rem');
+      editor.dom.setStyle(editor.dom.select('h1'),
+          'font-size',
+          (preferencesStore.summary_text_zoom * 1.3) + 'rem');
+      editor.dom.setStyle(editor.dom.select('h2'),
+          'font-size',
+          (preferencesStore.summary_text_zoom * 1.15) + 'rem');
+      editor.dom.setStyle(editor.dom.select('h3'), 'font-size', (preferencesStore.summary_text_zoom) + 'rem');
+      editor.dom.setStyle(editor.dom.select('h4'), 'font-size', (preferencesStore.summary_text_zoom) + 'rem');
+      editor.dom.setStyle(editor.dom.select('h5'), 'font-size', (preferencesStore.summary_text_zoom) + 'rem');
+      editor.dom.setStyle(editor.dom.select('h6'), 'font-size', (preferencesStore.summary_text_zoom) + 'rem');
+    }
+  }
+  catch (e) {
+    // prevent error when tiny is unloaded
+  }
+}
+
+/**
+ * Add classes for the headline styles to the overlay element of the tiny menu
+ */
+function applyFormat() {
+  for (const element of document.getElementsByClassName('tox-tinymce-aux')) {
+    element.classList.add('headlines-three');
   }
 }
 
@@ -112,28 +138,42 @@ function applyZoom() {
 <template>
   <div class="app-own-summary-text-wrapper">
     <editor
-        v-if="!summariesStore.isOwnDisabled"
         :id="props.editorId"
+        v-if="!summariesStore.isOwnDisabled"
         v-model="summariesStore.editSummary.text"
-        @change="summariesStore.updateContent(true)"
-        @keyup="summariesStore.updateContent(true)"
+        @change="handleChange"
+        @keyup="handleKeyUp"
+        @init="handleInit"
         api-key="no-api-key"
         :init="{
+            license_key: 'gpl',
+            language: 'de',
             height: '100%',
             menubar: false,
-            plugins: 'lists charmap paste',
+            statusbar: true,
+            elementpath: false,
+            branding: false,
+            plugins: 'lists charmap wordcount',
             toolbar: toolbar(),
             valid_elements: validElements(),
             formats: formats(),
             style_formats: styleFormats(),
             custom_undo_redo_levels: 10,
-            skin: false,                      // avoid 404 errors for skin css files
-            content_css: false,               // avoid 404 error for content css file
-            content_style: contentUiCss.toString() + '\n' + contentLocalCss.toString() + '\n' + headlinesThreeCss.toString(),
+            skin: 'default',
+            content_css: 'default',
+            content_style: contentLocalCss.toString() + '\n' + headlinesThreeCss.toString(),
             browser_spellcheck: true,
-            paste_block_drop: true,
-            paste_convert_word_fake_lists: false,
-            font_size_formats: '8pt 10pt 12pt 14pt 16pt 18pt 24pt 36pt 48pt',
+            highlight_on_focus: true,
+            iframe_aria_text: 'Editor Gutachten',
+            paste_as_text: false,         // keep formats when copying between clipboards
+            paste_block_drop: true,       // prevent unfiltered content from drag & drop
+            paste_merge_formats: true,    // default
+            paste_tab_spaces: 4,          // default
+            smart_paste: false,           // don't create hyperlinks automatically
+            paste_data_images: false,     // don't paste images
+            paste_remove_styles_if_webkit: true,  // default
+            paste_webkit_styles: 'none',          // default
+            //font_size_formats: '8pt 10pt 12pt 14pt 16pt 18pt 24pt 36pt 48pt',
             setup: function (editor) {
               editor.ui.registry.addButton('zoomOut', {tooltip: 'Verkleinern', icon: 'zoom-out', onAction: zoomOut});
               editor.ui.registry.addButton('zoomIn', {tooltip: 'Vergrößern', icon: 'zoom-in', onAction: zoomIn});
@@ -149,14 +189,6 @@ function applyZoom() {
 </template>
 
 <style>
-/**
- * Styles for tiny must be global
- */
-
-/* hide the statusbar */
-.tox-statusbar {
-  display: none !important;
-}
 
 .app-own-summary-text-wrapper {
   height: 100%;

@@ -1,5 +1,6 @@
 /**
  * Style of written contents
+ * (font size in em needed for zoom on ReviewContentScreen)
  */
 
 .mce-content-body, .long-essay-content {
@@ -80,5 +81,5 @@
     May be refined by headlines css files
 */
 .tox-menu p, .tox-menu h1, .tox-menu h2, .tox-menu h3, .tox-menu h4, .tox-menu h5, .tox-menu h6, .tox-menu pre, .tox-menu li {
-    font-size: 1em !important;
+    font-size: 1rem !important;
 }
