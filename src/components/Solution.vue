@@ -1,6 +1,7 @@
 <script setup>
-  import {useTaskStore} from '@/store/task';
-  const taskStore = useTaskStore();
+import { useTaskStore } from '@/store/task';
+
+const taskStore = useTaskStore();
 </script>
 
 <template>
@@ -14,12 +15,12 @@
 </style>
 <style scoped>
 
-  #app-solution {
-    height: 100%;
-    padding: 20px;
-    border: 1px solid #cccccc;
-    overflow-y: scroll;
-  }
+#app-solution {
+  height: 100%;
+  padding: 20px;
+  border: 1px solid #cccccc;
+  overflow-y: scroll;
+}
 
 
 </style>

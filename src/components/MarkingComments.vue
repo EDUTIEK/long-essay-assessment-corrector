@@ -1,14 +1,11 @@
 <script setup>
 import { useApiStore } from '@/store/api';
-import {useCommentsStore} from "@/store/comments";
+import { useCommentsStore } from "@/store/comments";
 import { useSummariesStore } from '@/store/summaries';
 import { useSettingsStore } from '@/store/settings';
 import { useCriteriaStore } from '@/store/criteria';
 import { usePointsStore } from '@/store/points';
-
-import Comment from "@/data/Comment";
-import { watch } from 'vue';
-import { nextTick} from "vue";
+import { nextTick, watch } from 'vue';
 
 const apiStore = useApiStore();
 const commentsStore = useCommentsStore();
@@ -21,15 +18,16 @@ const pointsStore = usePointsStore();
  * Focus the currently selected comment
  */
 async function focusSelected() {
-    await nextTick();
-    let el = document.getElementById('appCommentWrapper' + commentsStore.selectedKey);
-    if (el) {
-        let tx = el.querySelector('textarea');
-        if (tx) {
-            tx.focus();
-        }
+  await nextTick();
+  let el = document.getElementById('appCommentWrapper' + commentsStore.selectedKey);
+  if (el) {
+    let tx = el.querySelector('textarea');
+    if (tx) {
+      tx.focus();
     }
+  }
 }
+
 watch(() => commentsStore.selectionChange, focusSelected);
 
 
@@ -37,12 +35,13 @@ watch(() => commentsStore.selectionChange, focusSelected);
  * Set the scrolling so that the complete mark is visible
  */
 async function scrollToFirstVisible() {
-    await nextTick();
-    let el = document.getElementById('appCommentContainer' + commentsStore.firstVisibleKey);
-    if (el) {
-        el.scrollIntoView();
-    }
+  await nextTick();
+  let el = document.getElementById('appCommentContainer' + commentsStore.firstVisibleKey);
+  if (el) {
+    el.scrollIntoView();
+  }
 }
+
 watch(() => commentsStore.firstVisibleKey, scrollToFirstVisible);
 
 
@@ -53,57 +52,55 @@ watch(() => commentsStore.firstVisibleKey, scrollToFirstVisible);
  */
 function getBgColor(comment) {
 
-    if (comment.key == commentsStore.selectedKey) {
-        if (comment.rating_excellent) return '#BBEBA5';
-        if (comment.rating_cardinal) return '#FCB494';
-        return '#94C3FC';
-    }
-    else if (comment.prefix == 'own') {
-        if (comment.rating_excellent)  return '#E3EFDD';
-        if (comment.rating_cardinal) return '#FBDED1';
-        return '#D8E5F4';
-    }
-    else {
-        if (comment.rating_excellent)  return '#F7F9F7';
-        if (comment.rating_cardinal) return '#FCF6F4';
-        return '#F5F7FB';
-    }
+  if (comment.key == commentsStore.selectedKey) {
+    if (comment.rating_excellent) return '#BBEBA5';
+    if (comment.rating_cardinal) return '#FCB494';
+    return '#94C3FC';
+  } else if (comment.prefix == 'own') {
+    if (comment.rating_excellent) return '#E3EFDD';
+    if (comment.rating_cardinal) return '#FBDED1';
+    return '#D8E5F4';
+  } else {
+    if (comment.rating_excellent) return '#F7F9F7';
+    if (comment.rating_cardinal) return '#FCF6F4';
+    return '#F5F7FB';
+  }
 }
 
 function getPointsColor(comment) {
-    if (comment.points == 0) {
-        return 'white';
-    }
-    if (comment.corrector_key != apiStore.correctorKey) {
-        return 'grey';
-    }
-    const sum = commentsStore.getPointsOfCorrector(comment.corrector_key);
-    if (sum > settingsStore.max_points) {
-        return 'red';
-    }
+  if (comment.points == 0) {
+    return 'white';
+  }
+  if (comment.corrector_key != apiStore.correctorKey) {
     return 'grey';
+  }
+  const sum = commentsStore.getPointsOfCorrector(comment.corrector_key);
+  if (sum > settingsStore.max_points) {
+    return 'red';
+  }
+  return 'grey';
 }
 
 async function toggleExcellent(comment) {
-    commentsStore.selectComment(comment.key);
-    if (comment.rating_excellent) {
-        comment.rating_cardinal = false;
-    }
-    commentsStore.setMarkerChange();
-    commentsStore.updateComment(comment);
+  commentsStore.selectComment(comment.key);
+  if (comment.rating_excellent) {
+    comment.rating_cardinal = false;
+  }
+  commentsStore.setMarkerChange();
+  commentsStore.updateComment(comment);
 }
 
 async function toggleCardinal(comment) {
-    commentsStore.selectComment(comment.key);
-    if (comment.rating_cardinal) {
-        comment.rating_excellent = false;
-    }
-    commentsStore.setMarkerChange();
-    commentsStore.updateComment(comment);
+  commentsStore.selectComment(comment.key);
+  if (comment.rating_cardinal) {
+    comment.rating_excellent = false;
+  }
+  commentsStore.setMarkerChange();
+  commentsStore.updateComment(comment);
 }
 
 async function selectComment(comment) {
-    commentsStore.selectComment(comment.key);
+  commentsStore.selectComment(comment.key);
 }
 
 </script>
@@ -141,24 +138,24 @@ async function selectComment(comment) {
                 v-show="comment.key == commentsStore.selectedKey || pointsStore.getCommentHasPoints(comment.key)"
           >
             <input class="pointsInput"
-                  disabled="disabled"
-                  :id="'pointsInput' + comment.key"
-                  :value="pointsStore.getSumOfPointsForComment(comment.key)"/>
+                   disabled="disabled"
+                   :id="'pointsInput' + comment.key"
+                   :value="pointsStore.getSumOfPointsForComment(comment.key)"/>
             <label :for="'pointsInput' + comment.key"
                    @click="commentsStore.selectComment(comment.key)"> Pkt.</label>
           </span>
           <span v-if="!criteriaStore.getCorrectorHasCriteria(comment.corrector_key)"
-              v-show = "comment.key == commentsStore.selectedKey || comment.points > 0"
+                v-show="comment.key == commentsStore.selectedKey || comment.points > 0"
           >
             <input class="pointsInput"
-                 type="number"
-                 min="0"
-                 :style="'color: ' + getPointsColor(comment) + ';'"
-                 :id="'pointsInput' + comment.key"
-                 :max="settingsStore.max_points"
-                 :disabled="summariesStore.isOwnDisabled || comment.corrector_key != apiStore.correctorKey"
-                 @change="commentsStore.updateComment(comment)"
-                 v-model="comment.points"/>
+                   type="number"
+                   min="0"
+                   :style="'color: ' + getPointsColor(comment) + ';'"
+                   :id="'pointsInput' + comment.key"
+                   :max="settingsStore.max_points"
+                   :disabled="summariesStore.isOwnDisabled || comment.corrector_key != apiStore.correctorKey"
+                   @change="commentsStore.updateComment(comment)"
+                   v-model="comment.points"/>
             <label :for="'pointsInput' + comment.key"
                    @click="commentsStore.selectComment(comment.key)"> Pkt.</label>
           </span>
@@ -170,14 +167,14 @@ async function selectComment(comment) {
         <v-col class="col">
           <span v-show="comment.rating_excellent || comment.key == commentsStore.selectedKey">
            <input type="checkbox"
-                             class="ratingInput"
-                             v-model="comment.rating_excellent"
-                             :id="'ratingExcellent' + comment.key"
-                             :disabled="summariesStore.isOwnDisabled || comment.corrector_key != apiStore.correctorKey"
-                             @change="toggleExcellent(comment)"/>
+                  class="ratingInput"
+                  v-model="comment.rating_excellent"
+                  :id="'ratingExcellent' + comment.key"
+                  :disabled="summariesStore.isOwnDisabled || comment.corrector_key != apiStore.correctorKey"
+                  @change="toggleExcellent(comment)"/>
 
             <label :for="'ratingExcellent' + comment.key"
-                 @click="commentsStore.selectComment(comment.key)">&nbsp;{{ settingsStore.positive_rating }}</label>
+                   @click="commentsStore.selectComment(comment.key)">&nbsp;{{ settingsStore.positive_rating }}</label>
           </span>
 
         </v-col>
@@ -218,54 +215,54 @@ async function selectComment(comment) {
 
 <style scoped>
 
-    .v-container {
-        margin-top: 2px;
-        margin-bottom: 4px;
-        padding-right: 20px;
-        padding-bottom: 4px;
-        border-bottom: 1px dotted gray;
-    }
+.v-container {
+  margin-top: 2px;
+  margin-bottom: 4px;
+  padding-right: 20px;
+  padding-bottom: 4px;
+  border-bottom: 1px dotted gray;
+}
 
-    .row {
-        margin-top: -18px;
-        margin-bottom: -12px;
-        line-height: 12px;
-    }
+.row {
+  margin-top: -18px;
+  margin-bottom: -12px;
+  line-height: 12px;
+}
 
-    .col {
-      font-size: 12px;
-    }
+.col {
+  font-size: 12px;
+}
 
-    .commentLabel {
-        font-size: 14px;
-        padding: 3px;
-    }
+.commentLabel {
+  font-size: 14px;
+  padding: 3px;
+}
 
-    .commentLabel.selected {
-        background-color: grey;
-        color: white;
-        padding: 3px;
-        font-size: 14px;
-    }
+.commentLabel.selected {
+  background-color: grey;
+  color: white;
+  padding: 3px;
+  font-size: 14px;
+}
 
-    .pointsInput {
-      width: 4em;
-      text-align: left;
-    }
+.pointsInput {
+  width: 4em;
+  text-align: left;
+}
 
-    .commentWrapper {
-        width:100%;
-    }
-    .comment {
-        width:100%;
-        font-family: serif;
-        line-height: 20px;
-    }
+.commentWrapper {
+  width: 100%;
+}
 
-    textarea {
-        padding: 0;
-    }
+.comment {
+  width: 100%;
+  font-family: serif;
+  line-height: 20px;
+}
 
+textarea {
+  padding: 0;
+}
 
 
 </style>

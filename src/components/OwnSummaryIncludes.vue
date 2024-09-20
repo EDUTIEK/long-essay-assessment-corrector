@@ -15,9 +15,9 @@ const settingsStore = useSettingsStore();
 const showIncludes = ref(false);
 
 const items = ref([
-  {title: 'Nicht einbeziehen', value: Summary.INCLUDE_NOT},
-  {title: 'informativ', value: Summary.INCLUDE_INFO},
-  {title: 'bewertungsrelevant', value: Summary.INCLUDE_RELEVANT}
+  { title: 'Nicht einbeziehen', value: Summary.INCLUDE_NOT },
+  { title: 'informativ', value: Summary.INCLUDE_INFO },
+  { title: 'bewertungsrelevant', value: Summary.INCLUDE_RELEVANT }
 ]);
 
 const includes = ref({});
@@ -36,7 +36,7 @@ function save() {
     preferencesStore.setSummaryInclusions(includes.value);
     updatePreferences.value = false;
   }
-  showIncludes.value=false;
+  showIncludes.value = false;
 }
 
 
@@ -44,8 +44,9 @@ function save() {
 
 <template>
   <div>
-    <strong>Einbeziehen:</strong> {{summariesStore.getInclusionText(summariesStore.editSummary)}}
-    <v-btn v-if ="!settingsStore.fixed_inclusions" variant="text" :disabled="summariesStore.isOwnDisabled" @click="showIncludes=true;">
+    <strong>Einbeziehen:</strong> {{ summariesStore.getInclusionText(summariesStore.editSummary) }}
+    <v-btn v-if="!settingsStore.fixed_inclusions" variant="text" :disabled="summariesStore.isOwnDisabled"
+           @click="showIncludes=true;">
       <v-icon left icon="mdi-pencil"></v-icon>
     </v-btn>
 
@@ -59,7 +60,8 @@ function save() {
                 Markierungen und Kommentare
               </v-col>
               <v-col>
-                <v-select class="select" variant="outlined" density="compact" v-model="includes.include_comments" :items = "items"></v-select>
+                <v-select class="select" variant="outlined" density="compact" v-model="includes.include_comments"
+                          :items="items"></v-select>
               </v-col>
             </v-row>
             <v-row v-show="includes.include_comments > Summary.INCLUDE_NOT">
@@ -67,7 +69,8 @@ function save() {
                 {{ settingsStore.ratingLabels }}
               </v-col>
               <v-col>
-                <v-select class="select" variant="outlined" density="compact" v-model="includes.include_comment_ratings" :items = "items"></v-select>
+                <v-select class="select" variant="outlined" density="compact" v-model="includes.include_comment_ratings"
+                          :items="items"></v-select>
               </v-col>
             </v-row>
             <v-row v-show="includes.include_comments > Summary.INCLUDE_NOT">
@@ -75,7 +78,8 @@ function save() {
                 Punkte zu Kommentaren
               </v-col>
               <v-col>
-                <v-select class="select" variant="outlined" density="compact" v-model="includes.include_comment_points" :items = "items"></v-select>
+                <v-select class="select" variant="outlined" density="compact" v-model="includes.include_comment_points"
+                          :items="items"></v-select>
               </v-col>
             </v-row>
             <v-row v-show="criteriaStore.hasOwnCriteria">
@@ -83,11 +87,13 @@ function save() {
                 Punkte im Bewertungsschema
               </v-col>
               <v-col>
-                <v-select class="select" variant="outlined" density="compact" v-model="includes.include_criteria_points" :items = "items"></v-select>
+                <v-select class="select" variant="outlined" density="compact" v-model="includes.include_criteria_points"
+                          :items="items"></v-select>
               </v-col>
             </v-row>
           </v-container>
-          <v-checkbox v-model="updatePreferences" label="Als Vorgabe für andere Korekturen übernehmen, bei denen noch keine Auswahl getroffen wurde. Bereits aktiv getroffene Auwahlen bleiben unverändert."></v-checkbox>
+          <v-checkbox v-model="updatePreferences"
+                      label="Als Vorgabe für andere Korekturen übernehmen, bei denen noch keine Auswahl getroffen wurde. Bereits aktiv getroffene Auwahlen bleiben unverändert."></v-checkbox>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>

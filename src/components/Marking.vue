@@ -14,69 +14,73 @@ const criteriaStore = useCriteriaStore();
 const summariesStore = useSummariesStore();
 
 function markingCommentsShown() {
-    return layoutStore.showMarkingComments && (!apiStore.isForReviewOrStitch || summariesStore.isOneAuthorized)
+  return layoutStore.showMarkingComments && (!apiStore.isForReviewOrStitch || summariesStore.isOneAuthorized)
 }
 
 function markingPointsShown() {
-    return layoutStore.showMarkingPoints && criteriaStore.hasAnyCriteria && (!apiStore.isForReviewOrStitch || summariesStore.isOneAuthorized)
+  return layoutStore.showMarkingPoints && criteriaStore.hasAnyCriteria && (!apiStore.isForReviewOrStitch || summariesStore.isOneAuthorized)
 }
 
 function markingTextShown() {
-    return layoutStore.showMarkingText && (!apiStore.isForReviewOrStitch || summariesStore.isOneAuthorized)
+  return layoutStore.showMarkingText && (!apiStore.isForReviewOrStitch || summariesStore.isOneAuthorized)
 }
 
 function expansionClass() {
-    const sum = (markingCommentsShown() ? 1 : 0) + (markingPointsShown() ? 1 : 0) + (markingTextShown() ? 1 : 0);
-    switch (sum) {
-        case 0: return 'hidden';
-        case 1: return 'full';
-        case 2: return 'half';
-        case 3: return 'third';
-    }
+  const sum = (markingCommentsShown() ? 1 : 0) + (markingPointsShown() ? 1 : 0) + (markingTextShown() ? 1 : 0);
+  switch (sum) {
+    case 0:
+      return 'hidden';
+    case 1:
+      return 'full';
+    case 2:
+      return 'half';
+    case 3:
+      return 'third';
+  }
 }
 
 </script>
 
 <template>
-    <div id="app-marking-wrapper">
-        <div v-if="markingCommentsShown()" :class="expansionClass()">
-            <div class="headline">Anmerkungen</div>
-            <marking-comments class="content"></marking-comments>
-        </div>
-
-        <div v-if="markingPointsShown()" :class="expansionClass()" >
-            <div class="headline">Bewertung</div>
-            <marking-points class="content"></marking-points>
-        </div>
-
-        <!-- v-if neeed to avoid simultaneous data binding with summary text  -->
-        <div v-if="markingTextShown()" :class="expansionClass()" >
-            <div class="headline">Gutachten</div>
-            <own-summary-text class="content" :editorId="'marking'"></own-summary-text>
-        </div>
-
-        <div v-if="apiStore.isForReviewOrStitch && !summariesStore.isOneAuthorized">
-        Für diese Abgabe ist noch keine Korrektur autorisiert.
-      </div>
+  <div id="app-marking-wrapper">
+    <div v-if="markingCommentsShown()" :class="expansionClass()">
+      <div class="headline">Anmerkungen</div>
+      <marking-comments class="content"></marking-comments>
     </div>
+
+    <div v-if="markingPointsShown()" :class="expansionClass()">
+      <div class="headline">Bewertung</div>
+      <marking-points class="content"></marking-points>
+    </div>
+
+    <!-- v-if neeed to avoid simultaneous data binding with summary text  -->
+    <div v-if="markingTextShown()" :class="expansionClass()">
+      <div class="headline">Gutachten</div>
+      <own-summary-text class="content" :editorId="'marking'"></own-summary-text>
+    </div>
+
+    <div v-if="apiStore.isForReviewOrStitch && !summariesStore.isOneAuthorized">
+      Für diese Abgabe ist noch keine Korrektur autorisiert.
+    </div>
+  </div>
 </template>
 
 <style scoped>
 
 #app-marking-wrapper {
-    height: 100%;
+  height: 100%;
 }
 
 .headline {
-    height: 40px;
-    padding-top: 10px;
-    padding-left: 10px;
-    background-color: #f0f0f0;
+  height: 40px;
+  padding-top: 10px;
+  padding-left: 10px;
+  background-color: #f0f0f0;
 }
 
 .content {
-    height: calc(100% - 40px);
-    overflow-y: scroll;
+  height: calc(100% - 40px);
+  overflow-y: scroll;
 }
 
 .hidden {

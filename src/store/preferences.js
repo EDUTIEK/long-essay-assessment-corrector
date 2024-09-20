@@ -130,7 +130,8 @@ export const usePreferencesStore = defineStore('preferences', {
       for (const change of changesStore.getChangesFor(Change.TYPE_PREFERENCES, sendingTime)) {
         // preferences exist only once, will be the same for all changes
         changes.push(apiStore.getChangeDataToSend(change, this.allData));
-      };
+      }
+      ;
       return changes;
     },
 

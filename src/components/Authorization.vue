@@ -20,18 +20,17 @@ const showIncludes = ref(false);
 
 async function setAuthorizedAndContinue() {
 
-    await summariesStore.setOwnAuthorized();
-    if (await apiStore.saveChangesToBackend(true)) {
-      apiStore.setShowAuthorization(false);
-      let newKey = itemsStore.getNextKey(apiStore.itemKey);
-      if (newKey != '') {
-        apiStore.loadItemFromBackend(newKey);
-      }
+  await summariesStore.setOwnAuthorized();
+  if (await apiStore.saveChangesToBackend(true)) {
+    apiStore.setShowAuthorization(false);
+    let newKey = itemsStore.getNextKey(apiStore.itemKey);
+    if (newKey != '') {
+      apiStore.loadItemFromBackend(newKey);
     }
-    else {
-      apiStore.setShowAuthorization(false);
-      apiStore.setShowSendFailure(true);
-    }
+  } else {
+    apiStore.setShowAuthorization(false);
+    apiStore.setShowSendFailure(true);
+  }
 }
 
 async function setAuthorizedAndClose() {
@@ -40,8 +39,7 @@ async function setAuthorizedAndClose() {
   if (await apiStore.saveChangesToBackend(true)) {
     apiStore.setShowAuthorization(false);
     window.location = apiStore.returnUrl;
-  }
-  else {
+  } else {
     apiStore.setShowAuthorization(false);
     apiStore.setShowSendFailure(true);
     return;
@@ -49,82 +47,86 @@ async function setAuthorizedAndClose() {
 }
 
 function editSummary() {
-    apiStore.showAuthorization = false;
-    layoutStore.showSummary();
+  apiStore.showAuthorization = false;
+  layoutStore.showSummary();
 }
 
 </script>
 
 <template>
-    <div id="app-authorization-wrapper">
+  <div id="app-authorization-wrapper">
 
-      <v-btn v-show="!summariesStore.isOwnDisabled" :disabled="apiStore.isLoading || !itemsStore.authorizationAllowed" @click="apiStore.setShowAuthorization(true)">
-          <v-icon left icon="mdi-file-certificate-outline"></v-icon>
-        <span>Autorisieren...</span>
-      </v-btn>
+    <v-btn v-show="!summariesStore.isOwnDisabled" :disabled="apiStore.isLoading || !itemsStore.authorizationAllowed"
+           @click="apiStore.setShowAuthorization(true)">
+      <v-icon left icon="mdi-file-certificate-outline"></v-icon>
+      <span>Autorisieren...</span>
+    </v-btn>
 
-      <v-dialog max-width="60em" persistent v-model="apiStore.showAuthorization">
-        <v-card>
-          <v-card-title>Korrektur von {{itemsStore.currentItem.title}} autorisieren</v-card-title>
-          <v-card-text>
-              <p><strong>Gutachten:</strong>
-                  <v-btn variant="text" @click="editSummary()">
-                      <v-icon left icon="mdi-pencil"></v-icon>
-                  </v-btn>
-              </p>
-              <div class="appText long-essay-content headlines-three" v-html="summariesStore.editSummary.text">
-              </div>
+    <v-dialog max-width="60em" persistent v-model="apiStore.showAuthorization">
+      <v-card>
+        <v-card-title>Korrektur von {{ itemsStore.currentItem.title }} autorisieren</v-card-title>
+        <v-card-text>
+          <p><strong>Gutachten:</strong>
+            <v-btn variant="text" @click="editSummary()">
+              <v-icon left icon="mdi-pencil"></v-icon>
+            </v-btn>
+          </p>
+          <div class="appText long-essay-content headlines-three" v-html="summariesStore.editSummary.text">
+          </div>
 
-              <label for="appOwnSummaryPoints"><strong>Bewertung:</strong></label>
-            <input class="appPoints" type="number" min="0" :max="settingsStore.max_points" v-model="summariesStore.editSummary.points" />Punkte
-            &nbsp;
-            <strong>Notenstufe:</strong> {{ summariesStore.currentGradeTitle }}
+          <label for="appOwnSummaryPoints"><strong>Bewertung:</strong></label>
+          <input class="appPoints" type="number" min="0" :max="settingsStore.max_points"
+                 v-model="summariesStore.editSummary.points"/>Punkte
+          &nbsp;
+          <strong>Notenstufe:</strong> {{ summariesStore.currentGradeTitle }}
 
-            <own-summary-includes v-if="settingsStore.inclusionsPossible"></own-summary-includes>
+          <own-summary-includes v-if="settingsStore.inclusionsPossible"></own-summary-includes>
 
-              <v-alert v-show="summariesStore.editSummary.text == ''"
-                       type="info" variant="text">
-                  Bitte geben Sie einen Gutachten-Text ein.
-              </v-alert>
+          <v-alert v-show="summariesStore.editSummary.text == ''"
+                   type="info" variant="text">
+            Bitte geben Sie einen Gutachten-Text ein.
+          </v-alert>
 
-              <v-alert v-show="(levelsStore.hasLevels && (summariesStore.editSummary.points === null))"
-                       type="info" variant="text">
-                  Bitte geben Sie eine Bewertung ein, damit eine Notenstufe vergeben werden kann.
-              </v-alert>
+          <v-alert v-show="(levelsStore.hasLevels && (summariesStore.editSummary.points === null))"
+                   type="info" variant="text">
+            Bitte geben Sie eine Bewertung ein, damit eine Notenstufe vergeben werden kann.
+          </v-alert>
 
-              <v-alert v-show="(summariesStore.currentPartialPointsAreIncluded
+          <v-alert v-show="(summariesStore.currentPartialPointsAreIncluded
                                     && summariesStore.editSummary.points !== null
                                     && summariesStore.editSummary.points != summariesStore.currentPartialPoints)"
-                       type="info" variant="text">
-                  Ihre Bewertung weicht von der einbezogenen Summe der Teilpunkte ({{ summariesStore.currentPartialPoints }}) ab!
-              </v-alert>
+                   type="info" variant="text">
+            Ihre Bewertung weicht von der einbezogenen Summe der Teilpunkte ({{ summariesStore.currentPartialPoints }})
+            ab!
+          </v-alert>
 
-                <v-alert v-show="summariesStore.areOthersAuthorized && summariesStore.stitchReasonText != '' "
-                     type="info" variant="text">
-                    Ihre Punktevergabe wird einen Stichentscheid erfordern: {{ summariesStore.stitchReasonText }}
-                </v-alert>
-            <br>
-            <p>
-              Durch die Autorisierung wird Ihre Korrektur festgeschrieben. Sie können sie anschließend nicht mehr ändern. Möchten Sie Ihre Korrektur autorisieren?
-            </p>
-          </v-card-text>
-          <v-card-actions>
-            <v-btn @click="setAuthorizedAndContinue()">
-              <v-icon left icon="mdi-check"></v-icon>
-              <span>Autorisieren und Weiter</span>
-            </v-btn>
-            <v-btn @click="setAuthorizedAndClose()">
-              <v-icon left icon="mdi-check"></v-icon>
-              <span>Autorisieren und Schließen</span>
-            </v-btn>
-            <v-btn @click="apiStore.setShowAuthorization(false);">
-              <v-icon left icon="mdi-close"></v-icon>
-              <span>Abbrechen</span>
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-    </div>
+          <v-alert v-show="summariesStore.areOthersAuthorized && summariesStore.stitchReasonText != '' "
+                   type="info" variant="text">
+            Ihre Punktevergabe wird einen Stichentscheid erfordern: {{ summariesStore.stitchReasonText }}
+          </v-alert>
+          <br>
+          <p>
+            Durch die Autorisierung wird Ihre Korrektur festgeschrieben. Sie können sie anschließend nicht mehr ändern.
+            Möchten Sie Ihre Korrektur autorisieren?
+          </p>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn @click="setAuthorizedAndContinue()">
+            <v-icon left icon="mdi-check"></v-icon>
+            <span>Autorisieren und Weiter</span>
+          </v-btn>
+          <v-btn @click="setAuthorizedAndClose()">
+            <v-icon left icon="mdi-check"></v-icon>
+            <span>Autorisieren und Schließen</span>
+          </v-btn>
+          <v-btn @click="apiStore.setShowAuthorization(false);">
+            <v-icon left icon="mdi-close"></v-icon>
+            <span>Abbrechen</span>
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </div>
 </template>
 
 <style scoped>

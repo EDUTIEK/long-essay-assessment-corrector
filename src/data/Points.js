@@ -67,7 +67,7 @@ class Points {
    * @param value
    */
   setPoints(value) {
-      this.points = parseInt(value);
+    this.points = parseInt(value);
   }
 
   /**

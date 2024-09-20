@@ -1,4 +1,3 @@
-
 /**
  * Corrector Summary
  */
@@ -136,13 +135,13 @@ class Summary {
 
     inclusion = parseInt(inclusion);
     if (inclusion <= Summary.INCLUDE_NOT) {
-        return Summary.INCLUDE_NOT;
+      return Summary.INCLUDE_NOT;
     }
     if (inclusion == Summary.INCLUDE_INFO) {
-        return Summary.INCLUDE_INFO;
+      return Summary.INCLUDE_INFO;
     }
     if (inclusion >= Summary.INCLUDE_RELEVANT) {
-        return Summary.INCLUDE_RELEVANT;
+      return Summary.INCLUDE_RELEVANT;
     }
   }
 
@@ -170,25 +169,25 @@ class Summary {
    * Get the inclusion setting with defaults
    * @param {object} defaults
    */
-  getInclusionSettings(defaults= {}) {
+  getInclusionSettings(defaults = {}) {
     return {
       include_comments: this.include_comments ?? defaults.include_comments ?? Summary.INCLUDE_INFO,
-      include_comment_ratings: this.include_comment_ratings ?? defaults.include_comment_ratings  ?? Summary.INCLUDE_INFO,
+      include_comment_ratings: this.include_comment_ratings ?? defaults.include_comment_ratings ?? Summary.INCLUDE_INFO,
       include_comment_points: this.include_comment_points ?? defaults.include_comment_points ?? Summary.INCLUDE_INFO,
       include_criteria_points: this.include_criteria_points ?? defaults.include_criteria_points ?? Summary.INCLUDE_INFO,
     };
   }
 
-    /**
-     * Get if partial points will be visible
-     * @returns {boolean}
-     */
+  /**
+   * Get if partial points will be visible
+   * @returns {boolean}
+   */
   getPartialPointsVisible() {
 
-      // return this.include_comment_points;
-      const settings = this.getInclusionSettings();
-      return
-        settings.include_comment_points > Summary.INCLUDE_NOT
+    // return this.include_comment_points;
+    const settings = this.getInclusionSettings();
+    return
+    settings.include_comment_points > Summary.INCLUDE_NOT
   }
 
   /**

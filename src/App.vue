@@ -7,8 +7,8 @@ import AppBar from "@/components/AppBar.vue";
 import NavBar from "@/components/NavBar.vue";
 import MainContent from "@/components/MainContent.vue";
 import StartupContent from "@/components/StartupContent.vue";
-import {useApiStore} from '@/store/api';
-import {useLayoutStore} from "@/store/layout";
+import { useApiStore } from '@/store/api';
+import { useLayoutStore } from "@/store/layout";
 
 const apiStore = useApiStore();
 apiStore.init();
@@ -18,12 +18,12 @@ const layoutStore = useLayoutStore();
 </script>
 
 <template>
-    <v-app fill-height>
-      <startup-content v-if="!apiStore.initialized" />
-      <app-bar v-if="apiStore.initialized"/>
-      <nav-bar v-if="apiStore.initialized"/>
-      <main-content v-if="apiStore.initialized"/>
-    </v-app>
+  <v-app fill-height>
+    <startup-content v-if="!apiStore.initialized"/>
+    <app-bar v-if="apiStore.initialized"/>
+    <nav-bar v-if="apiStore.initialized"/>
+    <main-content v-if="apiStore.initialized"/>
+  </v-app>
 </template>
 
 <style>
@@ -63,21 +63,21 @@ html {
 /* labels of marks on images (must be globally styled) */
 
 .appImageMarker svg rect.label {
-    fill: #aaaaaaaa!important;
+  fill: #aaaaaaaa !important;
 }
 
 
 .appImageMarker svg g.active rect.label {
-  fill: grey!important;
+  fill: grey !important;
 }
 
 
 .appImageMarker svg text {
-    fill: white;
-    font-family: sans-serif;
-    font-size: 55px;
-    font-style: normal;
-    font-weight: normal;
+  fill: white;
+  font-family: sans-serif;
+  font-size: 55px;
+  font-style: normal;
+  font-weight: normal;
 }
 
 .appImageMarker svg .shape text.symbol {

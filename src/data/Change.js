@@ -1,4 +1,3 @@
-
 /**
  * Notion of a change that has been sent to the backend
  */
@@ -35,13 +34,13 @@ class Change {
    * @type {string}
    */
   key = '';
-  
+
   /**
    * Key of the correction item to which the change
    * @type {string}
    */
   item_key = '';
-  
+
   /**
    * Timestamp of the last change (Microseconds)
    * @type {integer}
@@ -55,7 +54,7 @@ class Change {
    */
   constructor(data = {}) {
     this.setData(data);
-    
+
     if (this.last_change == 0) {
       this.last_change = Date.now();
     }
@@ -83,7 +82,7 @@ class Change {
     }
   }
 
-  
+
   /**
    * Get a plain data object from the public properties
    * @returns {object}
@@ -104,7 +103,7 @@ class Change {
    */
   isValid() {
     return (
-      Change.ALLOWED_TYPES.includes(this.type) 
+      Change.ALLOWED_TYPES.includes(this.type)
       && Change.ALLOWED_ACTIONS.includes(this.action)
       && this.key != ''
       && this.item_key != ''

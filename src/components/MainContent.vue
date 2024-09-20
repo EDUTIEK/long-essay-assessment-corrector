@@ -1,27 +1,27 @@
 <script setup>
-  import Instructions from "@/components/Instructions.vue";
-  import InstructionsPdf from '@/components/InstructionsPdf.vue';
-  import Solution from '@/components/Solution.vue';
-  import SolutionPdf from '@/components/SolutionPdf.vue';
-  import Resources from "@/components/Resources.vue";
-  import Essay from "@/components/Essay.vue";
-  import EssayImage from '@/components/EssayImage.vue';
-  import OwnSummary from "@/components/OwnSummary.vue";
-  import OtherSummary from '@/components/OtherSummary.vue';
-  import Marking from "@/components/Marking.vue";
-  import { useApiStore } from "@/store/api";
-  import { useLayoutStore } from "@/store/layout";
-  import { useResourcesStore} from "@/store/resources";
-  import { useCommentsStore } from '@/store/comments';
-  import { useCriteriaStore} from '@/store/criteria';
-  import { usePagesStore } from '@/store/pages';
+import Instructions from "@/components/Instructions.vue";
+import InstructionsPdf from '@/components/InstructionsPdf.vue';
+import Solution from '@/components/Solution.vue';
+import SolutionPdf from '@/components/SolutionPdf.vue';
+import Resources from "@/components/Resources.vue";
+import Essay from "@/components/Essay.vue";
+import EssayImage from '@/components/EssayImage.vue';
+import OwnSummary from "@/components/OwnSummary.vue";
+import OtherSummary from '@/components/OtherSummary.vue';
+import Marking from "@/components/Marking.vue";
+import { useApiStore } from "@/store/api";
+import { useLayoutStore } from "@/store/layout";
+import { useResourcesStore } from "@/store/resources";
+import { useCommentsStore } from '@/store/comments';
+import { useCriteriaStore } from '@/store/criteria';
+import { usePagesStore } from '@/store/pages';
 
-  const apiStore = useApiStore();
-  const layoutStore = useLayoutStore();
-  const resourcesStore = useResourcesStore();
-  const commentsStore = useCommentsStore();
-  const criteriaStore = useCriteriaStore();
-  const pagesStore = usePagesStore();
+const apiStore = useApiStore();
+const layoutStore = useLayoutStore();
+const resourcesStore = useResourcesStore();
+const commentsStore = useCommentsStore();
+const criteriaStore = useCriteriaStore();
+const pagesStore = usePagesStore();
 
 </script>
 
@@ -32,63 +32,66 @@
       <!--
         Left Column
       -->
-      <div  class="column" :class="{ colExpanded: layoutStore.isLeftExpanded, colNormal: !layoutStore.isLeftExpanded}" v-show="layoutStore.isLeftVisible">
+      <div class="column" :class="{ colExpanded: layoutStore.isLeftExpanded, colNormal: !layoutStore.isLeftExpanded}"
+           v-show="layoutStore.isLeftVisible">
         <!-- Header -->
         <div class="col-header">
             <span class="headline">{{
-                    layoutStore.isInstructionsVisible ? "Aufgabenstellung"
-                        : layoutStore.isInstructionsPdfVisible ? "Aufgabenstellung (PDF)"
-                            : layoutStore.isSolutionVisible ? "Lösungshinweise"
-                                : layoutStore.isSolutionPdfVisible ? "Lösungshinweise (PDF)"
-                                    : layoutStore.isEssayVisible ? "Abgegebener Text"
-                                            : layoutStore.isResourcesVisible ? resourcesStore.activeTitle
-                                                : layoutStore.isLeftCorrectorVisible ? layoutStore.leftCorrectorTitle : ""
-                }}
+                layoutStore.isInstructionsVisible ? "Aufgabenstellung"
+                    : layoutStore.isInstructionsPdfVisible ? "Aufgabenstellung (PDF)"
+                        : layoutStore.isSolutionVisible ? "Lösungshinweise"
+                            : layoutStore.isSolutionPdfVisible ? "Lösungshinweise (PDF)"
+                                : layoutStore.isEssayVisible ? "Abgegebener Text"
+                                    : layoutStore.isResourcesVisible ? resourcesStore.activeTitle
+                                        : layoutStore.isLeftCorrectorVisible ? layoutStore.leftCorrectorTitle : ""
+              }}
             </span>
-            <v-btn-group density="comfortable">
+          <v-btn-group density="comfortable">
 
-                <!-- toggle left summary criteria  -->
-                <v-btn size="x-small" v-show="layoutStore.isLeftCorrectorVisible" @click="layoutStore.toggleLeftSummaryCriteria()">
-                    <v-icon v-show="layoutStore.showLeftSummaryCriteria" icon="mdi-checkbox-outline"></v-icon>
-                    <v-icon v-show="!layoutStore.showLeftSummaryCriteria" icon="mdi-checkbox-blank-outline"></v-icon>
-                    <span>Übersicht</span>
-                </v-btn>
+            <!-- toggle left summary criteria  -->
+            <v-btn size="x-small" v-show="layoutStore.isLeftCorrectorVisible"
+                   @click="layoutStore.toggleLeftSummaryCriteria()">
+              <v-icon v-show="layoutStore.showLeftSummaryCriteria" icon="mdi-checkbox-outline"></v-icon>
+              <v-icon v-show="!layoutStore.showLeftSummaryCriteria" icon="mdi-checkbox-blank-outline"></v-icon>
+              <span>Übersicht</span>
+            </v-btn>
 
-                <!-- toggle ledt summary text  -->
-                <v-btn size="x-small" v-show="layoutStore.isLeftCorrectorVisible" @click="layoutStore.toggleLeftSummaryText()">
-                    <v-icon v-show="layoutStore.showLeftSummaryText" icon="mdi-checkbox-outline"></v-icon>
-                    <v-icon v-show="!layoutStore.showLeftSummaryText" icon="mdi-checkbox-blank-outline"></v-icon>
-                    <span>Gutachten</span>
-                </v-btn>
+            <!-- toggle ledt summary text  -->
+            <v-btn size="x-small" v-show="layoutStore.isLeftCorrectorVisible"
+                   @click="layoutStore.toggleLeftSummaryText()">
+              <v-icon v-show="layoutStore.showLeftSummaryText" icon="mdi-checkbox-outline"></v-icon>
+              <v-icon v-show="!layoutStore.showLeftSummaryText" icon="mdi-checkbox-blank-outline"></v-icon>
+              <span>Gutachten</span>
+            </v-btn>
 
-              <!-- expand right column -->
-              <v-btn size="x-small" @click="layoutStore.setLeftExpanded(false)" v-show="layoutStore.isLeftExpanded">
-                <v-icon icon="mdi-chevron-left"></v-icon>
-                <span> {{
-                    layoutStore.isMarkingSelected ? "Korrektur"
-                        : layoutStore.isSummarySelected ? "Gesamteindruck"
-                            : layoutStore.isRightCorrectorSelected ? layoutStore.rightCorrectorTitle : ""
-                  }}
+            <!-- expand right column -->
+            <v-btn size="x-small" @click="layoutStore.setLeftExpanded(false)" v-show="layoutStore.isLeftExpanded">
+              <v-icon icon="mdi-chevron-left"></v-icon>
+              <span> {{
+                  layoutStore.isMarkingSelected ? "Korrektur"
+                      : layoutStore.isSummarySelected ? "Gesamteindruck"
+                          : layoutStore.isRightCorrectorSelected ? layoutStore.rightCorrectorTitle : ""
+                }}
                 </span>
-              </v-btn>
-              <!-- expand left column -->
-              <v-btn size="x-small" @click="layoutStore.setLeftExpanded(true)" v-show="!layoutStore.isLeftExpanded">
-                <span>Erweitern</span>
-                <v-icon icon="mdi-chevron-right"></v-icon>
-              </v-btn>
+            </v-btn>
+            <!-- expand left column -->
+            <v-btn size="x-small" @click="layoutStore.setLeftExpanded(true)" v-show="!layoutStore.isLeftExpanded">
+              <span>Erweitern</span>
+              <v-icon icon="mdi-chevron-right"></v-icon>
+            </v-btn>
 
-            </v-btn-group>
+          </v-btn-group>
         </div>
         <!-- Content -->
         <div class="col-content">
-          <instructions v-if="layoutStore.isInstructionsVisible" />
-          <instructions-pdf v-if="layoutStore.isInstructionsPdfVisible" />
-          <solution v-if="layoutStore.isSolutionVisible" />
-          <solution-pdf v-if="layoutStore.isSolutionPdfVisible" />
-          <essay v-if="layoutStore.isEssayVisible && !pagesStore.hasPages" />
-          <essay-image v-if="layoutStore.isEssayVisible && pagesStore.hasPages" />
-          <resources v-if="layoutStore.isResourcesVisible" />
-          <other-summary v-if= "layoutStore.isLeftCorrectorVisible"
+          <instructions v-if="layoutStore.isInstructionsVisible"/>
+          <instructions-pdf v-if="layoutStore.isInstructionsPdfVisible"/>
+          <solution v-if="layoutStore.isSolutionVisible"/>
+          <solution-pdf v-if="layoutStore.isSolutionPdfVisible"/>
+          <essay v-if="layoutStore.isEssayVisible && !pagesStore.hasPages"/>
+          <essay-image v-if="layoutStore.isEssayVisible && pagesStore.hasPages"/>
+          <resources v-if="layoutStore.isResourcesVisible"/>
+          <other-summary v-if="layoutStore.isLeftCorrectorVisible"
                          :corrector_key="layoutStore.leftCorrectorKey"
                          :showCriteria="layoutStore.showLeftSummaryCriteria"
                          :showText="layoutStore.showLeftSummaryText"
@@ -96,71 +99,77 @@
         </div>
       </div>
 
-        <!--
-            Right Column
-        -->
-        <div class="column" :class="{ colExpanded: layoutStore.isRightExpanded, colNormal: !layoutStore.isRightExpanded}" v-show="layoutStore.isRightVisible" >
-          <!-- Header -->
-          <div class="col-header">
+      <!--
+          Right Column
+      -->
+      <div class="column" :class="{ colExpanded: layoutStore.isRightExpanded, colNormal: !layoutStore.isRightExpanded}"
+           v-show="layoutStore.isRightVisible">
+        <!-- Header -->
+        <div class="col-header">
             <span class="headline"> {{
-                      layoutStore.isMarkingVisible ? "Korrektur"
-                          : layoutStore.isSummaryVisible ? "Eigener Gesamteindruck"
-                              : layoutStore.isRightCorrectorVisible ? layoutStore.rightCorrectorTitle : ""
-                  }}
+                layoutStore.isMarkingVisible ? "Korrektur"
+                    : layoutStore.isSummaryVisible ? "Eigener Gesamteindruck"
+                        : layoutStore.isRightCorrectorVisible ? layoutStore.rightCorrectorTitle : ""
+              }}
             </span>
 
-            <v-btn-group density="comfortable">
+          <v-btn-group density="comfortable">
 
-              <!-- show other correctors -->
-              <v-btn  size="x-small" variant="plain" v-if="layoutStore.isMarkingVisible"
-                     @click="commentsStore.setShowOtherCorrectors(!commentsStore.isOtherCorrectorsShown)">
-                <v-icon :icon="commentsStore.isOtherCorrectorsShown ? 'mdi-account-school' : 'mdi-account-school-outline'"></v-icon>
-              </v-btn>
+            <!-- show other correctors -->
+            <v-btn size="x-small" variant="plain" v-if="layoutStore.isMarkingVisible"
+                   @click="commentsStore.setShowOtherCorrectors(!commentsStore.isOtherCorrectorsShown)">
+              <v-icon
+                  :icon="commentsStore.isOtherCorrectorsShown ? 'mdi-account-school' : 'mdi-account-school-outline'"></v-icon>
+            </v-btn>
 
-              <!-- reset comments filter -->
-              <v-btn  size="x-small" variant="plain" v-if="layoutStore.isMarkingVisible"
-                     :disabled="!commentsStore.isFilterActive"
-                     @click="commentsStore.resetFilter()">
-                <v-icon :icon="commentsStore.isFilterActive ? 'mdi-filter' : 'mdi-filter-outline'"></v-icon>
-              </v-btn>
+            <!-- reset comments filter -->
+            <v-btn size="x-small" variant="plain" v-if="layoutStore.isMarkingVisible"
+                   :disabled="!commentsStore.isFilterActive"
+                   @click="commentsStore.resetFilter()">
+              <v-icon :icon="commentsStore.isFilterActive ? 'mdi-filter' : 'mdi-filter-outline'"></v-icon>
+            </v-btn>
 
-              <!-- toggle marking Comments -->
-              <v-btn size="x-small" v-show="layoutStore.isMarkingVisible" @click="layoutStore.toggleMarkingComments()">
-                    <v-icon v-show="layoutStore.showMarkingComments" icon="mdi-checkbox-outline"></v-icon>
-                    <v-icon v-show="!layoutStore.showMarkingComments" icon="mdi-checkbox-blank-outline"></v-icon>
-                    <span>Anmerkungen</span>
-              </v-btn>
+            <!-- toggle marking Comments -->
+            <v-btn size="x-small" v-show="layoutStore.isMarkingVisible" @click="layoutStore.toggleMarkingComments()">
+              <v-icon v-show="layoutStore.showMarkingComments" icon="mdi-checkbox-outline"></v-icon>
+              <v-icon v-show="!layoutStore.showMarkingComments" icon="mdi-checkbox-blank-outline"></v-icon>
+              <span>Anmerkungen</span>
+            </v-btn>
 
-                <!-- toggle marking points -->
-              <v-btn size="x-small" v-show="criteriaStore.hasAnyCriteria && layoutStore.isMarkingVisible" @click="layoutStore.toggleMarkingPoints()">
-                <v-icon v-show="layoutStore.showMarkingPoints" icon="mdi-checkbox-outline"></v-icon>
-                <v-icon v-show="!layoutStore.showMarkingPoints" icon="mdi-checkbox-blank-outline"></v-icon>
-                <span>Bewertung</span>
-              </v-btn>
+            <!-- toggle marking points -->
+            <v-btn size="x-small" v-show="criteriaStore.hasAnyCriteria && layoutStore.isMarkingVisible"
+                   @click="layoutStore.toggleMarkingPoints()">
+              <v-icon v-show="layoutStore.showMarkingPoints" icon="mdi-checkbox-outline"></v-icon>
+              <v-icon v-show="!layoutStore.showMarkingPoints" icon="mdi-checkbox-blank-outline"></v-icon>
+              <span>Bewertung</span>
+            </v-btn>
 
-              <!-- toggle marking text -->
-              <v-btn size="x-small" v-show="!apiStore.isForReviewOrStitch && layoutStore.isMarkingVisible" @click="layoutStore.toggleMarkingText()">
-                  <v-icon v-show="layoutStore.showMarkingText" icon="mdi-checkbox-outline"></v-icon>
-                  <v-icon v-show="!layoutStore.showMarkingText" icon="mdi-checkbox-blank-outline"></v-icon>
-                <span>Gutachten</span>
-              </v-btn>
+            <!-- toggle marking text -->
+            <v-btn size="x-small" v-show="!apiStore.isForReviewOrStitch && layoutStore.isMarkingVisible"
+                   @click="layoutStore.toggleMarkingText()">
+              <v-icon v-show="layoutStore.showMarkingText" icon="mdi-checkbox-outline"></v-icon>
+              <v-icon v-show="!layoutStore.showMarkingText" icon="mdi-checkbox-blank-outline"></v-icon>
+              <span>Gutachten</span>
+            </v-btn>
 
             <!-- toggle right summary criteria  -->
-            <v-btn size="x-small" v-show="layoutStore.isSummaryVisible || layoutStore.isRightCorrectorVisible" @click="layoutStore.toggleRightSummaryCriteria()">
-                <v-icon v-show="layoutStore.showRightSummaryCriteria" icon="mdi-checkbox-outline"></v-icon>
-                <v-icon v-show="!layoutStore.showRightSummaryCriteria" icon="mdi-checkbox-blank-outline"></v-icon>
-                <span>Übersicht</span>
+            <v-btn size="x-small" v-show="layoutStore.isSummaryVisible || layoutStore.isRightCorrectorVisible"
+                   @click="layoutStore.toggleRightSummaryCriteria()">
+              <v-icon v-show="layoutStore.showRightSummaryCriteria" icon="mdi-checkbox-outline"></v-icon>
+              <v-icon v-show="!layoutStore.showRightSummaryCriteria" icon="mdi-checkbox-blank-outline"></v-icon>
+              <span>Übersicht</span>
             </v-btn>
 
             <!-- toggle right summary text  -->
-            <v-btn size="x-small" v-show="layoutStore.isSummaryVisible || layoutStore.isRightCorrectorVisible" @click="layoutStore.toggleRightSummaryText()">
-                <v-icon v-show="layoutStore.showRightSummaryText" icon="mdi-checkbox-outline"></v-icon>
-                <v-icon v-show="!layoutStore.showRightSummaryText" icon="mdi-checkbox-blank-outline"></v-icon>
-                <span>Gutachten</span>
+            <v-btn size="x-small" v-show="layoutStore.isSummaryVisible || layoutStore.isRightCorrectorVisible"
+                   @click="layoutStore.toggleRightSummaryText()">
+              <v-icon v-show="layoutStore.showRightSummaryText" icon="mdi-checkbox-outline"></v-icon>
+              <v-icon v-show="!layoutStore.showRightSummaryText" icon="mdi-checkbox-blank-outline"></v-icon>
+              <span>Gutachten</span>
             </v-btn>
 
-              <!-- expand left column -->
-              <v-btn size="x-small" @click="layoutStore.setRightExpanded(false)" v-show="layoutStore.isRightExpanded">
+            <!-- expand left column -->
+            <v-btn size="x-small" @click="layoutStore.setRightExpanded(false)" v-show="layoutStore.isRightExpanded">
                 <span> {{
                     layoutStore.isInstructionsSelected ? "Aufgabenstellung"
                         : layoutStore.isEssaySelected ? "Abgegebener Text"
@@ -168,24 +177,24 @@
                                 : layoutStore.isLeftCorrectorSelected ? layoutStore.leftCorrectorTitle : ""
                   }}
                 </span>
-                <v-icon icon="mdi-chevron-right"></v-icon>
-              </v-btn>
+              <v-icon icon="mdi-chevron-right"></v-icon>
+            </v-btn>
 
-              <!-- expand right column -->
-              <v-btn size="x-small" @click="layoutStore.setRightExpanded(true)" v-show="!layoutStore.isRightExpanded">
-                <v-icon icon="mdi-chevron-left"></v-icon>
-                <span>Erweitern</span>
-              </v-btn>
+            <!-- expand right column -->
+            <v-btn size="x-small" @click="layoutStore.setRightExpanded(true)" v-show="!layoutStore.isRightExpanded">
+              <v-icon icon="mdi-chevron-left"></v-icon>
+              <span>Erweitern</span>
+            </v-btn>
 
-            </v-btn-group>
-          </div>
+          </v-btn-group>
+        </div>
         <!-- Content -->
         <div class="col-content">
           <own-summary v-if="layoutStore.isSummaryVisible"
                        :showCriteria="layoutStore.showRightSummaryCriteria"
                        :showText="layoutStore.showRightSummaryText"
           />
-          <other-summary v-if= "layoutStore.isRightCorrectorVisible"
+          <other-summary v-if="layoutStore.isRightCorrectorVisible"
                          :corrector_key="layoutStore.rightCorrectorKey"
                          :showCriteria="layoutStore.showRightSummaryCriteria"
                          :showText="layoutStore.showRightSummaryText"
@@ -201,8 +210,10 @@
     <v-card>
       <v-card-text>
         <p>Ihre letzen Änderungen zu dieser Korrektur konnten nicht übertragen werden, sind aber lokal gespeichert.</p>
-        <p>Sie können diese Meldung schließen und warten bis Ihre Änderungen wieder automatisch gespeichert werden (Siehe Seitenfuß).</p>
-        <p>Alternativ können Sie die Korrektur jetzt abbrechen und später wieder aufrufen, um die Änderungen nachträglich zu speichern.</p>
+        <p>Sie können diese Meldung schließen und warten bis Ihre Änderungen wieder automatisch gespeichert werden
+          (Siehe Seitenfuß).</p>
+        <p>Alternativ können Sie die Korrektur jetzt abbrechen und später wieder aufrufen, um die Änderungen
+          nachträglich zu speichern.</p>
       </v-card-text>
       <v-card-actions>
         <v-btn @click="apiStore.setShowSendFailure(false)">
@@ -235,7 +246,7 @@
 }
 
 .column {
-  height:100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
 }
@@ -243,14 +254,14 @@
 .col-header {
   min-height: 40px;
   width: 100%;
-  padding:10px;
+  padding: 10px;
 }
 
 .col-content {
   flex-grow: 1;
   background-color: white;
   width: 100%;
-  padding:10px;
+  padding: 10px;
   overflow-y: hidden;
 }
 

@@ -22,10 +22,10 @@ import 'tinymce/plugins/paste';
 /* Import tiny vue integration */
 import Editor from '@tinymce/tinymce-vue'
 
-import {useSummariesStore} from '@/store/summaries';
+import { useSummariesStore } from '@/store/summaries';
 import { usePreferencesStore } from '@/store/preferences';
 import { onMounted } from 'vue';
-import createImageMarker from 'long-essay-image-marker/ImageMarker';
+
 const summariesStore = useSummariesStore();
 const preferencesStore = usePreferencesStore();
 
@@ -71,19 +71,19 @@ function validElements() {
  */
 function formats() {
   return {
-    underline: {inline: 'u', remove: 'all'}
+    underline: { inline: 'u', remove: 'all' }
   }
 }
 
 function styleFormats() {
-    return [
-        {title: 'Absatz', format: 'p'},
-        {title: 'Überschrift 1', format: 'h1'},
-        {title: 'Überschrift 2', format: 'h2'},
-        {title: 'Überschrift 3', format: 'h3'},
-        {title: 'Maschinenschrift', format: 'pre'},
-        {title: 'Listenelement', block: 'li'},
-    ];
+  return [
+    { title: 'Absatz', format: 'p' },
+    { title: 'Überschrift 1', format: 'h1' },
+    { title: 'Überschrift 2', format: 'h2' },
+    { title: 'Überschrift 3', format: 'h3' },
+    { title: 'Maschinenschrift', format: 'pre' },
+    { title: 'Listenelement', block: 'li' },
+  ];
 }
 
 onMounted(() => {
@@ -103,7 +103,7 @@ function zoomOut() {
 function applyZoom() {
   const editor = tinymce.get(props.editorId);
   if (editor) {
-      editor.contentWindow.document.body.style.fontSize= (preferencesStore.summary_text_zoom * 16) + 'px';
+    editor.contentWindow.document.body.style.fontSize = (preferencesStore.summary_text_zoom * 16) + 'px';
   }
 }
 
@@ -111,14 +111,14 @@ function applyZoom() {
 
 <template>
   <div class="app-own-summary-text-wrapper">
-      <editor
-          v-if="!summariesStore.isOwnDisabled"
-          :id="props.editorId"
-          v-model="summariesStore.editSummary.text"
-          @change="summariesStore.updateContent(true)"
-          @keyup="summariesStore.updateContent(true)"
-          api-key="no-api-key"
-          :init="{
+    <editor
+        v-if="!summariesStore.isOwnDisabled"
+        :id="props.editorId"
+        v-model="summariesStore.editSummary.text"
+        @change="summariesStore.updateContent(true)"
+        @keyup="summariesStore.updateContent(true)"
+        api-key="no-api-key"
+        :init="{
             height: '100%',
             menubar: false,
             plugins: 'lists charmap paste',
@@ -139,7 +139,7 @@ function applyZoom() {
               editor.ui.registry.addButton('zoomIn', {tooltip: 'Vergrößern', icon: 'zoom-in', onAction: zoomIn});
               }
             }"
-      />
+    />
 
     <div class="app-summary-text-display long-essay-content corrector-summary"
          v-if="summariesStore.isOwnDisabled"
@@ -155,7 +155,7 @@ function applyZoom() {
 
 /* hide the statusbar */
 .tox-statusbar {
-    display: none!important;
+  display: none !important;
 }
 
 .app-own-summary-text-wrapper {
@@ -163,10 +163,10 @@ function applyZoom() {
 }
 
 .app-summary-text-display {
-  height:100%;
-    border: 1px solid #cccccc;
-    padding: 10px;
-    overflow-y: scroll;
+  height: 100%;
+  border: 1px solid #cccccc;
+  padding: 10px;
+  overflow-y: scroll;
 }
 
 

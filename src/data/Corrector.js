@@ -1,6 +1,6 @@
 /**
  * Corrector Assignment of a Corrector to a Correction Item
- * 
+ *
  * This provides basic data for list and comment prefixes
  * If a corrector is assigned to multiple items then this object exists multiple times with different item_keys
  */
@@ -36,7 +36,7 @@ class Corrector {
    * @type {number}
    */
   position = 0;
-  
+
 
   /**
    * Constructor - gets properties from a data object
@@ -59,14 +59,14 @@ class Corrector {
       this.position = parseInt(data.position);
     }
   }
-  
+
   /**
    * @return {string}
    */
   getKey() {
     return 'ITM-' + this.item_key + '-COR-' + this.corrector_key
   }
-  
+
   /**
    * Get a plain data object from the public properties
    */

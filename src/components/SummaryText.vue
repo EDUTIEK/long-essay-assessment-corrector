@@ -1,19 +1,18 @@
 <script setup>
 
 import { useSummariesStore } from '@/store/summaries';
-import { reactive } from 'vue';
+
 const summariesStore = useSummariesStore();
 
 const props = defineProps(['corrector_key']);
 
 function text() {
-    let summary = summariesStore.getForCorrector(props.corrector_key);
-    if (summary) {
-        return summary.text;
-    }
+  let summary = summariesStore.getForCorrector(props.corrector_key);
+  if (summary) {
+    return summary.text;
+  }
 }
 </script>
-
 
 
 <template>
@@ -26,14 +25,14 @@ function text() {
 <style scoped>
 
 .app-summary-text-wrapper {
-    height: 100%;
-    border: 1px solid #cccccc;
-    padding: 10px;
-    overflow-y: scroll;
+  height: 100%;
+  border: 1px solid #cccccc;
+  padding: 10px;
+  overflow-y: scroll;
 }
 
 .app-summary-text-display {
-    height:100%;
+  height: 100%;
 }
 
 </style>
