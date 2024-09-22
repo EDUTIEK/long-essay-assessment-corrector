@@ -137,6 +137,7 @@ function applyFormat() {
 
 <template>
   <div class="app-own-summary-text-wrapper">
+    <label :for="props.editorId" class="hidden">Verborgenes Feld zum Gutachten</label>
     <editor
         :id="props.editorId"
         v-if="!summariesStore.isOwnDisabled"

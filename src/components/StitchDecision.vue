@@ -41,7 +41,7 @@ async function saveAndClose() {
 
 <template>
   <div id="app-stitch-decision-wrapper">
-    <v-btn :disabled="essayStore.correction_finalized" @click="dialogOpen=true">
+    <v-btn class="app-header-item" :disabled="essayStore.correction_finalized" @click="dialogOpen=true">
       <v-icon left icon="mdi-checkbox-marked-outline"></v-icon>
       Stichentscheid
     </v-btn>

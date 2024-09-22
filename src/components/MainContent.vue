@@ -23,6 +23,9 @@ const commentsStore = useCommentsStore();
 const criteriaStore = useCriteriaStore();
 const pagesStore = usePagesStore();
 
+//Enable keyboard hotkeys
+document.addEventListener('keydown', layoutStore.handleKeyDown);
+
 </script>
 
 <template>
@@ -32,11 +35,11 @@ const pagesStore = usePagesStore();
       <!--
         Left Column
       -->
-      <div class="column" :class="{ colExpanded: layoutStore.isLeftExpanded, colNormal: !layoutStore.isLeftExpanded}"
+      <section class="column" :class="{ colExpanded: layoutStore.isLeftExpanded, colNormal: !layoutStore.isLeftExpanded}"
            v-show="layoutStore.isLeftVisible">
         <!-- Header -->
         <div class="col-header">
-            <span class="headline">{{
+            <h1 class="headline">{{
                 layoutStore.isInstructionsVisible ? "Aufgabenstellung"
                     : layoutStore.isInstructionsPdfVisible ? "Aufgabenstellung (PDF)"
                         : layoutStore.isSolutionVisible ? "Lösungshinweise"
@@ -45,11 +48,11 @@ const pagesStore = usePagesStore();
                                     : layoutStore.isResourcesVisible ? resourcesStore.activeTitle
                                         : layoutStore.isLeftCorrectorVisible ? layoutStore.leftCorrectorTitle : ""
               }}
-            </span>
+            </h1>
           <v-btn-group density="comfortable">
 
             <!-- toggle left summary criteria  -->
-            <v-btn size="x-small" v-show="layoutStore.isLeftCorrectorVisible"
+            <v-btn size="small" v-show="layoutStore.isLeftCorrectorVisible"
                    @click="layoutStore.toggleLeftSummaryCriteria()">
               <v-icon v-show="layoutStore.showLeftSummaryCriteria" icon="mdi-checkbox-outline"></v-icon>
               <v-icon v-show="!layoutStore.showLeftSummaryCriteria" icon="mdi-checkbox-blank-outline"></v-icon>
@@ -57,7 +60,7 @@ const pagesStore = usePagesStore();
             </v-btn>
 
             <!-- toggle ledt summary text  -->
-            <v-btn size="x-small" v-show="layoutStore.isLeftCorrectorVisible"
+            <v-btn size="small" v-show="layoutStore.isLeftCorrectorVisible"
                    @click="layoutStore.toggleLeftSummaryText()">
               <v-icon v-show="layoutStore.showLeftSummaryText" icon="mdi-checkbox-outline"></v-icon>
               <v-icon v-show="!layoutStore.showLeftSummaryText" icon="mdi-checkbox-blank-outline"></v-icon>
@@ -65,7 +68,7 @@ const pagesStore = usePagesStore();
             </v-btn>
 
             <!-- expand right column -->
-            <v-btn size="x-small" @click="layoutStore.setLeftExpanded(false)" v-show="layoutStore.isLeftExpanded">
+            <v-btn size="small" @click="layoutStore.setLeftExpanded(false)" v-show="layoutStore.isLeftExpanded">
               <v-icon icon="mdi-chevron-left"></v-icon>
               <span> {{
                   layoutStore.isMarkingSelected ? "Korrektur"
@@ -75,11 +78,11 @@ const pagesStore = usePagesStore();
                 </span>
             </v-btn>
             <!-- expand left column -->
-            <v-btn size="x-small" @click="layoutStore.setLeftExpanded(true)" v-show="!layoutStore.isLeftExpanded">
-              <span>Erweitern</span>
+            <v-btn size="small" @click="layoutStore.setLeftExpanded(true)" v-show="!layoutStore.isLeftExpanded">
+              <span aria-hidden="true">Erweitern</span>
+              <span id="app-expand-left-column" class="sr-only">Linke Spalte erweitern</span>
               <v-icon icon="mdi-chevron-right"></v-icon>
             </v-btn>
-
           </v-btn-group>
         </div>
         <!-- Content -->
@@ -97,21 +100,21 @@ const pagesStore = usePagesStore();
                          :showText="layoutStore.showLeftSummaryText"
           />
         </div>
-      </div>
+      </section>
 
       <!--
           Right Column
       -->
-      <div class="column" :class="{ colExpanded: layoutStore.isRightExpanded, colNormal: !layoutStore.isRightExpanded}"
+      <section class="column" :class="{ colExpanded: layoutStore.isRightExpanded, colNormal: !layoutStore.isRightExpanded}"
            v-show="layoutStore.isRightVisible">
         <!-- Header -->
         <div class="col-header">
-            <span class="headline"> {{
+            <h1 class="headline"> {{
                 layoutStore.isMarkingVisible ? "Korrektur"
                     : layoutStore.isSummaryVisible ? "Eigener Gesamteindruck"
                         : layoutStore.isRightCorrectorVisible ? layoutStore.rightCorrectorTitle : ""
               }}
-            </span>
+            </h1>
 
           <v-btn-group density="comfortable">
 
@@ -120,56 +123,63 @@ const pagesStore = usePagesStore();
                    @click="commentsStore.setShowOtherCorrectors(!commentsStore.isOtherCorrectorsShown)">
               <v-icon
                   :icon="commentsStore.isOtherCorrectorsShown ? 'mdi-account-school' : 'mdi-account-school-outline'"></v-icon>
+              <span class="sr-only">{{'Andere Korrektoren zeigen' + (commentsStore.isOtherCorrectorsShown ? ', ist ausgewählt' : '')}}</span>
             </v-btn>
 
             <!-- reset comments filter -->
-            <v-btn size="x-small" variant="plain" v-if="layoutStore.isMarkingVisible"
+            <v-btn size="small" variant="plain" v-if="layoutStore.isMarkingVisible"
                    :disabled="!commentsStore.isFilterActive"
                    @click="commentsStore.resetFilter()">
               <v-icon :icon="commentsStore.isFilterActive ? 'mdi-filter' : 'mdi-filter-outline'"></v-icon>
+              <span class="sr-only">{{'Filter aktiv' + (commentsStore.isFilterActive ? ', ist ausgewählt' : '')}}</span>
             </v-btn>
 
             <!-- toggle marking Comments -->
-            <v-btn size="x-small" v-show="layoutStore.isMarkingVisible" @click="layoutStore.toggleMarkingComments()">
+            <v-btn size="small" v-show="layoutStore.isMarkingVisible" @click="layoutStore.toggleMarkingComments()">
               <v-icon v-show="layoutStore.showMarkingComments" icon="mdi-checkbox-outline"></v-icon>
               <v-icon v-show="!layoutStore.showMarkingComments" icon="mdi-checkbox-blank-outline"></v-icon>
               <span>Anmerkungen</span>
+              <span class="sr-only">{{'anzeigen' + (layoutStore.showMarkingComments ? ', ist ausgewählt' : '')}}</span>
             </v-btn>
 
             <!-- toggle marking points -->
-            <v-btn size="x-small" v-show="criteriaStore.hasAnyCriteria && layoutStore.isMarkingVisible"
+            <v-btn size="small" v-show="criteriaStore.hasAnyCriteria && layoutStore.isMarkingVisible"
                    @click="layoutStore.toggleMarkingPoints()">
               <v-icon v-show="layoutStore.showMarkingPoints" icon="mdi-checkbox-outline"></v-icon>
               <v-icon v-show="!layoutStore.showMarkingPoints" icon="mdi-checkbox-blank-outline"></v-icon>
               <span>Bewertung</span>
+              <span class="sr-only">{{'anzeigen' + (layoutStore.showMarkingPoints ? ', ist ausgewählt' : '')}}</span>
             </v-btn>
 
             <!-- toggle marking text -->
-            <v-btn size="x-small" v-show="!apiStore.isForReviewOrStitch && layoutStore.isMarkingVisible"
+            <v-btn size="small" v-show="!apiStore.isForReviewOrStitch && layoutStore.isMarkingVisible"
                    @click="layoutStore.toggleMarkingText()">
               <v-icon v-show="layoutStore.showMarkingText" icon="mdi-checkbox-outline"></v-icon>
               <v-icon v-show="!layoutStore.showMarkingText" icon="mdi-checkbox-blank-outline"></v-icon>
               <span>Gutachten</span>
+              <span class="sr-only">{{'anzeigen' + (layoutStore.showMarkingText ? ', ist ausgewählt' : '')}}</span>
             </v-btn>
 
             <!-- toggle right summary criteria  -->
-            <v-btn size="x-small" v-show="layoutStore.isSummaryVisible || layoutStore.isRightCorrectorVisible"
+            <v-btn size="small" v-show="layoutStore.isSummaryVisible || layoutStore.isRightCorrectorVisible"
                    @click="layoutStore.toggleRightSummaryCriteria()">
               <v-icon v-show="layoutStore.showRightSummaryCriteria" icon="mdi-checkbox-outline"></v-icon>
               <v-icon v-show="!layoutStore.showRightSummaryCriteria" icon="mdi-checkbox-blank-outline"></v-icon>
               <span>Übersicht</span>
+              <span class="sr-only">{{'anzeigen' + (layoutStore.showRightSummaryCriteria ? ', ist ausgewählt' : '')}}</span>
             </v-btn>
 
             <!-- toggle right summary text  -->
-            <v-btn size="x-small" v-show="layoutStore.isSummaryVisible || layoutStore.isRightCorrectorVisible"
+            <v-btn size="small" v-show="layoutStore.isSummaryVisible || layoutStore.isRightCorrectorVisible"
                    @click="layoutStore.toggleRightSummaryText()">
               <v-icon v-show="layoutStore.showRightSummaryText" icon="mdi-checkbox-outline"></v-icon>
               <v-icon v-show="!layoutStore.showRightSummaryText" icon="mdi-checkbox-blank-outline"></v-icon>
               <span>Gutachten</span>
+              <span class="sr-only">{{'anzeigen' + (layoutStore.showRightSummaryText ? ', ist ausgewählt' : '')}}</span>
             </v-btn>
 
             <!-- expand left column -->
-            <v-btn size="x-small" @click="layoutStore.setRightExpanded(false)" v-show="layoutStore.isRightExpanded">
+            <v-btn size="small" @click="layoutStore.setRightExpanded(false)" v-show="layoutStore.isRightExpanded">
                 <span> {{
                     layoutStore.isInstructionsSelected ? "Aufgabenstellung"
                         : layoutStore.isEssaySelected ? "Abgegebener Text"
@@ -181,9 +191,10 @@ const pagesStore = usePagesStore();
             </v-btn>
 
             <!-- expand right column -->
-            <v-btn size="x-small" @click="layoutStore.setRightExpanded(true)" v-show="!layoutStore.isRightExpanded">
+            <v-btn size="small" @click="layoutStore.setRightExpanded(true)" v-show="!layoutStore.isRightExpanded">
               <v-icon icon="mdi-chevron-left"></v-icon>
-              <span>Erweitern</span>
+              <span aria-hidden="true">Erweitern</span>
+              <span id="app-expand-right-column" class="sr-only">Rechte Spalte erweitern</span>
             </v-btn>
 
           </v-btn-group>
@@ -201,7 +212,7 @@ const pagesStore = usePagesStore();
           />
           <marking v-if="layoutStore.isMarkingVisible"/>
         </div>
-      </div>
+      </section>
     </div>
   </v-main>
 
@@ -266,7 +277,9 @@ const pagesStore = usePagesStore();
 }
 
 .headline {
+  font-size: 1rem;
   font-weight: bold;
+  display: inline;
 }
 
 .v-btn-group {

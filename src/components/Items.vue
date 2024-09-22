@@ -52,12 +52,13 @@ async function changeItem(newKey) {
 
 <template>
 
-  <v-btn :disabled="apiStore.isLoading || apiStore.itemKey == itemsStore.firstKey"
+  <v-btn class="app-header-item" :disabled="apiStore.isLoading || apiStore.itemKey == itemsStore.firstKey"
          @click="changeItem(itemsStore.getPreviousKey(apiStore.itemKey))">
     <v-icon left icon="mdi-arrow-left-bold"></v-icon>
+    <span class="sr-only">Vorheriger Teilnehmer</span>
   </v-btn>
 
-  <v-btn :disabled="apiStore.isLoading" id="app-items-menu-activator">
+  <v-btn class="app-header-item" :disabled="apiStore.isLoading" id="app-items-menu-activator">
       <span v-show="apiStore.isLoading">
         Lade Daten ...
       </span>
@@ -97,9 +98,10 @@ async function changeItem(newKey) {
     ></v-autocomplete>
   </v-menu>
 
-  <v-btn :disabled="apiStore.isLoading || apiStore.itemKey == itemsStore.lastKey"
+  <v-btn class="app-header-item" :disabled="apiStore.isLoading || apiStore.itemKey == itemsStore.lastKey"
          @click="changeItem(itemsStore.getNextKey(apiStore.itemKey))">
     <v-icon left icon="mdi-arrow-right-bold"></v-icon>
+    <span class="sr-only">Nächster Teilnehmer</span>
   </v-btn>
 </template>
 

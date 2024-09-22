@@ -56,7 +56,7 @@ function editSummary() {
 <template>
   <div id="app-authorization-wrapper">
 
-    <v-btn v-show="!summariesStore.isOwnDisabled" :disabled="apiStore.isLoading || !itemsStore.authorizationAllowed"
+    <v-btn class="app-header-item" v-show="!summariesStore.isOwnDisabled" :disabled="apiStore.isLoading || !itemsStore.authorizationAllowed"
            @click="apiStore.setShowAuthorization(true)">
       <v-icon left icon="mdi-file-certificate-outline"></v-icon>
       <span>Autorisieren...</span>

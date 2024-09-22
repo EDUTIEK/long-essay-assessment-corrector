@@ -34,6 +34,9 @@ export const useLayoutStore = defineStore('layout', {
       // not stored
       leftCorrectorKey: '',               // key of the corrector shown on the left side
       rightCorrectorKey: '',              // key of the corrector shown on the right side
+
+      focusTarget: '',                    // target for setting the focus (header|navigation|left|right)
+      focusChange: 0                      // indicator to set the focus to the target
     }
   },
 
@@ -239,6 +242,7 @@ export const useLayoutStore = defineStore('layout', {
       if (!this.isLeftVisible) {
         this.expandedColumn = 'left';
         this.saveToStorage();
+        this.setFocusChange('left');
       }
     },
 
@@ -247,6 +251,7 @@ export const useLayoutStore = defineStore('layout', {
         this.expandedColumn = 'right';
         this.saveToStorage();
       }
+      this.setFocusChange('right');
     },
 
     setLeftExpanded(expanded) {
@@ -319,23 +324,31 @@ export const useLayoutStore = defineStore('layout', {
         this.showLeftCorrector();
       }
     },
+
+    setFocusChange(target) {
+      this.focusTarget = target;
+      this.focusChange = Date.now();
+    },
+
+    handleKeyDown(event) {
+      if (event.altKey) {
+        switch (event.key) {
+          case '0':
+            this.setFocusChange('header');
+            break;
+          case '1':
+            this.setLeftVisible();
+            break;
+          case '2':
+            this.setRightVisible();
+            break;
+          case '#':
+            this.setFocusChange('navigation');
+            break;
+        }
+      }
+    }
   }
+
 });
-
-
-/**
- * Change the vertical expansion rate of a page element
- * @param {number} ratio
- * @return {number}
- */
-function changeExpansion(ratio) {
-  switch (ratio) {
-    case 0:
-      return 0.5;
-    case 1:
-      return 0;
-    default:
-      return 1;
-  }
-}
 
