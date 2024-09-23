@@ -122,7 +122,7 @@ function zoomOut() {
 }
 
 function applyZoom() {
-  document.getElementById('app-essay').style.fontSize = (preferencesStore.essay_text_zoom * 16) + 'px';
+  document.getElementById('app-essay').style.fontSize = (preferencesStore.essay_text_zoom) + 'rem';
 }
 </script>
 
@@ -130,8 +130,8 @@ function applyZoom() {
   <div id="app-essay-wrapper">
     <div class="appTextButtons">
       <v-btn-group density="comfortable" variant="outlined" divided>
-        <v-btn size="small" icon="mdi-magnify-minus-outline" @click="zoomOut()"></v-btn>
-        <v-btn size="small" icon="mdi-magnify-plus-outline" @click="zoomIn()"></v-btn>
+        <v-btn title="Abgabe Text verkleinern" size="small" icon="mdi-magnify-minus-outline" @click="zoomOut()"></v-btn>
+        <v-btn title="Abgabe Text vergrößern" size="small" icon="mdi-magnify-plus-outline" @click="zoomIn()"></v-btn>
       </v-btn-group>
     </div>
     <div id="app-essay" :class="'long-essay-content ' + settingsStore.headlineClass" v-html="essayStore.text">

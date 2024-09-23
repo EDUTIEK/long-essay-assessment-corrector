@@ -26,15 +26,15 @@ function expansionClass() {
 <template>
   <div id="app-own-summary-wrapper">
     <div v-if="props.showCriteria" :class="expansionClass()">
-      <div class="headline">Übersicht</div>
+      <h2 class="headline">Übersicht</h2>
       <summary-criteria class="content" :corrector_key="apiStore.correctorKey"></summary-criteria>
     </div>
     <div v-if="props.showText" :class="expansionClass()">
-      <div class="headline">Gutachten</div>
+      <h2 class="headline">Gutachten</h2>
       <own-summary-text class="content" :editorId="'summary'"></own-summary-text>
     </div>
     <div id="app-own-summary-points">
-      <div class="headline">Gesamtbewertung</div>
+      <h2 class="headline">Gesamtbewertung</h2>
       <own-summary-points class="content"></own-summary-points>
     </div>
   </div>
@@ -51,6 +51,8 @@ function expansionClass() {
 }
 
 .headline {
+  font-size: 1rem;
+  font-weight: normal;
   height: 40px;
   padding-top: 10px;
   padding-left: 10px;

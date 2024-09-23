@@ -116,11 +116,11 @@ async function selectComment(comment) {
 
         <v-col class="col">
           <v-icon size="small" :icon="comment.getMarkIcon()"></v-icon> &nbsp;
-          <span
+          <button tabindex="0"
               :class="'commentLabel ' + (comment.key == commentsStore.selectedKey ? 'selected' : '')"
               @click="commentsStore.selectComment(comment.key)">
                       {{ comment.label }}
-                    </span>
+          </button>
         </v-col>
 
         <!-- trash -->
@@ -128,7 +128,9 @@ async function selectComment(comment) {
         <v-col class="col">
           <v-btn density="compact" size="small" variant="text" prepend-icon="mdi-delete-outline"
                  v-show="comment.corrector_key == apiStore.correctorKey && !summariesStore.isOwnDisabled"
-                 @click="commentsStore.deleteComment(comment.key)"></v-btn>
+                 @click="commentsStore.deleteComment(comment.key)">
+            <span class="sr-only">Anmerkung löschen</span>
+          </v-btn>
         </v-col>
 
         <!-- points -->
@@ -198,14 +200,20 @@ async function selectComment(comment) {
 
       <v-row>
         <div :id="'appCommentWrapper' + comment.key" class="commentWrapper">
+          <label :for="'app-comment-' + comment.key" class="sr-only">
+            {{'Anmerkung ' + comment.label}}
+          </label>
           <v-textarea class="comment" :bg-color="getBgColor(comment)" rounded="0" density="compact" variant="solo"
+                      :id="'app-comment-' + comment.key"
+                      :title="'Anmerkung ' + comment.label"
                       rows="1" auto-grow
                       :readonly="summariesStore.isOwnDisabled || comment.corrector_key != apiStore.correctorKey"
                       @click="commentsStore.selectComment(comment.key)"
                       @change="commentsStore.updateComment(comment)"
                       @keyup="commentsStore.updateComment(comment)"
                       v-show="comment.comment != '' || comment.key == commentsStore.selectedKey"
-                      v-model="comment.comment"></v-textarea>
+                      v-model="comment.comment">
+            </v-textarea>
         </div>
       </v-row>
     </v-container>

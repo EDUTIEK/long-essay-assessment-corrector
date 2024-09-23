@@ -119,7 +119,7 @@ document.addEventListener('keydown', layoutStore.handleKeyDown);
           <v-btn-group density="comfortable">
 
             <!-- show other correctors -->
-            <v-btn size="x-small" variant="plain" v-if="layoutStore.isMarkingVisible"
+            <v-btn size="small" variant="plain" v-if="layoutStore.isMarkingVisible"
                    @click="commentsStore.setShowOtherCorrectors(!commentsStore.isOtherCorrectorsShown)">
               <v-icon
                   :icon="commentsStore.isOtherCorrectorsShown ? 'mdi-account-school' : 'mdi-account-school-outline'"></v-icon>

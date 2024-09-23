@@ -44,18 +44,18 @@ function expansionClass() {
 <template>
   <div id="app-marking-wrapper">
     <div v-if="markingCommentsShown()" :class="expansionClass()">
-      <div class="headline">Anmerkungen</div>
+      <h2 class="headline">Anmerkungen</h2>
       <marking-comments class="content"></marking-comments>
     </div>
 
     <div v-if="markingPointsShown()" :class="expansionClass()">
-      <div class="headline">Bewertung</div>
+      <h2 class="headline">Bewertung</h2>
       <marking-points class="content"></marking-points>
     </div>
 
     <!-- v-if neeed to avoid simultaneous data binding with summary text  -->
     <div v-if="markingTextShown()" :class="expansionClass()">
-      <div class="headline">Gutachten</div>
+      <h2 class="headline">Gutachten</h2>
       <own-summary-text class="content" :editorId="'marking'"></own-summary-text>
     </div>
 
@@ -72,6 +72,8 @@ function expansionClass() {
 }
 
 .headline {
+  font-size: 1rem;
+  font-weight: normal;
   height: 40px;
   padding-top: 10px;
   padding-left: 10px;
