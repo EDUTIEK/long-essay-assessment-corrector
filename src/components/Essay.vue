@@ -182,7 +182,7 @@ w-p.labelled:before {
 }
 
 w-p.labelled.selected:before {
-  background-color: grey;
+  background-color: #606060;
 }
 
 /*

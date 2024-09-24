@@ -62,10 +62,11 @@ function savePoints(criterionKey) {
       <tbody>
       <tr v-for="criterion in criteriaStore.getCorrectorCriteria(corrector_key)" :key="criterion.key">
         <td class="col-left">
-          <label :for="'pointsInput' + criterion.key">{{ criterion.title }}</label>
+          <label :for="'app-points-input-' + criterion.key">{{ criterion.title }}</label>
         </td>
         <td class="col-mid text-right">
           <input class="appPoints" type="number" min="0" v-model="criteriaPoints[criterion.key]"
+                 :id="'app-points-input-' + criterion.key"
                  :disabled="summariesStore.isOwnDisabled || comment_key == '' || corrector_key != apiStore.correctorKey"
                  :max="criterion.points"
                  @change="savePoints(criterion.key)"
@@ -98,7 +99,7 @@ th, td {
 }
 
 .commentLabel {
-  background-color: grey;
+  background-color: #606060;
   color: white;
   padding: 3px;
   font-size: 14px;

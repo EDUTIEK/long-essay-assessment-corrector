@@ -40,6 +40,7 @@ const layoutStore = useLayoutStore();
             <td>Navigationsleiste Schaltflächen</td>
             <td>Alt + #</td>
           </tr>
+          <!--
           <tr>
             <td>Inhalt linke Spalte</td>
             <td>Alt + 1</td>
@@ -48,6 +49,7 @@ const layoutStore = useLayoutStore();
             <td>Inhalt rechte Spalte</td>
             <td>Alt + 2</td>
           </tr>
+          -->
           </tbody>
 
         </v-table>
