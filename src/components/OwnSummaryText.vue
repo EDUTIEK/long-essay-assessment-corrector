@@ -35,11 +35,12 @@ import headlinesThreeCss from '@/styles/headlines-three.css?inline';
 
 import { useSummariesStore } from '@/store/summaries';
 import { usePreferencesStore } from '@/store/preferences';
+import { useLayoutStore } from '@/store/layout';
 import { onMounted } from 'vue';
 
 const summariesStore = useSummariesStore();
 const preferencesStore = usePreferencesStore();
-
+const layoutStore = useLayoutStore();
 
 // editorId used for retrieving the editor instance using the tinymce.get('ID') method.
 const props = defineProps(['editorId']);
@@ -143,6 +144,7 @@ function applyFormat() {
         v-if="!summariesStore.isOwnDisabled"
         v-model="summariesStore.editSummary.text"
         @change="handleChange"
+        @keydown="layoutStore.handleKeyDown"
         @keyup="handleKeyUp"
         @init="handleInit"
         api-key="no-api-key"

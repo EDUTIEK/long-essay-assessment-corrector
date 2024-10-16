@@ -2,10 +2,18 @@
 import { useTaskStore } from '@/store/task';
 
 const taskStore = useTaskStore();
+
+function handleBeforeinput(event) {
+  event.preventDefault();
+  return false;
+}
 </script>
 
 <template>
-  <div id="app-solution" class="long-essay-content" v-html="taskStore.solution"></div>
+  <div id="app-solution" class="long-essay-content"
+       contenteditable="true"
+       @beforeinput="handleBeforeinput"
+       v-html="taskStore.solution"></div>
 </template>
 
 <style>
