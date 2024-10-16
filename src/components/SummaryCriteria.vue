@@ -109,8 +109,10 @@ async function filterByCriterion(criterion_key) {
         <td>
           <v-btn density="compact" size="small" variant="text" prepend-icon="mdi-filter-outline"
                  :disabled="commentsStore.getCountOfExcellent(props.corrector_key) == 0"
-                 @click="filterByRating(true, false)"></v-btn>
-          {{ settingsStore.positive_rating }}
+                 @click="filterByRating(true, false)">
+            <span class="sr-only">{{ settingsStore.positive_rating }}</span>
+          </v-btn>
+          <span aria-hidden="true">{{ settingsStore.positive_rating }}</span>
 
         </td>
         <td class="text-right">
@@ -121,8 +123,10 @@ async function filterByCriterion(criterion_key) {
         <td>
           <v-btn density="compact" size="small" variant="text" prepend-icon="mdi-filter-outline"
                  :disabled="commentsStore.getCountOfCardinal(props.corrector_key) == 0"
-                 @click="filterByRating(false, true)"></v-btn>
-          {{ settingsStore.negative_rating }}
+                 @click="filterByRating(false, true)">
+            <span class="sr-only">{{ settingsStore.negative_rating }}</span>
+          </v-btn>
+          <span aria-hidden="true">{{ settingsStore.negative_rating }}</span>
         </td>
         <td class="text-right">
           {{ commentsStore.getCountOfCardinal(props.corrector_key) }}
@@ -144,8 +148,11 @@ async function filterByCriterion(criterion_key) {
         <td>
           <v-btn density="compact" size="small" variant="text" prepend-icon="mdi-filter-outline"
                  :disabled="commentsStore.getPointsOfCorrector(props.corrector_key) == 0"
-                 @click="filterByPointsInComment(true)"></v-btn>
-          Punkte in Kommentaren
+                 @click="filterByPointsInComment(true)">
+            <span class="sr-only">Punkte in Kommentaren</span>
+          </v-btn>
+          <span aria-hidden="true">Punkte in Kommentaren</span>
+
         </td>
         <td class="text-right">
                 <span :style="'color: ' + getPointsColor() + ';'">
@@ -169,8 +176,10 @@ async function filterByCriterion(criterion_key) {
         <td>
           <v-btn density="compact" size="small" variant="text" prepend-icon="mdi-filter-outline"
                  :disabled="criterion.sum_points == 0"
-                 @click="filterByCriterion(criterion.key)"></v-btn>
-          {{ criterion.title }}
+                 @click="filterByCriterion(criterion.key)">
+            <span class="sr-only">{{ criterion.title }}</span>
+          </v-btn>
+          <span aria-hidden="true">{{ criterion.title }}</span>
         </td>
         <td class="text-right">{{ criterion.sum_points }} / {{ criterion.max_points }}</td>
       </tr>

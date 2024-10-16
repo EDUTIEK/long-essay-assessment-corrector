@@ -25,8 +25,9 @@ const settingsStore = useSettingsStore();
     <v-btn variant="text" v-show="!summariesStore.isOwnDisabled" :disabled="!itemsStore.authorizationAllowed"
            @click="apiStore.setShowAuthorization(true)">
       <v-icon left icon="mdi-file-certificate-outline"></v-icon>
+      <span class="sr-only">Autorisieren...</span>
     </v-btn>
-
+    <span aria-hidden="true">Autorisieren...</span>
     <own-summary-includes v-if="settingsStore.inclusionsPossible"></own-summary-includes>
   </div>
 </template>
