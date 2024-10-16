@@ -224,17 +224,12 @@ export const useLayoutStore = defineStore('layout', {
     showMarking() {
       this.setRightVisible();
       this.rightContent = 'marking';
-      this.showMarkingComments = true;
-      this.showMarkingPoints = true;
-      this.showMarkingText = false;
       this.saveToStorage();
     },
 
     showSummary() {
       this.setRightVisible();
       this.rightContent = 'summary';
-      this.showRightSummaryText = true;
-      this.showRightSummaryCriteria = false;
       this.saveToStorage();
     },
 
