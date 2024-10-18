@@ -48,7 +48,7 @@ async function setAuthorizedAndClose() {
 
 function editSummary() {
   apiStore.showAuthorization = false;
-  layoutStore.showSummary();
+  layoutStore.showOwnSummaryText();
 }
 
 </script>

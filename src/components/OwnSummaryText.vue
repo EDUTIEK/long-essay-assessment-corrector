@@ -36,7 +36,7 @@ import headlinesThreeCss from '@/styles/headlines-three.css?inline';
 import { useSummariesStore } from '@/store/summaries';
 import { usePreferencesStore } from '@/store/preferences';
 import { useLayoutStore } from '@/store/layout';
-import { onMounted } from 'vue';
+import { nextTick, watch } from 'vue';
 
 const summariesStore = useSummariesStore();
 const preferencesStore = usePreferencesStore();
@@ -81,7 +81,21 @@ function styleFormats() {
 function handleInit() {
   applyZoom();
   applyFormat();
+  handleFocusChange();
 }
+
+async function handleFocusChange() {
+  if (layoutStore.focusTarget == 'ownSummary') {
+    await nextTick();
+    const editor = tinymce.get(props.editorId);
+    if (editor) {
+      console.log('editor found');
+      editor.focus();
+    }
+  }
+}
+
+watch(() => layoutStore.focusChange, handleFocusChange);
 
 function handleChange() {
   summariesStore.updateContent(true);

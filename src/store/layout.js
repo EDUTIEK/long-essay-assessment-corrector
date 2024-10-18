@@ -35,7 +35,7 @@ export const useLayoutStore = defineStore('layout', {
       leftCorrectorKey: '',               // key of the corrector shown on the left side
       rightCorrectorKey: '',              // key of the corrector shown on the right side
 
-      focusTarget: '',                    // target for setting the focus (header|navigation|left|right)
+      focusTarget: '',                    // target for setting the focus (header|navigation|left|right|ownSummary)
       focusChange: 0                      // indicator to set the focus to the target
     }
   },
@@ -174,63 +174,71 @@ export const useLayoutStore = defineStore('layout', {
     },
 
     showInstructions() {
-      this.setLeftVisible();
       this.leftContent = 'instructions';
+      this.setLeftVisible();
       this.saveToStorage();
     },
 
     showInstructionsPdf() {
-      this.setLeftVisible();
       this.leftContent = 'instructionsPdf';
+      this.setLeftVisible();
       this.saveToStorage();
     },
 
     showSolution() {
-      this.setLeftVisible();
       this.leftContent = 'solution';
+      this.setLeftVisible();
       this.saveToStorage();
     },
 
     showSolutionPdf() {
-      this.setLeftVisible();
       this.leftContent = 'solutionPdf';
+      this.setLeftVisible();
       this.saveToStorage();
     },
 
     showResources() {
-      this.setLeftVisible();
       this.leftContent = 'resources';
+      this.setLeftVisible();
       this.saveToStorage();
     },
 
     showLeftCorrector() {
-      this.setLeftVisible();
       this.leftContent = 'corrector';
+      this.setLeftVisible();
       this.saveToStorage();
     },
 
     showRightCorrector() {
-      this.setRightVisible();
       this.rightContent = 'corrector';
+      this.setRightVisible();
       this.saveToStorage();
     },
 
     showEssay() {
-      this.setLeftVisible();
       this.leftContent = 'essay';
+      this.setLeftVisible();
       this.saveToStorage();
     },
 
     showMarking() {
-      this.setRightVisible();
       this.rightContent = 'marking';
+      this.setRightVisible();
       this.saveToStorage();
     },
 
     showSummary() {
-      this.setRightVisible();
       this.rightContent = 'summary';
+      this.setRightVisible();
       this.saveToStorage();
+    },
+
+    showOwnSummaryText() {
+      this.rightContent = 'summary';
+      this.showRightSummaryText = true
+      this.setRightVisible();
+      this.saveToStorage();
+      this.setFocusChange('ownSummary');
     },
 
     setLeftVisible() {

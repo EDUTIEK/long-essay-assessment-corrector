@@ -46,7 +46,7 @@ document.addEventListener('keydown', layoutStore.handleKeyDown);
                             : layoutStore.isSolutionPdfVisible ? "Lösungshinweise (PDF)"
                                 : layoutStore.isEssayVisible ? "Abgegebener Text"
                                     : layoutStore.isResourcesVisible ? resourcesStore.activeTitle
-                                        : layoutStore.isLeftCorrectorVisible ? layoutStore.leftCorrectorTitle : ""
+                                        : layoutStore.isLeftCorrectorVisible ? layoutStore.leftCorrectorTitle : "Linke Spalte"
               }}
             </h1>
           <v-btn-group density="comfortable">
@@ -73,7 +73,7 @@ document.addEventListener('keydown', layoutStore.handleKeyDown);
               <span> {{
                   layoutStore.isMarkingSelected ? "Korrektur"
                       : layoutStore.isSummarySelected ? "Gesamteindruck"
-                          : layoutStore.isRightCorrectorSelected ? layoutStore.rightCorrectorTitle : ""
+                          : layoutStore.isRightCorrectorSelected ? layoutStore.rightCorrectorTitle : "Rechte Spalte erweitern"
                 }}
                 </span>
             </v-btn>
@@ -112,7 +112,7 @@ document.addEventListener('keydown', layoutStore.handleKeyDown);
             <h1 class="headline"> {{
                 layoutStore.isMarkingVisible ? "Korrektur"
                     : layoutStore.isSummaryVisible ? "Eigener Gesamteindruck"
-                        : layoutStore.isRightCorrectorVisible ? layoutStore.rightCorrectorTitle : ""
+                        : layoutStore.isRightCorrectorVisible ? layoutStore.rightCorrectorTitle : "Rechte Spalte"
               }}
             </h1>
 
@@ -184,7 +184,7 @@ document.addEventListener('keydown', layoutStore.handleKeyDown);
                     layoutStore.isInstructionsSelected ? "Aufgabenstellung"
                         : layoutStore.isEssaySelected ? "Abgegebener Text"
                             : layoutStore.isResourcesSelected ? resourcesStore.activeTitle
-                                : layoutStore.isLeftCorrectorSelected ? layoutStore.leftCorrectorTitle : ""
+                                : layoutStore.isLeftCorrectorSelected ? layoutStore.leftCorrectorTitle : "Linke Spalte erweitern"
                   }}
                 </span>
               <v-icon icon="mdi-chevron-right"></v-icon>
