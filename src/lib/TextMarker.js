@@ -36,11 +36,12 @@ class TextMarker {
       this.onSelection = onSelection;
       this.el.addEventListener('mouseup', this.selectionHandler.bind(this));
       this.el.addEventListener('touchend', this.selectionHandler.bind(this));
+      this.el.addEventListener('keydown', this.keydownHandler.bind(this));
     }
 
     if (onIntersection instanceof Function) {
       this.onIntersection = onIntersection;
-      this.observer = new IntersectionObserver(this.intersectionHandler.bind(this), {
+      this.observer = new IntersectionObserver(this.keydownHandler.bind(this), {
         root: this.el, threshold: [1]
       });
     }
@@ -67,6 +68,24 @@ class TextMarker {
   onIntersection(firstMarkedWord) {
   }
 
+
+  /**
+   * Handle a pressed key
+   * @param event
+   */
+  keydownHandler(event)
+  {
+    switch (event.key) {
+      case "Enter":
+        event.preventDefault();
+        this.selectionHandler(event);
+        break;
+      case "Escape":
+        event.preventDefault();
+        this.removeSelection();
+        break;
+    }
+  }
 
   /**
    * Handle a text selection
@@ -102,7 +121,7 @@ class TextMarker {
    */
   removeSelection() {
     const selection = window.getSelection();
-    selection.removeAllRanges();
+    selection.collapseToEnd();
   }
 
 

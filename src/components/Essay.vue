@@ -22,6 +22,11 @@ onMounted(() => {
   commentsStore.activeComments.forEach(comment => updateMark(comment));
 });
 
+function handleBeforeinput(event) {
+  event.preventDefault();
+  return false;
+}
+
 function refreshMarks() {
   //console.log(Date.now(), 'refreshMarks');
   marker.hideAllMarksAndLabels();
@@ -90,7 +95,7 @@ async function onSelection(selected) {
         commentsStore.createComment(selected.firstWord, selected.lastWord, selected.parentNumber);
       }
     }
-  } else {
+  } else if (!selected.isCollapsed) {
     // no overlapping => create a new comment
     marker.removeSelection();
     if (!summariesStore.isOwnDisabled) {
@@ -134,7 +139,9 @@ function applyZoom() {
         <v-btn title="Abgabe Text vergrößern" size="small" icon="mdi-magnify-plus-outline" @click="zoomIn()"></v-btn>
       </v-btn-group>
     </div>
-    <div id="app-essay" :class="'long-essay-content ' + settingsStore.headlineClass" v-html="essayStore.text">
+    <div contenteditable="true"  id="app-essay"
+         @beforeinput="handleBeforeinput"
+         :class="'long-essay-content ' + settingsStore.headlineClass" v-html="essayStore.text">
     </div>
   </div>
 </template>

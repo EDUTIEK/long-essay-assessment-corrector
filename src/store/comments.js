@@ -658,7 +658,7 @@ export const useCommentsStore = defineStore('comments', {
 
       // treat the changes in the state (curent correction item)
       if (changedKeys.includes(this.selectedKey)) {
-        this.selectComment(matches[this.selectedKey], false);
+        this.selectComment(matches[this.selectedKey], true);
       }
       this.comments = this.comments.filter(comment => !removedKeys.includes(comment.key));
       for (const comment of this.comments) {
