@@ -15,6 +15,7 @@ import { useResourcesStore } from "@/store/resources";
 import { useCommentsStore } from '@/store/comments';
 import { useCriteriaStore } from '@/store/criteria';
 import { usePagesStore } from '@/store/pages';
+import { nextTick, watch } from 'vue';
 
 const apiStore = useApiStore();
 const layoutStore = useLayoutStore();
@@ -22,6 +23,19 @@ const resourcesStore = useResourcesStore();
 const commentsStore = useCommentsStore();
 const criteriaStore = useCriteriaStore();
 const pagesStore = usePagesStore();
+
+async function handleFocusChange() {
+  if (layoutStore.focusTarget == 'left') {
+    await nextTick();
+    document.getElementById('appHeadLeft').focus();
+  }
+  if (layoutStore.focusTarget == 'right') {
+    await nextTick();
+    document.getElementById('appHeadRight').focus();
+  }
+}
+
+watch(() => layoutStore.focusChange, handleFocusChange);
 
 //Enable keyboard hotkeys
 document.addEventListener('keydown', layoutStore.handleKeyDown);
@@ -39,7 +53,7 @@ document.addEventListener('keydown', layoutStore.handleKeyDown);
            v-show="layoutStore.isLeftVisible">
         <!-- Header -->
         <div class="col-header">
-            <h1 class="headline">{{
+            <h1 id="appHeadLeft" tabindex="0" class="headline">{{
                 layoutStore.isInstructionsVisible ? "Aufgabenstellung"
                     : layoutStore.isInstructionsPdfVisible ? "Aufgabenstellung (PDF)"
                         : layoutStore.isSolutionVisible ? "Lösungshinweise"
@@ -109,7 +123,7 @@ document.addEventListener('keydown', layoutStore.handleKeyDown);
            v-show="layoutStore.isRightVisible">
         <!-- Header -->
         <div class="col-header">
-            <h1 class="headline"> {{
+            <h1 id="appHeadRight" tabindex="0" class="headline"> {{
                 layoutStore.isMarkingVisible ? "Korrektur"
                     : layoutStore.isSummaryVisible ? "Eigener Gesamteindruck"
                         : layoutStore.isRightCorrectorVisible ? layoutStore.rightCorrectorTitle : "Rechte Spalte"

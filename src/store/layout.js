@@ -245,8 +245,8 @@ export const useLayoutStore = defineStore('layout', {
       if (!this.isLeftVisible) {
         this.expandedColumn = 'left';
         this.saveToStorage();
-        this.setFocusChange('left');
       }
+      this.setFocusChange('left');
     },
 
     setRightVisible() {
