@@ -47,7 +47,8 @@ function expansionClass() {
 }
 
 #app-own-summary-points {
-  height: 100px;
+  height: 150px;
+  padding-top: 10px;
 }
 
 .headline {
@@ -69,11 +70,11 @@ function expansionClass() {
 }
 
 .full {
-  height: calc(100% - 100px);
+  height: calc(100% - 150px);
 }
 
 .half {
-  height: calc((100% - 100px) / 2);
+  height: calc((100% - 150px) / 2);
 }
 
 

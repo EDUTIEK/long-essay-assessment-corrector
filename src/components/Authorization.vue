@@ -69,13 +69,14 @@ function editSummary() {
           <p><strong>Gutachten:</strong>
             <v-btn variant="text" @click="editSummary()">
               <v-icon left icon="mdi-pencil"></v-icon>
+              <span class="sr-only">Gutachten bearbeiten</span>
             </v-btn>
           </p>
           <div class="appText long-essay-content headlines-three" v-html="summariesStore.editSummary.text">
           </div>
 
-          <label for="appOwnSummaryPoints"><strong>Bewertung:</strong></label>
-          <input class="appPoints" type="number" min="0" :max="settingsStore.max_points"
+          <label for="appAuthorizationPoints"><strong>Bewertung:</strong></label>
+          <input id="appAuthorizationPoints" class="appPoints" type="number" min="0" :max="settingsStore.max_points"
                  v-model="summariesStore.editSummary.points"/>Punkte
           &nbsp;
           <strong>Notenstufe:</strong> {{ summariesStore.currentGradeTitle }}
@@ -83,25 +84,25 @@ function editSummary() {
           <own-summary-includes v-if="settingsStore.inclusionsPossible"></own-summary-includes>
 
           <v-alert v-show="summariesStore.editSummary.text == ''"
-                   type="info" variant="text">
+                   color="#0000A0" type="info" variant="text" density="compact">
             Bitte geben Sie einen Gutachten-Text ein.
           </v-alert>
 
           <v-alert v-show="(levelsStore.hasLevels && (summariesStore.editSummary.points === null))"
-                   type="info" variant="text">
+                   color="#0000A0" type="info" variant="text" density="compact">
             Bitte geben Sie eine Bewertung ein, damit eine Notenstufe vergeben werden kann.
           </v-alert>
 
           <v-alert v-show="(summariesStore.currentPartialPointsAreIncluded
                                     && summariesStore.editSummary.points !== null
                                     && summariesStore.editSummary.points != summariesStore.currentPartialPoints)"
-                   type="info" variant="text">
+                   color="#0000A0" type="info" variant="text" density="compact">
             Ihre Bewertung weicht von der einbezogenen Summe der Teilpunkte ({{ summariesStore.currentPartialPoints }})
             ab!
           </v-alert>
 
           <v-alert v-show="summariesStore.areOthersAuthorized && summariesStore.stitchReasonText != '' "
-                   type="info" variant="text">
+                   color="#0000A0" type="info" variant="text" density="compact">
             Ihre Punktevergabe wird einen Stichentscheid erfordern: {{ summariesStore.stitchReasonText }}
           </v-alert>
           <br>

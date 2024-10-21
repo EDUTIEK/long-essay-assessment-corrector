@@ -5,7 +5,7 @@ import { useCriteriaStore } from '@/store/criteria';
 import { usePreferencesStore } from '@/store/preferences';
 import { useSettingsStore } from '@/store/settings';
 import Summary from '@/data/Summary';
-import { ref } from 'vue';
+import { ref, nextTick} from 'vue';
 
 const summariesStore = useSummariesStore();
 const criteriaStore = useCriteriaStore();
@@ -24,6 +24,23 @@ const includes = ref({});
 const updatePreferences = ref(false);
 
 includes.value = summariesStore.currentInclusionSettings;
+
+
+async function show() {
+  showIncludes.value=true;
+  await nextTick();
+
+  /**
+   * Ugly fix for accessibility issues in v-select component of vuetify
+   */
+  const container = document.getElementById('app-own-summary-includes-container');
+  for (const label of container.getElementsByTagName('label')) {
+    if (label.classList.contains('v-label')) {
+      label.remove();
+    }
+  }
+}
+
 
 function save() {
   if (includes.value.include_comments == Summary.INCLUDE_NOT) {
@@ -46,49 +63,62 @@ function save() {
   <div>
     <strong>Einbeziehen:</strong> {{ summariesStore.getInclusionText(summariesStore.editSummary) }}
     <v-btn v-if="!settingsStore.fixed_inclusions" variant="text" :disabled="summariesStore.isOwnDisabled"
-           @click="showIncludes=true;">
+           @click="show()">
       <v-icon left icon="mdi-pencil"></v-icon>
+      <span class="sr-only">Einbezug bearbeiten</span>
     </v-btn>
 
     <v-dialog max-width="50em" persistent v-model="showIncludes">
       <v-card>
         <v-card-title>In die Dokumentation der Korrektur einbeziehen</v-card-title>
         <v-card-text>
-          <v-container id='app-own-summary-includescontainer'>
+          <v-container id='app-own-summary-includes-container'>
             <v-row>
               <v-col>
-                Markierungen und Kommentare
+                <label for="appIncludeComments">Markierungen und Kommentare</label>
               </v-col>
               <v-col>
-                <v-select class="select" variant="outlined" density="compact" v-model="includes.include_comments"
-                          :items="items"></v-select>
-              </v-col>
-            </v-row>
-            <v-row v-show="includes.include_comments > Summary.INCLUDE_NOT">
-              <v-col>
-                {{ settingsStore.ratingLabels }}
-              </v-col>
-              <v-col>
-                <v-select class="select" variant="outlined" density="compact" v-model="includes.include_comment_ratings"
-                          :items="items"></v-select>
+                <select id="appIncludeComments" class="appIncludesSelect" v-model="includes.include_comments">
+                  <option :value="Summary.INCLUDE_NOT">Nicht einbeziehen</option>
+                  <option :value="Summary.INCLUDE_INFO">informativ</option>
+                  <option :value="Summary.INCLUDE_RELEVANT">bewertungsrelevant</option>
+                </select>
               </v-col>
             </v-row>
             <v-row v-show="includes.include_comments > Summary.INCLUDE_NOT">
               <v-col>
-                Punkte zu Kommentaren
+                <label for="appIncludeRatings">{{ settingsStore.ratingLabels }}</label>
               </v-col>
               <v-col>
-                <v-select class="select" variant="outlined" density="compact" v-model="includes.include_comment_points"
-                          :items="items"></v-select>
+                <select id="appIncludeRatings" class="appIncludesSelect" v-model="includes.include_comment_ratings">
+                  <option :value="Summary.INCLUDE_NOT">Nicht einbeziehen</option>
+                  <option :value="Summary.INCLUDE_INFO">informativ</option>
+                  <option :value="Summary.INCLUDE_RELEVANT">bewertungsrelevant</option>
+                </select>
+              </v-col>
+            </v-row>
+            <v-row v-show="includes.include_comments > Summary.INCLUDE_NOT">
+              <v-col>
+                <label for="appIncludeCommentPoints">Punkte zu Kommentaren</label>
+              </v-col>
+              <v-col>
+                <select id="appIncludeCommentPoints" class="appIncludesSelect" v-model="includes.include_comment_points">
+                  <option :value="Summary.INCLUDE_NOT">Nicht einbeziehen</option>
+                  <option :value="Summary.INCLUDE_INFO">informativ</option>
+                  <option :value="Summary.INCLUDE_RELEVANT">bewertungsrelevant</option>
+                </select>
               </v-col>
             </v-row>
             <v-row v-show="criteriaStore.hasOwnCriteria">
               <v-col>
-                Punkte im Bewertungsschema
+                <label for="appIncludeCriteriaPoints">Punkte im Bewertungsschema</label>
               </v-col>
               <v-col>
-                <v-select class="select" variant="outlined" density="compact" v-model="includes.include_criteria_points"
-                          :items="items"></v-select>
+                <select id="appIncludeCriteriaPoints" class="appIncludesSelect" v-model="includes.include_criteria_points">
+                  <option :value="Summary.INCLUDE_NOT">Nicht einbeziehen</option>
+                  <option :value="Summary.INCLUDE_INFO">informativ</option>
+                  <option :value="Summary.INCLUDE_RELEVANT">bewertungsrelevant</option>
+                </select>
               </v-col>
             </v-row>
           </v-container>
@@ -112,15 +142,26 @@ function save() {
 
 </template>
 
-<style scoped>
+<style>
 
 #app-own-summary-includes-container {
-  font-size: 14px;
+  font-size: 1rem;
 }
 
-.select {
-  font-size: 12px;
+#app-own-summary-includes-container label {
+  font-size: 1rem;
 }
 
+.appIncludesSelect {
+  border: 1px solid gray;
+  border-radius: 3px;
+  padding: 5px 10px;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.v-label {
+  opacity: initial!important;
+}
 
 </style>
