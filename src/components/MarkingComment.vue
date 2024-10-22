@@ -5,6 +5,7 @@ import { useSummariesStore } from '@/store/summaries';
 import { useSettingsStore } from '@/store/settings';
 import { useCriteriaStore } from '@/store/criteria';
 import { usePointsStore } from '@/store/points';
+import { useLayoutStore } from '@/store/layout';
 import { nextTick, watch, onMounted } from 'vue';
 
 const apiStore = useApiStore();
@@ -13,6 +14,7 @@ const summariesStore = useSummariesStore();
 const settingsStore = useSettingsStore();
 const criteriaStore = useCriteriaStore();
 const pointsStore = usePointsStore();
+const layoutStore = useLayoutStore();
 
 const props = defineProps(['comment']);
 
@@ -98,6 +100,23 @@ async function toggleCardinal(comment) {
 
 async function selectComment(comment) {
   commentsStore.selectComment(comment.key);
+}
+
+async function handleKeydown() {
+  if (event.altKey) {
+    switch (event.key) {
+      case "Enter":
+        event.preventDefault();
+        layoutStore.showEssay();
+        await nextTick();
+        commentsStore.setCaretRequest();
+        break;
+      case "Delete":
+        event.preventDefault();
+        commentsStore.deleteComment(commentsStore.selectedKey);
+        break;
+    }
+  }
 }
 
 </script>
@@ -203,6 +222,7 @@ async function selectComment(comment) {
                       @click="commentsStore.selectComment(comment.key)"
                       @change="commentsStore.updateComment(comment)"
                       @keyup="commentsStore.updateComment(comment)"
+                      @keydown="handleKeydown()"
                       v-show="comment.comment != '' || comment.key == commentsStore.selectedKey"
                       v-model="comment.comment">
             </v-textarea>

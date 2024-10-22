@@ -16,6 +16,7 @@ const layoutStore = useLayoutStore();
     <v-card>
       <v-card-text>
         <h1>Allgemeine Navigation</h1>
+
         <v-table>
           <thead>
           <tr>
@@ -49,10 +50,59 @@ const layoutStore = useLayoutStore();
             <td>Alt + 2</td>
           </tr>
           </tbody>
-
         </v-table>
 
-        <h1>Navigation im Editor</h1>
+        <h1>Abgabe-Text</h1>
+
+        <v-table>
+          <thead>
+          <tr>
+            <th width="50%">Aktion</th>
+            <th width="50%">Tastenkombination</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td>Cursor bewegen</td>
+            <td>Pfeiltasten</td>
+          </tr>
+          <tr>
+            <td>Text auswählen</td>
+            <td>Shift + Pfeiltasten</td>
+          </tr>
+          <tr>
+            <td>Anmerkung für Auswahl erzeugen</td>
+            <td>Eingabetaste wenn Text ausgewäht</td>
+          </tr>
+          <tr>
+            <td>Anmerkung bei Cursor anspringen</td>
+            <td>Eingabetaste, wenn kein Text ausgewählt</td>
+          </tr>
+          </tbody>
+        </v-table>
+
+        <h1>Anmerkungen</h1>
+
+        <v-table>
+          <thead>
+          <tr>
+            <th width="50%">Aktion</th>
+            <th width="50%">Tastenkombination</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td>Zur Markierung im Text springen</td>
+            <td>Alt + Eingabetaste</td>
+          </tr>
+          <tr>
+            <td>Anmerkung löschen</td>
+            <td>Alt + Entfernen</td>
+          </tr>
+          </tbody>
+        </v-table>
+
+        <h1>Navigation im Gutachten</h1>
 
         <v-table>
           <thead>
@@ -94,8 +144,8 @@ const layoutStore = useLayoutStore();
           </tbody>
         </v-table>
 
-        <h1>Tastenbefehle im Editor</h1>
-        <v-table title="Tastenbefehle im Editor">
+        <h1>Tastenbefehle im Gutachten</h1>
+        <v-table>
           <thead>
           <tr>
             <th width="50%">Aktion</th>

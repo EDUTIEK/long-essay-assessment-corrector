@@ -4,15 +4,17 @@ import { useCommentsStore } from "@/store/comments";
 import { useSummariesStore } from '@/store/summaries';
 import { usePreferencesStore } from '@/store/preferences';
 import { useSettingsStore } from '@/store/settings';
+import { useLayoutStore } from '@/store/layout';
 
 import TextMarker from '@/lib/TextMarker';
-import { onMounted, watch } from 'vue';
+import { onMounted,  nextTick, watch } from 'vue';
 
 const essayStore = useEssayStore();
 const commentsStore = useCommentsStore();
 const summariesStore = useSummariesStore();
 const preferencesStore = usePreferencesStore();
 const settingsStore = useSettingsStore();
+const layoutStore = useLayoutStore();
 
 let marker;
 
@@ -26,6 +28,15 @@ function handleBeforeinput(event) {
   event.preventDefault();
   return false;
 }
+
+async function handleFocusChange() {
+  if (layoutStore.focusTarget == 'essay') {
+    await nextTick();
+    document.getElementById('app-essay').focus();
+  }
+}
+handleFocusChange();
+watch(() => layoutStore.focusChange, handleFocusChange);
 
 function refreshMarks() {
   //console.log(Date.now(), 'refreshMarks');
@@ -51,6 +62,14 @@ function refreshSelection() {
 }
 
 watch(() => commentsStore.selectionChange, refreshSelection);
+
+function setCaretToSelectedComment()
+{
+  let comment = commentsStore.getComment(commentsStore.selectedKey);
+  marker.setCaretToMark(comment.start_position);
+}
+
+watch(() => commentsStore.caretRequest, setCaretToSelectedComment);
 
 
 /**

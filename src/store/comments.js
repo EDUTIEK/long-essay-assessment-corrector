@@ -29,6 +29,7 @@ export const useCommentsStore = defineStore('comments', {
       markerChange: 0,                // for watchers: timestamp of the last change that affects the text markers (not the selection)
       selectionChange: 0,             // for watchers: timestamp of the last change of the selected comment
       filterChange: 0,                // for watchers: timestamp of the last change of the comments filter
+      caretRequest: 0,               // for watchers: timestamp of the last request to set the caret to the mark of selected comment
 
       selectedKey: '',                // key of the currently selected comment
       firstVisibleKey: '',            // key of the first visible comment in the scrolled text
@@ -266,6 +267,14 @@ export const useCommentsStore = defineStore('comments', {
      */
     setFilterChange() {
       this.filterChange = Date.now();
+    },
+
+    /**
+     * Set timestamp of the last request to set the carent to the selected comment
+     * @public
+     */
+    setCaretRequest() {
+      this.caretRequest = Date.now();
     },
 
     /**

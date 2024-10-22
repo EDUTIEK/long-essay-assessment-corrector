@@ -275,6 +275,25 @@ class TextMarker {
   }
 
   /**
+   * Set the caret to a mark
+   * @param {integer} firstWord
+   */
+
+  setCaretToMark(firstWord) {
+    const firstNode = this.el.querySelector('w-p[w="' + firstWord + '"]');
+    if (firstNode) {
+      let range = document.createRange();
+      let sel = window.getSelection();
+
+      range.setStart(firstNode, 0);
+      range.collapse(true);
+
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+  }
+
+  /**
    * Check if a mark is visible in the scrolling window
    * @param {integer} firstWord - number of the first marked word
    * @param {integer} lastWord - number of the last marled word

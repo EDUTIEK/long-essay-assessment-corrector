@@ -236,25 +236,33 @@ export const useLayoutStore = defineStore('layout', {
     showOwnSummaryText() {
       this.rightContent = 'summary';
       this.showRightSummaryText = true
-      this.setRightVisible();
+      this.setRightVisible('ownSummary');
       this.saveToStorage();
-      this.setFocusChange('ownSummary');
     },
 
-    setLeftVisible() {
+    setLeftVisible(target = null) {
       if (!this.isLeftVisible) {
         this.expandedColumn = 'left';
         this.saveToStorage();
       }
-      this.setFocusChange('left');
+      if (target === null) {
+        switch(this.leftContent) {
+          case 'instructions':
+          case 'solution':
+          case 'essay':
+            target = this.leftContent;
+            break;
+        }
+      }
+      this.setFocusChange(target ?? 'appHeadLeft');
     },
 
-    setRightVisible() {
+    setRightVisible(target = null) {
       if (!this.isRightVisible) {
         this.expandedColumn = 'right';
         this.saveToStorage();
       }
-      this.setFocusChange('right');
+      this.setFocusChange(target ?? 'appHeadRight');
     },
 
     setLeftExpanded(expanded) {

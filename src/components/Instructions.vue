@@ -1,13 +1,24 @@
 <script setup>
 import { useTaskStore } from '@/store/task';
+import { useLayoutStore } from '@/store/layout';
+import { nextTick, watch } from 'vue';
 
 const taskStore = useTaskStore();
+const layoutStore = useLayoutStore();
 
 function handleBeforeinput(event) {
   event.preventDefault();
   return false;
 }
 
+async function handleFocusChange() {
+  if (layoutStore.focusTarget == 'instructions') {
+    await nextTick();
+    document.getElementById('app-instructions').focus();
+  }
+}
+handleFocusChange();
+watch(() => layoutStore.focusChange, handleFocusChange);
 </script>
 
 <template>

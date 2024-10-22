@@ -25,11 +25,11 @@ const criteriaStore = useCriteriaStore();
 const pagesStore = usePagesStore();
 
 async function handleFocusChange() {
-  if (layoutStore.focusTarget == 'left') {
+  if (layoutStore.focusTarget == 'appHeadLeft') {
     await nextTick();
     document.getElementById('appHeadLeft').focus();
   }
-  if (layoutStore.focusTarget == 'right') {
+  if (layoutStore.focusTarget == 'appHeadRight') {
     await nextTick();
     document.getElementById('appHeadRight').focus();
   }
