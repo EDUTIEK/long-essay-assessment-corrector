@@ -10,7 +10,7 @@ const commentsStore = useCommentsStore();
  */
 async function focusSelected() {
   await nextTick();
-  let el = document.getElementById('appCommentWrapper' + commentsStore.selectedKey);
+  let el = document.getElementById('appCommentContainer' + commentsStore.selectedKey);
   if (el) {
     let tx = el.querySelector('textarea');
     if (tx) {
