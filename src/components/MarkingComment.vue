@@ -149,9 +149,7 @@ async function handleKeydown() {
 
 
 <template>
-  <v-container :id="'appCommentContainer' + comment.key" :key="comment.key">
-
-    <!-- COMMENT ROW (always shown) -->
+  <v-container :id="'appCommentContainer' + comment.key" :key="comment.key" class="commentContainer">
 
     <v-row dense>
 
@@ -165,142 +163,144 @@ async function handleKeydown() {
         </button>
       </v-col>
 
-      <!-- comment input (if comment is selected) -->
-      <v-col cols="9" v-show="isSelected(comment)">
-          <v-textarea class="commentInput" :bg-color="getBgColor(comment)" rounded="0" density="compact" variant="solo"
-                      :id="'app-comment-' + comment.key"
-                      :label="'Anmerkung zu Markierung ' + comment.label"
-                      rows="1" auto-grow
-                      :readonly="summariesStore.isOwnDisabled || comment.corrector_key != apiStore.correctorKey"
-                      @click="commentsStore.selectComment(comment.key)"
-                      @change="commentsStore.updateComment(comment)"
-                      @keyup="commentsStore.updateComment(comment)"
-                      @keydown="handleKeydown()"
-                      v-model="comment.comment">
-          </v-textarea>
-      </v-col>
+      <v-col cols="9">
 
-      <!-- comment display (if comment is not selected) -->
-      <v-col cols="9" v-show="!isSelected(comment)">
-        <div class="commentDisplay"
-             v-show="comment.comment"
-             :style="'background-color: ' + getBgColor(comment) + ';'"
-        >
-          {{comment.comment}}
-        </div>
-      </v-col>
+        <v-container>
 
-      <!-- no trash -->
-      <v-col cols="1"></v-col>
+          <!-- COMMENT INPUT -->
 
-    </v-row>
+          <v-row dense v-show="isSelected(comment)">
+            <v-col cols="12">
+              <v-textarea class="commentInput" :bg-color="getBgColor(comment)" rounded="0" density="compact" variant="solo"
+                          :id="'app-comment-' + comment.key"
+                          :label="'Anmerkung zu Markierung ' + comment.label"
+                          rows="1" auto-grow
+                          :readonly="summariesStore.isOwnDisabled || comment.corrector_key != apiStore.correctorKey"
+                          @click="commentsStore.selectComment(comment.key)"
+                          @change="commentsStore.updateComment(comment)"
+                          @keyup="commentsStore.updateComment(comment)"
+                          @keydown="handleKeydown()"
+                          v-model="comment.comment">
+              </v-textarea>
+            </v-col>
+          </v-row>
 
-    <!-- DETAILS DISPLAY (if not selected) -->
+          <!-- DETAILS INPUT -->
 
-    <v-row dense class="detailsDisplay" v-show="!isSelected(comment) && hasDetails(comment)">
-      <!-- below label -->
-      <v-col cols="2"></v-col>
+          <v-row dense v-show="isSelected(comment)">
 
-      <!-- show points -->
-      <v-col cols = 3>
-        <span v-show="getPointsDisplay(comment) > 0">
-        <span class="pointsInput">{{getPointsDisplay(comment)}}</span> Punkte
-        </span>
-      </v-col>
+            <!-- enter points -->
+            <v-col cols="4">
+              <span v-if="criteriaStore.getCorrectorHasCriteria(comment.corrector_key)"
+                    v-show="comment.key == commentsStore.selectedKey || pointsStore.getCommentHasPoints(comment.key)"
+              >
+                <input class="pointsInput"
+                       disabled="disabled"
+                       tabindex="0"
+                       :id="'pointsInput' + comment.key"
+                       :value="pointsStore.getSumOfPointsForComment(comment.key)"/>
+                <label :for="'pointsInput' + comment.key"
+                       @click="commentsStore.selectComment(comment.key)"> Punkte</label>
+              </span>
+              <span v-if="!criteriaStore.getCorrectorHasCriteria(comment.corrector_key)"
+                    v-show="comment.key == commentsStore.selectedKey || comment.points > 0"
+              >
+                <input class="pointsInput"
+                       type="number"
+                       min="0"
+                       :style="'color: ' + getPointsColor(comment) + ';'"
+                       :id="'pointsInput' + comment.key"
+                       :max="settingsStore.max_points"
+                       :disabled="summariesStore.isOwnDisabled || comment.corrector_key != apiStore.correctorKey"
+                       @change="commentsStore.updateComment(comment)"
+                       v-model="comment.points"/>
+                <label :for="'pointsInput' + comment.key"
+                       @click="commentsStore.selectComment(comment.key)"> Pkt.</label>
+              </span>
 
-      <!-- show excellent -->
-      <v-col cols = 3>
-        <span v-show="comment.rating_excellent">
-           <v-icon icon="mdi-checkbox-outline"></v-icon> Exzellent
-        </span>
-      </v-col>
+            </v-col>
 
-      <!-- show cardinal -->
-      <v-col cols = 3>
-        <span v-show="comment.rating_cardinal">
-          <v-icon icon="mdi-checkbox-outline"></v-icon> Kardinal
-        </span>
-      </v-col>
+            <!-- enter rating excellent -->
+            <v-col cols="4">
+              <span v-show="comment.rating_excellent || comment.key == commentsStore.selectedKey">
+               <input type="checkbox"
+                      class="ratingInput"
+                      v-model="comment.rating_excellent"
+                      :id="'ratingExcellent' + comment.key"
+                      :disabled="summariesStore.isOwnDisabled || comment.corrector_key != apiStore.correctorKey"
+                      @change="toggleExcellent(comment)"/>
 
-      <!-- no trash -->
-      <v-col cols="1"></v-col>
+                <label :for="'ratingExcellent' + comment.key"
+                       @click="commentsStore.selectComment(comment.key)">&nbsp;{{ settingsStore.positive_rating }}</label>
+              </span>
+            </v-col>
 
-    </v-row>
+            <!-- enter rating cardinal -->
+            <v-col cols="4">
+              <span v-show="comment.rating_cardinal || comment.key == commentsStore.selectedKey">
+                <input type="checkbox"
+                       class="ratingInput"
+                       v-model="comment.rating_cardinal"
+                       :id="'ratingCardinal' + comment.key"
+                       :disabled="summariesStore.isOwnDisabled || comment.corrector_key != apiStore.correctorKey"
+                       @change="toggleCardinal(comment)"/>
+                <label :for="'ratingCardinal' + comment.key"
+                       @click="commentsStore.selectComment(comment.key)">&nbsp;{{ settingsStore.negative_rating }}</label>
+              </span>
+            </v-col>
 
-    <!-- DETAILS INPUT (if comment is selected) -->
+          </v-row>
 
-    <v-row dense v-show="isSelected(comment)">
-      <!-- below label -->
-      <v-col cols="2"></v-col>
+          <!-- COMMENT DISPLAY -->
 
-      <!-- enter points -->
-      <v-col cols="3">
-        <span v-if="criteriaStore.getCorrectorHasCriteria(comment.corrector_key)"
-              v-show="comment.key == commentsStore.selectedKey || pointsStore.getCommentHasPoints(comment.key)"
-        >
-          <input class="pointsInput"
-                 disabled="disabled"
-                 tabindex="0"
-                 :id="'pointsInput' + comment.key"
-                 :value="pointsStore.getSumOfPointsForComment(comment.key)"/>
-          <label :for="'pointsInput' + comment.key"
-                 @click="commentsStore.selectComment(comment.key)"> Punkte</label>
-        </span>
-            <span v-if="!criteriaStore.getCorrectorHasCriteria(comment.corrector_key)"
-                  v-show="comment.key == commentsStore.selectedKey || comment.points > 0"
-            >
-          <input class="pointsInput"
-                 type="number"
-                 min="0"
-                 :style="'color: ' + getPointsColor(comment) + ';'"
-                 :id="'pointsInput' + comment.key"
-                 :max="settingsStore.max_points"
-                 :disabled="summariesStore.isOwnDisabled || comment.corrector_key != apiStore.correctorKey"
-                 @change="commentsStore.updateComment(comment)"
-                 v-model="comment.points"/>
-          <label :for="'pointsInput' + comment.key"
-                 @click="commentsStore.selectComment(comment.key)"> Pkt.</label>
-        </span>
+          <v-row dense>
+            <v-col cols="12" v-show="!isSelected(comment)">
+              <div class="commentDisplay"
+                   v-show="comment.comment"
+                   :style="'background-color: ' + getBgColor(comment) + ';'"
+              >
+                {{comment.comment}}
+              </div>
+            </v-col>
+          </v-row>
 
-      </v-col>
+          <!-- DETAILS DISPLAY -->
 
-      <!-- enter rating excellent -->
-      <v-col cols="3">
-        <span v-show="comment.rating_excellent || comment.key == commentsStore.selectedKey">
-         <input type="checkbox"
-                class="ratingInput"
-                v-model="comment.rating_excellent"
-                :id="'ratingExcellent' + comment.key"
-                :disabled="summariesStore.isOwnDisabled || comment.corrector_key != apiStore.correctorKey"
-                @change="toggleExcellent(comment)"/>
+          <v-row dense class="detailsDisplay" v-show="!isSelected(comment) && hasDetails(comment)">
 
-          <label :for="'ratingExcellent' + comment.key"
-                 @click="commentsStore.selectComment(comment.key)">&nbsp;{{ settingsStore.positive_rating }}</label>
-        </span>
-      </v-col>
+            <!-- show points -->
+            <v-col cols=4>
+              <span v-show="getPointsDisplay(comment) > 0">
+                <span class="pointsInput">{{ getPointsDisplay(comment) }}</span> Punkte
+              </span>
+            </v-col>
 
-      <!-- enter rating cardinal -->
-      <v-col cols="3">
-        <span v-show="comment.rating_cardinal || comment.key == commentsStore.selectedKey">
-          <input type="checkbox"
-                 class="ratingInput"
-                 v-model="comment.rating_cardinal"
-                 :id="'ratingCardinal' + comment.key"
-                 :disabled="summariesStore.isOwnDisabled || comment.corrector_key != apiStore.correctorKey"
-                 @change="toggleCardinal(comment)"/>
-          <label :for="'ratingCardinal' + comment.key"
-                 @click="commentsStore.selectComment(comment.key)">&nbsp;{{ settingsStore.negative_rating }}</label>
-        </span>
+            <!-- show excellent -->
+            <v-col cols=4>
+              <span v-show="comment.rating_excellent">
+                 <v-icon icon="mdi-checkbox-outline"></v-icon> Exzellent
+              </span>
+            </v-col>
+
+            <!-- show cardinal -->
+            <v-col cols=4>
+              <span v-show="comment.rating_cardinal">
+                <v-icon icon="mdi-checkbox-outline"></v-icon> Kardinal
+              </span>
+            </v-col>
+          </v-row>
+        </v-container>
       </v-col>
 
       <!-- trash -->
-      <v-col cols="1">
-        <v-btn density="compact" size="small" variant="text" prepend-icon="mdi-delete-outline"
+      <v-col cols="1" class="trashColumn">
+        <v-btn class="trashButton" density="compact" size="small" variant="text" prepend-icon="mdi-delete-outline"
                v-show="hasTrash(comment)"
                @click="commentsStore.deleteComment(comment.key)">
           <span class="sr-only">Anmerkung löschen</span>
         </v-btn>
       </v-col>
+
     </v-row>
   </v-container>
 </template>
@@ -308,8 +308,8 @@ async function handleKeydown() {
 <style scoped>
 
 .v-container {
-  padding: 5px 0;
-  border-bottom: 1px dotted gray;
+  padding: 0;
+  margin: 0;
 }
 
 .v-row {
@@ -322,6 +322,11 @@ async function handleKeydown() {
   font-size: 12px;
   padding: 0;
   margin: 0;
+}
+
+.commentContainer {
+  padding: 5px 0;
+  border-bottom: 1px dotted gray;
 }
 
 .commentLabel {
@@ -367,6 +372,15 @@ i {
 .ratingInput {
   display: inline-block;
   width: 1rem;
+}
+
+.trashColumn {
+  position: relative;
+}
+
+.trashButton {
+  position: absolute;
+  bottom: 5px;
 }
 
 </style>
