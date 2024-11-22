@@ -194,13 +194,7 @@ async function handleKeydown() {
               <span v-if="criteriaStore.getCorrectorHasCriteria(comment.corrector_key)"
                     v-show="comment.key == commentsStore.selectedKey || pointsStore.getCommentHasPoints(comment.key)"
               >
-                <input class="pointsInput"
-                       disabled="disabled"
-                       tabindex="0"
-                       :id="'pointsInput' + comment.key"
-                       :value="pointsStore.getSumOfPointsForComment(comment.key)"/>
-                <label :for="'pointsInput' + comment.key"
-                       @click="commentsStore.selectComment(comment.key)"> Punkte</label>
+                  <span tabindex="0"><span class="pointsInput">{{ getPointsDisplay(comment) }}</span> Punkte</span>
               </span>
               <span v-if="!criteriaStore.getCorrectorHasCriteria(comment.corrector_key)"
                     v-show="comment.key == commentsStore.selectedKey || comment.points > 0"
@@ -258,6 +252,7 @@ async function handleKeydown() {
               <div class="commentDisplay"
                    v-show="comment.comment"
                    :style="'background-color: ' + getBgColor(comment) + ';'"
+                   @click="commentsStore.selectComment(comment.key)"
               >
                 {{comment.comment}}
               </div>
@@ -270,21 +265,21 @@ async function handleKeydown() {
 
             <!-- show points -->
             <v-col cols=4>
-              <span v-show="getPointsDisplay(comment) > 0">
+              <span v-show="getPointsDisplay(comment) > 0" @click="commentsStore.selectComment(comment.key)">
                 <span class="pointsInput">{{ getPointsDisplay(comment) }}</span> Punkte
               </span>
             </v-col>
 
             <!-- show excellent -->
             <v-col cols=4>
-              <span v-show="comment.rating_excellent">
+              <span v-show="comment.rating_excellent" @click="commentsStore.selectComment(comment.key)">
                  <v-icon icon="mdi-checkbox-outline"></v-icon> Exzellent
               </span>
             </v-col>
 
             <!-- show cardinal -->
             <v-col cols=4>
-              <span v-show="comment.rating_cardinal">
+              <span v-show="comment.rating_cardinal" @click="commentsStore.selectComment(comment.key)">
                 <v-icon icon="mdi-checkbox-outline"></v-icon> Kardinal
               </span>
             </v-col>
@@ -296,6 +291,7 @@ async function handleKeydown() {
       <v-col cols="1" class="trashColumn">
         <v-btn class="trashButton" density="compact" size="small" variant="text" prepend-icon="mdi-delete-outline"
                v-show="hasTrash(comment)"
+               :tabindex="isSelected(comment) ? 0 : -1"
                @click="commentsStore.deleteComment(comment.key)">
           <span class="sr-only">Anmerkung löschen</span>
         </v-btn>
