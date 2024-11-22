@@ -83,3 +83,19 @@
 .tox-menu p, .tox-menu h1, .tox-menu h2, .tox-menu h3, .tox-menu h4, .tox-menu h5, .tox-menu h6, .tox-menu pre, .tox-menu li {
     font-size: 1rem !important;
 }
+
+.long-essay-content-row {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.long-essay-counter-column {
+    display:block;
+    min-width: 40px!important;
+    flex-shrink: 0;
+}
+
+.long-essay-content-column {
+    display:block;
+}
