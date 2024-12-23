@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import localForage from "localforage";
 import { useCorrectorsStore } from '@/store/correctors';
 import { useApiStore } from '@/store/api';
+import {nextTick} from "vue";
 
 const storage = localForage.createInstance({
   storeName: "corrector-layout",
@@ -273,6 +274,22 @@ export const useLayoutStore = defineStore('layout', {
     setRightExpanded(expanded) {
       this.expandedColumn = expanded ? 'right' : 'none';
       this.saveToStorage();
+    },
+
+    focusMarkingPointsSum() {
+      if (!this.showMarkingComments) {
+        this.showMarkingComments = true;
+        this.saveToStorage();
+      }
+      this.setFocusChange('markingPointsSum');
+    },
+
+    focusMarkingPoints() {
+      if (!this.showMarkingPoints) {
+        this.showMarkingPoints = true;
+        this.saveToStorage();
+      }
+      this.setFocusChange('markingPoints');
     },
 
     toggleMarkingComments() {

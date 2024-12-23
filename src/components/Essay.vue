@@ -39,19 +39,15 @@ handleFocusChange();
 watch(() => layoutStore.focusChange, handleFocusChange);
 
 function refreshMarks() {
-  //console.log(Date.now(), 'refreshMarks');
   marker.hideAllMarksAndLabels();
   commentsStore.activeComments.forEach(comment => updateMark(comment));
-  refreshSelection();
 }
 
 watch(() => commentsStore.markerChange, refreshMarks);
 watch(() => commentsStore.filterChange, refreshMarks);
 
 function refreshSelection() {
-  //console.log(Date.now(), 'refreshSelection');
   marker.hideAllMarksOfClass('selected');
-  //marker.hideAllMarksOfClass('labelled');
 
   let comment = commentsStore.getComment(commentsStore.selectedKey);
   if (comment) {

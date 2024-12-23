@@ -6,7 +6,7 @@ import { useSettingsStore } from '@/store/settings';
 import { useCriteriaStore } from '@/store/criteria';
 import { usePointsStore } from '@/store/points';
 import { useLayoutStore } from '@/store/layout';
-import { nextTick, onMounted, ref } from 'vue';
+import {nextTick, onMounted, ref, watch} from 'vue';
 
 const apiStore = useApiStore();
 const commentsStore = useCommentsStore();
@@ -83,18 +83,12 @@ function getBgColor(comment) {
   }
 }
 
-function getPointsColor(comment) {
-  if (comment.points == 0) {
-    return 'white';
-  }
-  if (comment.corrector_key != apiStore.correctorKey) {
-    return 'grey';
-  }
+function getPointsInputStyle(comment) {
   const sum = commentsStore.getPointsOfCorrector(comment.corrector_key);
   if (sum > settingsStore.max_points) {
-    return 'red';
+    return 'color: red;';
   }
-  return 'grey';
+  return '';
 }
 
 function getPointsDisplay(comment) {
@@ -106,8 +100,11 @@ function getPointsDisplay(comment) {
   }
 }
 
+function getPointsLabel(comment) {
+ return getPointsDisplay(comment) == 1 ? 'Punkt' : 'Punkte';
+}
+
 async function toggleExcellent(comment) {
-  commentsStore.selectComment(comment.key);
   if (comment.rating_excellent) {
     comment.rating_cardinal = false;
   }
@@ -116,7 +113,6 @@ async function toggleExcellent(comment) {
 }
 
 async function toggleCardinal(comment) {
-  commentsStore.selectComment(comment.key);
   if (comment.rating_cardinal) {
     comment.rating_excellent = false;
   }
@@ -128,7 +124,7 @@ async function selectComment(comment) {
   commentsStore.selectComment(comment.key);
 }
 
-async function handleKeydown() {
+async function handleTextKeydown() {
   if (event.altKey) {
     switch (event.key) {
       case "Enter":
@@ -145,6 +141,26 @@ async function handleKeydown() {
   }
 }
 
+async function handleSumOfPointsKeydown() {
+  switch (event.key) {
+    case "Enter":
+      event.preventDefault();
+      layoutStore.focusMarkingPoints();
+      break;
+  }
+}
+
+async function handleFocusChange() {
+  if (layoutStore.focusTarget == 'markingPointsSum') {
+    await nextTick();
+    if (comment.key == commentsStore.selectedKey) {
+      console.log('pointsInput' + comment.key);
+      document.getElementById('pointsInput' + comment.key).focus();
+    }
+  }
+}
+watch(() => layoutStore.focusChange, handleFocusChange);
+
 </script>
 
 
@@ -157,7 +173,7 @@ async function handleKeydown() {
       <v-col cols="2">
         <v-icon size="small" :icon="comment.getMarkIcon()"></v-icon> &nbsp;
         <button tabindex="0"
-                :class="'commentLabel ' + (comment.key == commentsStore.selectedKey ? 'selected' : '')"
+                :class="'v-btn commentLabel ' + (comment.key == commentsStore.selectedKey ? 'selected' : '')"
                 @click="commentsStore.selectComment(comment.key)">
           {{ comment.label }}
         </button>
@@ -179,7 +195,7 @@ async function handleKeydown() {
                           @click="commentsStore.selectComment(comment.key)"
                           @change="commentsStore.updateComment(comment)"
                           @keyup="commentsStore.updateComment(comment)"
-                          @keydown="handleKeydown()"
+                          @keydown="handleTextKeydown()"
                           v-model="comment.comment">
               </v-textarea>
             </v-col>
@@ -194,7 +210,10 @@ async function handleKeydown() {
               <span v-if="criteriaStore.getCorrectorHasCriteria(comment.corrector_key)"
                     v-show="comment.key == commentsStore.selectedKey || pointsStore.getCommentHasPoints(comment.key)"
               >
-                  <span tabindex="0"><span class="pointsInput">{{ getPointsDisplay(comment) }}</span> Punkte</span>
+                  <span tabindex="0"
+                        :id="'pointsInput' + comment.key"
+                        @keydown="handleSumOfPointsKeydown()"
+                  ><span class="pointsInput">{{ getPointsDisplay(comment) }}</span>&nbsp;{{ getPointsLabel(comment) }}</span>
               </span>
               <span v-if="!criteriaStore.getCorrectorHasCriteria(comment.corrector_key)"
                     v-show="comment.key == commentsStore.selectedKey || comment.points > 0"
@@ -202,14 +221,13 @@ async function handleKeydown() {
                 <input class="pointsInput"
                        type="number"
                        min="0"
-                       :style="'color: ' + getPointsColor(comment) + ';'"
+                       :style=getPointsInputStyle(comment)
                        :id="'pointsInput' + comment.key"
                        :max="settingsStore.max_points"
                        :disabled="summariesStore.isOwnDisabled || comment.corrector_key != apiStore.correctorKey"
                        @change="commentsStore.updateComment(comment)"
                        v-model="comment.points"/>
-                <label :for="'pointsInput' + comment.key"
-                       @click="commentsStore.selectComment(comment.key)"> Pkt.</label>
+                <label :for="'pointsInput' + comment.key">&nbsp;{{ getPointsLabel(comment) }}</label>
               </span>
 
             </v-col>
@@ -224,8 +242,7 @@ async function handleKeydown() {
                       :disabled="summariesStore.isOwnDisabled || comment.corrector_key != apiStore.correctorKey"
                       @change="toggleExcellent(comment)"/>
 
-                <label :for="'ratingExcellent' + comment.key"
-                       @click="commentsStore.selectComment(comment.key)">&nbsp;{{ settingsStore.positive_rating }}</label>
+                <label :for="'ratingExcellent' + comment.key">&nbsp;{{ settingsStore.positive_rating }}</label>
               </span>
             </v-col>
 
@@ -238,8 +255,7 @@ async function handleKeydown() {
                        :id="'ratingCardinal' + comment.key"
                        :disabled="summariesStore.isOwnDisabled || comment.corrector_key != apiStore.correctorKey"
                        @change="toggleCardinal(comment)"/>
-                <label :for="'ratingCardinal' + comment.key"
-                       @click="commentsStore.selectComment(comment.key)">&nbsp;{{ settingsStore.negative_rating }}</label>
+                <label :for="'ratingCardinal' + comment.key">&nbsp;{{ settingsStore.negative_rating }}</label>
               </span>
             </v-col>
 
@@ -266,7 +282,7 @@ async function handleKeydown() {
             <!-- show points -->
             <v-col cols=4>
               <span v-show="getPointsDisplay(comment) > 0" @click="commentsStore.selectComment(comment.key)">
-                <span class="pointsInput">{{ getPointsDisplay(comment) }}</span> Punkte
+                <span class="pointsInput">{{ getPointsDisplay(comment) }}</span>&nbsp;{{ getPointsLabel(comment) }}
               </span>
             </v-col>
 

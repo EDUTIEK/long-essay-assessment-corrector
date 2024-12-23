@@ -5,7 +5,7 @@ import { usePointsStore } from "@/store/points";
 import { useApiStore } from "@/store/api";
 import { useSummariesStore } from '@/store/summaries';
 import { useLayoutStore } from '@/store/layout';
-import { ref, watch } from 'vue';
+import {nextTick, ref, watch} from 'vue';
 
 const criteriaStore = useCriteriaStore();
 const commentsStore = useCommentsStore();
@@ -36,11 +36,30 @@ function savePoints(criterionKey) {
   pointsStore.setValueByRelation(commentsStore.selectedKey, criterionKey, criteriaPoints.value[criterionKey]);
 }
 
+async function handleFocusChange() {
+  if (layoutStore.focusTarget == 'markingPoints') {
+    await nextTick();
+    document.getElementById('appMarkingPointsStart').focus();
+  }
+}
+watch(() => layoutStore.focusChange, handleFocusChange);
+
+
+async function handleKeyDown(event) {
+  switch (event.key) {
+    case 'Escape':
+      event.preventDefault();
+      layoutStore.focusMarkingPointsSum();
+      break;
+  }
+}
+
+
 </script>
 
 
 <template>
-  <div class="appMarkingPointsWrapper">
+  <div>
     <p class="info" v-if="corrector_key == ''">
       Bitte Kommentar auswählen.
     </p>
@@ -48,7 +67,7 @@ function savePoints(criterionKey) {
       <thead>
       <tr>
         <th class="col-left">
-          Kriterium
+          <span id="appMarkingPointsStart" tabindex="0" @keydown="handleKeyDown">Kriterium</span>
         </th>
         <th class="col-mid text-right">
           Punkte <span v-show="commentsStore.selectedKey != ''"
@@ -62,7 +81,7 @@ function savePoints(criterionKey) {
       <tbody>
       <tr v-for="criterion in criteriaStore.getCorrectorCriteria(corrector_key)" :key="criterion.key">
         <td class="col-left">
-          <label :for="'app-points-input-' + criterion.key">{{ criterion.title }}</label>
+          <label tabindex="0" @keydown="handleKeyDown" :for="'app-points-input-' + criterion.key">{{ criterion.title }}</label>
         </td>
         <td class="col-mid text-right">
           <input class="appPoints" type="number" min="0" v-model="criteriaPoints[criterion.key]"
@@ -70,6 +89,7 @@ function savePoints(criterionKey) {
                  :disabled="summariesStore.isOwnDisabled || comment_key == '' || corrector_key != apiStore.correctorKey"
                  :max="criterion.points"
                  @change="savePoints(criterion.key)"
+                 @keydown="handleKeyDown"
           />
         </td>
         <td :class="'col-right text-right ' + (pointsStore.getPointsOfCriterionExceeded(criterion, corrector_key) ? 'red' : '')">

@@ -53,7 +53,7 @@ class Corrector {
       this.title = data.title.toString();
     }
     if (data.initials !== undefined && data.initials !== null) {
-      this.initials = data.initials.toString();
+      this.initials = data.initials.toString().toUpperCase();
     }
     if (data.position !== undefined && data.position !== null) {
       this.position = parseInt(data.position);
