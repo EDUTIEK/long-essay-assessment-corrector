@@ -71,6 +71,10 @@ const layoutStore = useLayoutStore();
             <td>Shift + Pfeiltasten</td>
           </tr>
           <tr>
+            <td>Textauswahl entfernen</td>
+            <td>Esc</td>
+          </tr>
+          <tr>
             <td>Anmerkung für Auswahl erzeugen</td>
             <td>Eingabetaste wenn Text ausgewäht</td>
           </tr>
@@ -92,8 +96,20 @@ const layoutStore = useLayoutStore();
           </thead>
           <tbody>
           <tr>
+            <td>Bearbeitung öffnen</td>
+            <td>Eingabetaste auf Etikett im Focus</td>
+          </tr>
+          <tr>
             <td>Zur Markierung im Text springen</td>
             <td>Alt + Eingabetaste</td>
+          </tr>
+          <tr>
+            <td>Zu Bewertungskriterien springen (falls vorhanden)</td>
+            <td>Eingabetaste auf Punkten im Focus</td>
+          </tr>
+          <tr>
+            <td>Von Bewertungskriterien zurückkehren</td>
+            <td>Esc</td>
           </tr>
           <tr>
             <td>Anmerkung löschen</td>

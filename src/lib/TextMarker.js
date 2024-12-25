@@ -280,7 +280,8 @@ class TextMarker {
    */
 
   setCaretToMark(firstWord) {
-    const firstNode = this.el.querySelector('w-p[w="' + firstWord + '"]');
+    // set to the text node within, so that getSelectionData will work afterwards
+    const firstNode = this.el.querySelector('w-p[w="' + firstWord + '"]').childNodes[0];
     if (firstNode) {
       let range = document.createRange();
       let sel = window.getSelection();

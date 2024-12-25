@@ -142,6 +142,7 @@ async function handleTextKeydown() {
 }
 
 async function handleSumOfPointsKeydown() {
+  handleTextKeydown();
   switch (event.key) {
     case "Enter":
       event.preventDefault();
@@ -226,6 +227,7 @@ watch(() => layoutStore.focusChange, handleFocusChange);
                        :max="settingsStore.max_points"
                        :disabled="summariesStore.isOwnDisabled || comment.corrector_key != apiStore.correctorKey"
                        @change="commentsStore.updateComment(comment)"
+                       @keydown="handleTextKeydown()"
                        v-model="comment.points"/>
                 <label :for="'pointsInput' + comment.key">&nbsp;{{ getPointsLabel(comment) }}</label>
               </span>
@@ -240,7 +242,9 @@ watch(() => layoutStore.focusChange, handleFocusChange);
                       v-model="comment.rating_excellent"
                       :id="'ratingExcellent' + comment.key"
                       :disabled="summariesStore.isOwnDisabled || comment.corrector_key != apiStore.correctorKey"
-                      @change="toggleExcellent(comment)"/>
+                      @change="toggleExcellent(comment)"
+                      @keydown="handleTextKeydown()"
+               />
 
                 <label :for="'ratingExcellent' + comment.key">&nbsp;{{ settingsStore.positive_rating }}</label>
               </span>
@@ -254,7 +258,9 @@ watch(() => layoutStore.focusChange, handleFocusChange);
                        v-model="comment.rating_cardinal"
                        :id="'ratingCardinal' + comment.key"
                        :disabled="summariesStore.isOwnDisabled || comment.corrector_key != apiStore.correctorKey"
-                       @change="toggleCardinal(comment)"/>
+                       @change="toggleCardinal(comment)"
+                       @keydown="handleTextKeydown()"
+                />
                 <label :for="'ratingCardinal' + comment.key">&nbsp;{{ settingsStore.negative_rating }}</label>
               </span>
             </v-col>
@@ -308,7 +314,9 @@ watch(() => layoutStore.focusChange, handleFocusChange);
         <v-btn class="trashButton" density="compact" size="small" variant="text" prepend-icon="mdi-delete-outline"
                v-show="hasTrash(comment)"
                :tabindex="isSelected(comment) ? 0 : -1"
-               @click="commentsStore.deleteComment(comment.key)">
+               @click="commentsStore.deleteComment(comment.key)"
+               @keydown="handleTextKeydown()"
+        >
           <span class="sr-only">Anmerkung löschen</span>
         </v-btn>
       </v-col>
