@@ -92,7 +92,7 @@ function getPointsInputStyle(comment) {
 }
 
 function getPointsDisplay(comment) {
-  if (criteriaStore.getCorrectorHasCriteria(comment.corrector_key)) {
+  if (criteriaStore.getCorrectorHasCommentCriteria(comment.corrector_key)) {
     return pointsStore.getSumOfPointsForComment(comment.key);
   }
   else {
@@ -208,7 +208,7 @@ watch(() => layoutStore.focusChange, handleFocusChange);
 
             <!-- enter points -->
             <v-col cols="4">
-              <span v-if="criteriaStore.getCorrectorHasCriteria(comment.corrector_key)"
+              <span v-if="criteriaStore.getCorrectorHasCommentCriteria(comment.corrector_key)"
                     v-show="comment.key == commentsStore.selectedKey || pointsStore.getCommentHasPoints(comment.key)"
               >
                   <span tabindex="0"
@@ -216,7 +216,7 @@ watch(() => layoutStore.focusChange, handleFocusChange);
                         @keydown="handleSumOfPointsKeydown()"
                   ><span class="pointsInput">{{ getPointsDisplay(comment) }}</span>&nbsp;{{ getPointsLabel(comment) }}</span>
               </span>
-              <span v-if="!criteriaStore.getCorrectorHasCriteria(comment.corrector_key)"
+              <span v-if="!criteriaStore.getCorrectorHasCommentCriteria(comment.corrector_key)"
                     v-show="comment.key == commentsStore.selectedKey || comment.points > 0"
               >
                 <input class="pointsInput"

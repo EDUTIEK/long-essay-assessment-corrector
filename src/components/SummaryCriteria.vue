@@ -29,7 +29,7 @@ async function loadCriteria() {
   criteriaSum.value = 0;
   criteriaMax.value = 0;
 
-  criteriaStore.getCorrectorCriteria(props.corrector_key).forEach(criterion => {
+  criteriaStore.getCorrectorCommentCriteria(props.corrector_key).forEach(criterion => {
     criteriaPoints[criterion.key] = {
       key: criterion.key,
       title: criterion.title,
@@ -47,7 +47,7 @@ async function loadCriteria() {
   });
 }
 
-if (criteriaStore.getCorrectorHasCriteria(props.corrector_key)) {
+if (criteriaStore.getCorrectorHasCommentCriteria(props.corrector_key)) {
   loadCriteria();
 }
 
@@ -136,7 +136,7 @@ async function filterByCriterion(criterion_key) {
     </v-table>
 
     <!-- Points are asigned to comments -->
-    <v-table v-if="!criteriaStore.getCorrectorHasCriteria(props.corrector_key)" class="table" density="compact">
+    <v-table v-if="!criteriaStore.getCorrectorHasCommentCriteria(props.corrector_key)" class="table" density="compact">
       <thead>
       <tr>
         <th><strong>Bewertung</strong></th>
@@ -164,7 +164,7 @@ async function filterByCriterion(criterion_key) {
     </v-table>
 
     <!-- Points are asigned to criteria -->
-    <v-table v-if="criteriaStore.getCorrectorHasCriteria(props.corrector_key)" class="table" density="compact">
+    <v-table v-if="criteriaStore.getCorrectorHasCommentCriteria(props.corrector_key)" class="table" density="compact">
       <thead>
       <tr>
         <th>Kriterium</th>

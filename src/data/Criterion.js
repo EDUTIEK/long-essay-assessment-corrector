@@ -35,6 +35,12 @@ class Criterion {
   points = 0;
 
   /**
+   * Scope of the crierion is general, not the single comment
+   * @type {boolean}
+   */
+  is_general = false;
+
+  /**
    * Constructor - gets properties from a data object
    * @param {object} data
    */
@@ -54,6 +60,9 @@ class Criterion {
     if (data.points !== undefined && data.points !== null) {
       this.points = parseInt(data.points);
     }
+    if (data.is_general !== undefined && data.is_general !== null) {
+      this.is_general = !!data.is_general;
+    }
   }
 
   /**
@@ -65,7 +74,8 @@ class Criterion {
       corrector_key: this.corrector_key,
       title: this.title,
       description: this.description,
-      points: this.points
+      points: this.points,
+      is_general: this.is_general
     }
   }
 }

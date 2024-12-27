@@ -62,31 +62,64 @@ export const useCriteriaStore = defineStore('criteria', {
       return fn;
     },
 
-    getCorrectorHasCriteria: state => {
+    getCorrectorHasGeneralCriteria: state => {
 
       /**
-       * Get if a corrector has criteria defined
+       * Get if a corrector has general criteria defined
        *
        * @param {string} corrector_key
        * @returns {boolean}
        */
       const fn = function (corrector_key) {
-        return !!state.criteria.find(criterion => criterion.corrector_key == '' || criterion.corrector_key == corrector_key);
+        return !!state.criteria.find(criterion => criterion.is_general &&
+            (criterion.corrector_key == '' || criterion.corrector_key == corrector_key));
       };
       return fn;
     },
 
 
-    getCorrectorCriteria: state => {
+    getCorrectorGeneralCriteria: state => {
 
       /**
-       * Get the criteria of a corrector
+       * Get the general criteria of a corrector
        *
        * @param corrector_key
        * @returns {Criterion[]}
        */
       const fn = function (corrector_key) {
-        return state.criteria.filter((criterion => criterion.corrector_key == '' || criterion.corrector_key == corrector_key));
+        return state.criteria.filter(criterion => criterion.is_general &&
+            (criterion.corrector_key == '' || criterion.corrector_key == corrector_key));
+      };
+      return fn;
+    },
+
+    getCorrectorHasCommentCriteria: state => {
+
+      /**
+       * Get if a corrector has comments related criteria defined
+       *
+       * @param {string} corrector_key
+       * @returns {boolean}
+       */
+      const fn = function (corrector_key) {
+        return !!state.criteria.find(criterion => !criterion.is_general &&
+            (criterion.corrector_key == '' || criterion.corrector_key == corrector_key));
+      };
+      return fn;
+    },
+
+
+    getCorrectorCommentCriteria: state => {
+
+      /**
+       * Get the comments related criteria of a corrector
+       *
+       * @param corrector_key
+       * @returns {Criterion[]}
+       */
+      const fn = function (corrector_key) {
+        return state.criteria.filter(criterion => !criterion.is_general &&
+            (criterion.corrector_key == '' || criterion.corrector_key == corrector_key));
       };
       return fn;
     },

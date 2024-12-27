@@ -24,7 +24,7 @@ async function loadPoints() {
   corrector_key.value = comment ? comment.corrector_key : apiStore.correctorKey;
 
   criteriaPoints.value = {};
-  for (const criterion of criteriaStore.getCorrectorCriteria(corrector_key.value)) {
+  for (const criterion of criteriaStore.getCorrectorCommentCriteria(corrector_key.value)) {
     criteriaPoints.value[criterion.key] = pointsStore.getValueByRelation(commentsStore.selectedKey, criterion.key);
   }
 }
@@ -79,7 +79,7 @@ async function handleKeyDown(event) {
       </tr>
       </thead>
       <tbody>
-      <tr v-for="criterion in criteriaStore.getCorrectorCriteria(corrector_key)" :key="criterion.key">
+      <tr v-for="criterion in criteriaStore.getCorrectorCommentCriteria(corrector_key)" :key="criterion.key">
         <td class="col-left">
           <label tabindex="0" @keydown="handleKeyDown" :for="'app-points-input-' + criterion.key">{{ criterion.title }}</label>
         </td>
