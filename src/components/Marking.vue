@@ -1,6 +1,7 @@
 <script setup>
 import MarkingComments from "@/components/MarkingComments.vue";
-import MarkingPoints from "@/components/MarkingPoints.vue";
+import MarkingCommentCriteria from "@/components/MarkingCommentCriteria.vue";
+import MarkingGeneralCriteria from "@/components/MarkingGeneralCriteria.vue";
 import OwnSummaryText from "@/components/OwnSummaryText.vue";
 
 import { useApiStore } from '@/store/api';
@@ -17,8 +18,12 @@ function markingCommentsShown() {
   return layoutStore.showMarkingComments && (!apiStore.isForReviewOrStitch || summariesStore.isOneAuthorized)
 }
 
-function markingPointsShown() {
-  return layoutStore.showMarkingPoints && criteriaStore.hasAnyCriteria && (!apiStore.isForReviewOrStitch || summariesStore.isOneAuthorized)
+function markingGeneralCriteriaShown() {
+  return layoutStore.showMarkingGeneralCriteria && criteriaStore.hasOwnGeneralCriteria && (!apiStore.isForReviewOrStitch || summariesStore.isOneAuthorized)
+}
+
+function markingCommentCriteriaShown() {
+  return layoutStore.showMarkingCommentCriteria && criteriaStore.hasCommentCriteria && (!apiStore.isForReviewOrStitch || summariesStore.isOneAuthorized)
 }
 
 function markingTextShown() {
@@ -26,7 +31,7 @@ function markingTextShown() {
 }
 
 function expansionClass() {
-  const sum = (markingCommentsShown() ? 1 : 0) + (markingPointsShown() ? 1 : 0) + (markingTextShown() ? 1 : 0);
+  const sum = (markingCommentsShown() ? 1 : 0) + (markingCommentCriteriaShown() ? 1 : 0) + (markingTextShown() ? 1 : 0);
   switch (sum) {
     case 0:
       return 'hidden';
@@ -48,10 +53,16 @@ function expansionClass() {
       <marking-comments class="content"></marking-comments>
     </div>
 
-    <div v-if="markingPointsShown()" :class="expansionClass()">
-      <h2 class="headline">Bewertung</h2>
-      <marking-points class="content"></marking-points>
+    <div v-if="markingGeneralCriteriaShown()" :class="expansionClass()">
+      <h2 class="headline">Übergreifende Teilpunkte (Kopfnoten)</h2>
+      <marking-general-criteria class="content"></marking-general-criteria>
     </div>
+
+    <div v-if="markingCommentCriteriaShown()" :class="expansionClass()">
+      <h2 class="headline">Teilpunkte zur Anmerkung</h2>
+      <marking-comment-criteria class="content"></marking-comment-criteria>
+    </div>
+
 
     <!-- v-if neeed to avoid simultaneous data binding with summary text  -->
     <div v-if="markingTextShown()" :class="expansionClass()">

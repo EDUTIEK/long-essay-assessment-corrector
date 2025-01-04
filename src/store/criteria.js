@@ -25,11 +25,16 @@ export const useCriteriaStore = defineStore('criteria', {
    * Getter functions (with params) start with 'get', simple state queries not
    */
   getters: {
-    hasAnyCriteria: state => {
+    hasCommentCriteria: state => {
       const correctorsStore = useCorrectorsStore();
       const correctorKeys = correctorsStore.correctorKeys;
-      return !!state.criteria.find(criterion => criterion.corrector_key == '' || correctorKeys.includes(
-        criterion.corrector_key));
+      return !!state.criteria.find(criterion => !criterion.is_general && (criterion.corrector_key == '' || correctorKeys.includes(
+          criterion.corrector_key)));
+    },
+
+    hasOwnGeneralCriteria: state => {
+      const apiStore = useApiStore();
+      return !!state.criteria.find(criterion => criterion.is_general && (criterion.corrector_key == '' || criterion.corrector_key == apiStore.correctorKey));
     },
 
     hasOwnCriteria: state => {
@@ -40,12 +45,6 @@ export const useCriteriaStore = defineStore('criteria', {
     ownCriteria: state => {
       const apiStore = useApiStore();
       return state.criteria.filter((criterion => criterion.corrector_key == '' || criterion.corrector_key == apiStore.correctorKey));
-    },
-
-    sumOfMaxPoints: state => {
-      let sum = 0;
-      state.criteria.forEach(criterion => sum += criterion.points);
-      return sum;
     },
 
     getCriterion: state => {
@@ -76,7 +75,6 @@ export const useCriteriaStore = defineStore('criteria', {
       };
       return fn;
     },
-
 
     getCorrectorGeneralCriteria: state => {
 

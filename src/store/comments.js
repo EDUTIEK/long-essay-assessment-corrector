@@ -62,30 +62,6 @@ export const useCommentsStore = defineStore('comments', {
       );
     },
 
-    ownCommentPoints: state => {
-      const apiStore = useApiStore();
-      let points = 0;
-      state.comments
-        .filter(comment => comment.corrector_key == apiStore.correctorKey)
-        .forEach(comment => points += comment.points);
-      return points;
-    },
-
-    ownCommentKeys: state => {
-      const apiStore = useApiStore();
-      let keys = [];
-      state.comments
-        .filter(comment => comment.corrector_key == apiStore.correctorKey)
-        .forEach(comment => keys.push(comment.key));
-      return keys;
-    },
-
-    currentCommentKeys: state => {
-      let keys = [];
-      state.comments.forEach(comment => keys.push(comment.key));
-      return keys;
-    },
-
     isOtherCorrectorsShown: state => {
       return state.showOtherCorrectors
     },
@@ -168,42 +144,6 @@ export const useCommentsStore = defineStore('comments', {
           comment.parent_number == parent_number
         );
       }
-      return fn;
-    },
-
-    getKeysOfCorrector: state => {
-
-      /**
-       * Get the comment keys of a corrector
-       *
-       * @param {string} corrector_key
-       * @returns {string[]}
-       */
-      const fn = function (corrector_key) {
-        let keys = [];
-        state.comments
-          .filter(comment => comment.corrector_key == corrector_key)
-          .forEach(comment => keys.push(comment.key));
-        return keys;
-      };
-      return fn;
-    },
-
-    getPointsOfCorrector: state => {
-
-      /**
-       * Get the points given by a corrector
-       *
-       * @param {string} corrector_key
-       * @returns {number}
-       */
-      const fn = function (corrector_key) {
-        let points = 0;
-        state.comments
-          .filter(comment => comment.corrector_key == corrector_key)
-          .forEach(comment => points += comment.points);
-        return points;
-      };
       return fn;
     },
 

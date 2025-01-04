@@ -3,7 +3,6 @@ import localForage from "localforage";
 import { useApiStore } from "@/store/api";
 import { useCriteriaStore } from "@/store/criteria";
 import { useCommentsStore } from "@/store/comments";
-import { usePointsStore } from "@/store/points";
 import { useTaskStore } from "@/store/task";
 import { useSettingsStore } from "@/store/settings";
 import { useLevelsStore } from "@/store/levels";
@@ -84,22 +83,6 @@ export const useSummariesStore = defineStore('summaries', {
       return true;
     },
 
-    /**
-     * Partial points of the current corrector and item
-     * These may be summed up from comment or criteria related points
-     * @return {float}
-     */
-    currentPartialPoints: state => {
-      const criteriaStore = useCriteriaStore();
-      const commentsStore = useCommentsStore();
-      const pointsStore = usePointsStore();
-
-      if (criteriaStore.hasOwnCriteria) {
-        return pointsStore.ownCriteriaPoints;
-      } else {
-        return commentsStore.ownCommentPoints;
-      }
-    },
 
     /**
      * Partial points of the current corrector and item are included

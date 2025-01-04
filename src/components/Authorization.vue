@@ -6,6 +6,7 @@ import { useSettingsStore } from '@/store/settings';
 import { useSummariesStore } from '@/store/summaries';
 import { useLevelsStore } from '@/store/levels';
 import { useLayoutStore } from '@/store/layout';
+import { usePointsStore } from '@/store/points';
 import OwnSummaryIncludes from '@/components/OwnSummaryIncludes.vue';
 import { ref } from 'vue';
 
@@ -15,6 +16,7 @@ const settingsStore = useSettingsStore();
 const summariesStore = useSummariesStore();
 const levelsStore = useLevelsStore();
 const layoutStore = useLayoutStore();
+const pointsStore = usePointsStore();
 
 const showIncludes = ref(false);
 
@@ -95,9 +97,9 @@ function editSummary() {
 
           <v-alert v-show="(summariesStore.currentPartialPointsAreIncluded
                                     && summariesStore.editSummary.points !== null
-                                    && summariesStore.editSummary.points != summariesStore.currentPartialPoints)"
+                                    && summariesStore.editSummary.points != pointsStore.ownSumOfPoints)"
                    color="#0000A0" type="info" variant="text" density="compact">
-            Ihre Bewertung weicht von der einbezogenen Summe der Teilpunkte ({{ summariesStore.currentPartialPoints }})
+            Ihre Bewertung weicht von der einbezogenen Summe der Teilpunkte ({{ pointsStore.ownSumOfPoints }})
             ab!
           </v-alert>
 

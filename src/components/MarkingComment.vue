@@ -20,6 +20,10 @@ const props = defineProps(['comment']);
 
 const comment = props.comment;
 
+let comment_points = ref(0);
+const pointsObject = pointsStore.getObjectByData(comment.corrector_key, comment.key, '');
+comment_points.value = pointsObject ? pointsObject.points : 0;
+
 function isSelected(comment) {
   return comment.key == commentsStore.selectedKey;
 }
@@ -84,7 +88,7 @@ function getBgColor(comment) {
 }
 
 function getPointsInputStyle(comment) {
-  const sum = commentsStore.getPointsOfCorrector(comment.corrector_key);
+  const sum = pointsStore.getSumOfPointsForCorrector(comment.corrector_key);
   if (sum > settingsStore.max_points) {
     return 'color: red;';
   }
@@ -146,13 +150,13 @@ async function handleSumOfPointsKeydown() {
   switch (event.key) {
     case "Enter":
       event.preventDefault();
-      layoutStore.focusMarkingPoints();
+      layoutStore.focusMarkingCommentCriteria();
       break;
   }
 }
 
 async function handleFocusChange() {
-  if (layoutStore.focusTarget == 'markingPointsSum') {
+  if (layoutStore.focusTarget == 'markingCommentCriteriaSum') {
     await nextTick();
     if (comment.key == commentsStore.selectedKey) {
       console.log('pointsInput' + comment.key);
@@ -226,9 +230,9 @@ watch(() => layoutStore.focusChange, handleFocusChange);
                        :id="'pointsInput' + comment.key"
                        :max="settingsStore.max_points"
                        :disabled="summariesStore.isOwnDisabled || comment.corrector_key != apiStore.correctorKey"
-                       @change="commentsStore.updateComment(comment)"
+                       @change="pointsStore.setValueByCommentOrCriterion(comment.key, '', comment_points)"
                        @keydown="handleTextKeydown()"
-                       v-model="comment.points"/>
+                       v-model="comment_points"/>
                 <label :for="'pointsInput' + comment.key">&nbsp;{{ getPointsLabel(comment) }}</label>
               </span>
 

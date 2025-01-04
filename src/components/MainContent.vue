@@ -156,13 +156,22 @@ document.addEventListener('keydown', layoutStore.handleKeyDown);
               <span class="sr-only">{{'anzeigen' + (layoutStore.showMarkingComments ? ', ist ausgewählt' : '')}}</span>
             </v-btn>
 
-            <!-- toggle marking points -->
-            <v-btn size="small" v-show="criteriaStore.hasAnyCriteria && layoutStore.isMarkingVisible"
-                   @click="layoutStore.toggleMarkingPoints()">
-              <v-icon v-show="layoutStore.showMarkingPoints" icon="mdi-checkbox-outline"></v-icon>
-              <v-icon v-show="!layoutStore.showMarkingPoints" icon="mdi-checkbox-blank-outline"></v-icon>
-              <span>Bewertung</span>
-              <span class="sr-only">{{'anzeigen' + (layoutStore.showMarkingPoints ? ', ist ausgewählt' : '')}}</span>
+            <!-- toggle marking comment criteria -->
+            <v-btn size="small" v-show="criteriaStore.hasOwnGeneralCriteria && layoutStore.isMarkingVisible"
+                   @click="layoutStore.toggleMarkingGeneralCriteria()">
+              <v-icon v-show="layoutStore.showMarkingGeneralCriteria" icon="mdi-checkbox-outline"></v-icon>
+              <v-icon v-show="!layoutStore.showMarkingGeneralCriteria" icon="mdi-checkbox-blank-outline"></v-icon>
+              <span>Kopfnoten</span>
+              <span class="sr-only">{{'anzeigen' + (layoutStore.showMarkingGeneralCriteria ? ', ist ausgewählt' : '')}}</span>
+            </v-btn>
+
+            <!-- toggle marking comment criteria -->
+            <v-btn size="small" v-show="criteriaStore.hasCommentCriteria && layoutStore.isMarkingVisible"
+                   @click="layoutStore.toggleMarkingCommentCriteria()">
+              <v-icon v-show="layoutStore.showMarkingCommentCriteria" icon="mdi-checkbox-outline"></v-icon>
+              <v-icon v-show="!layoutStore.showMarkingCommentCriteria" icon="mdi-checkbox-blank-outline"></v-icon>
+              <span>Teilpunkte</span>
+              <span class="sr-only">{{'anzeigen' + (layoutStore.showMarkingCommentCriteria ? ', ist ausgewählt' : '')}}</span>
             </v-btn>
 
             <!-- toggle marking text -->

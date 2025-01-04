@@ -23,7 +23,8 @@ export const useLayoutStore = defineStore('layout', {
       rightContent: 'marking',            // summary|marking|corrector
 
       showMarkingComments: true,          // display of the comments on marking column
-      showMarkingPoints: true,            // display of the rating points on marking column
+      showMarkingGeneralCriteria: true,            // display of the general criteria on marking column
+      showMarkingCommentCriteria: true,            // display of the comment criteria on marking column
       showMarkingText: false,             // display of the summary text on marking column
 
       showLeftSummaryCriteria: true,      // display of the criteria table on the left summary column
@@ -131,15 +132,16 @@ export const useLayoutStore = defineStore('layout', {
           this.expandedColumn = data.expandedColumn;
           this.rightContent = data.rightContent;
           this.showMarkingComments = !!data.showMarkingComments,
-            this.showMarkingPoints = !!data.showMarkingPoints,
-            this.showMarkingText = !!data.showMarkingText,
-            this.showLeftSummaryCriteria = !!data.showLeftSummaryCriteria;
+          this.showMarkingGeneralCriteria = !!data.showMarkingGeneralCriteria,
+          this.showMarkingCommentCriteria = !!data.showMarkingCommentCriteria,
+          this.showMarkingText = !!data.showMarkingText,
+          this.showLeftSummaryCriteria = !!data.showLeftSummaryCriteria;
           this.showRightSummaryCriteria = !!data.showRightSummaryCriteria;
           this.showLeftSummaryText = !!data.showLeftSummaryText;
           this.showRightSummaryText = !!data.showRightSummaryText;
         }
 
-        if (!this.showMarkingComments && !this.showMarkingPoints && !this.showMarkingPoints) {
+        if (!this.showMarkingComments && !this.showMarkingCommentCriteria && !this.showMarkingCommentCriteria) {
           this.showMarkingComments = true;
         }
         if (!this.showLeftSummaryCriteria && !this.showLeftSummaryText) {
@@ -161,7 +163,8 @@ export const useLayoutStore = defineStore('layout', {
           leftContent: this.leftContent,
           rightContent: this.rightContent,
           showMarkingComments: this.showMarkingComments,
-          showMarkingPoints: this.showMarkingPoints,
+          showMarkingGeneralCriteria: this.showMarkingGeneralCriteria,
+          showMarkingCommentCriteria: this.showMarkingCommentCriteria,
           showMarkingText: this.showMarkingText,
           showLeftSummaryCriteria: this.showLeftSummaryCriteria,
           showRightSummaryCriteria: this.showRightSummaryCriteria,
@@ -276,20 +279,28 @@ export const useLayoutStore = defineStore('layout', {
       this.saveToStorage();
     },
 
-    focusMarkingPointsSum() {
+    focusMarkingCommentCriteriaSum() {
       if (!this.showMarkingComments) {
         this.showMarkingComments = true;
         this.saveToStorage();
       }
-      this.setFocusChange('markingPointsSum');
+      this.setFocusChange('markingCommentCriteriaSum');
     },
 
-    focusMarkingPoints() {
-      if (!this.showMarkingPoints) {
-        this.showMarkingPoints = true;
+    focusMarkingGeneralCriteria() {
+      if (!this.showMarkingGeneralCriteria) {
+        this.showMarkingGeneralCriteria = true;
         this.saveToStorage();
       }
-      this.setFocusChange('markingPoints');
+      this.setFocusChange('markingGeneralCriteria');
+    },
+
+    focusMarkingCommentCriteria() {
+      if (!this.showMarkingCommentCriteria) {
+        this.showMarkingCommentCriteria = true;
+        this.saveToStorage();
+      }
+      this.setFocusChange('markingCommentCriteria');
     },
 
     toggleMarkingComments() {
@@ -297,8 +308,13 @@ export const useLayoutStore = defineStore('layout', {
       this.saveToStorage();
     },
 
-    toggleMarkingPoints() {
-      this.showMarkingPoints = !this.showMarkingPoints
+    toggleMarkingGeneralCriteria() {
+      this.showMarkingGeneralCriteria = !this.showMarkingGeneralCriteria
+      this.saveToStorage();
+    },
+
+    toggleMarkingCommentCriteria() {
+      this.showMarkingCommentCriteria = !this.showMarkingCommentCriteria
       this.saveToStorage();
     },
 

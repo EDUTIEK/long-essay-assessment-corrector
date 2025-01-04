@@ -3,6 +3,7 @@ import { useCriteriaStore } from "@/store/criteria";
 import { useCommentsStore } from "@/store/comments";
 import { usePointsStore } from "@/store/points";
 import { useApiStore } from "@/store/api";
+import { useSettingsStore } from '@/store/settings';
 import { useSummariesStore } from '@/store/summaries';
 import { useLayoutStore } from '@/store/layout';
 import {nextTick, ref, watch} from 'vue';
@@ -11,6 +12,7 @@ const criteriaStore = useCriteriaStore();
 const commentsStore = useCommentsStore();
 const pointsStore = usePointsStore();
 const apiStore = useApiStore();
+const settingStore = useSettingsStore();
 const summariesStore = useSummariesStore();
 const layoutStore = useLayoutStore();
 
@@ -25,7 +27,8 @@ async function loadPoints() {
 
   criteriaPoints.value = {};
   for (const criterion of criteriaStore.getCorrectorCommentCriteria(corrector_key.value)) {
-    criteriaPoints.value[criterion.key] = pointsStore.getValueByRelation(commentsStore.selectedKey, criterion.key);
+    const pointsObject = pointsStore.getObjectByData( corrector_key.value, commentsStore.selectedKey, criterion.key);
+    criteriaPoints.value[criterion.key] = pointsObject ? pointsObject.points : 0;
   }
 }
 
@@ -33,13 +36,13 @@ loadPoints();
 watch(() => commentsStore.selectionChange, loadPoints);
 
 function savePoints(criterionKey) {
-  pointsStore.setValueByRelation(commentsStore.selectedKey, criterionKey, criteriaPoints.value[criterionKey]);
+  pointsStore.setValueByCommentOrCriterion(commentsStore.selectedKey, criterionKey, criteriaPoints.value[criterionKey]);
 }
 
 async function handleFocusChange() {
-  if (layoutStore.focusTarget == 'markingPoints') {
+  if (layoutStore.focusTarget == 'markingCommentCriteria') {
     await nextTick();
-    document.getElementById('appMarkingPointsStart').focus();
+    document.getElementById('appMarkingCommentCriteriaStart').focus();
   }
 }
 watch(() => layoutStore.focusChange, handleFocusChange);
@@ -49,7 +52,7 @@ async function handleKeyDown(event) {
   switch (event.key) {
     case 'Escape':
       event.preventDefault();
-      layoutStore.focusMarkingPointsSum();
+      layoutStore.focusMarkingCommentCriteriaSum();
       break;
   }
 }
@@ -67,7 +70,7 @@ async function handleKeyDown(event) {
       <thead>
       <tr>
         <th class="col-left">
-          <span id="appMarkingPointsStart" tabindex="0" @keydown="handleKeyDown">Kriterium</span>
+          <span id="appMarkingCommentCriteriaStart" tabindex="0" @keydown="handleKeyDown">Kriterium</span>
         </th>
         <th class="col-mid text-right">
           Punkte <span v-show="commentsStore.selectedKey != ''"
@@ -104,7 +107,7 @@ async function handleKeyDown(event) {
           <strong class="sum-points">{{ pointsStore.getSumOfPointsForComment(comment_key) }}</strong>
         </td>
         <td class="col-right text-right">
-          <strong>{{ pointsStore.getSumOfPointsForCorrector(corrector_key) + ' / ' + criteriaStore.sumOfMaxPoints }}</strong>
+          <strong>{{ pointsStore.getSumOfPointsForCorrector(corrector_key) + ' / ' + settingStore.max_points }}</strong>
         </td>
       </tr>
       </tbody>

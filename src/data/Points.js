@@ -1,38 +1,43 @@
 /**
- * Criterion related Points
+ * Partial Points given for croteria or comments
  */
 class Points {
 
   /**
-   * Unique identifier of the comment
-   * Will be auto-generated for a new comment with random alpanumeric key
-   * Will be replaces with a numeric key when the comemnt is stored in the backend
+   * Unique identifier of the points
+   * Will be auto-generated for new points with random alpanumeric key
+   * Will be replaces with a numeric key when the points are stored in the backend
    * @type {string}
    */
   key = '';
 
   /**
-   * Key of the correction item to which this points belong
+   * Key of the correction item to which the points belong
    * @type {string}
    */
   item_key = '';
 
+  /**
+   * Key of the corrector to which the points belong
+   * @type {string}
+   */
+  corrector_key = '';
 
   /**
-   * Key of the corrector comment to which this points belong
+   * Key of the corrector comment for which the points are given
    * @type {string}
    */
   comment_key = '';
 
   /**
-   * Key of the criterion for which this points are given
+   * Key of the criterion for which the points are given
    * @type {string}
    */
   criterion_key = '';
 
   /**
    * Points given
-   * @type {integer}
+   * @type {float}
    */
   points = 0;
 
@@ -50,6 +55,9 @@ class Points {
     }
     if (data.item_key !== undefined && data.item_key !== null) {
       this.item_key = data.item_key.toString()
+    }
+    if (data.corrector_key !== undefined && data.corrector_key !== null) {
+      this.corrector_key = data.corrector_key.toString()
     }
     if (data.comment_key !== undefined && data.comment_key !== null) {
       this.comment_key = data.comment_key.toString()
@@ -77,6 +85,7 @@ class Points {
     return {
       key: this.key,
       item_key: this.item_key,
+      corrector_key: this.corrector_key,
       comment_key: this.comment_key,
       criterion_key: this.criterion_key,
       points: this.points

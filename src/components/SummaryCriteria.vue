@@ -39,7 +39,7 @@ async function loadCriteria() {
     criteriaMax.value += criterion.points
   });
 
-  pointsStore.getObjectsByCommentKeys(commentsStore.getKeysOfCorrector(props['corrector_key'])).forEach(points => {
+  pointsStore.getObjectsForCorrector(props['corrector_key']).forEach(points => {
     if (criteriaPoints[points.criterion_key] !== undefined) {
       criteriaPoints[points.criterion_key].sum_points += points.points;
     }
@@ -53,12 +53,10 @@ if (criteriaStore.getCorrectorHasCommentCriteria(props.corrector_key)) {
 
 
 function getPointsColor(comment) {
-  const sum = commentsStore.getPointsOfCorrector(props.corrector_key);
-
+  const sum = pointsStore.getSumOfPointsForCorrector(props.corrector_key);
   if (sum > settingsStore.max_points) {
     return 'red';
   }
-
   return 'black';
 }
 
@@ -147,7 +145,7 @@ async function filterByCriterion(criterion_key) {
       <tr>
         <td>
           <v-btn density="compact" size="small" variant="text" prepend-icon="mdi-filter-outline"
-                 :disabled="commentsStore.getPointsOfCorrector(props.corrector_key) == 0"
+                 :disabled="pointsStore.getSumOfPointsForCorrector(props.corrector_key) == 0"
                  @click="filterByPointsInComment(true)">
             <span class="sr-only">Punkte in Kommentaren</span>
           </v-btn>
@@ -156,7 +154,7 @@ async function filterByCriterion(criterion_key) {
         </td>
         <td class="text-right">
                 <span :style="'color: ' + getPointsColor() + ';'">
-                    {{ commentsStore.getPointsOfCorrector(props.corrector_key) }} / {{ settingsStore.max_points }}
+                    {{ pointsStore.getSumOfPointsForCorrector(props.corrector_key) }} / {{ settingsStore.max_points }}
                 </span>
         </td>
       </tr>
