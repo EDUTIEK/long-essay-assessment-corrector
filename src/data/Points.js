@@ -66,7 +66,7 @@ class Points {
       this.criterion_key = data.criterion_key.toString()
     }
     if (data.points !== undefined && data.points !== null) {
-      this.points = parseInt(data.points);
+      this.points = parseFloat(data.points);
     }
   }
 
@@ -75,7 +75,7 @@ class Points {
    * @param value
    */
   setPoints(value) {
-    this.points = parseInt(value);
+    this.points = parseFloat(value);
   }
 
   /**
