@@ -102,7 +102,7 @@ export const usePointsStore = defineStore('points', {
       const fn = function (comment_key) {
         let sum = 0;
         state.points
-            .filter(points.comment_key == comment_key)
+            .filter(points => points.comment_key == comment_key)
             .forEach(points => sum += points.points);
         return sum;
       }
@@ -120,7 +120,7 @@ export const usePointsStore = defineStore('points', {
       const fn = function (corrector_key) {
         let sum = 0;
         state.points
-            .filter(points.corrector_key == corrector_key)
+            .filter(points => points.corrector_key == corrector_key)
             .forEach(points => sum += points.points);
         return sum;
       }

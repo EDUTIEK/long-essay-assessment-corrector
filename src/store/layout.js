@@ -141,7 +141,7 @@ export const useLayoutStore = defineStore('layout', {
           this.showRightSummaryText = !!data.showRightSummaryText;
         }
 
-        if (!this.showMarkingComments && !this.showMarkingCommentCriteria && !this.showMarkingCommentCriteria) {
+        if (!this.showMarkingComments && !this.showMarkingGeneralCriteria && !this.showMarkingCommentCriteria) {
           this.showMarkingComments = true;
         }
         if (!this.showLeftSummaryCriteria && !this.showLeftSummaryText) {

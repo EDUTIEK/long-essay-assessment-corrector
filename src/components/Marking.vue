@@ -31,7 +31,10 @@ function markingTextShown() {
 }
 
 function expansionClass() {
-  const sum = (markingCommentsShown() ? 1 : 0) + (markingCommentCriteriaShown() ? 1 : 0) + (markingTextShown() ? 1 : 0);
+  const sum = (markingCommentsShown() ? 1 : 0)
+      + (markingGeneralCriteriaShown() ? 1 : 0)
+      + (markingCommentCriteriaShown() ? 1 : 0)
+      + (markingTextShown() ? 1 : 0);
   switch (sum) {
     case 0:
       return 'hidden';
@@ -41,6 +44,8 @@ function expansionClass() {
       return 'half';
     case 3:
       return 'third';
+    case 4:
+      return 'fouth';
   }
 }
 
@@ -111,5 +116,10 @@ function expansionClass() {
 .third {
   height: 33%;
 }
+
+.forth {
+  height: 25%;
+}
+
 
 </style>

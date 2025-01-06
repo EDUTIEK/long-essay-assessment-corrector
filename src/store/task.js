@@ -56,7 +56,6 @@ export const useTaskStore = defineStore('task', {
       }
 
       this.updateRemainingTime();
-      apiStore.setInterval('taskStore.updateRemainingTime', this.updateRemainingTime, 1000);
     },
 
     async loadFromData(data) {
@@ -70,11 +69,10 @@ export const useTaskStore = defineStore('task', {
       }
 
       this.updateRemainingTime();
-      apiStore.setInterval('taskStore.updateRemainingTime', this.updateRemainingTime, 1000);
     },
 
     /**
-     * Update the remaining correction time (called by interval)
+     * Update the remaining correction time
      */
     updateRemainingTime() {
       const apiStore = useApiStore();
