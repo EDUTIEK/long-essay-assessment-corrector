@@ -109,10 +109,10 @@ export const usePointsStore = defineStore('points', {
       return fn;
     },
 
-    getSumOfPointsWithoutComment: state => {
+    getSumOfPointsWithComment: state => {
 
       /**
-       * Get the sum of points given to criteria without a comment
+       * Get the sum of points given related to comments
        *
        * @param {string} corrector_key
        * @returns {number}
@@ -120,7 +120,26 @@ export const usePointsStore = defineStore('points', {
       const fn = function (corrector_key) {
         let sum = 0;
         state.points
-            .filter(points => points.corrector_key == corrector_key)
+            .filter(points => points.corrector_key == corrector_key && points.comment_key != '')
+            .forEach(points => sum += points.points);
+        return sum;
+      }
+      return fn;
+    },
+
+
+    getSumOfPointsWithoutComment: state => {
+
+      /**
+       * Get the sum of points given not related to comments
+       *
+       * @param {string} corrector_key
+       * @returns {number}
+       */
+      const fn = function (corrector_key) {
+        let sum = 0;
+        state.points
+            .filter(points => points.corrector_key == corrector_key && points.comment_key == '')
             .forEach(points => sum += points.points);
         return sum;
       }
@@ -192,8 +211,8 @@ export const usePointsStore = defineStore('points', {
        * @returns {Point|undefined}
        */
       const fn = function (corrector_key, comment_key, criterion_key) {
-        return state.points.find(points => points.corrector_key = corrector_key 
-            && points.comment_key == points 
+        return state.points.find(points => points.corrector_key == corrector_key
+            && points.comment_key == comment_key
             && points.criterion_key == criterion_key);
       }
       return fn;
@@ -220,7 +239,7 @@ export const usePointsStore = defineStore('points', {
         } else {
           this.deletePoints(pointsObject.key);
         }
-      } else if (comment_key && criterion_key && points_value) {
+      } else if ((comment_key || criterion_key) && points_value) {
         this.createPoints(comment_key, criterion_key, points_value);
       }
     },
@@ -233,6 +252,7 @@ export const usePointsStore = defineStore('points', {
      * @public
      */
     async createPoints(comment_key, criterion_key, points_value) {
+      console.log('createPoints: ', comment_key, criterion_key, points_value);
       const apiStore = useApiStore();
       const pointsObject = new Points({
         item_key: apiStore.itemKey,

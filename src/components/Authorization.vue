@@ -8,7 +8,9 @@ import { useLevelsStore } from '@/store/levels';
 import { useLayoutStore } from '@/store/layout';
 import { usePointsStore } from '@/store/points';
 import OwnSummaryIncludes from '@/components/OwnSummaryIncludes.vue';
+import SumOfPoints from "@/components/SumOfPoints.vue";
 import { ref } from 'vue';
+
 
 const apiStore = useApiStore();
 const itemsStore = useItemsStore();
@@ -68,50 +70,68 @@ function editSummary() {
       <v-card>
         <v-card-title>Korrektur von {{ itemsStore.currentItem.title }} autorisieren</v-card-title>
         <v-card-text>
-          <p><strong>Gutachten:</strong>
-            <v-btn variant="text" @click="editSummary()">
+          <div class="appRow"><strong>Gutachten:</strong>
+            <v-btn  density="compact" variant="text" @click="editSummary()">
               <v-icon left icon="mdi-pencil"></v-icon>
               <span class="sr-only">Gutachten bearbeiten</span>
             </v-btn>
-          </p>
-          <div class="appText long-essay-content headlines-three" v-html="summariesStore.editSummary.text">
+            <div class="appText long-essay-content headlines-three" v-html="summariesStore.editSummary.text">
+            </div>
           </div>
 
-          <label for="appAuthorizationPoints"><strong>Bewertung:</strong></label>
-          <input id="appAuthorizationPoints" class="appPoints" type="number" min="0" :max="settingsStore.max_points"
-                 v-model="summariesStore.editSummary.points"/>Punkte
-          &nbsp;
-          <strong>Notenstufe:</strong> {{ summariesStore.currentGradeTitle }}
+          <div class="appRow">
+            <sum-of-points class='sumOfPoints' :corrector_key="apiStore.correctorKey"></sum-of-points>
+          </div>
 
-          <own-summary-includes v-if="settingsStore.inclusionsPossible"></own-summary-includes>
+          <div class="appRow">
+            <label for="appAuthorizationPoints"><strong>Bewertung:</strong></label>
+            <input id="appAuthorizationPoints" class="appPoints" type="number" min="0" :max="settingsStore.max_points"
+                   v-model="summariesStore.editSummary.points"/>Punkte
+            &nbsp;
+            <strong>Notenstufe:</strong> {{ summariesStore.currentGradeTitle }}
 
-          <v-alert v-show="summariesStore.editSummary.text == ''"
-                   color="#0000A0" type="info" variant="text" density="compact">
-            Bitte geben Sie einen Gutachten-Text ein.
-          </v-alert>
+          </div>
 
-          <v-alert v-show="(levelsStore.hasLevels && (summariesStore.editSummary.points === null))"
-                   color="#0000A0" type="info" variant="text" density="compact">
-            Bitte geben Sie eine Bewertung ein, damit eine Notenstufe vergeben werden kann.
-          </v-alert>
+          <div class="appRow">
+            <own-summary-includes v-if="settingsStore.inclusionsPossible"></own-summary-includes>
+            <v-btn density="compact" v-if="!settingsStore.fixed_inclusions" variant="text" :disabled="summariesStore.isOwnDisabled"
+                   @click="layoutStore.showIncludesPopup = true">
+              <v-icon left icon="mdi-pencil"></v-icon>
+              <span class="sr-only">Einbezug bearbeiten</span>
+            </v-btn>
 
-          <v-alert v-show="(summariesStore.currentPartialPointsAreIncluded
+          </div>
+
+          <div class="appRow">
+            <v-alert v-show="summariesStore.editSummary.text == ''"
+                     color="#0000A0" type="info" variant="text" density="compact">
+              Bitte geben Sie einen Gutachten-Text ein.
+            </v-alert>
+
+            <v-alert v-show="(levelsStore.hasLevels && (summariesStore.editSummary.points === null))"
+                     color="#0000A0" type="info" variant="text" density="compact">
+              Bitte geben Sie eine Bewertung ein, damit eine Notenstufe vergeben werden kann.
+            </v-alert>
+
+            <v-alert v-show="(summariesStore.currentPartialPointsAreIncluded
                                     && summariesStore.editSummary.points !== null
                                     && summariesStore.editSummary.points != pointsStore.ownSumOfPoints)"
-                   color="#0000A0" type="info" variant="text" density="compact">
-            Ihre Bewertung weicht von der einbezogenen Summe der Teilpunkte ({{ pointsStore.ownSumOfPoints }})
-            ab!
-          </v-alert>
+                     color="#0000A0" type="info" variant="text" density="compact">
+              Ihre Bewertung weicht von der einbezogenen Summe der Teilpunkte ({{ pointsStore.ownSumOfPoints }})
+              ab!
+            </v-alert>
 
-          <v-alert v-show="summariesStore.areOthersAuthorized && summariesStore.stitchReasonText != '' "
-                   color="#0000A0" type="info" variant="text" density="compact">
-            Ihre Punktevergabe wird einen Stichentscheid erfordern: {{ summariesStore.stitchReasonText }}
-          </v-alert>
-          <br>
-          <p>
+            <v-alert v-show="summariesStore.areOthersAuthorized && summariesStore.stitchReasonText != '' "
+                     color="#0000A0" type="info" variant="text" density="compact">
+              Ihre Punktevergabe wird einen Stichentscheid erfordern: {{ summariesStore.stitchReasonText }}
+            </v-alert>
+
+          </div>
+
+          <div class="appRow">
             Durch die Autorisierung wird Ihre Korrektur festgeschrieben. Sie können sie anschließend nicht mehr ändern.
             Möchten Sie Ihre Korrektur autorisieren?
-          </p>
+          </div>
         </v-card-text>
         <v-card-actions>
           <v-btn @click="setAuthorizedAndContinue()">
@@ -133,6 +153,10 @@ function editSummary() {
 </template>
 
 <style scoped>
+
+.appRow {
+  margin-bottom: 10px;
+}
 
 .appPoints {
   width: 4em;

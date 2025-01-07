@@ -197,10 +197,10 @@ w-p.labelled:before {
   background-color: #aaaaaaaa;
   color: white;
   font-family: sans-serif;
-
   font-size: 14px;
   font-style: normal;
   font-weight: normal;
+  border-radius: 5px;
 }
 
 w-p.labelled.selected:before {

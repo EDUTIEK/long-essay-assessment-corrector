@@ -28,7 +28,7 @@ async function loadPoints() {
   criteriaPoints.value = {};
   for (const criterion of criteriaStore.getCorrectorCommentCriteria(corrector_key.value)) {
     const pointsObject = pointsStore.getObjectByData( corrector_key.value, commentsStore.selectedKey, criterion.key);
-    criteriaPoints.value[criterion.key] = pointsObject ? pointsObject.points : 0;
+    criteriaPoints.value[criterion.key] = (pointsObject ? pointsObject.points : 0);
   }
 }
 
@@ -63,18 +63,17 @@ async function handleKeyDown(event) {
 
 <template>
   <div>
-    <p class="info" v-if="corrector_key == ''">
-      Bitte Kommentar auswählen.
+    <p class="info" v-if="comment_key == ''">
+      Bitte wählen Sie eine Anmerkung aus.
     </p>
-    <v-table v-if="corrector_key != ''" density="compact">
+    <v-table v-if="comment_key != ''" density="compact">
       <thead>
       <tr>
         <th class="col-left">
           <span id="appMarkingCommentCriteriaStart" tabindex="0" @keydown="handleKeyDown">Kriterium</span>
         </th>
         <th class="col-mid text-right">
-          Punkte <span v-show="commentsStore.selectedKey != ''"
-                       class="commentLabel">{{ commentsStore.selectedLabel }}</span>
+          Punkte
         </th>
         <th class="col-right text-right">
           Summe / max.
@@ -99,18 +98,7 @@ async function handleKeyDown(event) {
           {{ pointsStore.getSumOfPointsForCriterion(criterion, corrector_key) }} / {{ criterion.points }}
         </td>
       </tr>
-      <tr>
-        <td class="col-left">
-          <strong>Summe</strong>
-        </td>
-        <td class="col-mid text-right">
-          <strong class="sum-points">{{ pointsStore.getSumOfPointsForComment(comment_key) }}</strong>
-        </td>
-        <td class="col-right text-right">
-          <strong>{{ pointsStore.getSumOfPointsForCorrector(corrector_key) + ' / ' + settingStore.max_points }}</strong>
-        </td>
-      </tr>
-      </tbody>
+       </tbody>
     </v-table>
   </div>
 </template>
@@ -157,8 +145,5 @@ th, td {
   color: red;
 }
 
-.sum-points {
-  margin-right: 50px;
-}
 
 </style>

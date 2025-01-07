@@ -179,18 +179,6 @@ class Summary {
   }
 
   /**
-   * Get if partial points will be visible
-   * @returns {boolean}
-   */
-  getPartialPointsVisible() {
-
-    // return this.include_comment_points;
-    const settings = this.getInclusionSettings();
-    return
-    settings.include_comment_points > Summary.INCLUDE_NOT
-  }
-
-  /**
    * @return {string}
    */
   getKey() {

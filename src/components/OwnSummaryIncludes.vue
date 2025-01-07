@@ -1,12 +1,14 @@
 <script setup>
 
+import {useLayoutStore} from "@/store/layout";
 import { useSummariesStore } from '@/store/summaries';
 import { useCriteriaStore } from '@/store/criteria';
 import { usePreferencesStore } from '@/store/preferences';
 import { useSettingsStore } from '@/store/settings';
 import Summary from '@/data/Summary';
-import { ref, nextTick} from 'vue';
+import {ref, nextTick, onMounted, watch} from 'vue';
 
+const layoutStore = useLayoutStore();
 const summariesStore = useSummariesStore();
 const criteriaStore = useCriteriaStore();
 const preferencesStore = usePreferencesStore();
@@ -25,21 +27,21 @@ const updatePreferences = ref(false);
 
 includes.value = summariesStore.currentInclusionSettings;
 
-
-async function show() {
-  showIncludes.value=true;
-  await nextTick();
-
-  /**
-   * Ugly fix for accessibility issues in v-select component of vuetify
-   */
-  const container = document.getElementById('app-own-summary-includes-container');
-  for (const label of container.getElementsByTagName('label')) {
-    if (label.classList.contains('v-label')) {
-      label.remove();
+/**
+ * Ugly fix for accessibility issues in v-select component of vuetify
+ */
+async function handlePopup() {
+  if (layoutStore.showIncludesPopup) {
+    await nextTick();
+    const container = document.getElementById('app-own-summary-includes-container');
+    for (const label of container.getElementsByTagName('label')) {
+      if (label.classList.contains('v-label')) {
+        label.remove();
+      }
     }
   }
 }
+watch(() => layoutStore.showIncludesPopup, handlePopup);
 
 
 function save() {
@@ -53,22 +55,16 @@ function save() {
     preferencesStore.setSummaryInclusions(includes.value);
     updatePreferences.value = false;
   }
-  showIncludes.value = false;
+  layoutStore.showIncludesPopup = false;
 }
 
 
 </script>
 
 <template>
-  <div>
+  <span>
     <strong>Einbeziehen:</strong> {{ summariesStore.getInclusionText(summariesStore.editSummary) }}
-    <v-btn v-if="!settingsStore.fixed_inclusions" variant="text" :disabled="summariesStore.isOwnDisabled"
-           @click="show()">
-      <v-icon left icon="mdi-pencil"></v-icon>
-      <span class="sr-only">Einbezug bearbeiten</span>
-    </v-btn>
-
-    <v-dialog max-width="50em" persistent v-model="showIncludes">
+    <v-dialog max-width="50em" persistent v-model="layoutStore.showIncludesPopup">
       <v-card>
         <v-card-title>In die Dokumentation der Korrektur einbeziehen</v-card-title>
         <v-card-text>
@@ -131,14 +127,14 @@ function save() {
             <v-icon left icon="mdi-check"></v-icon>
             <span>Übernehmen</span>
           </v-btn>
-          <v-btn @click="showIncludes=false;">
+          <v-btn @click="layoutStore.showIncludesPopup = false">
             <v-icon left icon="mdi-close"></v-icon>
             <span>Abbrechen</span>
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
-  </div>
+  </span>
 
 </template>
 

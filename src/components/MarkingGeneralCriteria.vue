@@ -1,5 +1,6 @@
 <script setup>
 import { useCriteriaStore } from "@/store/criteria";
+import { useCommentsStore } from "@/store/comments";
 import { usePointsStore } from "@/store/points";
 import { useApiStore } from "@/store/api";
 import { useSettingsStore } from '@/store/settings';
@@ -8,6 +9,7 @@ import { useLayoutStore } from '@/store/layout';
 import {nextTick, ref, watch} from 'vue';
 
 const criteriaStore = useCriteriaStore();
+const commentsStore = useCommentsStore();
 const pointsStore = usePointsStore();
 const apiStore = useApiStore();
 const settingStore = useSettingsStore();
@@ -21,11 +23,12 @@ async function loadPoints() {
   corrector_key.value = apiStore.correctorKey;
   criteriaPoints.value = {};
   for (const criterion of criteriaStore.getCorrectorGeneralCriteria(corrector_key.value)) {
-    const pointsObject = pointsStore.getObjectByData(corrector_key.value, '', criterion.key);
-    criteriaPoints.value[criterion.key] = pointsObject ? pointsObject.points : 0;
+    const pointsObject = pointsStore.getObjectByData( corrector_key.value, '', criterion.key);
+    criteriaPoints.value[criterion.key] = (pointsObject ? pointsObject.points : 0);
   }
 }
 loadPoints();
+
 
 function savePoints(criterionKey) {
   pointsStore.setValueByCommentOrCriterion('', criterionKey, criteriaPoints.value[criterionKey]);
@@ -39,6 +42,17 @@ async function handleFocusChange() {
 }
 watch(() => layoutStore.focusChange, handleFocusChange);
 
+
+async function handleKeyDown(event) {
+  switch (event.key) {
+    case 'Escape':
+      event.preventDefault();
+      layoutStore.focusMarkingCommentCriteriaSum();
+      break;
+  }
+}
+
+
 </script>
 
 
@@ -48,17 +62,20 @@ watch(() => layoutStore.focusChange, handleFocusChange);
       <thead>
       <tr>
         <th class="col-left">
-          <span id="appMarkingGeneralCriteriaStart" tabindex="0" @keydown="handleKeyDown">Kriterium</span>
+          <span id="appMarkingCommentCriteriaStart" tabindex="0" @keydown="handleKeyDown">Kriterium</span>
+        </th>
+        <th class="col-mid text-right">
+          Punkte
         </th>
         <th class="col-right text-right">
-          Punkte
+          max.
         </th>
       </tr>
       </thead>
       <tbody>
       <tr v-for="criterion in criteriaStore.getCorrectorGeneralCriteria(corrector_key)" :key="criterion.key">
         <td class="col-left">
-          <label tabindex="0" :for="'app-points-input-' + criterion.key">{{ criterion.title }}</label>
+          <label tabindex="0" @keydown="handleKeyDown" :for="'app-points-input-' + criterion.key">{{ criterion.title }}</label>
         </td>
         <td class="col-mid text-right">
           <input class="appPoints" type="number" min="0" v-model="criteriaPoints[criterion.key]"
@@ -66,18 +83,14 @@ watch(() => layoutStore.focusChange, handleFocusChange);
                  :disabled="summariesStore.isOwnDisabled || corrector_key != apiStore.correctorKey"
                  :max="criterion.points"
                  @change="savePoints(criterion.key)"
+                 @keydown="handleKeyDown"
           />
         </td>
-      </tr>
-      <tr>
-        <td class="col-left">
-          <strong>Summe</strong>
-        </td>
-        <td class="col-mid text-right">
-          <strong class="sum-points">{{ pointsStore.getSumOfPointsWithoutComment(corrector_key) + ' / ' + settingStore.max_points}}</strong>
+        <td class="col-right text-right">
+          {{ criterion.points }}
         </td>
       </tr>
-      </tbody>
+       </tbody>
     </v-table>
   </div>
 </template>
@@ -107,17 +120,17 @@ th, td {
   width: 70%;
 }
 
+.col-mid {
+  width: 15%;
+}
+
 .col-right {
-  width: 30%;
+  width: 15%;
 }
 
-
-.red {
-  color: red;
-}
-
-.sum-points {
-  margin-right: 50px;
+.info {
+  padding: 10px;
+  color: #555555;
 }
 
 </style>

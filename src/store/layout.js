@@ -36,6 +36,7 @@ export const useLayoutStore = defineStore('layout', {
       // not stored
       leftCorrectorKey: '',               // key of the corrector shown on the left side
       rightCorrectorKey: '',              // key of the corrector shown on the right side
+      showIncludesPopup: false,           // show the popup to set the included elements
 
       focusTarget: '',                    // target for setting the focus (header|navigation|left|right|ownSummary)
       focusChange: 0                      // indicator to set the focus to the target

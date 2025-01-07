@@ -3,14 +3,17 @@ import MarkingComments from "@/components/MarkingComments.vue";
 import MarkingCommentCriteria from "@/components/MarkingCommentCriteria.vue";
 import MarkingGeneralCriteria from "@/components/MarkingGeneralCriteria.vue";
 import OwnSummaryText from "@/components/OwnSummaryText.vue";
+import SumOfPoints from "@/components/SumOfPoints.vue";
 
 import { useApiStore } from '@/store/api';
 import { useLayoutStore } from "@/store/layout";
+import { useCommentsStore } from "@/store/comments";
 import { useCriteriaStore } from '@/store/criteria';
 import { useSummariesStore } from '@/store/summaries';
 
 const apiStore = useApiStore();
 const layoutStore = useLayoutStore();
+const commentsStore = useCommentsStore();
 const criteriaStore = useCriteriaStore();
 const summariesStore = useSummariesStore();
 
@@ -45,7 +48,7 @@ function expansionClass() {
     case 3:
       return 'third';
     case 4:
-      return 'fouth';
+      return 'quart';
   }
 }
 
@@ -58,16 +61,17 @@ function expansionClass() {
       <marking-comments class="content"></marking-comments>
     </div>
 
-    <div v-if="markingGeneralCriteriaShown()" :class="expansionClass()">
-      <h2 class="headline">Übergreifende Teilpunkte (Kopfnoten)</h2>
-      <marking-general-criteria class="content"></marking-general-criteria>
-    </div>
-
     <div v-if="markingCommentCriteriaShown()" :class="expansionClass()">
-      <h2 class="headline">Teilpunkte zur Anmerkung</h2>
+      <h2 class="headline">Teilpunkte zur Anmerkung <span v-show="commentsStore.selectedKey != ''"
+                                                          class="commentLabel">{{ commentsStore.selectedLabel }}</span> </h2>
       <marking-comment-criteria class="content"></marking-comment-criteria>
     </div>
 
+
+    <div v-if="markingGeneralCriteriaShown()" :class="expansionClass()">
+      <h2 class="headline">Übergreifende Punkte (Kopfnoten)</h2>
+      <marking-general-criteria class="content"></marking-general-criteria>
+    </div>
 
     <!-- v-if neeed to avoid simultaneous data binding with summary text  -->
     <div v-if="markingTextShown()" :class="expansionClass()">
@@ -78,6 +82,7 @@ function expansionClass() {
     <div v-if="apiStore.isForReviewOrStitch && !summariesStore.isOneAuthorized">
       Für diese Abgabe ist noch keine Korrektur autorisiert.
     </div>
+    <sum-of-points class='sumOfPoints' :corrector_key="apiStore.correctorKey"></sum-of-points>
   </div>
 </template>
 
@@ -94,6 +99,19 @@ function expansionClass() {
   padding-top: 10px;
   padding-left: 10px;
   background-color: #f0f0f0;
+  width: 100%;
+}
+
+.commentLabel {
+  display: inline-block;
+  background-color: #606060;
+  color: white;
+  padding: 3px;
+  font-size: 14px;
+  border-radius: 5px;
+  position:relative;
+  top: -2px;
+  margin-left: 10px;
 }
 
 .content {
@@ -106,20 +124,27 @@ function expansionClass() {
 }
 
 .full {
-  height: 100%;
+  height: 100% - 30px;
 }
 
 .half {
-  height: 50%;
+  height: calc((100% - 40px) / 2);
 }
 
 .third {
-  height: 33%;
+  height: calc((100% - 40px) / 3);
 }
 
-.forth {
-  height: 25%;
+.quart {
+  height: calc((100% - 40px) / 4);
 }
 
+.sumOfPoints {
+  position: absolute;
+  bottom: 0;
+  color: #555555;
+  padding: 10px;
+  height: 40px;
+}
 
 </style>
