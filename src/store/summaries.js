@@ -188,9 +188,9 @@ export const useSummariesStore = defineStore('summaries', {
         }
 
         if (settings.include_comments == Summary.INCLUDE_INFO) {
-          text = (text ? text + ', ' : '') + 'Kommentare (i)';
+          text = (text ? text + ', ' : '') + 'Anmerkungen (i)';
         } else if (settings.include_comments == Summary.INCLUDE_RELEVANT) {
-          text = (text ? text + ', ' : '') + 'Kommentare (r)';
+          text = (text ? text + ', ' : '') + 'Anmerkungen (r)';
         }
 
         if (settings.include_comment_ratings == Summary.INCLUDE_INFO) {
@@ -200,16 +200,16 @@ export const useSummariesStore = defineStore('summaries', {
         }
 
         if (settings.include_comment_points == Summary.INCLUDE_INFO) {
-          text = (text ? text + ', ' : '') + 'Punkte zu Kommentaren (i)';
+          text = (text ? text + ', ' : '') + 'Punkte zu Anmerkungen (i)';
         } else if (settings.include_comment_points == Summary.INCLUDE_RELEVANT) {
-          text = (text ? text + ', ' : '') + 'Punkte zu Kommentaren (r)';
+          text = (text ? text + ', ' : '') + 'Punkte zu Anmerkungen (r)';
         }
 
         if (criteriaStore.hasOwnCriteria) {
           if (settings.include_criteria_points == Summary.INCLUDE_INFO) {
-            text = (text ? text + ', ' : '') + 'Punkte im Bewertungsschema (i)';
+            text = (text ? text + ', ' : '') + 'Punkte zu Kriterien (i)';
           } else if (settings.include_criteria_points == Summary.INCLUDE_RELEVANT) {
-            text = (text ? text + ', ' : '') + 'Punkte im Bewertungsschema (r)';
+            text = (text ? text + ', ' : '') + 'Punkte Kriterien (r)';
           }
         }
 

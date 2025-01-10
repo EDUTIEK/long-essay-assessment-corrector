@@ -33,8 +33,7 @@ function hasTrash(comment) {
 }
 
 function hasDetails(comment) {
-  return comment.rating_excellent || comment.rating_cardinal ||
-      comment.points > 0 || pointsStore.getSumOfPointsForComment(comment.key) > 0;
+  return comment.rating_excellent || comment.rating_cardinal || pointsStore.getSumOfPointsForComment(comment.key) > 0;
 }
 
 
@@ -96,12 +95,7 @@ function getPointsInputStyle(comment) {
 }
 
 function getPointsDisplay(comment) {
-  if (criteriaStore.getCorrectorHasCommentCriteria(comment.corrector_key)) {
-    return pointsStore.getSumOfPointsForComment(comment.key);
-  }
-  else {
-    return comment.points;
-  }
+  return pointsStore.getSumOfPointsForComment(comment.key);
 }
 
 function getPointsLabel(comment) {

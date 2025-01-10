@@ -69,7 +69,7 @@ function expansionClass() {
 
 
     <div v-if="markingGeneralCriteriaShown()" :class="expansionClass()">
-      <h2 class="headline">Übergreifende Punkte (Kopfnoten)</h2>
+      <h2 class="headline">Allgemeine Punkte (Kopfnoten)</h2>
       <marking-general-criteria class="content"></marking-general-criteria>
     </div>
 

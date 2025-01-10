@@ -71,7 +71,7 @@ function save() {
           <v-container id='app-own-summary-includes-container'>
             <v-row>
               <v-col>
-                <label for="appIncludeComments">Markierungen und Kommentare</label>
+                <label for="appIncludeComments">Merkierungen und Anmerkungen</label>
               </v-col>
               <v-col>
                 <select id="appIncludeComments" class="appIncludesSelect" v-model="includes.include_comments">
@@ -95,7 +95,7 @@ function save() {
             </v-row>
             <v-row v-show="includes.include_comments > Summary.INCLUDE_NOT">
               <v-col>
-                <label for="appIncludeCommentPoints">Punkte zu Kommentaren</label>
+                <label for="appIncludeCommentPoints">Punkte zu Anmerkungen</label>
               </v-col>
               <v-col>
                 <select id="appIncludeCommentPoints" class="appIncludesSelect" v-model="includes.include_comment_points">
@@ -107,7 +107,7 @@ function save() {
             </v-row>
             <v-row v-show="criteriaStore.hasOwnCriteria">
               <v-col>
-                <label for="appIncludeCriteriaPoints">Punkte im Bewertungsschema</label>
+                <label for="appIncludeCriteriaPoints">Punkte zu Kriterien</label>
               </v-col>
               <v-col>
                 <select id="appIncludeCriteriaPoints" class="appIncludesSelect" v-model="includes.include_criteria_points">

@@ -30,15 +30,6 @@ export const usePointsStore = defineStore('points', {
    */
   getters: {
 
-    ownSumOfPoints: state => {
-      const apiStore = useApiStore();
-      let sum = 0;
-      state.points
-          .filter(points => points.corrector_key == apiStore.correctorKey)
-          .forEach(points => sum += points.points);
-      return sum;
-    },
-
     getCommentHasPoints: state => {
 
       /**
@@ -79,12 +70,17 @@ export const usePointsStore = defineStore('points', {
        * Get the sum of points given by a corrector
        *
        * @param {string} corrector_key
+       * @param {bool} with_comment
+       * @param {bool} with_criterion
        * @returns {number}
        */
-      const fn = function (corrector_key) {
+      const fn = function (corrector_key, with_comment = null, with_criterion = null) {
         let sum = 0;
         state.points
-            .filter(points => points.corrector_key == corrector_key)
+            .filter(points => points.corrector_key == corrector_key &&
+                (with_comment === null || with_comment == (points.comment_key != '')) &&
+                 (with_criterion === null ||  with_criterion == (points.criterion_key != ''))
+            )
             .forEach(points => sum += points.points);
         return sum;
       }
@@ -103,43 +99,6 @@ export const usePointsStore = defineStore('points', {
         let sum = 0;
         state.points
             .filter(points => points.comment_key == comment_key)
-            .forEach(points => sum += points.points);
-        return sum;
-      }
-      return fn;
-    },
-
-    getSumOfPointsWithComment: state => {
-
-      /**
-       * Get the sum of points given related to comments
-       *
-       * @param {string} corrector_key
-       * @returns {number}
-       */
-      const fn = function (corrector_key) {
-        let sum = 0;
-        state.points
-            .filter(points => points.corrector_key == corrector_key && points.comment_key != '')
-            .forEach(points => sum += points.points);
-        return sum;
-      }
-      return fn;
-    },
-
-
-    getSumOfPointsWithoutComment: state => {
-
-      /**
-       * Get the sum of points given not related to comments
-       *
-       * @param {string} corrector_key
-       * @returns {number}
-       */
-      const fn = function (corrector_key) {
-        let sum = 0;
-        state.points
-            .filter(points => points.corrector_key == corrector_key && points.comment_key == '')
             .forEach(points => sum += points.points);
         return sum;
       }

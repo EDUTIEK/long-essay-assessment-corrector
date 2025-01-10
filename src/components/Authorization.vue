@@ -10,6 +10,7 @@ import { usePointsStore } from '@/store/points';
 import OwnSummaryIncludes from '@/components/OwnSummaryIncludes.vue';
 import SumOfPoints from "@/components/SumOfPoints.vue";
 import { ref } from 'vue';
+import Summary from "@/data/Summary";
 
 
 const apiStore = useApiStore();
@@ -21,6 +22,35 @@ const layoutStore = useLayoutStore();
 const pointsStore = usePointsStore();
 
 const showIncludes = ref(false);
+
+
+function getPartialPointsMessage() {
+  const settings = summariesStore.currentInclusionSettings;
+  const with_comments = settings.include_comment_points > Summary.INCLUDE_NOT;
+  const with_criteria = settings.include_criteria_points > Summary.INCLUDE_NOT;
+
+  let points = 0;
+  let note = '';
+
+  if (with_comments && with_criteria) {
+    points = pointsStore.getSumOfPointsForCorrector(apiStore.correctorKey);
+    note = ' zu Anmerkungen und Kriterien';
+  }
+  else if (with_comments) {
+    points = pointsStore.getSumOfPointsForCorrector(apiStore.correctorKey, true);
+    note = ' zu Anmerkungen';
+  }
+  else if (with_criteria) {
+    points = pointsStore.getSumOfPointsForCorrector(apiStore.correctorKey, null, true);
+    note = ' zu Kriterien';
+  }
+
+  if (points != summariesStore.editSummary.points) {
+    return 'Ihre Bewertung weicht von der einbezogenen Summe der Teilpunkte (' + points + note + ') ab!'
+  }
+
+  return '';
+}
 
 async function setAuthorizedAndContinue() {
 
@@ -113,12 +143,8 @@ function editSummary() {
               Bitte geben Sie eine Bewertung ein, damit eine Notenstufe vergeben werden kann.
             </v-alert>
 
-            <v-alert v-show="(summariesStore.currentPartialPointsAreIncluded
-                                    && summariesStore.editSummary.points !== null
-                                    && summariesStore.editSummary.points != pointsStore.ownSumOfPoints)"
-                     color="#0000A0" type="info" variant="text" density="compact">
-              Ihre Bewertung weicht von der einbezogenen Summe der Teilpunkte ({{ pointsStore.ownSumOfPoints }})
-              ab!
+            <v-alert v-show="getPartialPointsMessage() != ''" color="#0000A0" type="info" variant="text" density="compact">
+              {{getPartialPointsMessage()}}
             </v-alert>
 
             <v-alert v-show="summariesStore.areOthersAuthorized && summariesStore.stitchReasonText != '' "

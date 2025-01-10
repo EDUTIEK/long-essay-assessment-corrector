@@ -1,27 +1,32 @@
 <script setup>
-import { useSettingsStore } from "@/store/settings";
-import { usePointsStore } from "@/store/points";
+import {useSettingsStore} from "@/store/settings";
+import {usePointsStore} from "@/store/points";
+import {useCriteriaStore} from "@/store/criteria";
 
 const settingsStore = useSettingsStore();
 const pointsStore = usePointsStore();
+const criteriaStore = useCriteriaStore();
 
 const props = defineProps(['corrector_key']);
 
+const has_general_criteria = criteriaStore.getCorrectorHasGeneralCriteria(props.corrector_key);
+const has_comment_criteria = criteriaStore.getCorrectorHasCommentCriteria(props.corrector_key);
+
 function pointsNote() {
-  let with_comment = pointsStore.getSumOfPointsWithComment(props.corrector_key);
-  let without_comment = pointsStore.getSumOfPointsWithoutComment(props.corrector_key);
+  const with_comment = pointsStore.getSumOfPointsForCorrector(props.corrector_key, true);
+  const without_comment = pointsStore.getSumOfPointsForCorrector(props.corrector_key, false);
 
-  if (with_comment > 0 && without_comment > 0) {
-    return '(' + with_comment + ' aus Anmerkungen, ' + without_comment + ' aus Kopfnoten)';
+  if (without_comment + with_comment == 0) {
+    return '';
   }
-  else if (with_comment > 0) {
-    return '(aus allen Anmerkungen)';
+  else if (!has_general_criteria) {
+    return has_comment_criteria ? '(zu Kriterien bei Anmerkungen)' : '(zu Anmerkungen)';
   }
-  else if (without_comment > 0) {
-    return '(aus aus Kopfnoten)';
+  else  {
+    return has_comment_criteria ?
+        '(' + with_comment + ' zu Kriterien bei Anmerkungen, ' + without_comment + ' zu allgemeinen Kriterien)' :
+        '(' + with_comment + ' zu Anmerkungen, ' + without_comment + ' zu allgemeinen Kriterien)';
   }
-
-  return '';
 }
 
 </script>
