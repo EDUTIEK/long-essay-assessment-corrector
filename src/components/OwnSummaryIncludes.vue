@@ -66,7 +66,7 @@ function save() {
     <strong>Einbeziehen:</strong> {{ summariesStore.getInclusionText(summariesStore.editSummary) }}
     <v-dialog max-width="50em" persistent v-model="layoutStore.showIncludesPopup">
       <v-card>
-        <v-card-title>In die Dokumentation der Korrektur einbeziehen</v-card-title>
+        <v-card-title>In die PDF-Dokumentation der Korrektur einbeziehen</v-card-title>
         <v-card-text>
           <v-container id='app-own-summary-includes-container'>
             <v-row>
@@ -79,6 +79,7 @@ function save() {
                   <option :value="Summary.INCLUDE_INFO">informativ</option>
                   <option :value="Summary.INCLUDE_RELEVANT">bewertungsrelevant</option>
                 </select>
+                <small>Es wird der abgegebene Text mit markierten Stellen und Anmerkungen am Rand eingefügt.</small>
               </v-col>
             </v-row>
             <v-row v-show="includes.include_comments > Summary.INCLUDE_NOT">
@@ -91,6 +92,7 @@ function save() {
                   <option :value="Summary.INCLUDE_INFO">informativ</option>
                   <option :value="Summary.INCLUDE_RELEVANT">bewertungsrelevant</option>
                 </select>
+                <small>Bei jeder Anmerkung wird die vergebene Auszeichnung angezeigt.</small>
               </v-col>
             </v-row>
             <v-row v-show="includes.include_comments > Summary.INCLUDE_NOT">
@@ -103,6 +105,7 @@ function save() {
                   <option :value="Summary.INCLUDE_INFO">informativ</option>
                   <option :value="Summary.INCLUDE_RELEVANT">bewertungsrelevant</option>
                 </select>
+                <small>Bei jeder Anmerkung wird die vergebene Punktzahl angezeigt.</small>
               </v-col>
             </v-row>
             <v-row v-show="criteriaStore.hasOwnCriteria">
@@ -115,6 +118,7 @@ function save() {
                   <option :value="Summary.INCLUDE_INFO">informativ</option>
                   <option :value="Summary.INCLUDE_RELEVANT">bewertungsrelevant</option>
                 </select>
+                <small>Es wird eine Tabelle mit den Kriterein und den dafür erreichten Punkten angezeigt.</small>
               </v-col>
             </v-row>
           </v-container>

@@ -44,6 +44,9 @@ function getPartialPointsMessage() {
     points = pointsStore.getSumOfPointsForCorrector(apiStore.correctorKey, null, true);
     note = ' zu Kriterien';
   }
+  else {
+    return '';
+  }
 
   if (points != summariesStore.editSummary.points) {
     return 'Ihre Bewertung weicht von der einbezogenen Summe der Teilpunkte (' + points + note + ') ab!'
