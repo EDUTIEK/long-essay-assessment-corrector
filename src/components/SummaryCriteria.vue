@@ -18,46 +18,43 @@ const props = defineProps(['corrector_key']);
 watch(() => props, loadCriteria);
 watch(() => apiStore.itemKey, loadCriteria);
 
-const criteriaPoints = reactive({});
-const criteriaSum = ref(0);
-const criteriaMax = ref(0);
+const generalCriteriaPoints = reactive({});
+const commentCriteriaPoints = reactive({});
 
 
 async function loadCriteria() {
   await nextTick();
 
-  criteriaSum.value = 0;
-  criteriaMax.value = 0;
-
   criteriaStore.getCorrectorCommentCriteria(props.corrector_key).forEach(criterion => {
-    criteriaPoints[criterion.key] = {
+    commentCriteriaPoints[criterion.key] = {
       key: criterion.key,
       title: criterion.title,
       max_points: criterion.points,
       sum_points: 0
     }
-    criteriaMax.value += criterion.points
+  });
+
+  criteriaStore.getCorrectorGeneralCriteria(props.corrector_key).forEach(criterion => {
+    generalCriteriaPoints[criterion.key] = {
+      key: criterion.key,
+      title: criterion.title,
+      max_points: criterion.points,
+      sum_points: 0
+    }
   });
 
   pointsStore.getObjectsForCorrector(props['corrector_key']).forEach(points => {
-    if (criteriaPoints[points.criterion_key] !== undefined) {
-      criteriaPoints[points.criterion_key].sum_points += points.points;
+    if (commentCriteriaPoints[points.criterion_key] !== undefined) {
+      commentCriteriaPoints[points.criterion_key].sum_points += points.points;
     }
-    criteriaSum.value += points.points
+    if (generalCriteriaPoints[points.criterion_key] !== undefined) {
+      generalCriteriaPoints[points.criterion_key].sum_points += points.points;
+    }
   });
 }
 
-if (criteriaStore.getCorrectorHasCommentCriteria(props.corrector_key)) {
+if (criteriaStore.getCorrectorHasCriteria(props.corrector_key)) {
   loadCriteria();
-}
-
-
-function getPointsColor(comment) {
-  const sum = pointsStore.getSumOfPointsForCorrector(props.corrector_key);
-  if (sum > settingsStore.max_points) {
-    return 'red';
-  }
-  return 'black';
 }
 
 async function filterByRating(rating_excellent, rating_cardinal) {
@@ -70,7 +67,7 @@ async function filterByRating(rating_excellent, rating_cardinal) {
   layoutStore.showMarking();
 }
 
-async function filterByPointsInComment() {
+async function filterByPoints() {
   commentsStore.setFilterByPoints(props.corrector_key);
   if (!props.corrector_key == apiStore.correctorKey) {
     commentsStore.setShowOtherCorrectors(true);
@@ -133,44 +130,41 @@ async function filterByCriterion(criterion_key) {
       </tbody>
     </v-table>
 
-    <!-- Points are asigned to comments -->
+    <!-- Points for comments directly -->
     <v-table v-if="!criteriaStore.getCorrectorHasCommentCriteria(props.corrector_key)" class="table" density="compact">
       <thead>
       <tr>
         <th><strong>Bewertung</strong></th>
-        <th class="text-right">Punkte / max</th>
+        <th class="text-right">Punkte</th>
       </tr>
       </thead>
       <tbody>
       <tr>
         <td>
           <v-btn density="compact" size="small" variant="text" prepend-icon="mdi-filter-outline"
-                 :disabled="pointsStore.getSumOfPointsForCorrector(props.corrector_key) == 0"
-                 @click="filterByPointsInComment(true)">
+                 :disabled="pointsStore.getSumOfPointsForCorrector(props.corrector_key, true, false) == 0"
+                 @click="filterByPoints()">
             <span class="sr-only">Punkte in Kommentaren</span>
           </v-btn>
           <span aria-hidden="true">Punkte in Kommentaren</span>
-
         </td>
         <td class="text-right">
-                <span :style="'color: ' + getPointsColor() + ';'">
-                    {{ pointsStore.getSumOfPointsForCorrector(props.corrector_key) }} / {{ settingsStore.max_points }}
-                </span>
+          {{ pointsStore.getSumOfPointsForCorrector(props.corrector_key, true, false) }}
         </td>
       </tr>
       </tbody>
     </v-table>
 
-    <!-- Points are asigned to criteria -->
+    <!-- Points for criteria in comments -->
     <v-table v-if="criteriaStore.getCorrectorHasCommentCriteria(props.corrector_key)" class="table" density="compact">
       <thead>
       <tr>
-        <th>Kriterium</th>
+        <th>Kriterium bei Anmerkungen</th>
         <th class="text-right">Punkte / max</th>
       </tr>
       </thead>
       <tbody>
-      <tr v-for="criterion in criteriaPoints" :key="criterion.key">
+      <tr v-for="criterion in commentCriteriaPoints" :key="criterion.key">
         <td>
           <v-btn density="compact" size="small" variant="text" prepend-icon="mdi-filter-outline"
                  :disabled="criterion.sum_points == 0"
@@ -181,14 +175,27 @@ async function filterByCriterion(criterion_key) {
         </td>
         <td class="text-right">{{ criterion.sum_points }} / {{ criterion.max_points }}</td>
       </tr>
+      </tbody>
+    </v-table>
+
+    <!-- Points for general criteria -->
+    <v-table v-if="criteriaStore.getCorrectorHasGeneralCriteria(props.corrector_key)" class="table" density="compact">
+      <thead>
       <tr>
+        <th>Allgemeines Kriterium (Kopfnote)</th>
+        <th class="text-right">Punkte / max</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr v-for="criterion in generalCriteriaPoints" :key="criterion.key">
         <td>
-          <strong>Summe</strong>
+          <span class="generalCriterion">{{ criterion.title }}</span>
         </td>
-        <td class="text-right"><strong>{{ criteriaSum }} / {{ criteriaMax }}</strong></td>
+        <td class="text-right">{{ criterion.sum_points }} / {{ criterion.max_points }}</td>
       </tr>
       </tbody>
     </v-table>
+
   </div>
 </template>
 
@@ -204,5 +211,9 @@ async function filterByCriterion(criterion_key) {
 
 td {
   font-size: 14px;
+}
+
+.generalCriterion {
+  margin-left: 50px;
 }
 </style>

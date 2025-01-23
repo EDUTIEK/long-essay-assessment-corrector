@@ -426,10 +426,13 @@ export const useCommentsStore = defineStore('comments', {
      * @param {bool} rating_cardinal
      */
     setFilterByPoints(corrector_key) {
+      const pointsStore = usePointsStore();
       this.filterKeys = [];
       for (const comment of this.comments) {
-        if (comment.corrector_key == corrector_key && comment.points > 0) {
-          this.filterKeys.push(comment.key);
+        if (comment.corrector_key == corrector_key) {
+          if (pointsStore.getCommentHasPoints(comment.key)) {
+            this.filterKeys.push(comment.key);
+          }
         }
       }
       this.setFilterChange();

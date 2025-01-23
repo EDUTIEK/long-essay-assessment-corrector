@@ -71,7 +71,7 @@ function save() {
           <v-container id='app-own-summary-includes-container'>
             <v-row>
               <v-col>
-                <label for="appIncludeComments">Merkierungen und Anmerkungen</label>
+                <label for="appIncludeComments">Markierungen und Anmerkungen</label>
               </v-col>
               <v-col>
                 <select id="appIncludeComments" class="appIncludesSelect" v-model="includes.include_comments">
@@ -118,7 +118,7 @@ function save() {
                   <option :value="Summary.INCLUDE_INFO">informativ</option>
                   <option :value="Summary.INCLUDE_RELEVANT">bewertungsrelevant</option>
                 </select>
-                <small>Es wird eine Tabelle mit den Kriterein und den dafür erreichten Punkten angezeigt.</small>
+                <small>Es wird eine Tabelle mit den Kriterien und den dafür erreichten Punkten angezeigt.</small>
               </v-col>
             </v-row>
           </v-container>
