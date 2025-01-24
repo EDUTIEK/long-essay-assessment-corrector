@@ -46,7 +46,7 @@ const layoutStore = useLayoutStore();
           <own-summary-includes v-if="settingsStore.inclusionsPossible"></own-summary-includes>
         </v-col>
         <v-col cols="2">
-          <v-btn density="compact" v-if="!settingsStore.fixed_inclusions" variant="text" :disabled="summariesStore.isOwnDisabled"
+          <v-btn density="compact" v-if="settingsStore.inclusionsChangeable" variant="text" :disabled="summariesStore.isOwnDisabled"
                  @click="layoutStore.showIncludesPopup = true">
             <v-icon left icon="mdi-pencil"></v-icon>
             <span>Ändern...</span>

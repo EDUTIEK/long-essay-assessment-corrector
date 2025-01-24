@@ -7,6 +7,8 @@ import { useSummariesStore } from '@/store/summaries';
 import { useLevelsStore } from '@/store/levels';
 import { useLayoutStore } from '@/store/layout';
 import { usePointsStore } from '@/store/points';
+import { useCommentsStore } from '@/store/comments';
+import { useCriteriaStore } from '@/store/criteria';
 import OwnSummaryIncludes from '@/components/OwnSummaryIncludes.vue';
 import SumOfPoints from "@/components/SumOfPoints.vue";
 import { ref } from 'vue';
@@ -20,6 +22,9 @@ const summariesStore = useSummariesStore();
 const levelsStore = useLevelsStore();
 const layoutStore = useLayoutStore();
 const pointsStore = usePointsStore();
+const commentsStore = useCommentsStore();
+const criteriaStore = useCriteriaStore();
+
 
 const showIncludes = ref(false);
 
@@ -27,7 +32,7 @@ const showIncludes = ref(false);
 function getPartialPointsMessage() {
   const settings = summariesStore.currentInclusionSettings;
   const with_comments = settings.include_comment_points > Summary.INCLUDE_NOT;
-  const with_criteria = settings.include_criteria_points > Summary.INCLUDE_NOT;
+  const with_criteria = criteriaStore.hasOwnCriteria && settings.include_criteria_points > Summary.INCLUDE_NOT;
 
   let points = 0;
   let note = '';
@@ -127,7 +132,7 @@ function editSummary() {
 
           <div class="appRow">
             <own-summary-includes v-if="settingsStore.inclusionsPossible"></own-summary-includes>
-            <v-btn density="compact" v-if="!settingsStore.fixed_inclusions" variant="text" :disabled="summariesStore.isOwnDisabled"
+            <v-btn density="compact" v-if="settingsStore.inclusionsChangeable" variant="text" :disabled="summariesStore.isOwnDisabled"
                    @click="layoutStore.showIncludesPopup = true">
               <v-icon left icon="mdi-pencil"></v-icon>
               <span class="sr-only">Einbezug bearbeiten</span>
