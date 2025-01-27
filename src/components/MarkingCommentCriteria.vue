@@ -27,7 +27,7 @@ async function loadPoints() {
 
   criteriaPoints.value = {};
   for (const criterion of criteriaStore.getCorrectorCommentCriteria(corrector_key.value)) {
-    const pointsObject = pointsStore.getObjectByData( corrector_key.value, commentsStore.selectedKey, criterion.key);
+    const pointsObject = pointsStore.getObjectByData(corrector_key.value, comment_key.value, criterion.key);
     criteriaPoints.value[criterion.key] = (pointsObject ? pointsObject.points : 0);
   }
 }

@@ -275,6 +275,7 @@ export const useApiStore = defineStore('api', {
           this.showItemReplaceConfirmation = true;
         } else {
           console.log('init: open saving, same context, same item');
+          await this.loadDataFromStorage();
           this.initAfterKeepDataConfirmed();
         }
       } else {
@@ -308,6 +309,7 @@ export const useApiStore = defineStore('api', {
       this.showItemReplaceConfirmation = false;
 
       this.itemKey = localStorage.getItem('correctorItemKey');
+      await await this.loadItemFromStorage(this.itemKey);
       const item = itemsStore.getItem(this.itemKey);
 
       if (await this.loadDataFromBackend()) {
@@ -584,9 +586,14 @@ export const useApiStore = defineStore('api', {
           this.setTimeOffset(response);
           this.refreshToken(response);
 
-          await commentsStore.updateKeys(response.data.comments);
+          const newSelectedKey = await commentsStore.updateKeys(response.data.comments);
           await pointsStore.changeCommentKeys(response.data.comments);
           await pointsStore.updateKeys(response.data.points);
+
+          // trigger selection change for the comment
+          if (newSelectedKey !== null) {
+            await commentsStore.selectComment(newSelectedKey, true);
+          }
 
           await changesStore.setChangesSent(Change.TYPE_COMMENT,
             response.data.comments,

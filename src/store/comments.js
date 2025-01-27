@@ -587,6 +587,7 @@ export const useCommentsStore = defineStore('comments', {
      * A new key is null for a deleted comment
      *
      * @param {object} matches - assoc array with old and new string keys
+     * @return string new selected key or null if key is the same
      */
     async updateKeys(matches = {}) {
 
@@ -609,8 +610,10 @@ export const useCommentsStore = defineStore('comments', {
       }
 
       // treat the changes in the state (curent correction item)
+      let newSelectedKey = null;
       if (changedKeys.includes(this.selectedKey)) {
-        this.selectComment(matches[this.selectedKey], true);
+        newSelectedKey = matches[this.selectedKey];
+        this.selectComment(newSelectedKey, false);
       }
       this.comments = this.comments.filter(comment => !removedKeys.includes(comment.key));
       for (const comment of this.comments) {
@@ -641,6 +644,9 @@ export const useCommentsStore = defineStore('comments', {
         await storage.setItem(comment.key, JSON.stringify(comment.getData()));
       }
       await storage.setItem('keys', JSON.stringify(this.keys));
+
+      // defer setting the change
+      return newSelectedKey;
     }
   }
 });
