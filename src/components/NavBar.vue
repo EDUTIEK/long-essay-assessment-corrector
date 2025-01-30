@@ -50,7 +50,7 @@ function handleKey(event) {
 }
 
 function selectResource(resource) {
-  if (resource.type == 'url') {
+  if (resource.type == 'url' && !resource.embedded) {
     window.open(resource.source, 'long-essay-writer-resource-' + resource.key)
   } else {
     resourcesStore.selectResource(resource);

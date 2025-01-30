@@ -20,7 +20,17 @@ const resourcesStore = useResourcesStore();
             height="100%">
         </object>
       </div>
-
+      <div v-if="resource.type=='url' && resource.embedded == true" v-show="resourcesStore.getResourceIsActive(resource)">
+        <iframe
+            :src="resource.source"
+            width="100%"
+            height="100%"
+            frameborder = 0
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen
+        >
+        </iframe>
+      </div>
     </template>
   </div>
 </template>

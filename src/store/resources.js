@@ -132,7 +132,9 @@ export const useResourcesStore = defineStore('resources', {
         this.$reset();
 
         for (const resource of data) {
-          resource.url = apiStore.getResourceUrl(resource.key);
+          if (resource.type != 'url') {
+            resource.url = apiStore.getResourceUrl(resource.key);
+          }
           this.resources.push(resource);
           this.keys.push(resource.key);
           await storage.setItem(resource.key, resource);
