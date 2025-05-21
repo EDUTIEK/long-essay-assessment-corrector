@@ -41,7 +41,7 @@ class TextMarker {
 
     if (onIntersection instanceof Function) {
       this.onIntersection = onIntersection;
-      this.observer = new IntersectionObserver(this.keydownHandler.bind(this), {
+      this.observer = new IntersectionObserver(this.intersectionHandler.bind(this), {
         root: this.el, threshold: [1]
       });
     }
