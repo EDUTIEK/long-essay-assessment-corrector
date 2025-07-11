@@ -166,14 +166,14 @@ watch(() => layoutStore.focusChange, handleFocusChange);
 <template>
   <v-container :id="'appCommentContainer' + comment.key" :key="comment.key" class="commentContainer">
 
-    <v-row dense>
+    <v-row dense @click="commentsStore.selectComment(comment.key)">
 
       <!-- icon and label -->
       <v-col cols="2">
         <v-icon size="small" :icon="comment.getMarkIcon()"></v-icon> &nbsp;
         <button tabindex="0"
                 :class="'v-btn commentLabel ' + (comment.key == commentsStore.selectedKey ? 'selected' : '')"
-                @click="commentsStore.selectComment(comment.key)">
+        >
           {{ comment.label }}
         </button>
       </v-col>
@@ -191,7 +191,6 @@ watch(() => layoutStore.focusChange, handleFocusChange);
                           :label="'Anmerkung zu Markierung ' + comment.label"
                           rows="1" auto-grow
                           :readonly="summariesStore.isOwnDisabled || comment.corrector_key != apiStore.correctorKey"
-                          @click="commentsStore.selectComment(comment.key)"
                           @change="commentsStore.updateComment(comment)"
                           @keyup="commentsStore.updateComment(comment)"
                           @keydown="handleTextKeydown()"
@@ -267,12 +266,11 @@ watch(() => layoutStore.focusChange, handleFocusChange);
 
           <!-- COMMENT DISPLAY -->
 
-          <v-row dense>
+          <v-row dense @click="commentsStore.selectComment(comment.key)">
             <v-col cols="12" v-show="!isSelected(comment)">
               <div class="commentDisplay"
                    v-show="comment.comment"
                    :style="'background-color: ' + getBgColor(comment) + ';'"
-                   @click="commentsStore.selectComment(comment.key)"
               >
                 {{comment.comment}}
               </div>
@@ -285,22 +283,22 @@ watch(() => layoutStore.focusChange, handleFocusChange);
 
             <!-- show points -->
             <v-col cols=4>
-              <span v-show="getPointsDisplay(comment) > 0" @click="commentsStore.selectComment(comment.key)">
+              <span v-show="getPointsDisplay(comment) > 0">
                 <span class="pointsInput">{{ getPointsDisplay(comment) }}</span>&nbsp;{{ getPointsLabel(comment) }}
               </span>
             </v-col>
 
             <!-- show excellent -->
             <v-col cols=4>
-              <span v-show="comment.rating_excellent" @click="commentsStore.selectComment(comment.key)">
-                 <v-icon icon="mdi-checkbox-outline"></v-icon> Exzellent
+              <span v-show="comment.rating_excellent">
+                 <v-icon icon="mdi-checkbox-outline"></v-icon> {{ settingsStore.positive_rating }}
               </span>
             </v-col>
 
             <!-- show cardinal -->
             <v-col cols=4>
-              <span v-show="comment.rating_cardinal" @click="commentsStore.selectComment(comment.key)">
-                <v-icon icon="mdi-checkbox-outline"></v-icon> Kardinal
+              <span v-show="comment.rating_cardinal">
+                <v-icon icon="mdi-checkbox-outline"></v-icon> {{ settingsStore.negative_rating }}
               </span>
             </v-col>
           </v-row>
@@ -312,7 +310,6 @@ watch(() => layoutStore.focusChange, handleFocusChange);
         <v-btn class="trashButton" density="compact" size="small" variant="text" prepend-icon="mdi-delete-outline"
                v-show="hasTrash(comment)"
                :tabindex="isSelected(comment) ? 0 : -1"
-               @click="commentsStore.deleteComment(comment.key)"
                @keydown="handleTextKeydown()"
         >
           <span class="sr-only">Anmerkung löschen</span>
