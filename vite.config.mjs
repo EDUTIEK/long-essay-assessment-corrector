@@ -3,10 +3,12 @@ import Components from 'unplugin-vue-components/vite'
 import vue from '@vitejs/plugin-vue'
 import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
 import ViteFonts from 'unplugin-fonts/vite'
+import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 
 // Utilities
 import { defineConfig } from 'vite'
 import { fileURLToPath, URL } from 'node:url'
+import { resolve, dirname } from 'node:path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -28,6 +30,12 @@ export default defineConfig({
           styles: 'wght@100;300;400;500;700;900',
         }],
       },
+    }),
+    VueI18nPlugin({
+      /* options */
+      module: 'petite-vue-i18n',
+      // locale messages resource pre-compile option
+      include: resolve(dirname(fileURLToPath(import.meta.url)), './src/locales/**'),
     }),
   ],
   define: { 'process.env': {} },

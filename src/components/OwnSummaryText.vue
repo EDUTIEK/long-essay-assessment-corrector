@@ -29,6 +29,7 @@ import 'tinymce/skins/content/default/content.js';
 
 // Import tiny vue integration
 import Editor from '@tinymce/tinymce-vue'
+import TinyHelper from '@/lib/TinyHelper';
 
 import contentLocalCss from '@/styles/content.css?inline';
 import headlinesThreeCss from '@/styles/headlines-three.css?inline';
@@ -44,110 +45,30 @@ const layoutStore = useLayoutStore();
 
 // editorId used for retrieving the editor instance using the tinymce.get('ID') method.
 const props = defineProps(['editorId']);
+const helper = new TinyHelper(props.editorId);
 
-function toolbar() {
-  // corrector always has full formatting options
-  return 'zoomOut zoomIn undo redo styles bold italic underline bullist numlist removeformat charmap';
-}
-
-/**
- * @see https://www.tiny.cloud/docs/configure/content-filtering/#valid_elements
- */
-function validElements() {
-  // corrector always has full formatting options
-  return 'p/div,br,strong/b,em/i,u,ol,ul,li,h1,h2,h3,h4,h5,h6,pre';
-}
-
-/**
- * @see https://www.tiny.cloud/docs/configure/content-formatting/#formats
- */
-function formats() {
-  return {
-    underline: { inline: 'u', remove: 'all' }
-  }
-}
-
-function styleFormats() {
-  return [
-    { title: 'Absatz', format: 'p' },
-    { title: 'Überschrift 1', format: 'h1' },
-    { title: 'Überschrift 2', format: 'h2' },
-    { title: 'Überschrift 3', format: 'h3' },
-    { title: 'Maschinenschrift', format: 'pre' },
-    { title: 'Listenelement', block: 'li' },
-  ];
-}
+watch(() => layoutStore.focusChange, handleFocusChange);
 
 function handleInit() {
-  applyZoom();
-  applyFormat();
-  handleFocusChange();
+  helper.init();
 }
 
 async function handleFocusChange() {
   if (layoutStore.focusTarget == 'ownSummary') {
+    helper.applyFocus();
     await nextTick();
-    const editor = tinymce.get(props.editorId);
-    if (editor) {
-      console.log('editor found');
-      editor.focus();
-    }
+    helper.restoreScrolling();
   }
 }
 
-watch(() => layoutStore.focusChange, handleFocusChange);
-
 function handleChange() {
   summariesStore.updateContent(true);
-  applyZoom();
+  helper.applyZoom();
 }
 
 function handleKeyUp() {
   summariesStore.updateContent(true);
 }
-
-
-function zoomIn() {
-  preferencesStore.zoomSummaryTextIn();
-  applyZoom();
-}
-
-function zoomOut() {
-  preferencesStore.zoomSummaryTextOut();
-  applyZoom();
-}
-
-function applyZoom() {
-  try {
-    const editor = tinymce.get(props.editorId);
-    if (editor) {
-      editor.dom.setStyle(editor.dom.doc.body, 'font-size', (preferencesStore.summary_text_zoom) + 'rem');
-      editor.dom.setStyle(editor.dom.select('h1'),
-          'font-size',
-          (preferencesStore.summary_text_zoom * 1.3) + 'rem');
-      editor.dom.setStyle(editor.dom.select('h2'),
-          'font-size',
-          (preferencesStore.summary_text_zoom * 1.15) + 'rem');
-      editor.dom.setStyle(editor.dom.select('h3'), 'font-size', (preferencesStore.summary_text_zoom) + 'rem');
-      editor.dom.setStyle(editor.dom.select('h4'), 'font-size', (preferencesStore.summary_text_zoom) + 'rem');
-      editor.dom.setStyle(editor.dom.select('h5'), 'font-size', (preferencesStore.summary_text_zoom) + 'rem');
-      editor.dom.setStyle(editor.dom.select('h6'), 'font-size', (preferencesStore.summary_text_zoom) + 'rem');
-    }
-  }
-  catch (e) {
-    // prevent error when tiny is unloaded
-  }
-}
-
-/**
- * Add classes for the headline styles to the overlay element of the tiny menu
- */
-function applyFormat() {
-  for (const element of document.getElementsByClassName('tox-tinymce-aux')) {
-    element.classList.add('headlines-three');
-  }
-}
-
 </script>
 
 <template>
@@ -157,45 +78,13 @@ function applyFormat() {
         :id="props.editorId"
         v-if="!summariesStore.isOwnDisabled"
         v-model="summariesStore.editSummary.text"
-        @change="handleChange"
-        @keydown="layoutStore.handleKeyDown"
-        @keyup="handleKeyUp"
         @init="handleInit"
-        api-key="no-api-key"
-        :init="{
-            license_key: 'gpl',
-            language: 'de',
-            height: '100%',
-            menubar: false,
-            statusbar: true,
-            elementpath: false,
-            branding: false,
-            plugins: 'lists charmap wordcount',
-            toolbar: toolbar(),
-            valid_elements: validElements(),
-            formats: formats(),
-            style_formats: styleFormats(),
-            custom_undo_redo_levels: 10,
-            skin: 'default',
-            content_css: 'default',
-            content_style: contentLocalCss.toString() + '\n' + headlinesThreeCss.toString(),
-            browser_spellcheck: true,
-            highlight_on_focus: true,
-            iframe_aria_text: 'Editor Gutachten',
-            paste_as_text: false,         // keep formats when copying between clipboards
-            paste_block_drop: true,       // prevent unfiltered content from drag & drop
-            paste_merge_formats: true,    // default
-            paste_tab_spaces: 4,          // default
-            smart_paste: false,           // don't create hyperlinks automatically
-            paste_data_images: false,     // don't paste images
-            paste_remove_styles_if_webkit: true,  // default
-            paste_webkit_styles: 'none',          // default
-            //font_size_formats: '8pt 10pt 12pt 14pt 16pt 18pt 24pt 36pt 48pt',
-            setup: function (editor) {
-              editor.ui.registry.addButton('zoomOut', {tooltip: 'Verkleinern', icon: 'zoom-out', onAction: zoomOut});
-              editor.ui.registry.addButton('zoomIn', {tooltip: 'Vergrößern', icon: 'zoom-in', onAction: zoomIn});
-              }
-            }"
+        @change="handleChange"
+        @keyup="handleKeyUp"
+        @keydown="layoutStore.handleKeyDown"
+        @scroll="helper.saveScrolling"
+        licenseKey = 'gpl'
+        :init="helper.getInit()"
     />
 
     <div class="app-summary-text-display long-essay-content corrector-summary"
