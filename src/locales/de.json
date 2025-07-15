@@ -35,6 +35,8 @@
     "authorizationWarnFinalize": "Durch die Autorisierung wird Ihre Korrektur festgeschrieben. Sie können sie anschließend nicht mehr ändern. Möchten Sie Ihre Korrektur autorisieren?",
     "authorizationWarnStitchDecision": "Ihre Punktevergabe wird einen Stichentscheid erfordern: {0}",
     "authorizationTitle": "Korrektur von {0} autorisieren",
+    "essayZoomIn": "Abgabe Text vergrößern",
+    "essayZoomOut": "Abgabe Text verkleinern",
     "helpAction": "Aktion",
     "helpCloseHelp": "Hilfe schließen",
     "helpCommandBold": "Fett",
