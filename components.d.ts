@@ -28,6 +28,7 @@ declare module 'vue' {
     OwnSummaryPoints: typeof import('./src/components/OwnSummaryPoints.vue')['default']
     OwnSummaryText: typeof import('./src/components/OwnSummaryText.vue')['default']
     Resources: typeof import('./src/components/Resources.vue')['default']
+    Snippets: typeof import('./src/components/Snippets.vue')['default']
     Solution: typeof import('./src/components/Solution.vue')['default']
     SolutionPdf: typeof import('./src/components/SolutionPdf.vue')['default']
     StartupContent: typeof import('./src/components/StartupContent.vue')['default']

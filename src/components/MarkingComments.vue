@@ -2,6 +2,7 @@
 import { useCommentsStore } from "@/store/comments";
 import MarkingComment from '@/components/MarkingComment.vue';
 import { nextTick, watch } from 'vue';
+import Snippets from "@/components/Snippets.vue";
 
 const commentsStore = useCommentsStore();
 
@@ -40,6 +41,7 @@ watch(() => commentsStore.firstVisibleKey, scrollToFirstVisible);
 
 <template>
   <div id="appMarkingComments">
+    <!-- <snippets></snippets> -->
     <marking-comment v-for="comment in commentsStore.activeComments" :key="comment.key" :comment="comment"></marking-comment>
   </div>
 </template>
