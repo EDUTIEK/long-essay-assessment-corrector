@@ -52,7 +52,7 @@ async function returnToBackend() {
     <stitch-decision v-if="apiStore.isStitchDecision"/>
     <v-btn class="app-header-item" @click="returnToBackend()">
       <v-icon left icon="mdi-logout-variant"></v-icon>
-      <span>Korrekturen</span>
+      <span>{{ $t('appBarReturn') }}</span>
     </v-btn>
   </v-app-bar>
 
