@@ -341,8 +341,8 @@ function toggleLabels() {
 
 
       <v-btn-group density="comfortable" variant="outlined" divided>
-        <v-btn size="small" icon="mdi-magnify-minus-outline" @click="zoomOut()"></v-btn>
-        <v-btn size="small" icon="mdi-magnify-plus-outline" @click="zoomIn()"></v-btn>
+        <v-btn size="small" :title="$t('essayImageZoomOut')" icon="mdi-magnify-minus-outline" @click="zoomOut()"></v-btn>
+        <v-btn size="small" :title="$t('essayImageZoomIn')" icon="mdi-magnify-plus-outline" @click="zoomIn()"></v-btn>
       </v-btn-group>
 
       &nbsp;
