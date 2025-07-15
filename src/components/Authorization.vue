@@ -13,7 +13,7 @@ import OwnSummaryIncludes from '@/components/OwnSummaryIncludes.vue';
 import SumOfPoints from "@/components/SumOfPoints.vue";
 import { ref } from 'vue';
 import Summary from "@/data/Summary";
-
+import i18n from "@/plugins/i18n";
 
 const apiStore = useApiStore();
 const itemsStore = useItemsStore();
@@ -24,7 +24,7 @@ const layoutStore = useLayoutStore();
 const pointsStore = usePointsStore();
 const commentsStore = useCommentsStore();
 const criteriaStore = useCriteriaStore();
-
+const { t } = i18n.global
 
 const showIncludes = ref(false);
 
@@ -39,22 +39,22 @@ function getPartialPointsMessage() {
 
   if (with_comments && with_criteria) {
     points = pointsStore.getSumOfPointsForCorrector(apiStore.correctorKey);
-    note = ' zu Anmerkungen und Kriterien';
+    note = t('authorizationPointsToCommentsAndCriteria', points);
   }
   else if (with_comments) {
     points = pointsStore.getSumOfPointsForCorrector(apiStore.correctorKey, true);
-    note = ' zu Anmerkungen';
+    note = t('authorizationPointsToComments', points);
   }
   else if (with_criteria) {
     points = pointsStore.getSumOfPointsForCorrector(apiStore.correctorKey, null, true);
-    note = ' zu Kriterien';
+    note = t('authorizationPointsToCriteria', points);
   }
   else {
     return '';
   }
 
   if (points != summariesStore.editSummary.points) {
-    return 'Ihre Bewertung weicht von der einbezogenen Summe der Teilpunkte (' + points + note + ') ab!'
+    return t('authorizationPointsMismatch', [note])
   }
 
   return '';
@@ -101,17 +101,17 @@ function editSummary() {
     <v-btn class="app-header-item" v-show="!summariesStore.isOwnDisabled" :disabled="apiStore.isLoading || !itemsStore.authorizationAllowed"
            @click="apiStore.setShowAuthorization(true)">
       <v-icon left icon="mdi-file-certificate-outline"></v-icon>
-      <span>Autorisieren...</span>
+      <span>{{ $t('authorizationButton') }}</span>
     </v-btn>
 
     <v-dialog max-width="60em" persistent v-model="apiStore.showAuthorization">
       <v-card>
-        <v-card-title>Korrektur von {{ itemsStore.currentItem.title }} autorisieren</v-card-title>
+        <v-card-title>{{ $t('authorizationTitle', [itemsStore.currentItem.title]) }}</v-card-title>
         <v-card-text>
-          <div class="appRow"><strong>Gutachten:</strong>
+          <div class="appRow"><strong>{{ $t('authorizationSummaryLabel') }}</strong>
             <v-btn  density="compact" variant="text" @click="editSummary()">
               <v-icon left icon="mdi-pencil"></v-icon>
-              <span class="sr-only">Gutachten bearbeiten</span>
+              <span class="sr-only">{{ $t('authorizationSummaryEdit') }}</span>
             </v-btn>
             <div class="appText long-essay-content headlines-three" v-html="summariesStore.editSummary.text">
             </div>
@@ -122,11 +122,11 @@ function editSummary() {
           </div>
 
           <div class="appRow">
-            <label for="appAuthorizationPoints"><strong>Bewertung:</strong></label>
+            <label for="appAuthorizationPoints"><strong>{{ $t('authorizationPointsLabel') }}</strong></label>
             <input id="appAuthorizationPoints" class="appPoints" type="number" min="0" :max="settingsStore.max_points"
-                   v-model="summariesStore.editSummary.points"/>Punkte
+                   v-model="summariesStore.editSummary.points"/>{{ $t('authorizationPointsSuffix' ) }}
             &nbsp;
-            <strong>Notenstufe:</strong> {{ summariesStore.currentGradeTitle }}
+            <strong>{{ $t('authorizationGradeTitle') }}</strong> {{ summariesStore.currentGradeTitle }}
 
           </div>
 
@@ -135,7 +135,7 @@ function editSummary() {
             <v-btn density="compact" v-if="settingsStore.inclusionsChangeable" variant="text" :disabled="summariesStore.isOwnDisabled"
                    @click="layoutStore.showIncludesPopup = true">
               <v-icon left icon="mdi-pencil"></v-icon>
-              <span class="sr-only">Einbezug bearbeiten</span>
+              <span class="sr-only">{{ $t('authorizationEditIncludes') }}</span>
             </v-btn>
 
           </div>
@@ -143,12 +143,12 @@ function editSummary() {
           <div class="appRow">
             <v-alert v-show="summariesStore.editSummary.text == ''"
                      color="#0000A0" type="info" variant="text" density="compact">
-              Bitte geben Sie einen Gutachten-Text ein.
+              {{ $t('authorizationPleaseEnterSummary') }}
             </v-alert>
 
             <v-alert v-show="(levelsStore.hasLevels && (summariesStore.editSummary.points === null))"
                      color="#0000A0" type="info" variant="text" density="compact">
-              Bitte geben Sie eine Bewertung ein, damit eine Notenstufe vergeben werden kann.
+              {{ $t('authorizationPleaseEnterPoints') }}
             </v-alert>
 
             <v-alert v-show="getPartialPointsMessage() != ''" color="#0000A0" type="info" variant="text" density="compact">
@@ -157,28 +157,27 @@ function editSummary() {
 
             <v-alert v-show="summariesStore.areOthersAuthorized && summariesStore.stitchReasonText != '' "
                      color="#0000A0" type="info" variant="text" density="compact">
-              Ihre Punktevergabe wird einen Stichentscheid erfordern: {{ summariesStore.stitchReasonText }}
+              {{ $t('authorizationWarnStitchDecision', [summariesStore.stitchReasonText]) }}
             </v-alert>
 
           </div>
 
           <div class="appRow">
-            Durch die Autorisierung wird Ihre Korrektur festgeschrieben. Sie können sie anschließend nicht mehr ändern.
-            Möchten Sie Ihre Korrektur autorisieren?
+            {{ $t('authorizationWarnFinalize') }}
           </div>
         </v-card-text>
         <v-card-actions>
           <v-btn @click="setAuthorizedAndContinue()">
             <v-icon left icon="mdi-check"></v-icon>
-            <span>Autorisieren und Weiter</span>
+            <span>{{ $t('authorizationAuthorizeAndContinue') }}</span>
           </v-btn>
           <v-btn @click="setAuthorizedAndClose()">
             <v-icon left icon="mdi-check"></v-icon>
-            <span>Autorisieren und Schließen</span>
+            <span>{{ $t('authorizationAuthorizeAndClose') }}</span>
           </v-btn>
           <v-btn @click="apiStore.setShowAuthorization(false);">
             <v-icon left icon="mdi-close"></v-icon>
-            <span>Abbrechen</span>
+            <span>{{ $t('allCancel') }}</span>
           </v-btn>
         </v-card-actions>
       </v-card>
