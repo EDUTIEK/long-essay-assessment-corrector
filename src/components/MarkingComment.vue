@@ -7,6 +7,7 @@ import { useCriteriaStore } from '@/store/criteria';
 import { usePointsStore } from '@/store/points';
 import { useLayoutStore } from '@/store/layout';
 import {nextTick, onMounted, ref, watch} from 'vue';
+import i18n from "@/plugins/i18n";
 
 const apiStore = useApiStore();
 const commentsStore = useCommentsStore();
@@ -16,6 +17,7 @@ const criteriaStore = useCriteriaStore();
 const pointsStore = usePointsStore();
 const layoutStore = useLayoutStore();
 
+const { t } = i18n.global;
 const props = defineProps(['comment']);
 
 const comment = props.comment;
@@ -99,7 +101,7 @@ function getPointsDisplay(comment) {
 }
 
 function getPointsLabel(comment) {
- return getPointsDisplay(comment) == 1 ? 'Punkt' : 'Punkte';
+ return t('allPoints', getPointsDisplay(comment));
 }
 
 async function toggleExcellent(comment) {
@@ -188,7 +190,7 @@ watch(() => layoutStore.focusChange, handleFocusChange);
             <v-col cols="12">
               <v-textarea class="commentInput" :bg-color="getBgColor(comment)" rounded="0" density="compact" variant="solo"
                           :id="'app-comment-' + comment.key"
-                          :label="'Anmerkung zu Markierung ' + comment.label"
+                          :label="$t('markingCommentsCommentForLabel', [comment.label])"
                           rows="1" auto-grow
                           :readonly="summariesStore.isOwnDisabled || comment.corrector_key != apiStore.correctorKey"
                           @change="commentsStore.updateComment(comment)"
@@ -312,7 +314,7 @@ watch(() => layoutStore.focusChange, handleFocusChange);
                :tabindex="isSelected(comment) ? 0 : -1"
                @keydown="handleTextKeydown()"
         >
-          <span class="sr-only">Anmerkung löschen</span>
+          <span class="sr-only">{{ $t('markingCommentsDelete') }}</span>
         </v-btn>
       </v-col>
 
