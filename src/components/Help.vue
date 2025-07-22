@@ -105,7 +105,7 @@ const layoutStore = useLayoutStore();
           </tr>
           <tr>
             <td>{{ $t('helpCommentsJumpToCriteria') }}</td>
-            <td>{{ $t('hrlpKeyReturnOnFocusedPoints') }}</td>
+            <td>{{ $t('helpKeyReturnOnFocusedPoints') }}</td>
           </tr>
           <tr>
             <td>{{ $t('helpCommentsReturnFromCriteria') }}</td>

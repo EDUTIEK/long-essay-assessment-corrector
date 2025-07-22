@@ -54,13 +54,13 @@ document.addEventListener('keydown', layoutStore.handleKeyDown);
         <!-- Header -->
         <div class="col-header">
             <h1 id="appHeadLeft" tabindex="0" class="headline">{{
-                layoutStore.isInstructionsVisible ? "Aufgabenstellung"
-                    : layoutStore.isInstructionsPdfVisible ? "Aufgabenstellung (PDF)"
-                        : layoutStore.isSolutionVisible ? "Lösungshinweise"
-                            : layoutStore.isSolutionPdfVisible ? "Lösungshinweise (PDF)"
-                                : layoutStore.isEssayVisible ? "Abgegebener Text"
+                layoutStore.isInstructionsVisible ? $t('allInstructions')
+                    : layoutStore.isInstructionsPdfVisible ? $t('allInstructionsPdf')
+                        : layoutStore.isSolutionVisible ? $t('allSolution')
+                            : layoutStore.isSolutionPdfVisible ? $t('allSolutionPdf')
+                                : layoutStore.isEssayVisible ? $t('allEssay')
                                     : layoutStore.isResourcesVisible ? resourcesStore.activeTitle
-                                        : layoutStore.isLeftCorrectorVisible ? layoutStore.leftCorrectorTitle : "Linke Spalte"
+                                        : layoutStore.isLeftCorrectorVisible ? layoutStore.leftCorrectorTitle : $t('mainContentLeftColumn')
               }}
             </h1>
           <v-btn-group density="comfortable">
@@ -70,31 +70,31 @@ document.addEventListener('keydown', layoutStore.handleKeyDown);
                    @click="layoutStore.toggleLeftSummaryCriteria()">
               <v-icon v-show="layoutStore.showLeftSummaryCriteria" icon="mdi-checkbox-outline"></v-icon>
               <v-icon v-show="!layoutStore.showLeftSummaryCriteria" icon="mdi-checkbox-blank-outline"></v-icon>
-              <span>Übersicht</span>
+              <span>{{ $t('allOverview') }}</span>
             </v-btn>
 
-            <!-- toggle ledt summary text  -->
+            <!-- toggle left summary text  -->
             <v-btn size="small" v-show="layoutStore.isLeftCorrectorVisible"
                    @click="layoutStore.toggleLeftSummaryText()">
               <v-icon v-show="layoutStore.showLeftSummaryText" icon="mdi-checkbox-outline"></v-icon>
               <v-icon v-show="!layoutStore.showLeftSummaryText" icon="mdi-checkbox-blank-outline"></v-icon>
-              <span>Gutachten</span>
+              <span>{{ $t('allSummary') }}</span>
             </v-btn>
 
             <!-- expand right column -->
             <v-btn size="small" @click="layoutStore.setLeftExpanded(false)" v-show="layoutStore.isLeftExpanded">
               <v-icon icon="mdi-chevron-left"></v-icon>
               <span> {{
-                  layoutStore.isMarkingSelected ? "Korrektur"
-                      : layoutStore.isSummarySelected ? "Gesamteindruck"
-                          : layoutStore.isRightCorrectorSelected ? layoutStore.rightCorrectorTitle : "Rechte Spalte erweitern"
+                  layoutStore.isMarkingSelected ? $t('allCorrection')
+                      : layoutStore.isSummarySelected ? $t('allSummary')
+                          : layoutStore.isRightCorrectorSelected ? layoutStore.rightCorrectorTitle : $t('mainContentExpandRightColumn')
                 }}
                 </span>
             </v-btn>
             <!-- expand left column -->
             <v-btn size="small" @click="layoutStore.setLeftExpanded(true)" v-show="!layoutStore.isLeftExpanded">
-              <span aria-hidden="true">Erweitern</span>
-              <span id="app-expand-left-column" class="sr-only">Linke Spalte erweitern</span>
+              <span aria-hidden="true">{{ $t('mainContentExpand') }}</span>
+              <span id="app-expand-left-column" class="sr-only">{{ $t('mainContentExpandLeftColumn') }}</span>
               <v-icon icon="mdi-chevron-right"></v-icon>
             </v-btn>
           </v-btn-group>
@@ -124,9 +124,9 @@ document.addEventListener('keydown', layoutStore.handleKeyDown);
         <!-- Header -->
         <div class="col-header">
             <h1 id="appHeadRight" tabindex="0" class="headline"> {{
-                layoutStore.isMarkingVisible ? "Korrektur"
-                    : layoutStore.isSummaryVisible ? "Eigener Gesamteindruck"
-                        : layoutStore.isRightCorrectorVisible ? layoutStore.rightCorrectorTitle : "Rechte Spalte"
+                layoutStore.isMarkingVisible ? $t("allCorrection")
+                    : layoutStore.isSummaryVisible ? $t("allOwnSummary")
+                        : layoutStore.isRightCorrectorVisible ? layoutStore.rightCorrectorTitle : $t('mainContentRightColumn')
               }}
             </h1>
 
@@ -137,7 +137,7 @@ document.addEventListener('keydown', layoutStore.handleKeyDown);
                    @click="commentsStore.setShowOtherCorrectors(!commentsStore.isOtherCorrectorsShown)">
               <v-icon
                   :icon="commentsStore.isOtherCorrectorsShown ? 'mdi-account-school' : 'mdi-account-school-outline'"></v-icon>
-              <span class="sr-only">{{'Andere Korrektoren zeigen' + (commentsStore.isOtherCorrectorsShown ? ', ist ausgewählt' : '')}}</span>
+              <span class="sr-only">{{$t('mainContentShowOtherCorrectors') + (commentsStore.isOtherCorrectorsShown ? $t('allIsSelected') : '')}}</span>
             </v-btn>
 
             <!-- reset comments filter -->
@@ -145,15 +145,15 @@ document.addEventListener('keydown', layoutStore.handleKeyDown);
                    :disabled="!commentsStore.isFilterActive"
                    @click="commentsStore.resetFilter()">
               <v-icon :icon="commentsStore.isFilterActive ? 'mdi-filter' : 'mdi-filter-outline'"></v-icon>
-              <span class="sr-only">{{'Filter aktiv' + (commentsStore.isFilterActive ? ', ist ausgewählt' : '')}}</span>
+              <span class="sr-only">{{'Filter aktiv' + (commentsStore.isFilterActive ? $t('allIsSelected') : '')}}</span>
             </v-btn>
 
             <!-- toggle marking Comments -->
             <v-btn size="small" v-show="layoutStore.isMarkingVisible" @click="layoutStore.toggleMarkingComments()">
               <v-icon v-show="layoutStore.showMarkingComments" icon="mdi-checkbox-outline"></v-icon>
               <v-icon v-show="!layoutStore.showMarkingComments" icon="mdi-checkbox-blank-outline"></v-icon>
-              <span>Anmerkungen</span>
-              <span class="sr-only">{{'anzeigen' + (layoutStore.showMarkingComments ? ', ist ausgewählt' : '')}}</span>
+              <span>{{ $t('allComments') }}</span>
+              <span class="sr-only">{{$t('allShow') + (layoutStore.showMarkingComments ? $t('allIsSelected') : '')}}</span>
             </v-btn>
 
             <!-- toggle marking comment criteria -->
@@ -161,8 +161,8 @@ document.addEventListener('keydown', layoutStore.handleKeyDown);
                    @click="layoutStore.toggleMarkingCommentCriteria()">
               <v-icon v-show="layoutStore.showMarkingCommentCriteria" icon="mdi-checkbox-outline"></v-icon>
               <v-icon v-show="!layoutStore.showMarkingCommentCriteria" icon="mdi-checkbox-blank-outline"></v-icon>
-              <span>Teilpunkte</span>
-              <span class="sr-only">{{'anzeigen' + (layoutStore.showMarkingCommentCriteria ? ', ist ausgewählt' : '')}}</span>
+              <span>{{ $t('allPartialPoints') }}</span>
+              <span class="sr-only">{{$t('allShow') + (layoutStore.showMarkingCommentCriteria ? $t('allIsSelected') : '')}}</span>
             </v-btn>
 
             <!-- toggle marking general criteria -->
@@ -170,8 +170,8 @@ document.addEventListener('keydown', layoutStore.handleKeyDown);
                    @click="layoutStore.toggleMarkingGeneralCriteria()">
               <v-icon v-show="layoutStore.showMarkingGeneralCriteria" icon="mdi-checkbox-outline"></v-icon>
               <v-icon v-show="!layoutStore.showMarkingGeneralCriteria" icon="mdi-checkbox-blank-outline"></v-icon>
-              <span>Kopfnoten</span>
-              <span class="sr-only">{{'anzeigen' + (layoutStore.showMarkingGeneralCriteria ? ', ist ausgewählt' : '')}}</span>
+              <span>{{ $t('allGeneralPoints') }}</span>
+              <span class="sr-only">{{$t('allShow') + (layoutStore.showMarkingGeneralCriteria ? $t('allIsSelected') : '')}}</span>
             </v-btn>
 
             <!-- toggle marking text -->
@@ -179,8 +179,8 @@ document.addEventListener('keydown', layoutStore.handleKeyDown);
                    @click="layoutStore.toggleMarkingText()">
               <v-icon v-show="layoutStore.showMarkingText" icon="mdi-checkbox-outline"></v-icon>
               <v-icon v-show="!layoutStore.showMarkingText" icon="mdi-checkbox-blank-outline"></v-icon>
-              <span>Gutachten</span>
-              <span class="sr-only">{{'anzeigen' + (layoutStore.showMarkingText ? ', ist ausgewählt' : '')}}</span>
+              <span>{{ $t('allSummary') }}</span>
+              <span class="sr-only">{{$t('allShow') + (layoutStore.showMarkingText ? $t('allIsSelected') : '')}}</span>
             </v-btn>
 
             <!-- toggle right summary criteria  -->
@@ -188,8 +188,8 @@ document.addEventListener('keydown', layoutStore.handleKeyDown);
                    @click="layoutStore.toggleRightSummaryCriteria()">
               <v-icon v-show="layoutStore.showRightSummaryCriteria" icon="mdi-checkbox-outline"></v-icon>
               <v-icon v-show="!layoutStore.showRightSummaryCriteria" icon="mdi-checkbox-blank-outline"></v-icon>
-              <span>Übersicht</span>
-              <span class="sr-only">{{'anzeigen' + (layoutStore.showRightSummaryCriteria ? ', ist ausgewählt' : '')}}</span>
+              <span>{{ $t('allOverview') }}</span>
+              <span class="sr-only">{{$t('allShow') + (layoutStore.showRightSummaryCriteria ? $t('allIsSelected') : '')}}</span>
             </v-btn>
 
             <!-- toggle right summary text  -->
@@ -197,17 +197,17 @@ document.addEventListener('keydown', layoutStore.handleKeyDown);
                    @click="layoutStore.toggleRightSummaryText()">
               <v-icon v-show="layoutStore.showRightSummaryText" icon="mdi-checkbox-outline"></v-icon>
               <v-icon v-show="!layoutStore.showRightSummaryText" icon="mdi-checkbox-blank-outline"></v-icon>
-              <span>Gutachten</span>
-              <span class="sr-only">{{'anzeigen' + (layoutStore.showRightSummaryText ? ', ist ausgewählt' : '')}}</span>
+              <span>{{ $t('allSummary') }}</span>
+              <span class="sr-only">{{$t('allShow') + (layoutStore.showRightSummaryText ? $t('allIsSelected') : '')}}</span>
             </v-btn>
 
             <!-- expand left column -->
             <v-btn size="small" @click="layoutStore.setRightExpanded(false)" v-show="layoutStore.isRightExpanded">
                 <span> {{
-                    layoutStore.isInstructionsSelected ? "Aufgabenstellung"
-                        : layoutStore.isEssaySelected ? "Abgegebener Text"
+                    layoutStore.isInstructionsSelected ? $t('allInstructions')
+                        : layoutStore.isEssaySelected ? $t('allEssay')
                             : layoutStore.isResourcesSelected ? resourcesStore.activeTitle
-                                : layoutStore.isLeftCorrectorSelected ? layoutStore.leftCorrectorTitle : "Linke Spalte erweitern"
+                                : layoutStore.isLeftCorrectorSelected ? layoutStore.leftCorrectorTitle : $t('mainContentExpandLeftColumn')
                   }}
                 </span>
               <v-icon icon="mdi-chevron-right"></v-icon>
@@ -216,8 +216,8 @@ document.addEventListener('keydown', layoutStore.handleKeyDown);
             <!-- expand right column -->
             <v-btn size="small" @click="layoutStore.setRightExpanded(true)" v-show="!layoutStore.isRightExpanded">
               <v-icon icon="mdi-chevron-left"></v-icon>
-              <span aria-hidden="true">Erweitern</span>
-              <span id="app-expand-right-column" class="sr-only">Rechte Spalte erweitern</span>
+              <span aria-hidden="true">{{ $t('mainContentExpand') }}</span>
+              <span id="app-expand-right-column" class="sr-only">{{ $t('mainContentExpandRightColumn') }}</span>
             </v-btn>
 
           </v-btn-group>
@@ -243,20 +243,19 @@ document.addEventListener('keydown', layoutStore.handleKeyDown);
   <v-dialog persistent v-model="apiStore.showSendFailure">
     <v-card>
       <v-card-text>
-        <p>Ihre letzen Änderungen zu dieser Korrektur konnten nicht übertragen werden, sind aber lokal gespeichert.</p>
-        <p>Sie können diese Meldung schließen und warten bis Ihre Änderungen wieder automatisch gespeichert werden
-          (Siehe Seitenfuß).</p>
-        <p>Alternativ können Sie die Korrektur jetzt abbrechen und später wieder aufrufen, um die Änderungen
-          nachträglich zu speichern.</p>
+        <p>{{ $t('mainContentSendFailureLine1') }}</p>
+        <p>{{
+            $t('mainContentSendFailureLine2') }}</p>
+        <p>{{ $t('mainContentSendFailureLine3')}}</p>
       </v-card-text>
       <v-card-actions>
         <v-btn @click="apiStore.setShowSendFailure(false)">
           <v-icon left icon="mdi-close"></v-icon>
-          <span>Meldung schließen</span>
+          <span>{{ $t('allCloseMessage') }}</span>
         </v-btn>
         <v-btn :href="apiStore.returnUrl">
           <v-icon left icon="mdi-logout-variant"></v-icon>
-          <span>Korrektur abbrechen</span>
+          <span>{{ $t('mainContentStopCorrection') }}</span>
         </v-btn>
       </v-card-actions>
     </v-card>
