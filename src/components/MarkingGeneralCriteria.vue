@@ -65,10 +65,10 @@ async function handleKeyDown(event) {
           <span id="appMarkingCommentCriteriaStart" tabindex="0" @keydown="handleKeyDown">Kriterium</span>
         </th>
         <th class="col-mid text-right">
-          Punkte
+          {{ $t('allPoints', 0) }}
         </th>
         <th class="col-right text-right">
-          max.
+          {{ $t('markingGeneralCriteriaMax') }}
         </th>
       </tr>
       </thead>
