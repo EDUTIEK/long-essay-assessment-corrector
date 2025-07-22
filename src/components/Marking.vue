@@ -57,30 +57,30 @@ function expansionClass() {
 <template>
   <div id="app-marking-wrapper">
     <div v-if="markingCommentsShown()" :class="expansionClass()">
-      <h2 class="headline">Anmerkungen</h2>
+      <h2 class="headline">{{ $t('allComments') }}</h2>
       <marking-comments class="content"></marking-comments>
     </div>
 
     <div v-if="markingCommentCriteriaShown()" :class="expansionClass()">
-      <h2 class="headline">Teilpunkte zur Anmerkung <span v-show="commentsStore.selectedKey != ''"
+      <h2 class="headline">{{ $t('allPartialPointsLong') }}<span v-show="commentsStore.selectedKey != ''"
                                                           class="commentLabel">{{ commentsStore.selectedLabel }}</span> </h2>
       <marking-comment-criteria class="content"></marking-comment-criteria>
     </div>
 
 
     <div v-if="markingGeneralCriteriaShown()" :class="expansionClass()">
-      <h2 class="headline">Allgemeine Punkte (Kopfnoten)</h2>
+      <h2 class="headline">{{ $t('allGeneralPointsLong') }}</h2>
       <marking-general-criteria class="content"></marking-general-criteria>
     </div>
 
     <!-- v-if neeed to avoid simultaneous data binding with summary text  -->
     <div v-if="markingTextShown()" :class="expansionClass()">
-      <h2 class="headline">Gutachten</h2>
+      <h2 class="headline">{{ $t('allOwnSummary') }}</h2>
       <own-summary-text class="content" :editorId="'marking'"></own-summary-text>
     </div>
 
     <div v-if="apiStore.isForReviewOrStitch && !summariesStore.isOneAuthorized">
-      Für diese Abgabe ist noch keine Korrektur autorisiert.
+      {{ $t('allEssayNoCorrectionAuthorized') }}
     </div>
     <sum-of-points class='sumOfPoints' :corrector_key="apiStore.correctorKey"></sum-of-points>
   </div>
