@@ -64,19 +64,19 @@ async function handleKeyDown(event) {
 <template>
   <div>
     <p class="info" v-if="comment_key == ''">
-      Bitte wählen Sie eine Anmerkung aus.
+      {{ $t('markingCommentCriteriaPleaseSelect') }}
     </p>
     <v-table v-if="comment_key != ''" density="compact">
       <thead>
       <tr>
         <th class="col-left">
-          <span id="appMarkingCommentCriteriaStart" tabindex="0" @keydown="handleKeyDown">Kriterium</span>
+          <span id="appMarkingCommentCriteriaStart" tabindex="0" @keydown="handleKeyDown">{{ $t('markingCommentsCriteriaCriterion') }}</span>
         </th>
         <th class="col-mid text-right">
-          Punkte
+          {{ $t('allPoints', 0) }}
         </th>
         <th class="col-right text-right">
-          Summe / max.
+          {{ $t('markingCommentCriteriaSumOfMax') }}
         </th>
       </tr>
       </thead>
