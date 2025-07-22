@@ -55,20 +55,20 @@ async function changeItem(newKey) {
   <v-btn class="app-header-item" :disabled="apiStore.isLoading || apiStore.itemKey == itemsStore.firstKey"
          @click="changeItem(itemsStore.getPreviousKey(apiStore.itemKey))">
     <v-icon left icon="mdi-arrow-left-bold"></v-icon>
-    <span class="sr-only">Vorheriger Teilnehmer</span>
+    <span class="sr-only">{{ $t('itemsPreviousWriter') }}</span>
   </v-btn>
 
   <v-btn class="app-header-item" :disabled="apiStore.isLoading" id="app-items-menu-activator">
       <span v-show="apiStore.isLoading">
-        Lade Daten ...
+        {{ $t('itemsLoadData') }}
       </span>
     <span v-show="!apiStore.isLoading && itemsStore.currentItem !== undefined">
        {{ itemsStore.currentItem.title }}
         {{ correctorsStore.getPositionText(apiStore.correctorKey) }}
         {{
         apiStore.isForReviewOrStitch
-            ? (essayStore.isFinalized ? ' - finalisiert' : ' - offen')
-            : (summariesStore.isOwnAuthorized ? ' - autorisiert' : ' - offen')
+            ? (essayStore.isFinalized ? $t('itemsSuffixFinalised') : $t('itemsSuffixOpen'))
+            : (summariesStore.isOwnAuthorized ? $t('itemsSuffixAuthorized') : $t('itemsSuffixOpen'))
       }}
 
       </span>
@@ -90,7 +90,7 @@ async function changeItem(newKey) {
         density="comfortable"
         item-props
         menu-icon=""
-        placeholder="Teilnehmer/in"
+        :placeholder="$t('itemsWriter')"
         prepend-inner-icon="mdi-magnify"
         theme="light"
         variant="solo"
@@ -101,7 +101,7 @@ async function changeItem(newKey) {
   <v-btn class="app-header-item" :disabled="apiStore.isLoading || apiStore.itemKey == itemsStore.lastKey"
          @click="changeItem(itemsStore.getNextKey(apiStore.itemKey))">
     <v-icon left icon="mdi-arrow-right-bold"></v-icon>
-    <span class="sr-only">Nächster Teilnehmer</span>
+    <span class="sr-only">{{ $t('itemsNextWriter') }}</span>
   </v-btn>
 </template>
 
