@@ -11,19 +11,42 @@ snippetsStore.createSnippet(new Snippet({purpose: Snippet.FOR_COMMENT, text: "Sn
 snippetsStore.createSnippet(new Snippet({purpose: Snippet.FOR_COMMENT, text: "Snippet Three"}));
 
 let snippets = [];
-let current = ref(new Snippet({text: 'Bitte oben auswählen oder hier neu eingeben.'}));
+
+function load() {
+  snippets = [];
+  switch (snippetsStore.open_for_purpose) {
+    case Snippet.FOR_COMMENT:
+      for (const snippet of snippetsStore.forComment) {
+        snippets.push(snippet);
+      }
+      break;
+    case Snippet.FOR_SUMMARY:
+      for (const snippet of snippetsStore.forSummary) {
+        snippets.push(snippet);
+      }
+      break;
+  }
+  snippets.push(new Snippet({key: 'new', text: "--- neuer Baustein ---", purpose: snippetsStore.open_for_purpose}));
+}
+
+function select() {
+  const snippet = snippets.find(element => element.key === snippetsStore.select);
+  if (snippet) {
+    if (snippet.key === 'new') {
+      snippetsStore.edit = new Snippet({text: '', purpose: snippetsStore.open_for_purpose})
+      snippetsStore.select = '';
+    }
+    else if (snippet.key !== snippetsStore.edit.key) {
+      snippetsStore.edit = snippet;
+    }
+    document.getElementById('appSnippetEdit').focus();
+  }
+}
 
 function handleOpen() {
   if (snippetsStore.selection_open) {
-    switch (snippetsStore.open_for_purpose) {
-      case Snippet.FOR_COMMENT:
-        snippets = snippetsStore.forComment;
-        break;
-
-      case Snippet.FOR_SUMMARY:
-        snippets = snippetsStore.forSummary;
-        break;
-    }
+    load();
+    select();
   }
 }
 watch(() => snippetsStore.selection_open, handleOpen);
@@ -33,26 +56,16 @@ function handleClose() {
 }
 
 function handleSelect() {
-  if (snippetsStore.selection_open && snippetsStore.current_snippet_key) {
-    current.value = snippetsStore.get(snippetsStore.current_snippet_key);
-  }
+  select();
 }
-watch(() => snippetsStore.current_snippet_key, handleSelect);
 
 async function handleEdit() {
-  console.log('handleEdit');
-  const snippet = current.value;
-  if (snippet) {
-    console.log(snippet);
-    if (snippet.purpose === null) {
-      snippet.purpose = snippetsStore.open_for_purpose;
-    }
-    if (snippetsStore.has(snippet.key)) {
-      snippetsStore.updateSnippet(snippet);
-    } else {
-      snippetsStore.createSnippet(snippet);
-      snippetsStore.current_snippet_key = snippet.key;
-    }
+  if (snippetsStore.has(snippetsStore.edit.key)) {
+    snippetsStore.updateSnippet(snippetsStore.edit);
+  } else if (snippetsStore.edit.text) {
+    await snippetsStore.createSnippet(snippetsStore.edit);
+    load();
+    snippetsStore.select = snippetsStore.edit.key;
   }
 }
 
@@ -64,15 +77,10 @@ function handleDelete() {
   snippetsStore.selection_open = false;
 }
 
-
 function customFilter (itemTitle, queryText, item) {
   const text = item.raw.text.toLowerCase()
   const searchText = queryText.toLowerCase()
-  return text.indexOf(searchText) > -1
-}
-
-function selectSnippet() {
-  console.log('select snippet');
+  return item.raw.key === 'new' || text.indexOf(searchText) > -1
 }
 
 </script>
@@ -85,16 +93,18 @@ function selectSnippet() {
         <v-card-text>
           Auswählen:
           <v-autocomplete
-              v-model = snippetsStore.current_snippet_key
+              v-model = "snippetsStore.select"
               :custom-filter="customFilter"
               :items="snippets"
+              @update:modelValue="handleSelect()"
               base-color="white"
               item-title="text"
               item-value="key"
           ></v-autocomplete>
           Bearbeiten:
           <v-textarea
-              v-model="current.text"
+              id="appSnippetEdit"
+              v-model="snippetsStore.edit.text"
               @change="handleEdit()"
               @keyup="handleEdit()"
           ></v-textarea>
