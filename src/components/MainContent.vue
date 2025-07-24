@@ -9,6 +9,7 @@ import EssayImage from '@/components/EssayImage.vue';
 import OwnSummary from "@/components/OwnSummary.vue";
 import OtherSummary from '@/components/OtherSummary.vue';
 import Marking from "@/components/Marking.vue";
+import Snippets from "@/components/Snippets.vue";
 import { useApiStore } from "@/store/api";
 import { useLayoutStore } from "@/store/layout";
 import { useResourcesStore } from "@/store/resources";
@@ -261,7 +262,7 @@ document.addEventListener('keydown', layoutStore.handleKeyDown);
     </v-card>
   </v-dialog>
 
-
+  <snippets></snippets>
 </template>
 
 <style scoped>

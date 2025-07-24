@@ -6,8 +6,10 @@ import { useSettingsStore } from '@/store/settings';
 import { useCriteriaStore } from '@/store/criteria';
 import { usePointsStore } from '@/store/points';
 import { useLayoutStore } from '@/store/layout';
+import {useSnippetsStore} from "@/store/snippets";
 import {nextTick, onMounted, ref, watch} from 'vue';
 import i18n from "@/plugins/i18n";
+import Snippet from "@/data/Snippet";
 
 const apiStore = useApiStore();
 const commentsStore = useCommentsStore();
@@ -16,6 +18,7 @@ const settingsStore = useSettingsStore();
 const criteriaStore = useCriteriaStore();
 const pointsStore = usePointsStore();
 const layoutStore = useLayoutStore();
+const snippetsStore = useSnippetsStore();
 
 const { t } = i18n.global;
 const props = defineProps(['comment']);
@@ -136,6 +139,13 @@ async function handleTextKeydown() {
       case "Delete":
         event.preventDefault();
         commentsStore.deleteComment(commentsStore.selectedKey);
+        break;
+    }
+  } else {
+    switch (event.key) {
+      case "F1":
+        event.preventDefault();
+        snippetsStore.openSelection(Snippet.FOR_COMMENT, commentsStore.selectedKey);
         break;
     }
   }

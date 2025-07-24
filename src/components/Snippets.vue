@@ -1,23 +1,74 @@
 <script setup>
 
 import {useSnippetsStore} from "@/store/snippets";
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+import Snippet from "@/data/Snippet";
 
 const snippetsStore = useSnippetsStore();
 
-const dialogOpen = ref(false);
+snippetsStore.createSnippet(new Snippet({purpose: Snippet.FOR_COMMENT, text: "Snippet One"}));
+snippetsStore.createSnippet(new Snippet({purpose: Snippet.FOR_COMMENT, text: "Snippet Two"}));
+snippetsStore.createSnippet(new Snippet({purpose: Snippet.FOR_COMMENT, text: "Snippet Three"}));
 
-const states = [
-  { name: 'Das ist aber ganz schlecht', abbr: 'FL', id: 1 },
-  { name: 'Die Aussage ist verdoppelt', abbr: 'GA', id: 2 },
-  { name: 'Ich stimme zu', abbr: 'NE', id: 3 },
-]
+let snippets = [];
+let current = ref(new Snippet({text: 'Bitte oben auswählen oder hier neu eingeben.'}));
+
+function handleOpen() {
+  if (snippetsStore.selection_open) {
+    switch (snippetsStore.open_for_purpose) {
+      case Snippet.FOR_COMMENT:
+        snippets = snippetsStore.forComment;
+        break;
+
+      case Snippet.FOR_SUMMARY:
+        snippets = snippetsStore.forSummary;
+        break;
+    }
+  }
+}
+watch(() => snippetsStore.selection_open, handleOpen);
+
+function handleClose() {
+  snippetsStore.selection_open = false;
+}
+
+function handleSelect() {
+  if (snippetsStore.selection_open && snippetsStore.current_snippet_key) {
+    current.value = snippetsStore.get(snippetsStore.current_snippet_key);
+  }
+}
+watch(() => snippetsStore.current_snippet_key, handleSelect);
+
+async function handleEdit() {
+  console.log('handleEdit');
+  const snippet = current.value;
+  if (snippet) {
+    console.log(snippet);
+    if (snippet.purpose === null) {
+      snippet.purpose = snippetsStore.open_for_purpose;
+    }
+    if (snippetsStore.has(snippet.key)) {
+      snippetsStore.updateSnippet(snippet);
+    } else {
+      snippetsStore.createSnippet(snippet);
+      snippetsStore.current_snippet_key = snippet.key;
+    }
+  }
+}
+
+function handleApply() {
+  snippetsStore.selection_open = false;
+}
+
+function handleDelete() {
+  snippetsStore.selection_open = false;
+}
+
 
 function customFilter (itemTitle, queryText, item) {
-  const textOne = item.raw.name.toLowerCase()
-  const textTwo = item.raw.abbr.toLowerCase()
+  const text = item.raw.text.toLowerCase()
   const searchText = queryText.toLowerCase()
-  return textOne.indexOf(searchText) > -1 || textTwo.indexOf(searchText) > -1
+  return text.indexOf(searchText) > -1
 }
 
 function selectSnippet() {
@@ -28,36 +79,37 @@ function selectSnippet() {
 
 <template>
   <div id="app-snippets">
-    <v-btn @click="dialogOpen=true">
-      <v-icon left icon="mdi-text"></v-icon>
-    </v-btn>
-
-    <v-dialog v-model="dialogOpen">
+    <v-dialog max-width="60em" v-model="snippetsStore.selection_open">
       <v-card>
         <v-card-title>Textbaustein</v-card-title>
         <v-card-text>
           Auswählen:
           <v-autocomplete
+              v-model = snippetsStore.current_snippet_key
               :custom-filter="customFilter"
-              :items="states"
+              :items="snippets"
               base-color="white"
-              item-title="name"
-              item-value="abbr"
+              item-title="text"
+              item-value="key"
           ></v-autocomplete>
           Bearbeiten:
-          <v-textarea></v-textarea>
+          <v-textarea
+              v-model="current.text"
+              @change="handleEdit()"
+              @keyup="handleEdit()"
+          ></v-textarea>
         </v-card-text>
         <v-card-actions>
-          <v-btn @click="selectSnippet()">
+          <v-btn @click="handleApply()">
             <v-icon left icon="mdi-ok"></v-icon>
             <span>Übernehmen</span>
           </v-btn>
-          <v-btn @click="selectSnippet()">
+          <v-btn @click="handleDelete()">
             <v-icon left icon="mdi-ok"></v-icon>
             <span>Löschen</span>
           </v-btn>
           <v-spacer></v-spacer>
-          <v-btn @click="dialogOpen=false">
+          <v-btn @click="handleClose()">
             <v-icon left icon="mdi-close"></v-icon>
             <span>Schließen</span>
           </v-btn>
@@ -67,10 +119,6 @@ function selectSnippet() {
     </v-dialog>
 
   </div>
-
-  <v-button>
-
-  </v-button>
 
 </template>
 

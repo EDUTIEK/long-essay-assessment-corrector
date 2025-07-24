@@ -3,6 +3,7 @@ import localForage from "localforage";
 import Snippet from "@/data/Snippet";
 import {useApiStore} from "@/store/api";
 import {useChangesStore} from "@/store/changes";
+import Change from "@/data/Change";
 
 const storage = localForage.createInstance({
   storeName: "corrector-snippets",
@@ -18,6 +19,12 @@ export const useSnippetsStore = defineStore('snippets', {
       // saved in storage
       keys: [],                 // list of string keys
       snippets: [],             // list of snippet objects
+
+      selection_open: false,          // selection dialog is open
+      open_for_purpose: null,         // purpose for which the selection is opened
+      open_for_key: null,             // comment key for which the selection is opened
+      current_snippet_key: null,      // key of the currently selected snippet
+      insert_snippet_key: null,       // key of the snippet that should be inserted
     }
   },
 
@@ -27,11 +34,25 @@ export const useSnippetsStore = defineStore('snippets', {
   getters: {
 
     forComment: state => {
-      return state.snippets.find(element => element.purpose == Snippet.FOR_COMMENT);
+      return state.snippets.filter(element => element.purpose == Snippet.FOR_COMMENT);
     },
 
     forSummary: state => {
-      return state.snippets.find(element => element.purpose == Snippet.FOR_SUMMARY);
+      return state.snippets.filter(element => element.purpose == Snippet.FOR_SUMMARY);
+    },
+
+    has: state => {
+
+      /**
+       * Get a snippet by its key
+       *
+       * @param {string} key
+       * @returns {object|null}
+       */
+      const fn = function (key) {
+        return state.keys.includes(key);
+      }
+      return fn;
     },
 
     get: state => {
@@ -50,6 +71,19 @@ export const useSnippetsStore = defineStore('snippets', {
   },
 
   actions: {
+
+    openSelection(for_purpose, for_key) {
+      if (for_purpose !== this.open_for_puropose) {
+        this.current_snippet_key = null;
+      }
+      this.open_for_purpose = for_purpose;
+      this.open_for_key = for_key;
+      this.selection_open = true;
+    },
+
+    applySelection() {
+
+    },
 
     async clearStorage() {
       try {

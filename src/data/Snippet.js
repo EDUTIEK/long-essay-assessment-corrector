@@ -61,6 +61,9 @@ class Snippet {
     if (data.purpose !== undefined && data.purpose !== null) {
       this.purpose = data.purpose.toString()
     }
+    if (data.text !== undefined && data.text !== null) {
+      this.text = data.text.toString()
+    }
   }
 
   /**
