@@ -124,7 +124,9 @@ async function toggleCardinal(comment) {
 }
 
 async function selectComment(comment) {
-  commentsStore.selectComment(comment.key);
+  if (commentsStore.selectedKey !== comment.key) {
+    commentsStore.selectComment(comment.key);
+  }
 }
 
 async function handleTextKeydown() {
@@ -165,28 +167,30 @@ async function handleFocusChange() {
   if (layoutStore.focusTarget == 'markingCommentCriteriaSum') {
     await nextTick();
     if (comment.key == commentsStore.selectedKey) {
-      console.log('pointsInput' + comment.key);
       document.getElementById('pointsInput' + comment.key).focus();
     }
   }
 }
 watch(() => layoutStore.focusChange, handleFocusChange);
 
-function handleSnippet() {
-  // if (snippetsStore.insert_text != '' && snippetsStore.open_for_purpose == Snippet.FOR_COMMENT && snippetsStore.open_for_key) {
-  //   const textarea = document.getElementById('commentInput' + snippetsStore.open_for_key);
-  //   if (textarea) {
-  //     const text = snippetsStore.insert_text;
-  //     const value = textarea.value;
-  //     const start = textarea.selectionStart;
-  //     const end = textarea.selectionEnd;
-  //
-  //     textarea.value = value.slice(0, start) + text + value.slice(end);
-  //     textarea.focus();
-  //     textarea.selectionStart = start + text.length;
-  //     textarea.selectionEnd = start + text.length;
-  //   }
-  // }
+async function handleSnippet() {
+  if (snippetsStore.insert_text && snippetsStore.open_for_purpose == Snippet.FOR_COMMENT
+      && snippetsStore.open_for_key == comment.key) {
+
+    const textarea = document.getElementById('app-comment-' + snippetsStore.open_for_key);
+
+    const insert = snippetsStore.insert_text;
+    snippetsStore.insert_text = '';
+    if (textarea) {
+      await nextTick();
+      textarea.focus();
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      comment.comment = comment.comment.slice(0, start) + insert + comment.comment.slice(end);
+      await nextTick();
+      textarea.setSelectionRange(start, start + insert.length);
+    }
+  }
 }
 watch(() => snippetsStore.insert_text, handleSnippet);
 
@@ -196,7 +200,7 @@ watch(() => snippetsStore.insert_text, handleSnippet);
 <template>
   <v-container :id="'appCommentContainer' + comment.key" :key="comment.key" class="commentContainer">
 
-    <v-row dense @click="commentsStore.selectComment(comment.key)">
+    <v-row dense @click="selectComment(comment)">
 
       <!-- icon and label -->
       <v-col cols="2">
@@ -296,7 +300,7 @@ watch(() => snippetsStore.insert_text, handleSnippet);
 
           <!-- COMMENT DISPLAY -->
 
-          <v-row dense @click="commentsStore.selectComment(comment.key)">
+          <v-row dense>
             <v-col cols="12" v-show="!isSelected(comment)">
               <div class="commentDisplay"
                    v-show="comment.comment"
@@ -341,6 +345,7 @@ watch(() => snippetsStore.insert_text, handleSnippet);
                v-show="hasTrash(comment)"
                :tabindex="isSelected(comment) ? 0 : -1"
                @keydown="handleTextKeydown()"
+               @click="commentsStore.deleteComment(comment.key);"
         >
           <span class="sr-only">{{ $t('markingCommentsDelete') }}</span>
         </v-btn>

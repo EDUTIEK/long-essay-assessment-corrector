@@ -25,8 +25,8 @@ export const useSnippetsStore = defineStore('snippets', {
       open_for_key: null,             // comment key for which the selection is opened
       insert_text: '',                // text that should be inserted
 
-      select: null,
-      edit: new Snippet()
+      select: null,                   // data model for selection in Snippets component
+      edit: new Snippet()             // data model for editing in Snippets component
     }
   },
 
