@@ -37,7 +37,7 @@ class Change {
   key = '';
 
   /**
-   * Key of the correction item to which the change
+   * Key of the correction item to which the change belongs
    * @type {string}
    */
   item_key = '';
@@ -99,7 +99,7 @@ class Change {
   }
 
   /**
-   * Gheck if the change data is valid
+   * Check if the change data is valid
    * @returns {boolean}
    */
   isValid() {
@@ -108,6 +108,7 @@ class Change {
       && Change.ALLOWED_ACTIONS.includes(this.action)
       && this.key != ''
       && this.item_key != ''
+      // && (this.item_key != '' || this.type == Change.TYPE_SNIPPETS)
     );
   }
 }

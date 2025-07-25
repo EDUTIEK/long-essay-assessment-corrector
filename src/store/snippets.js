@@ -23,9 +23,9 @@ export const useSnippetsStore = defineStore('snippets', {
       selection_open: false,          // selection dialog is open
       open_for_purpose: null,         // purpose for which the selection is opened
       open_for_key: null,             // comment key for which the selection is opened
-      insert_snippet_key: null,       // key of the snippet that should be inserted
+      insert_text: '',                // text that should be inserted
 
-      select: '',
+      select: null,
       edit: new Snippet()
     }
   },
@@ -77,11 +77,8 @@ export const useSnippetsStore = defineStore('snippets', {
     openSelection(for_purpose, for_key) {
       this.open_for_purpose = for_purpose;
       this.open_for_key = for_key;
+      this.insert_text = '';
       this.selection_open = true;
-    },
-
-    applySelection() {
-
     },
 
     async clearStorage() {
@@ -138,9 +135,6 @@ export const useSnippetsStore = defineStore('snippets', {
      * @public
      */
     async createSnippet(snippet) {
-      const apiStore = useApiStore();
-      const changesStore = useChangesStore();
-
       // first do state changes (trigger watchers)
       this.keys.push(snippet.key);
       this.snippets.push(snippet);
@@ -149,6 +143,8 @@ export const useSnippetsStore = defineStore('snippets', {
       // then save the snippet
       await storage.setItem(snippet.key, JSON.stringify(snippet.getData()));
       await storage.setItem('keys', JSON.stringify(this.keys));
+
+      const changesStore = useChangesStore();
       await changesStore.setChange(new Change({
         type: Change.TYPE_SNIPPETS,
         action: Change.ACTION_SAVE,
@@ -162,18 +158,17 @@ export const useSnippetsStore = defineStore('snippets', {
      * @public
      */
     async updateSnippet(snippet) {
-      const apiStore = useApiStore();
-      const changesStore = useChangesStore();
 
-      if (this.keys.includes(snippet.key)
-      ) {
+      if (this.has(snippet.key)) {
+        this.snippets = this.snippets.sort(Snippet.compare);
         await storage.setItem(snippet.key, JSON.stringify(snippet.getData()));
+
+        const changesStore = useChangesStore();
         await changesStore.setChange(new Change({
           type: Change.TYPE_SNIPPETS,
           action: Change.ACTION_SAVE,
           key: snippet.key
         }))
-        this.snippets = this.snippets.sort(Snippet.compare);
       }
     },
 
@@ -183,24 +178,19 @@ export const useSnippetsStore = defineStore('snippets', {
      * @private
      */
     async deleteSnippet(removeKey) {
-      const snippet = this.snippets.find(element => element.key == removeKey);
-
-      this.snippets = this.snippets.filter(element => element.key != removeKey);
-      if (this.keys.includes(removeKey)) {
+      if (this.has(removeKey)) {
+        this.snippets = this.snippets.filter(element => element.key != removeKey).sort(Snippet.compare);
         this.keys = this.keys.filter(key => key != removeKey)
         await storage.setItem('keys', JSON.stringify(this.keys));
         await storage.removeItem(removeKey);
+
+        const changesStore = useChangesStore();
+        await changesStore.setChange(new Change({
+          type: Change.TYPE_SNIPPETS,
+          action: Change.ACTION_DELETE,
+          key: removeKey
+        }));
       }
-      this.deletedKey = removeKey;
-
-      const changesStore = useChangesStore();
-      const change = new Change({
-        type: Change.TYPE_SNIPPETS,
-        action: Change.ACTION_DELETE,
-        key: snippet.key
-      });
-
-      this.snippets = this.snippets.sort(Snippet.compare);
     },
   }
 });

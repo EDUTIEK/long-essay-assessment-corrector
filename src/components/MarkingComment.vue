@@ -172,6 +172,24 @@ async function handleFocusChange() {
 }
 watch(() => layoutStore.focusChange, handleFocusChange);
 
+function handleSnippet() {
+  // if (snippetsStore.insert_text != '' && snippetsStore.open_for_purpose == Snippet.FOR_COMMENT && snippetsStore.open_for_key) {
+  //   const textarea = document.getElementById('commentInput' + snippetsStore.open_for_key);
+  //   if (textarea) {
+  //     const text = snippetsStore.insert_text;
+  //     const value = textarea.value;
+  //     const start = textarea.selectionStart;
+  //     const end = textarea.selectionEnd;
+  //
+  //     textarea.value = value.slice(0, start) + text + value.slice(end);
+  //     textarea.focus();
+  //     textarea.selectionStart = start + text.length;
+  //     textarea.selectionEnd = start + text.length;
+  //   }
+  // }
+}
+watch(() => snippetsStore.insert_text, handleSnippet);
+
 </script>
 
 
