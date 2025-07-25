@@ -192,5 +192,28 @@ export const useSnippetsStore = defineStore('snippets', {
         }));
       }
     },
+
+    /**
+     * Get all changed summaries from the storage as flat data objects
+     * These may include summaries of other items that are only in the storage
+     * This is called for sending the summaries to the backend
+     * @param {integer} sendingTime - timestamp of the sending or 0 to get all
+     * @return {array} Change objects
+     */
+    async getChangedData(sendingTime = 0) {
+      const apiStore = useApiStore();
+      const changesStore = useChangesStore();
+      const changes = [];
+      for (const change of changesStore.getChangesFor(Change.TYPE_SNIPPETS, sendingTime)) {
+        const data = await storage.getItem(change.key);
+        if (data) {
+          changes.push(apiStore.getChangeDataToSend(change, JSON.parse(data)));
+        } else {
+          changes.push(apiStore.getChangeDataToSend(change));
+        }
+      }
+      ;
+      return changes;
+    },
   }
 });

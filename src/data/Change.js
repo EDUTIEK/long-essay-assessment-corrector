@@ -107,8 +107,7 @@ class Change {
       Change.ALLOWED_TYPES.includes(this.type)
       && Change.ALLOWED_ACTIONS.includes(this.action)
       && this.key != ''
-      && this.item_key != ''
-      // && (this.item_key != '' || this.type == Change.TYPE_SNIPPETS)
+      && (this.item_key != '' || this.type == Change.TYPE_SNIPPETS)
     );
   }
 }

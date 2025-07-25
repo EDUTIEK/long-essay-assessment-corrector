@@ -15,11 +15,13 @@ import { useCorrectorsStore } from "./correctors";
 import { useCommentsStore } from "./comments";
 import { usePointsStore } from "./points";
 import { useChangesStore } from '@/store/changes';
+import { usePreferencesStore } from '@/store/preferences';
+import {useSnippetsStore} from "@/store/snippets";
 
 import md5 from 'md5';
 import Change from '@/data/Change';
 import Item from '@/data/Item';
-import { usePreferencesStore } from '@/store/preferences';
+
 
 const sendInterval = 5000;      // time (ms) to wait for sending open savings to the backend
 
@@ -396,6 +398,7 @@ export const useApiStore = defineStore('api', {
       const resourcesStore = useResourcesStore();
       const settingsStore = useSettingsStore();
       const taskStore = useTaskStore();
+      const snippetsStore = useSnippetsStore();
 
       await criteriaStore.loadFromStorage();
       await itemsStore.loadFromStorage();
@@ -405,6 +408,7 @@ export const useApiStore = defineStore('api', {
       await resourcesStore.loadFromStorage();
       await settingsStore.loadFromStorage();
       await taskStore.loadFromStorage();
+      await snippetsStore.loadFromStorage();
 
       this.setLoading(false);
       return true;
@@ -481,6 +485,7 @@ export const useApiStore = defineStore('api', {
       const resourcesStore = useResourcesStore();
       const settingsStore = useSettingsStore();
       const taskStore = useTaskStore();
+      const snippetsStore = useSnippetsStore();
 
       await criteriaStore.loadFromData(response.data.criteria);
       await itemsStore.loadFromData(response.data.items);
@@ -490,6 +495,7 @@ export const useApiStore = defineStore('api', {
       await resourcesStore.loadFromData(response.data.resources);
       await settingsStore.loadFromData(response.data.settings);
       await taskStore.loadFromData(response.data.task);
+      await snippetsStore.loadFromData(response.data.snippets);
 
       this.setLoading(false);
       return true;
@@ -567,6 +573,7 @@ export const useApiStore = defineStore('api', {
       const commentsStore = useCommentsStore();
       const pointsStore = usePointsStore();
       const summariesStore = useSummariesStore();
+      const snippetsStore = useSnippetsStore();
       const preferencesStore = usePreferencesStore();
 
       // don't interfer with a running request
@@ -577,6 +584,7 @@ export const useApiStore = defineStore('api', {
             comments: await commentsStore.getChangedData(this.lastSendingTry),
             points: await pointsStore.getChangedData(this.lastSendingTry),
             summaries: await summariesStore.getChangedData(this.lastSendingTry),
+            snippets: await snippetsStore.getChangedData(this.lastSendingTry),
             preferences: await preferencesStore.getChangedData(this.lastSendingTry),
           };
 
@@ -604,6 +612,9 @@ export const useApiStore = defineStore('api', {
           await changesStore.setChangesSent(Change.TYPE_SUMMARY,
             response.data.summaries,
             this.lastSendingTry);
+          await changesStore.setChangesSent(Change.TYPE_SNIPPETS,
+              response.data.snippets,
+              this.lastSendingTry);
           await changesStore.setChangesSent(Change.TYPE_PREFERENCES,
             response.data.preferences,
             this.lastSendingTry);
