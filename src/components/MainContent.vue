@@ -126,7 +126,7 @@ document.addEventListener('keydown', layoutStore.handleKeyDown);
         <div class="col-header">
             <h1 id="appHeadRight" tabindex="0" class="headline"> {{
                 layoutStore.isMarkingVisible ? $t("allCorrection")
-                    : layoutStore.isSummaryVisible ? $t("allOwnSummary")
+                    : layoutStore.isSummaryVisible ? $t("allOwnSummaryAndRating")
                         : layoutStore.isRightCorrectorVisible ? layoutStore.rightCorrectorTitle : $t('mainContentRightColumn')
               }}
             </h1>

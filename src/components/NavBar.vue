@@ -194,8 +194,8 @@ function getCorrectorTitle(corrector) {
       <v-list-item aria-role="button" class="app-navigation-item" tabindex="0"
                    v-if="!apiStore.isForReviewOrStitch"
                    @click="closeNavigation; layoutStore.showSummary();"
-                   :aria-label="$t('allOwnSummary') + (layoutStore.isSummaryVisible ? $t('navBarSelectedAria') : '')"
-                   :title="$t('allOwnSummary') + (layoutStore.isSummaryVisible ? $t('navBarSelected') : '')"
+                   :aria-label="$t('allOwnSummaryAndRating') + (layoutStore.isSummaryVisible ? $t('navBarSelectedAria') : '')"
+                   :title="$t('allOwnSummaryAndRating') + (layoutStore.isSummaryVisible ? $t('navBarSelected') : '')"
                    :ripple="false"
       >
         <template v-slot:prepend>

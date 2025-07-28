@@ -25,7 +25,7 @@ function expansionClass() {
 
     <div v-if="props.showCriteria && summariesStore.getAuthorizationForCorrector(props.corrector_key)"
          :class="expansionClass()">
-      <div class="headline">Übersicht</div>
+      <div class="headline">{{ $t('allSummary') }}</div>
       <summary-criteria class="content" :corrector_key="props.corrector_key"></summary-criteria>
     </div>
     <div v-if="props.showText && summariesStore.getAuthorizationForCorrector(props.corrector_key)"
