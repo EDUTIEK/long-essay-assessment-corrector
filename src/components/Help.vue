@@ -115,6 +115,14 @@ const layoutStore = useLayoutStore();
             <td>{{ $t('helpCommentsDelete') }}</td>
             <td>{{ $t('helpKeyAltDel') }}</td>
           </tr>
+          <tr>
+            <td>{{ $t('helpSnippetsOpen') }}</td>
+            <td>{{ $t('helpKeyF1') }}</td>
+          </tr>
+          <tr>
+            <td>{{ $t('helpSnippetsApply') }}</td>
+            <td>{{ $t('helpKeyF1InSnippets') }}</td>
+          </tr>
           </tbody>
         </v-table>
 
@@ -219,6 +227,14 @@ const layoutStore = useLayoutStore();
           <tr>
             <td>{{ $t('helpCommandParagraph') }}</td>
             <td>{{ $t('helpKeyShiftAlt7') }}</td>
+          </tr>
+          <tr>
+            <td>{{ $t('helpSnippetsOpen') }}</td>
+            <td>{{ $t('helpKeyF1') }}</td>
+          </tr>
+          <tr>
+            <td>{{ $t('helpSnippetsApply') }}</td>
+            <td>{{ $t('helpKeyF1InSnippets') }}</td>
           </tr>
           </tbody>
         </v-table>
