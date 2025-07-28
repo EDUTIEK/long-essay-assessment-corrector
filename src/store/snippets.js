@@ -23,6 +23,7 @@ export const useSnippetsStore = defineStore('snippets', {
       selection_open: false,          // selection dialog is open
       open_for_purpose: null,         // purpose for which the selection is opened
       open_for_key: null,             // comment key for which the selection is opened
+      open_text: '',
       insert_text: '',                // text that should be inserted
 
       select: null,                   // data model for selection in Snippets component
@@ -74,9 +75,10 @@ export const useSnippetsStore = defineStore('snippets', {
 
   actions: {
 
-    openSelection(for_purpose, for_key) {
+    openSelection(for_purpose, for_key, open_text = '') {
       this.open_for_purpose = for_purpose;
       this.open_for_key = for_key;
+      this.open_text = open_text;
       this.insert_text = '';
       this.selection_open = true;
     },

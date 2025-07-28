@@ -25,6 +25,8 @@ const props = defineProps(['comment']);
 
 const comment = props.comment;
 
+const textRef = ref();
+
 let comment_points = ref(0);
 const pointsObject = pointsStore.getObjectByData(comment.corrector_key, comment.key, '');
 comment_points.value = pointsObject ? pointsObject.points : 0;
@@ -147,7 +149,10 @@ async function handleTextKeydown() {
     switch (event.key) {
       case "F1":
         event.preventDefault();
-        snippetsStore.openSelection(Snippet.FOR_COMMENT, commentsStore.selectedKey);
+        const textarea = textRef.value;
+        snippetsStore.openSelection(Snippet.FOR_COMMENT, commentsStore.selectedKey,
+            textarea.value.substring(textarea.selectionStart, textarea.selectionEnd)
+        );
         break;
     }
   }
@@ -174,16 +179,15 @@ async function handleFocusChange() {
 watch(() => layoutStore.focusChange, handleFocusChange);
 
 async function handleSnippet() {
-  if (snippetsStore.insert_text && snippetsStore.open_for_purpose == Snippet.FOR_COMMENT
+  if (! snippetsStore.selection_open
+      && snippetsStore.open_for_purpose == Snippet.FOR_COMMENT
       && snippetsStore.open_for_key == comment.key) {
-
-    const textarea = document.getElementById('app-comment-' + snippetsStore.open_for_key);
-
-    const insert = snippetsStore.insert_text;
-    snippetsStore.insert_text = '';
-    if (textarea) {
-      await nextTick();
-      textarea.focus();
+    const textarea = textRef.value;
+    await nextTick();
+    textarea.focus();
+    if (snippetsStore.insert_text) {
+      const insert = snippetsStore.insert_text;
+      snippetsStore.insert_text = '';
       const start = textarea.selectionStart;
       const end = textarea.selectionEnd;
       comment.comment = comment.comment.slice(0, start) + insert + comment.comment.slice(end);
@@ -192,7 +196,7 @@ async function handleSnippet() {
     }
   }
 }
-watch(() => snippetsStore.insert_text, handleSnippet);
+watch(() => snippetsStore.selection_open, handleSnippet);
 
 </script>
 
@@ -221,6 +225,7 @@ watch(() => snippetsStore.insert_text, handleSnippet);
           <v-row dense v-show="isSelected(comment)">
             <v-col cols="12">
               <v-textarea class="commentInput" :bg-color="getBgColor(comment)" rounded="0" density="compact" variant="solo"
+                          ref="textRef"
                           :id="'app-comment-' + comment.key"
                           :label="$t('markingCommentsCommentForLabel', [comment.label])"
                           rows="1" auto-grow

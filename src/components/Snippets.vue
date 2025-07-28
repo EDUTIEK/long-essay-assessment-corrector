@@ -5,6 +5,8 @@ import { ref, watch, nextTick } from 'vue'
 import Snippet from "@/data/Snippet";
 
 const snippetsStore = useSnippetsStore();
+const appSelect = ref();  // v-autocomplete
+const appEdit = ref();    // v-textarea
 
 let snippets = [];
 
@@ -29,36 +31,39 @@ function clearEditor() {
   snippetsStore.edit = new Snippet({text: '', purpose: snippetsStore.open_for_purpose});
 }
 
-function updateEditor() {
-  const snippet = snippets.find(element => element.key === snippetsStore.select);
-  if (snippet) {
-    if (snippet.key === 'new') {
-      clearEditor();
-    }
-    else if (snippet.key !== snippetsStore.edit.key) {
-      snippetsStore.edit = snippet;
-    }
-  }
-}
-
 async function handleOpen() {
   if (snippetsStore.selection_open) {
     loadList();
     clearEditor();
     await nextTick();
-    document.getElementById('appSnippetSelect').focus();
+    appSelect.value.focus();
+    await nextTick();
+    appSelect.value.search = snippetsStore.open_text;
   }
 }
 watch(() => snippetsStore.selection_open, handleOpen);
 
 
 async function handleSelect() {
-  updateEditor();
+  const searched = appSelect.value.search ? appSelect.value.search : '';
+
   if (snippetsStore.select == 'new') {
-    await nextTick();
-    document.getElementById('appSnippetEdit').focus();
+    snippetsStore.edit = new Snippet({text: searched, purpose: snippetsStore.open_for_purpose});
+    if (snippetsStore.edit.text) {
+      await snippetsStore.createSnippet(snippetsStore.edit);
+      loadList();
+    }
+  } else {
+    const snippet = snippets.find(element => element.key === snippetsStore.select);
+    if (snippet && snippet.key !== snippetsStore.edit.key) {
+      snippetsStore.edit = snippet;
+    }
   }
+
   snippetsStore.select = null;
+  await nextTick();
+  appEdit.value.focus();
+
 }
 
 async function handleEdit() {
@@ -85,7 +90,16 @@ async function handleDelete() {
   loadList();
   clearEditor();
   await nextTick();
-  document.getElementById('appSnippetSelect').focus();
+  appSelect.value.focus();
+}
+
+async function handleKeydown() {
+  switch (event.key) {
+    case "F1":
+      event.preventDefault();
+      handleApply();
+      break;
+  }
 }
 
 function customFilter (itemTitle, queryText, item) {
@@ -104,29 +118,36 @@ function customFilter (itemTitle, queryText, item) {
         <v-card-text>
           Auswählen:
           <v-autocomplete
+              ref="appSelect"
               id="appSnippetSelect"
               v-model = "snippetsStore.select"
               :custom-filter="customFilter"
               :items="snippets"
               @update:modelValue="handleSelect()"
+              @keydown="handleKeydown()"
               base-color="white"
               item-title="text"
               item-value="key"
           ></v-autocomplete>
           Bearbeiten:
           <v-textarea
-              id="appSnippetEdit"
+              ref="appEdit"
               v-model="snippetsStore.edit.text"
               @change="handleEdit()"
               @keyup="handleEdit()"
+              @keydown ="handleKeydown()"
           ></v-textarea>
         </v-card-text>
         <v-card-actions>
-          <v-btn @click="handleApply()">
+          <v-btn
+              :disabled = "snippetsStore.edit.text == ''"
+              @click="handleApply()">
             <v-icon left icon="mdi-ok"></v-icon>
             <span>Übernehmen</span>
           </v-btn>
-          <v-btn @click="handleDelete()">
+          <v-btn
+              :disabled = "!snippetsStore.has(snippetsStore.edit.key)"
+              @click="handleDelete()">
             <v-icon left icon="mdi-ok"></v-icon>
             <span>Löschen</span>
           </v-btn>
