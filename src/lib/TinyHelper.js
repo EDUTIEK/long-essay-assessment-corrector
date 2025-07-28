@@ -218,4 +218,22 @@ export default class TinyHelper {
             console.log(e);
         }
     }
+
+    /**
+     * Get the text that is selected
+     */
+    getSelectedText() {
+        return this.editor.selection.getContent();
+    }
+
+    /**
+     * Insert a content at caret position
+     */
+    insertContent(content) {
+        try {
+            this.editor.insertContent(content);
+        } catch (e) {
+            console.log(e);
+        }
+    }
 }

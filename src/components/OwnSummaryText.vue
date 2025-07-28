@@ -37,11 +37,14 @@ import headlinesThreeCss from '@/styles/headlines-three.css?inline';
 import { useSummariesStore } from '@/store/summaries';
 import { usePreferencesStore } from '@/store/preferences';
 import { useLayoutStore } from '@/store/layout';
+import {useSnippetsStore} from "@/store/snippets";
 import { nextTick, watch } from 'vue';
+import Snippet from "@/data/Snippet";
 
 const summariesStore = useSummariesStore();
 const preferencesStore = usePreferencesStore();
 const layoutStore = useLayoutStore();
+const snippetsStore = useSnippetsStore();
 
 // editorId used for retrieving the editor instance using the tinymce.get('ID') method.
 const props = defineProps(['editorId']);
@@ -69,6 +72,32 @@ function handleChange() {
 function handleKeyUp() {
   summariesStore.updateContent(true);
 }
+
+function handleKeyDown() {
+  switch (event.key) {
+    case "F1":
+      event.preventDefault();
+      snippetsStore.openSelection(Snippet.FOR_SUMMARY, null, helper.getSelectedText());
+      break;
+    default:
+      layoutStore.handleKeyDown(event);
+  }
+}
+
+async function handleSnippet() {
+  if (!snippetsStore.selection_open
+      && snippetsStore.open_for_purpose == Snippet.FOR_SUMMARY
+  ) {
+    await handleFocusChange();
+    if (snippetsStore.insert_text) {
+      const insert = snippetsStore.insert_text;
+      snippetsStore.insert_text = '';
+      helper.insertContent(insert);
+    }
+  }
+}
+watch(() => snippetsStore.selection_open, handleSnippet);
+
 </script>
 
 <template>
@@ -81,7 +110,7 @@ function handleKeyUp() {
         @init="handleInit"
         @change="handleChange"
         @keyup="handleKeyUp"
-        @keydown="layoutStore.handleKeyDown"
+        @keydown="handleKeyDown"
         @scroll="helper.saveScrolling"
         licenseKey = 'gpl'
         :init="helper.getInit()"

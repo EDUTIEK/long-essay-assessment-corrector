@@ -179,7 +179,7 @@ async function handleFocusChange() {
 watch(() => layoutStore.focusChange, handleFocusChange);
 
 async function handleSnippet() {
-  if (! snippetsStore.selection_open
+  if (!snippetsStore.selection_open
       && snippetsStore.open_for_purpose == Snippet.FOR_COMMENT
       && snippetsStore.open_for_key == comment.key) {
     const textarea = textRef.value;
