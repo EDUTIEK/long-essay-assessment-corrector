@@ -25,21 +25,21 @@ function expansionClass() {
 
     <div v-if="props.showCriteria && summariesStore.getAuthorizationForCorrector(props.corrector_key)"
          :class="expansionClass()">
-      <div class="headline">{{ $t('allSummary') }}</div>
+      <div class="headline">{{ $t('allOverview') }}</div>
       <summary-criteria class="content" :corrector_key="props.corrector_key"></summary-criteria>
     </div>
     <div v-if="props.showText && summariesStore.getAuthorizationForCorrector(props.corrector_key)"
          :class="expansionClass()">
-      <div class="headline">Gutachten</div>
+      <div class="headline">{{ $t('allSummary') }}</div>
       <summary-text class="content" :corrector_key="props.corrector_key"></summary-text>
     </div>
     <div v-if="summariesStore.getAuthorizationForCorrector(props.corrector_key)">
-      <div class="headline">Gesamtbewertung</div>
+      <div class="headline">{{ $t('allTotalRating') }}</div>
       <summary-points class="content" :corrector_key="props.corrector_key"></summary-points>
     </div>
 
     <div v-if="!summariesStore.getAuthorizationForCorrector(props.corrector_key)">
-      Diese Korrektur ist noch nicht autorisiert.
+      {{ $t('otherSummaryNotAuthorized') }}
     </div>
   </div>
 </template>
