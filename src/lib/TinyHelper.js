@@ -6,9 +6,12 @@ import i18n from "@/plugins/i18n";
 
 import contentLocalCss from '@/styles/content.css?inline';
 import headlinesThreeCss from '@/styles/headlines-three.css?inline';
+import {useSnippetsStore} from "@/store/snippets";
+import Snippet from "@/data/Snippet";
 
 let settingsStore;
 let preferencesStore;
+let snippetsStore;
 
 const { t } = i18n.global
 
@@ -27,6 +30,7 @@ export default class TinyHelper {
 
         settingsStore = useSettingsStore();
         preferencesStore = usePreferencesStore();
+        snippetsStore = useSnippetsStore();
     }
 
     getInit() {
@@ -61,13 +65,14 @@ export default class TinyHelper {
             setup: function (editor) {
                 editor.ui.registry.addButton('zoomOut', {tooltip: 'Verkleinern', icon: 'zoom-out', onAction: this.zoomOut.bind(this)});
                 editor.ui.registry.addButton('zoomIn', {tooltip: 'Vergrößern', icon: 'zoom-in', onAction: this.zoomIn.bind(this)});
+                editor.ui.registry.addButton('openSnippets', {tooltip: 'Textbausteine', icon: 'plus', onAction: this.openSnippets.bind(this)});
             }.bind(this)
         }
     }
 
     toolbar() {
         // corrector always has full formatting options
-        return 'zoomOut zoomIn undo redo styles bold italic underline bullist numlist removeformat charmap';
+        return 'zoomOut zoomIn undo redo styles bold italic underline bullist numlist removeformat charmap openSnippets';
     }
 
     /**
@@ -114,7 +119,6 @@ export default class TinyHelper {
 
     zoomIn() {
         preferencesStore.zoomSummaryTextIn();
-        console.log('zoom in');
         this.applyZoom();
     }
 
@@ -122,6 +126,11 @@ export default class TinyHelper {
         preferencesStore.zoomSummaryTextOut();
         this.applyZoom();
     }
+
+    openSnippets() {
+        snippetsStore.openSelection(Snippet.FOR_SUMMARY, null, this.editor.selection.getContent());
+    }
+
 
     /**
      * Set the focus to the editor
@@ -217,13 +226,6 @@ export default class TinyHelper {
         } catch (e) {
             console.log(e);
         }
-    }
-
-    /**
-     * Get the text that is selected
-     */
-    getSelectedText() {
-        return this.editor.selection.getContent();
     }
 
     /**

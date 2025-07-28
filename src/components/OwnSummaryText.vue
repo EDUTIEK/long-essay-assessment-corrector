@@ -77,7 +77,7 @@ function handleKeyDown() {
   switch (event.key) {
     case "F1":
       event.preventDefault();
-      snippetsStore.openSelection(Snippet.FOR_SUMMARY, null, helper.getSelectedText());
+      helper.openSnippets();
       break;
     default:
       layoutStore.handleKeyDown(event);

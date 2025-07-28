@@ -149,10 +149,7 @@ async function handleTextKeydown() {
     switch (event.key) {
       case "F1":
         event.preventDefault();
-        const textarea = textRef.value;
-        snippetsStore.openSelection(Snippet.FOR_COMMENT, commentsStore.selectedKey,
-            textarea.value.substring(textarea.selectionStart, textarea.selectionEnd)
-        );
+        openSnippets();
         break;
     }
   }
@@ -177,6 +174,12 @@ async function handleFocusChange() {
   }
 }
 watch(() => layoutStore.focusChange, handleFocusChange);
+
+function openSnippets() {
+  const textarea = textRef.value;
+  snippetsStore.openSelection(Snippet.FOR_COMMENT, commentsStore.selectedKey,
+      textarea.value.substring(textarea.selectionStart, textarea.selectionEnd));
+}
 
 async function handleSnippet() {
   if (!snippetsStore.selection_open
@@ -242,8 +245,19 @@ watch(() => snippetsStore.selection_open, handleSnippet);
 
           <v-row dense v-show="isSelected(comment)">
 
+            <v-col cols="3">
+              <!-- select snippets  -->
+              <v-btn class="snippetsButton" density="compact" size="small" variant="text" prepend-icon="mdi-plus"
+                     :tabindex="isSelected(comment) ? 0 : -1"
+                     @keydown="handleTextKeydown()"
+                     @click="openSnippets"
+              >
+                <span class="sr-only">{{ $t('markingOpenSnippets') }}</span>
+              </v-btn>
+            </v-col>
+
             <!-- enter points -->
-            <v-col cols="4">
+            <v-col cols="3">
               <span v-if="criteriaStore.getCorrectorHasCommentCriteria(comment.corrector_key)"
                     v-show="comment.key == commentsStore.selectedKey || pointsStore.getCommentHasPoints(comment.key)"
               >
@@ -271,7 +285,7 @@ watch(() => snippetsStore.selection_open, handleSnippet);
             </v-col>
 
             <!-- enter rating excellent -->
-            <v-col cols="4">
+            <v-col cols="3">
               <span v-show="comment.rating_excellent || comment.key == commentsStore.selectedKey">
                <input type="checkbox"
                       class="ratingInput"
@@ -287,7 +301,7 @@ watch(() => snippetsStore.selection_open, handleSnippet);
             </v-col>
 
             <!-- enter rating cardinal -->
-            <v-col cols="4">
+            <v-col cols="3">
               <span v-show="comment.rating_cardinal || comment.key == commentsStore.selectedKey">
                 <input type="checkbox"
                        class="ratingInput"
@@ -321,21 +335,23 @@ watch(() => snippetsStore.selection_open, handleSnippet);
           <v-row dense class="detailsDisplay" v-show="!isSelected(comment) && hasDetails(comment)">
 
             <!-- show points -->
-            <v-col cols=4>
+            <v-vol cols=3>
+            </v-vol>
+            <v-col cols=3>
               <span v-show="getPointsDisplay(comment) > 0">
                 <span class="pointsInput">{{ getPointsDisplay(comment) }}</span>&nbsp;{{ getPointsLabel(comment) }}
               </span>
             </v-col>
 
             <!-- show excellent -->
-            <v-col cols=4>
+            <v-col cols=3>
               <span v-show="comment.rating_excellent">
                  <v-icon icon="mdi-checkbox-outline"></v-icon> {{ settingsStore.positive_rating }}
               </span>
             </v-col>
 
             <!-- show cardinal -->
-            <v-col cols=4>
+            <v-col cols=3>
               <span v-show="comment.rating_cardinal">
                 <v-icon icon="mdi-checkbox-outline"></v-icon> {{ settingsStore.negative_rating }}
               </span>
