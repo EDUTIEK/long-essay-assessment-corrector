@@ -335,8 +335,8 @@ watch(() => snippetsStore.selection_open, handleSnippet);
           <v-row dense class="detailsDisplay" v-show="!isSelected(comment) && hasDetails(comment)">
 
             <!-- show points -->
-            <v-vol cols=3>
-            </v-vol>
+            <v-col cols=3>
+            </v-col>
             <v-col cols=3>
               <span v-show="getPointsDisplay(comment) > 0">
                 <span class="pointsInput">{{ getPointsDisplay(comment) }}</span>&nbsp;{{ getPointsLabel(comment) }}
