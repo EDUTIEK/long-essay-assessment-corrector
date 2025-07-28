@@ -4,15 +4,14 @@ import { useLayoutStore } from "@/store/layout";
 import { useResourcesStore } from "@/store/resources";
 import { useCorrectorsStore } from "@/store/correctors";
 import { useTaskStore } from '@/store/task';
-import { useChangesStore } from '@/store/changes';
 import { nextTick, watch } from 'vue';
+import SendingStatus from "@/components/SendingStatus.vue";
 
 const apiStore = useApiStore();
 const layoutStore = useLayoutStore();
 const resourcesStore = useResourcesStore();
 const correctorsStore = useCorrectorsStore();
 const taskStore = useTaskStore();
-const changesStore = useChangesStore();
 
 async function handleFocusChange() {
   if (layoutStore.focusTarget == 'navigation') {
@@ -24,14 +23,6 @@ async function handleFocusChange() {
   }
 }
 watch(() => layoutStore.focusChange, handleFocusChange);
-
-function isSent() {
-  return changesStore.countChanges == 0;
-}
-
-function isSending() {
-  return apiStore.lastSendingTry > 0;
-}
 
 function openNavigation() {
   document.getElementById('app-navigation-drawer').dispatchEvent(new Event('mouseenter'));
@@ -72,14 +63,8 @@ function getResourceIcon(resource) {
 }
 
 function getCorrectorTitle(corrector) {
-  return (corrector.title + ' - ' + corrector.initials + ' ' + correctorsStore.getPositionText(corrector.corrector_key))
-    + (layoutStore.getCorrectorIsVisible(corrector.corrector_key) ? ' (ausgewählt)' : '');
+  return (corrector.title + ' - ' + corrector.initials + ' ' + correctorsStore.getPositionText(corrector.corrector_key));
 }
-
-function getCorrectorIcon(corrector) {
-  return (layoutStore.getCorrectorIsVisible(corrector.corrector_key) ? "mdi-account-school" : "mdi-account-school-outline");
-}
-
 
 </script>
 
@@ -97,8 +82,8 @@ function getCorrectorIcon(corrector) {
       <v-list-item aria-role="button" class="app-navigation-item" tabindex="0"
                    v-show="taskStore.hasInstructions"
                    @click="closeNavigation; layoutStore.showInstructions();"
-                   :aria-label="'Aufgabenstellung' + layoutStore.isInstructionsVisible ? ', ist ausgewählt' : ''"
-                   :title="'Aufgabenstellung' + (layoutStore.isInstructionsVisible ? ' (ausgewählt)' : '')"
+                   :aria-label="$t('allInstructions') + layoutStore.isInstructionsVisible ? $t('navBarSelectedAria') : ''"
+                   :title="$t('allInstructions') + (layoutStore.isInstructionsVisible ? $t('navBarSelected') : '')"
                    :ripple="false"
       >
         <template v-slot:prepend>
@@ -110,8 +95,8 @@ function getCorrectorIcon(corrector) {
       <v-list-item aria-role="button" class="app-navigation-item" tabindex="0"
                    v-show="resourcesStore.hasInstruction"
                    @click="closeNavigation; layoutStore.showInstructionsPdf();"
-                   :aria-label="'Aufgabenstellung als PDF' + (layoutStore.isInstructionsPdfVisible ? ', ist ausgewählt' : '')"
-                   :title="'Aufgabenstellung als PDF' + (layoutStore.isInstructionsPdfVisible ? ' (ausgewählt)' : '')"
+                   :aria-label="$t('allInstructionsPdf') + (layoutStore.isInstructionsPdfVisible ? $t('navBarSelectedAria') : '')"
+                   :title="$t('allInstructionsPdf') + (layoutStore.isInstructionsPdfVisible ? $t('navBarSelected') : '')"
                    :ripple="false"
       >
         <template v-slot:prepend>
@@ -124,8 +109,8 @@ function getCorrectorIcon(corrector) {
       <v-list-item aria-role="button" class="app-navigation-item" tabindex="0"
                    v-show="taskStore.hasSolution"
                    @click="closeNavigation; layoutStore.showSolution();"
-                   :aria-label="'Lösungshinweise' + (layoutStore.isSolutionVisible ? ', ist ausgewählt' : '')"
-                   :title="'Lösungshinweise' + (layoutStore.isSolutionVisible ? ' (ausgewählt)' : '')"
+                   :aria-label="$t('allSolution') + (layoutStore.isSolutionVisible ? $t('navBarSelectedAria') : '')"
+                   :title="$t('allSolution') + (layoutStore.isSolutionVisible ? $t('navBarSelected') : '')"
                    :ripple="false"
       >
         <template v-slot:prepend>
@@ -137,8 +122,8 @@ function getCorrectorIcon(corrector) {
       <v-list-item aria-role="button" class="app-navigation-item" tabindex="0"
                    v-show="resourcesStore.hasSolution"
                    @click="closeNavigation; layoutStore.showSolutionPdf();"
-                   :aria-label="'Lösungshinweise als PDF' + (layoutStore.isSolutionPdfVisible ? ', ist ausgewählt' : '')"
-                   :title="'Lösungshinweise als PDF' + (layoutStore.isSolutionPdfVisible ? ' (ausgewählt)' : '')"
+                   :aria-label="$t('allSolutionPdf') + (layoutStore.isSolutionPdfVisible ? $t('navBarSelectedAria') : '')"
+                   :title="$t('allSolutionPdf') + (layoutStore.isSolutionPdfVisible ? $t('navBarSelected') : '')"
                    :ripple="false"
       >
         <template v-slot:prepend>
@@ -153,7 +138,7 @@ function getCorrectorIcon(corrector) {
                    v-for="resource in resourcesStore.fileOrUrlResources"
                    @click="closeNavigation; selectResource(resource);"
                    :aria-label="resource.title + (resourcesStore.getResourceIsActive(resource) && layoutStore.isResourcesVisible ? ', ist ausgewählt' : '')"
-                   :title="resource.title + (resourcesStore.getResourceIsActive(resource) && layoutStore.isResourcesVisible ? ' (ausgewählt)' : '')"
+                   :title="resource.title + (resourcesStore.getResourceIsActive(resource) && layoutStore.isResourcesVisible ? $t('navBarSelected') : '')"
                    :key="resource.key"
                    :ripple="false"
       >
@@ -167,8 +152,8 @@ function getCorrectorIcon(corrector) {
 
       <v-list-item aria-role="button" class="app-navigation-item" tabindex="0"
                    @click="closeNavigation; layoutStore.showEssay();"
-                   :aria-label="'Abgegebener Text' + (layoutStore.isEssayVisible ? ', ist ausgewählt' : '')"
-                   :title="'Abgegebener Text' + (layoutStore.isEssayVisible ? ' (ausgewählt)' : '')"
+                   :aria-label="$t('allEssay') + (layoutStore.isEssayVisible ? $t('navBarSelectedAria') : '')"
+                   :title="$t('allEssay') + (layoutStore.isEssayVisible ? $t('navBarSelected') : '')"
                    :ripple="false"
       >
         <template v-slot:prepend>
@@ -180,8 +165,8 @@ function getCorrectorIcon(corrector) {
 
       <v-list-item aria-role="button" class="app-navigation-item" tabindex="0"
                    @click="closeNavigation; layoutStore.showMarking();"
-                   :aria-label="'Korrektur' + (layoutStore.isMarkingVisible ? ', ist ausgewählt' : '')"
-                   :title="'Korrektur' + (layoutStore.isMarkingVisible ? ' (ausgewählt)' : '')"
+                   :aria-label="$t('allCorrection') + (layoutStore.isMarkingVisible ? $t('navBarSelectedAria') : '')"
+                   :title="$t('allCorrection') + (layoutStore.isMarkingVisible ? $t('navBarSelected') : '')"
                    :ripple="false"
       >
         <template v-slot:prepend>
@@ -195,22 +180,22 @@ function getCorrectorIcon(corrector) {
       <v-list-item aria-role="button" class="app-navigation-item" tabindex="0"
                    v-for="corrector in correctorsStore.otherCorrectors"
                    @click="closeNavigation; selectCorrector(corrector);"
-                   :aria-label="getCorrectorTitle(corrector) + (layoutStore.getCorrectorIsVisible(corrector.corrector_key) ? ', ist ausgewählt' : '')"
-                   :title="getCorrectorTitle(corrector) + (layoutStore.getCorrectorIsVisible(corrector.corrector_key) ? ' (ausgewählt)' : '')"
+                   :aria-label="getCorrectorTitle(corrector) + (layoutStore.getCorrectorIsVisible(corrector.corrector_key) ? $t('navBarSelectedAria') : '')"
+                   :title="getCorrectorTitle(corrector) + (layoutStore.getCorrectorIsVisible(corrector.corrector_key) ? $t('navBarSelected') : '')"
                    :key="corrector.corrector_key"
                    :ripple="false"
       >
         <template v-slot:prepend>
           <v-icon aria-role="hidden"
-                  :icon="getCorrectorIcon(corrector)"></v-icon>
+                  :icon="layoutStore.getCorrectorIsVisible(corrector.corrector_key) ? 'mdi-account-school' : 'mdi-account-school-outline'"></v-icon>
         </template>
       </v-list-item>
 
       <v-list-item aria-role="button" class="app-navigation-item" tabindex="0"
                    v-if="!apiStore.isForReviewOrStitch"
                    @click="closeNavigation; layoutStore.showSummary();"
-                   :aria-label="'Gesamteindruck' + (layoutStore.isSummaryVisible ? ', ist ausgewählt' : '')"
-                   :title="'Gesamteindruck' + (layoutStore.isSummaryVisible ? ' (ausgewählt)' : '')"
+                   :aria-label="$t('allOwnSummary') + (layoutStore.isSummaryVisible ? $t('navBarSelectedAria') : '')"
+                   :title="$t('allOwnSummary') + (layoutStore.isSummaryVisible ? $t('navBarSelected') : '')"
                    :ripple="false"
       >
         <template v-slot:prepend>
@@ -223,20 +208,7 @@ function getCorrectorIcon(corrector) {
     </v-list>
 
     <template v-slot:append>
-      <v-list tabindex="-1">
-        <v-list-item aria-role="button" class="app-navigation-item" tabindex="0"
-                     @click="closeNavigation; apiStore.saveChangesToBackend()"
-                     :disabled="isSent()"
-                     :aria-label="isSending() ? 'Änderungen werden gesendet' : (isSent() ? 'Alles gesendet' : 'Letzte Änderung senden')"
-                     :title="isSending() ? 'Änderungen werden gesendet' : (isSent() ? 'Alles gesendet' : 'Letzte Änderung senden')"
-                     :ripple="false"
-        >
-          <template v-slot:prepend>
-            <v-icon aria-role="hidden"
-                    :icon="isSending() ? 'mdi-cloud-upload' : (isSent() ? 'mdi-cloud-check-outline' : 'mdi-cloud-outline')"></v-icon>
-          </template>
-        </v-list-item>
-      </v-list>
+      <SendingStatus></SendingStatus>
     </template>
 
 
