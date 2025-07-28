@@ -168,7 +168,6 @@ export const useResourcesStore = defineStore('resources', {
         let response = null;
         if (resource.type != 'url') {
           try {
-            console.log('preload ' + resource.title + '...');
             response = await axios(resource.url, { responseType: 'blob', timeout: 60000 });
             // resource.objectUrl = URL.createObjectURL(response.data)
           }

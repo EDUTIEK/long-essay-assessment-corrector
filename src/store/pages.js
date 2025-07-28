@@ -239,12 +239,10 @@ export const usePagesStore = defineStore('pages', {
           let response;
 
           if (page) {
-            console.log('preload page ' + page.page_no + '...');
             response = await axios(page.url, { responseType: 'blob', timeout: 60000 });
             // page.objectUrl = URL.createObjectURL(response.data);
             this.loadedImages++;
 
-            console.log('preload thumbnail ' + page.page_no + '...');
             response = await axios(page.thumb_url, { responseType: 'blob', timeout: 60000 });
             // page.thumbObjectUrl = URL.createObjectURL(response.data);
             this.loadedThumbs++;

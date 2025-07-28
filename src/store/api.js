@@ -750,10 +750,8 @@ export const useApiStore = defineStore('api', {
      */
     setInterval(name, handler, interval) {
       if (name in this.intervals) {
-        console.log('clear interval ' + name)
         clearInterval(this.intervals[name]);
       }
-      console.log('set interval ' + name)
       this.intervals[name] = setInterval(handler, interval);
     },
 
@@ -761,9 +759,7 @@ export const useApiStore = defineStore('api', {
      * Clear all timer intervals
      */
     clearAllIntervals() {
-      console.log('clear all intervals ');
       for (const name in this.intervals) {
-        console.log('clear interval ' + name);
         clearInterval(this.intervals[name]);
         delete this.intervals[name];
       }

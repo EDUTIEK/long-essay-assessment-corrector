@@ -57,7 +57,6 @@ export const useChangesStore = defineStore('changes', {
        */
       const fn = function (type) {
         if (!Change.ALLOWED_TYPES.includes(type)) {
-          console.log('wrong type' + type);
           return 0;
         }
         return Object.keys(state.changes[type]).length;

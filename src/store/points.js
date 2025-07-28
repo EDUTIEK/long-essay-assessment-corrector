@@ -211,7 +211,6 @@ export const usePointsStore = defineStore('points', {
      * @public
      */
     async createPoints(comment_key, criterion_key, points_value) {
-      console.log('createPoints: ', comment_key, criterion_key, points_value);
       const apiStore = useApiStore();
       const pointsObject = new Points({
         item_key: apiStore.itemKey,

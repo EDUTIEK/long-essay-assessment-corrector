@@ -98,7 +98,6 @@ async function onCreation(created) {
  * @param {MouseEvent} event the beginning mouseDown when a new mark is created
  */
 function onSelection(selected, event) {
-  console.log(Date.now(), 'onSelection', selected, event);
   if (!!selected) {
     let comment = commentsStore.getCommentByMarkKey(selected.key);
     if (comment) {

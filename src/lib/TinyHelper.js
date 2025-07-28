@@ -178,7 +178,6 @@ export default class TinyHelper {
     }
 
     saveScrolling() {
-        console.log('saveScrolling');
         const window = this.editor.getWin();
         if (window.scrollX > 0 || window.scrollY > 0) {
             this.scroll_left = window.scrollX;
@@ -192,7 +191,6 @@ export default class TinyHelper {
      * It can't be updated before it is supported by tinymce-vue
      */
     restoreScrolling() {
-        console.log('restoreScrolling');
         try {
             const window = this.editor.getWin();
             window.scroll({left: this.scroll_left, top: this.scroll_top});
