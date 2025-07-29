@@ -15,13 +15,6 @@ const preferencesStore = usePreferencesStore();
 const settingsStore = useSettingsStore();
 
 const showIncludes = ref(false);
-
-const items = ref([
-  { title: 'Nicht einbeziehen', value: Summary.INCLUDE_NOT },
-  { title: 'informativ', value: Summary.INCLUDE_INFO },
-  { title: 'bewertungsrelevant', value: Summary.INCLUDE_RELEVANT }
-]);
-
 const includes = ref({});
 const updatePreferences = ref(false);
 
@@ -63,23 +56,23 @@ function save() {
 
 <template>
   <span>
-    <strong>Einbeziehen:</strong> {{ summariesStore.getInclusionText(summariesStore.editSummary) }}
+    <strong>{{ $t('ownSummaryIncludesLabelInclude') }}</strong> {{ summariesStore.getInclusionText(summariesStore.editSummary) }}
     <v-dialog max-width="50em" persistent v-model="layoutStore.showIncludesPopup">
       <v-card>
-        <v-card-title>In die PDF-Dokumentation der Korrektur einbeziehen</v-card-title>
+        <v-card-title>{{ $t('ownSummaryIncludesTitle') }}</v-card-title>
         <v-card-text>
           <v-container id='app-own-summary-includes-container'>
             <v-row>
               <v-col>
-                <label for="appIncludeComments">Markierungen und Anmerkungen</label>
+                <label for="appIncludeComments">{{ $t('ownSummaryIncludesMarksAndComments') }}</label>
               </v-col>
               <v-col>
                 <select id="appIncludeComments" class="appIncludesSelect" v-model="includes.include_comments">
-                  <option :value="Summary.INCLUDE_NOT">Nicht einbeziehen</option>
-                  <option :value="Summary.INCLUDE_INFO">informativ</option>
-                  <option :value="Summary.INCLUDE_RELEVANT">bewertungsrelevant</option>
+                  <option :value="Summary.INCLUDE_NOT">{{ $t('ownSummaryIncludesIncludeNot') }}</option>
+                  <option :value="Summary.INCLUDE_INFO">{{ $t('ownSummaryIncludesIncludeInfo') }}</option>
+                  <option :value="Summary.INCLUDE_RELEVANT">{{ $t('ownSummaryIncludesIncludeRelevant') }}</option>
                 </select>
-                <small>Es wird der abgegebene Text mit markierten Stellen und Anmerkungen am Rand eingefügt.</small>
+                <small>{{ $t('ownSummaryIncludesMarksAndCommentsInfo') }}</small>
               </v-col>
             </v-row>
             <v-row v-show="includes.include_comments > Summary.INCLUDE_NOT">
@@ -88,52 +81,52 @@ function save() {
               </v-col>
               <v-col>
                 <select id="appIncludeRatings" class="appIncludesSelect" v-model="includes.include_comment_ratings">
-                  <option :value="Summary.INCLUDE_NOT">Nicht einbeziehen</option>
-                  <option :value="Summary.INCLUDE_INFO">informativ</option>
-                  <option :value="Summary.INCLUDE_RELEVANT">bewertungsrelevant</option>
+                  <option :value="Summary.INCLUDE_NOT">{{ $t('ownSummaryIncludesIncludeNot') }}</option>
+                  <option :value="Summary.INCLUDE_INFO">{{ $t('ownSummaryIncludesIncludeInfo') }}</option>
+                  <option :value="Summary.INCLUDE_RELEVANT">{{ $t('ownSummaryIncludesIncludeRelevant') }}</option>
                 </select>
-                <small>Bei jeder Anmerkung wird die vergebene Auszeichnung angezeigt.</small>
+                <small>{{ $t('ownSummaryIncludesRatingsInfo') }}</small>
               </v-col>
             </v-row>
             <v-row v-show="includes.include_comments > Summary.INCLUDE_NOT">
               <v-col>
-                <label for="appIncludeCommentPoints">Punkte zu Anmerkungen</label>
+                <label for="appIncludeCommentPoints">{{ $t('ownSummaryIncludesCommentPoints') }}</label>
               </v-col>
               <v-col>
                 <select id="appIncludeCommentPoints" class="appIncludesSelect" v-model="includes.include_comment_points">
-                  <option :value="Summary.INCLUDE_NOT">Nicht einbeziehen</option>
-                  <option :value="Summary.INCLUDE_INFO">informativ</option>
-                  <option :value="Summary.INCLUDE_RELEVANT">bewertungsrelevant</option>
+                  <option :value="Summary.INCLUDE_NOT">{{ $t('ownSummaryIncludesIncludeNot') }}</option>
+                  <option :value="Summary.INCLUDE_INFO">{{ $t('ownSummaryIncludesIncludeInfo') }}</option>
+                  <option :value="Summary.INCLUDE_RELEVANT">{{ $t('ownSummaryIncludesIncludeRelevant') }}</option>
                 </select>
-                <small>Bei jeder Anmerkung wird die vergebene Punktzahl angezeigt.</small>
+                <small>{{ $t('ownSummaryIncludesCommentPointsInfo') }}</small>
               </v-col>
             </v-row>
             <v-row v-show="criteriaStore.hasOwnCriteria">
               <v-col>
-                <label for="appIncludeCriteriaPoints">Punkte zu Kriterien</label>
+                <label for="appIncludeCriteriaPoints">{{ $t('ownSummaryIncludesCriteriaPoints') }}</label>
               </v-col>
               <v-col>
                 <select id="appIncludeCriteriaPoints" class="appIncludesSelect" v-model="includes.include_criteria_points">
-                  <option :value="Summary.INCLUDE_NOT">Nicht einbeziehen</option>
-                  <option :value="Summary.INCLUDE_INFO">informativ</option>
-                  <option :value="Summary.INCLUDE_RELEVANT">bewertungsrelevant</option>
+                  <option :value="Summary.INCLUDE_NOT">{{ $t('ownSummaryIncludesIncludeNot') }}</option>
+                  <option :value="Summary.INCLUDE_INFO">{{ $t('ownSummaryIncludesIncludeInfo') }}</option>
+                  <option :value="Summary.INCLUDE_RELEVANT">{{ $t('ownSummaryIncludesIncludeRelevant') }}</option>
                 </select>
-                <small>Es wird eine Tabelle mit den Kriterien und den dafür erreichten Punkten angezeigt.</small>
+                <small>{{ $t('ownSummaryIncludesCriteriaPointsInfo') }}</small>
               </v-col>
             </v-row>
           </v-container>
           <v-checkbox v-model="updatePreferences"
-                      label="Als Vorgabe für andere Korekturen übernehmen, bei denen noch keine Auswahl getroffen wurde. Bereits aktiv getroffene Auwahlen bleiben unverändert."></v-checkbox>
+                      :label="$t('ownSummaryIncludesUpdatePreferences')"></v-checkbox>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn @click="save()">
             <v-icon left icon="mdi-check"></v-icon>
-            <span>Übernehmen</span>
+            <span>{{ $t('allApply') }}</span>
           </v-btn>
           <v-btn @click="layoutStore.showIncludesPopup = false">
             <v-icon left icon="mdi-close"></v-icon>
-            <span>Abbrechen</span>
+            <span>{{ $t('allCancel') }}</span>
           </v-btn>
         </v-card-actions>
       </v-card>
