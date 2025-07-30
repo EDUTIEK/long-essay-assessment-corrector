@@ -43,27 +43,27 @@ async function saveAndClose() {
   <div id="app-stitch-decision-wrapper">
     <v-btn class="app-header-item" :disabled="essayStore.correction_finalized" @click="dialogOpen=true">
       <v-icon left icon="mdi-checkbox-marked-outline"></v-icon>
-      Stichentscheid
+      {{ $t('stichDecision') }}
     </v-btn>
 
     <v-dialog persistent v-model="dialogOpen">
       <v-card>
-        <v-card-title>Stichentscheid</v-card-title>
+        <v-card-title>{{ $t('stichDecision') }}</v-card-title>
         <v-card-text>
           <p>
-            Mit Ihrerm Stichentscheid wird die Bewertung dieser Abgabe abgeschlossen.
+            {{ $t('stitchDecisionInfo') }}
           </p>
           <br>
-          <p>Minimale Punkte: {{ summariesStore.minPoints }}</p>
-          <p>Maximale Punkte: {{ summariesStore.maxPoints }}</p>
+          <p>{{ $t('stitchDecisionMinPoints') }} {{ summariesStore.minPoints }}</p>
+          <p>{{ $t('stitchDecisionMaxPoints') }} {{ summariesStore.maxPoints }}</p>
           <br>
           <p>
-            <label for="appFinalPoints">Finale Punkte: </label>
+            <label for="appFinalPoints">{{ $t('stitchDecisionFinalPoints') }} </label>
             <input id="appFinalPoints" class="appRatingControl" type="number" :min="summariesStore.minPoints"
                    :max="summariesStore.maxPoints" v-model="essayStore.final_points"/>
             <span v-html="essayStore.grade"></span>
             <br/>
-            <label for="appStitchComment">Begründung: </label>
+            <label for="appStitchComment">{{ $t('stitchDecisionComment') }} </label>
             <textarea id="appStitchComment" class="appStitchReasonControl" style="width:100%;"
                       v-model="essayStore.stitch_comment"></textarea>
           </p>
@@ -73,16 +73,16 @@ async function saveAndClose() {
           <v-btn @click="saveAndContinue()"
                  :disabled="essayStore.final_points === null || essayStore.final_points === '' || !essayStore.stitch_comment">
             <v-icon left icon="mdi-check"></v-icon>
-            <span>Festlegen und Weiter</span>
+            <span>{{ $t('stitchDecisionSaveAndContinue') }}</span>
           </v-btn>
           <v-btn @click="saveAndClose()"
                  :disabled="essayStore.final_points === null || essayStore.final_points === '' || !essayStore.stitch_comment">
             <v-icon left icon="mdi-check"></v-icon>
-            <span>Festlegen und Schließen</span>
+            <span>{{ $t('stitchDecisionSaveAndClose') }}</span>
           </v-btn>
           <v-btn @click="dialogOpen=false">
             <v-icon left icon="mdi-close"></v-icon>
-            <span>Abbrechen</span>
+            <span>{{ $t('allCancel') }}</span>
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -91,16 +91,16 @@ async function saveAndClose() {
     <v-dialog persistent v-model="showSendFailure">
       <v-card>
         <v-card-text>
-          <p>Ihr Stichentscheid konnte nicht übertragen werden. Bitte versuchen Sie es später noch einmal.</p>
+          <p>{{ $t('stitchDecisionSendFailure') }}</p>
         </v-card-text>
         <v-card-actions>
           <v-btn @click="showSendFailure = false">
             <v-icon left icon="mdi-close"></v-icon>
-            <span>Meldung schließen</span>
+            <span>{{ $t('allCloseMessage') }}</span>
           </v-btn>
           <v-btn :href="apiStore.returnUrl">
             <v-icon left icon="mdi-logout-variant"></v-icon>
-            <span>Korrektur abbrechen</span>
+            <span>{{ $t('allCancelCorrection') }}</span>
           </v-btn>
         </v-card-actions>
       </v-card>
