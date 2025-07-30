@@ -19,8 +19,8 @@ function isSending() {
     <v-list-item aria-role="button" class="app-navigation-item" tabindex="0"
                  @click="apiStore.saveChangesToBackend()"
                  :disabled="isSent()"
-                 :aria-label="isSending() ? 'Änderungen werden gesendet' : (isSent() ? 'Alles gesendet' : 'Letzte Änderung senden')"
-                 :title="isSending() ? 'Änderungen werden gesendet' : (isSent() ? 'Alles gesendet' : 'Letzte Änderung senden')"
+                 :aria-label="isSending() ? $t('SendingStatusSending') : (isSent() ? $t('SendingStatusSent') : $t('SendingStatusSend'))"
+                 :title="isSending() ? $t('SendingStatusSending') : (isSent() ? $t('SendingStatusSent') : $t('SendingStatusSend'))"
                  :ripple="false"
     >
       <template v-slot:prepend>
