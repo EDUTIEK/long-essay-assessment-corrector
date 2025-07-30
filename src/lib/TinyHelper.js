@@ -94,12 +94,12 @@ export default class TinyHelper {
 
     styleFormats() {
         return [
-            { title: 'Absatz', format: 'p' },
-            { title: 'Überschrift 1', format: 'h1' },
-            { title: 'Überschrift 2', format: 'h2' },
-            { title: 'Überschrift 3', format: 'h3' },
-            { title: 'Maschinenschrift', format: 'pre' },
-            { title: 'Listenelement', block: 'li' },
+            { title: t('settingsParagraph'), format: 'p' },
+            { title: t('settingsHeading1'), format: 'h1' },
+            { title: t('settingsHeading2'), format: 'h2' },
+            { title: t('settingsHeading3'), format: 'h3' },
+            { title: t('settingsTypewriter'), format: 'pre' },
+            { title: t('settingsListElement'), block: 'li' },
         ];
     }
 
