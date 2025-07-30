@@ -1,7 +1,9 @@
 {
     "allAnnotations": "Anmerkungen",
     "allApply": "Übernehmen",
+    "allAuthorize": "Autorisieren...",
     "allCancel": "Abbrechen",
+    "allChange": "Ändern...",
     "allClose": "Schließen",
     "allCloseMessage": "Meldung schließen",
     "allComments": "Anmerkungen",
@@ -179,6 +181,8 @@
     "ownSummaryIncludesRatingsInfo": "Bei jeder Anmerkung wird die vergebene Auszeichnung angezeigt.",
     "ownSummaryIncludesTitle": "In die PDF-Dokumentation der Korrektur einbeziehen",
     "ownSummaryIncludesUpdatePreferences": "Als Vorgabe für andere Korekturen übernehmen, bei denen noch keine Auswahl getroffen wurde. Bereits aktiv getroffene Auwahlen bleiben unverändert.",
+    "OwnSummaryPointsRating": "Bewertung:",
+    "OwnSummaryPointsGrade": "Notenstufe",
     "settingsHeading": "Überschrift",
     "settingsHeading1": "Überschrift 1",
     "settingsHeading2": "Überschrift 2",

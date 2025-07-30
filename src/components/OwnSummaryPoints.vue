@@ -26,18 +26,18 @@ const layoutStore = useLayoutStore();
       </v-row>
       <v-row dense>
         <v-col cols="10">
-          <label for="appOwnSummaryPoints"><strong>Bewertung:</strong></label>
+          <label for="appOwnSummaryPoints"><strong>{{ $t('OwnSummaryPointsRating') }}</strong></label>
           &nbsp;
           <input :disabled="summariesStore.isOwnDisabled" id="appOwnSummaryPoints" class="appPoints" type="number" min="0"
-                 :max="settingsStore.max_points" v-model="summariesStore.editSummary.points"/> Punkte
+                 :max="settingsStore.max_points" v-model="summariesStore.editSummary.points"/> {{ $t('allPoints') }}
           &nbsp;
-          <strong>Notenstufe:</strong> {{ summariesStore.currentGradeTitle }}
+          <strong>{{ $t('OwnSummaryPointsGrade') }}</strong> {{ summariesStore.currentGradeTitle }}
         </v-col>
         <v-col cols="2">
           <v-btn density="compact" variant="text" v-show="!summariesStore.isOwnDisabled" :disabled="!itemsStore.authorizationAllowed"
                  @click="apiStore.setShowAuthorization(true)">
             <v-icon left icon="mdi-file-certificate-outline"></v-icon>
-            <span>Autorisieren...</span>
+            <span>{{ $t('allAuthorize') }}</span>
           </v-btn>
         </v-col>
       </v-row>
@@ -49,7 +49,7 @@ const layoutStore = useLayoutStore();
           <v-btn density="compact" v-if="settingsStore.inclusionsChangeable" variant="text" :disabled="summariesStore.isOwnDisabled"
                  @click="layoutStore.showIncludesPopup = true">
             <v-icon left icon="mdi-pencil"></v-icon>
-            <span>Ändern...</span>
+            <span>{{ $t('allChange') }}</span>
           </v-btn>
         </v-col>
       </v-row>
