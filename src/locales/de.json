@@ -206,7 +206,7 @@
     "startupContentLoadData": "LadeDaten...",
     "startupContentLoadError": "Beim Laden der Daten ist ein Fehler aufgetreten. Die Anwendung kann nicht gestartet werden.",
     "startupContentLoadItemError": "Beim Laden der zu korrigierenden Abgabe ist ein Fehler aufgetreten. Die Anwendung kann nicht gestartet werden.",
-    "startupContentMyCorrection": "Meine Korrekturen",
+    "startupContentMyCorrections": "Meine Korrekturen",
     "startupContentDataReplaceInfo1": "In Ihrem Browser sind Daten eines anderen Korrektors oder einer anderen Aufgabe vorhanden, die noch nicht übertragen wurden:",
     "startupContentDataReplaceInfo2": "Durch das Laden der neuen Korrektur werden diese Daten gelöscht. Möchten Sie die neuen Daten laden?",
     "startupContentDeleteAndLoad": "Verwerfen und Laden",
@@ -223,5 +223,12 @@
     "stitchDecisionSaveAndClose": "Festlegen und Schließen",
     "stitchDecisionSaveAndContinue": "Festlegen und Weiter",
     "stitchDecisionSendFailure": "Ihr Stichentscheid konnte nicht übertragen werden. Bitte versuchen Sie es später noch einmal.",
+    "suumaryCriteriaInComments": "Kriterien bei Anmerkungen",
+    "summaryCriteriaGeneralCriteria": "Allgemeine Kriterien (Kopfnoten)",
+    "summaryCriteriaMarkings": "Markierungen",
+    "summaryCriteriaNumber": "Anzahl",
+    "summaryCriteriaPointsInComments": "Punkte in Kommentaren",
+    "summaryCriteriaPointsOfMax": "Punkte /max",
+    "summaryCriteriaRating": "Bewertung",
     "tinyHelperIframeAriaText": "Editor Gutachten"
 }

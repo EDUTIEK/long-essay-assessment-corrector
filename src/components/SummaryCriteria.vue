@@ -95,8 +95,8 @@ async function filterByCriterion(criterion_key) {
     <v-table class="table" density="compact">
       <thead>
       <tr>
-        <th>Markierung</th>
-        <th class="text-right">Anzahl</th>
+        <th>{{ $t('summaryCriteriaMarkings') }}</th>
+        <th class="text-right">{{ $t('summaryCriteriaNumber') }}</th>
       </tr>
       </thead>
       <tbody>
@@ -134,8 +134,8 @@ async function filterByCriterion(criterion_key) {
     <v-table v-if="!criteriaStore.getCorrectorHasCommentCriteria(props.corrector_key)" class="table" density="compact">
       <thead>
       <tr>
-        <th><strong>Bewertung</strong></th>
-        <th class="text-right">Punkte</th>
+        <th><strong>{{ $t('summaryCriteriaRating') }}</strong></th>
+        <th class="text-right">{{ $t('allPoints') }}</th>
       </tr>
       </thead>
       <tbody>
@@ -144,9 +144,9 @@ async function filterByCriterion(criterion_key) {
           <v-btn density="compact" size="small" variant="text" prepend-icon="mdi-filter-outline"
                  :disabled="pointsStore.getSumOfPointsForCorrector(props.corrector_key, true, false) == 0"
                  @click="filterByPoints()">
-            <span class="sr-only">Punkte in Kommentaren</span>
+            <span class="sr-only">{{ $t('summaryCriteriaPointsInComments') }}</span>
           </v-btn>
-          <span aria-hidden="true">Punkte in Kommentaren</span>
+          <span aria-hidden="true">{{ $t('summaryCriteriaPointsInComments') }}</span>
         </td>
         <td class="text-right">
           {{ pointsStore.getSumOfPointsForCorrector(props.corrector_key, true, false) }}
@@ -159,8 +159,8 @@ async function filterByCriterion(criterion_key) {
     <v-table v-if="criteriaStore.getCorrectorHasCommentCriteria(props.corrector_key)" class="table" density="compact">
       <thead>
       <tr>
-        <th>Kriterium bei Anmerkungen</th>
-        <th class="text-right">Punkte / max</th>
+        <th>{{ $t('Kriterium bei Anmerkungen') }}</th>
+        <th class="text-right">{{ $t('summaryCriteriaPointsOfMax') }}</th>
       </tr>
       </thead>
       <tbody>
@@ -182,8 +182,8 @@ async function filterByCriterion(criterion_key) {
     <v-table v-if="criteriaStore.getCorrectorHasGeneralCriteria(props.corrector_key)" class="table" density="compact">
       <thead>
       <tr>
-        <th>Allgemeines Kriterium (Kopfnote)</th>
-        <th class="text-right">Punkte / max</th>
+        <th>{{ $t('summaryCriteriaGeneralCriteria') }}</th>
+        <th class="text-right">{{ $t('summaryCriteriaPointsOfMax') }}</th>
       </tr>
       </thead>
       <tbody>
