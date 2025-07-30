@@ -2,11 +2,14 @@ import { defineStore } from 'pinia';
 import localForage from "localforage";
 import { useApiStore } from '@/store/api';
 import Corrector from '@/data/Corrector';
+import i18n from "@/plugins/i18n";
 
 const storage = localForage.createInstance({
   storeName: "corrector-correctors",
   description: "Correctors data",
 });
+
+const { t } = i18n.global;
 
 /**
  * Correctors Store
@@ -62,13 +65,13 @@ export const useCorrectorsStore = defineStore('correctors', {
         const corrector = state.correctors.find(element => element.corrector_key == corrector_key);
         if (corrector) {
           if (corrector.position == 0) {
-            return '(Erstkorrektur)'
+            return t('correctorsFirstCorrector')
           } else if (corrector.position == 1) {
-            return '(Zweitkorrektur)'
+            return t('correctorsSecondCorrector')
           } else if (corrector.position == state.correctors.length - 1) {
-            return '(Endkorrektur)'
+            return t('correctorsLastCorrector')
           } else {
-            return '(' + (corrector.position + 1) + '. Korrektur)';
+            return t('correctorsNthCorrector' [corrector.position + 1]);
           }
         }
         return ''
