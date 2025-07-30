@@ -11,12 +11,15 @@ import { usePreferencesStore } from '@/store/preferences';
 
 import Summary from "@/data/Summary";
 import Change from "@/data/Change";
+import i18n from "@/plugins/i18n";
 
+const { t } = i18n.global;
 
 const storage = localForage.createInstance({
   storeName: "corrector-summaries",
   description: "Corrector summaries data",
 });
+
 
 // set check interval very short to update the grade level according the points
 const checkInterval = 200;      // time (ms) to wait for a new update check (e.g. 0.2s to 1s)
@@ -111,7 +114,7 @@ export const useSummariesStore = defineStore('summaries', {
           return level.title;
         }
       }
-      return 'ohne Notenstufe';
+      return t('summariesNoGrade');
     },
 
     /**
@@ -188,9 +191,9 @@ export const useSummariesStore = defineStore('summaries', {
         }
 
         if (settings.include_comments == Summary.INCLUDE_INFO) {
-          text = (text ? text + ', ' : '') + 'Anmerkungen (i)';
+          text = (text ? text + ', ' : '') + t('summariesIncludeComments') + t('summariesIncludeInformative');
         } else if (settings.include_comments == Summary.INCLUDE_RELEVANT) {
-          text = (text ? text + ', ' : '') + 'Anmerkungen (r)';
+          text = (text ? text + ', ' : '') + t('summariesIncludeComments') + t('summariesIncludeRelevant');
         }
 
         if (settings.include_comment_ratings == Summary.INCLUDE_INFO) {
@@ -200,22 +203,22 @@ export const useSummariesStore = defineStore('summaries', {
         }
 
         if (settings.include_comment_points == Summary.INCLUDE_INFO) {
-          text = (text ? text + ', ' : '') + 'Punkte zu Anmerkungen (i)';
+          text = (text ? text + ', ' : '') + t('summariesIncludePointsToComments') + t('summariesIncludeInformative');
         } else if (settings.include_comment_points == Summary.INCLUDE_RELEVANT) {
-          text = (text ? text + ', ' : '') + 'Punkte zu Anmerkungen (r)';
+          text = (text ? text + ', ' : '') + t('summariesIncludePointsToComments') + t('summariesIncludeRelevant');
         }
 
         if (criteriaStore.hasOwnCriteria) {
           if (settings.include_criteria_points == Summary.INCLUDE_INFO) {
-            text = (text ? text + ', ' : '') + 'Punkte zu Kriterien (i)';
+            text = (text ? text + ', ' : '') + t('summariesIncludePointsToCriteria') + t('summariesIncludeInformative');
           } else if (settings.include_criteria_points == Summary.INCLUDE_RELEVANT) {
-            text = (text ? text + ', ' : '') + 'Punkte Kriterien (r)';
+            text = (text ? text + ', ' : '') + t('summariesIncludePointsToCriteria') + t('summariesIncludeRelevant');
           }
         }
 
 
         if (text == '') {
-          text = 'keine Detail-Informationen'
+          text = t('summariesIncludeNoDetails')
         }
 
         return text;
@@ -256,13 +259,13 @@ export const useSummariesStore = defineStore('summaries', {
       const settingsStore = useSettingsStore();
       if (settingsStore.stitch_when_distance) {
         if (max_points - min_points > settingsStore.max_auto_distance) {
-          return 'Der Punkteunterschied übersteigt ' + settingsStore.max_auto_distance + ' Punkte!';
+          return t('summariesPointsDifferenceExceedsN', [settingsStore.max_auto_distance]);
         }
       }
       if (settingsStore.stitch_when_decimals) {
         let average = sum_points / count_points;
         if (Math.floor(average) < average) {
-          return 'Der Punktedurchschnitt ' + average + ' ist keine ganze Zahl!';
+          return t('summariesPointsAverageIsNotInteger', [average]);
         }
       }
 

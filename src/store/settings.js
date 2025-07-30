@@ -1,11 +1,14 @@
 import { defineStore } from 'pinia';
 import localForage from "localforage";
 import Summary from '@/data/Summary';
+import i18n from "@/plugins/i18n";
 
 const storage = localForage.createInstance({
   storeName: "corrector-settings",
   description: "Settings data",
 });
+
+const { t } = i18n.global;
 
 /**
  * Settings Store
@@ -21,8 +24,8 @@ export const useSettingsStore = defineStore('settings', {
       max_auto_distance: 0,           // maximum distance between points to allow an automated points calculation
       stitch_when_distance: false,    // stitch decision is needed when the distance is higher than the max_auto_distance
       stitch_when_decimals: false,    // stitch decision is needed when the average points have decimals
-      positive_rating: 'Exzellent',   // label of a positive rating
-      negative_rating: 'Kardinal',    // label of a negative rating
+      positive_rating: t('settingsRatingPositive'),   // label of a positive rating
+      negative_rating: t('settingsRatingNegative'),    // label of a negative rating
       headline_scheme: null,          // headline scheme of the essay
       fixed_inclusions: false,                        // fix the inclusion settings (don't allow a change)
       include_comments: Summary.INCLUDE_INFO,          // include comments in the authorized correction
