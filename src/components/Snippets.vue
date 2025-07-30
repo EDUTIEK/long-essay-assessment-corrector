@@ -3,7 +3,9 @@
 import {useSnippetsStore} from "@/store/snippets";
 import { ref, watch, nextTick } from 'vue'
 import Snippet from "@/data/Snippet";
+import i18n from "@/plugins/i18n";
 
+const { t } = i18n.global;
 const snippetsStore = useSnippetsStore();
 const appSelect = ref();  // v-autocomplete
 const appEdit = ref();    // v-textarea
@@ -24,7 +26,7 @@ function loadList() {
       }
       break;
   }
-  snippets.push(new Snippet({key: 'new', text: "--- neuer Baustein ---", purpose: snippetsStore.open_for_purpose}));
+  snippets.push(new Snippet({key: 'new', text: t('snippetsNewSnippet'), purpose: snippetsStore.open_for_purpose}));
 }
 
 function clearEditor() {
@@ -114,9 +116,9 @@ function customFilter (itemTitle, queryText, item) {
   <div id="app-snippets">
     <v-dialog max-width="60em" v-model="snippetsStore.selection_open">
       <v-card>
-        <v-card-title>Textbaustein</v-card-title>
+        <v-card-title>{{ $t('snippetsSnippet') }}</v-card-title>
         <v-card-text>
-          Auswählen:
+          {{ $t('snippetsSelect') }}
           <v-autocomplete
               ref="appSelect"
               id="appSnippetSelect"
@@ -129,7 +131,7 @@ function customFilter (itemTitle, queryText, item) {
               item-title="text"
               item-value="key"
           ></v-autocomplete>
-          Bearbeiten:
+          {{ $t('snippetsEdit') }}
           <v-textarea
               ref="appEdit"
               v-model="snippetsStore.edit.text"
@@ -143,18 +145,18 @@ function customFilter (itemTitle, queryText, item) {
               :disabled = "snippetsStore.edit.text == ''"
               @click="handleApply()">
             <v-icon left icon="mdi-ok"></v-icon>
-            <span>Übernehmen</span>
+            <span>{{ $t('allApply') }}</span>
           </v-btn>
           <v-btn
               :disabled = "!snippetsStore.has(snippetsStore.edit.key)"
               @click="handleDelete()">
             <v-icon left icon="mdi-ok"></v-icon>
-            <span>Löschen</span>
+            <span>{{ $t('allDelete') }}</span>
           </v-btn>
           <v-spacer></v-spacer>
           <v-btn @click="handleClose()">
             <v-icon left icon="mdi-close"></v-icon>
-            <span>Schließen</span>
+            <span>{{ $t('allClose') }}</span>
           </v-btn>
 
         </v-card-actions>
