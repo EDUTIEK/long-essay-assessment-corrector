@@ -230,5 +230,8 @@
     "summaryCriteriaPointsInComments": "Punkte in Kommentaren",
     "summaryCriteriaPointsOfMax": "Punkte /max",
     "summaryCriteriaRating": "Bewertung",
+    "summaryPointsGrade": "Notenstufe:",
+    "summaryPointsInclude": "Einbeziehen:",
+    "summaryPointsRating": "Bewertung:",
     "tinyHelperIframeAriaText": "Editor Gutachten"
 }

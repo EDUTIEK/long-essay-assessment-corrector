@@ -29,13 +29,13 @@ if (summary) {
 
 <template>
   <div id="app-summary-points-wrapper">
-    <label for="appSummaryPoints"><strong>Wertung:</strong></label>
+    <label for="appSummaryPoints"><strong>{{ $t('summaryPointsRating') }}</strong></label>
     <input :disabled="true" id="appSummaryPoints" class="appPoints" type="number" min="0"
-           :max="settingsStore.max_points" v-model="points"/> Punkte
+           :max="settingsStore.max_points" v-model="points"/> {{ $t('allPoints') }}
     &nbsp;
-    <strong>Notenstufe:</strong> {{ grade }}
+    <strong>{{ $t('summaryPointsGrade') }}</strong> {{ grade }}
 
-    <p><strong>Einbeziehen:</strong> {{ text }}</p>
+    <p><strong>{{ $t('summaryPointsInclude') }}</strong> {{ text }}</p>
   </div>
 </template>
 
