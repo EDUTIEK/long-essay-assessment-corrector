@@ -183,6 +183,7 @@
     "ownSummaryIncludesUpdatePreferences": "Als Vorgabe für andere Korekturen übernehmen, bei denen noch keine Auswahl getroffen wurde. Bereits aktiv getroffene Auwahlen bleiben unverändert.",
     "OwnSummaryPointsRating": "Bewertung:",
     "OwnSummaryPointsGrade": "Notenstufe",
+    "OwnSummaryTextHiddenField": "Verborgenes Feld zum Gutachten",
     "settingsHeading": "Überschrift",
     "settingsHeading1": "Überschrift 1",
     "settingsHeading2": "Überschrift 2",

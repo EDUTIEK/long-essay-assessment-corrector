@@ -102,7 +102,7 @@ watch(() => snippetsStore.selection_open, handleSnippet);
 
 <template>
   <div class="app-own-summary-text-wrapper">
-    <label :for="props.editorId" class="hidden">Verborgenes Feld zum Gutachten</label>
+    <label :for="props.editorId" class="hidden">{{ $t('OwnSummaryTextHiddenField') }}</label>
     <editor
         :id="props.editorId"
         v-if="!summariesStore.isOwnDisabled"
