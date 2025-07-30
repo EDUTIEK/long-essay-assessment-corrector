@@ -2,12 +2,14 @@
 import {useSettingsStore} from "@/store/settings";
 import {usePointsStore} from "@/store/points";
 import {useCriteriaStore} from "@/store/criteria";
+import i18n from "@/plugins/i18n";
 
 const settingsStore = useSettingsStore();
 const pointsStore = usePointsStore();
 const criteriaStore = useCriteriaStore();
 
 const props = defineProps(['corrector_key']);
+const { t } = i18n.global;
 
 const has_general_criteria = criteriaStore.getCorrectorHasGeneralCriteria(props.corrector_key);
 const has_comment_criteria = criteriaStore.getCorrectorHasCommentCriteria(props.corrector_key);
@@ -20,12 +22,12 @@ function pointsNote() {
     return '';
   }
   else if (!has_general_criteria) {
-    return has_comment_criteria ? '(zu Kriterien bei Anmerkungen)' : '(zu Anmerkungen)';
+    return has_comment_criteria ? t('sumOfPointsToCriteriaInComments') : t('sumOfPointsToComments');
   }
   else  {
     return has_comment_criteria ?
-        '(' + with_comment + ' zu Kriterien bei Anmerkungen, ' + without_comment + ' zu allgemeinen Kriterien)' :
-        '(' + with_comment + ' zu Anmerkungen, ' + without_comment + ' zu allgemeinen Kriterien)';
+        t('sumOfPointsNCommentCriteriaMGeneralCriteria', [with_comment, without_comment]) :
+        t('sumOfPointsNCommentsMGeneralCriteria', [with_comment, without_comment]);
   }
 }
 
@@ -33,7 +35,7 @@ function pointsNote() {
 
 <template>
   <span>
-    <strong>Punktesumme: </strong>
+    <strong>{{ $t('sumOfPointsLabel')}}</strong>
     <span :class="pointsStore.getSumOfPointsForCorrector(props.corrector_key) > settingsStore.max_points ? 'red' : ''">
       {{ pointsStore.getSumOfPointsForCorrector(props.corrector_key) }} von max. {{ settingsStore.max_points }}</span> {{ pointsNote() }}
   </span>

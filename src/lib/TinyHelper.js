@@ -13,7 +13,7 @@ let settingsStore;
 let preferencesStore;
 let snippetsStore;
 
-const { t } = i18n.global
+const { t } = i18n.global;
 
 export default class TinyHelper {
 

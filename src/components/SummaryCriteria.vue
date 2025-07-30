@@ -159,7 +159,7 @@ async function filterByCriterion(criterion_key) {
     <v-table v-if="criteriaStore.getCorrectorHasCommentCriteria(props.corrector_key)" class="table" density="compact">
       <thead>
       <tr>
-        <th>{{ $t('Kriterium bei Anmerkungen') }}</th>
+        <th>{{ $t('summaryCriteriaInComments') }}</th>
         <th class="text-right">{{ $t('summaryCriteriaPointsOfMax') }}</th>
       </tr>
       </thead>
