@@ -247,7 +247,7 @@ watch(() => snippetsStore.selection_open, handleSnippet);
 
             <v-col cols="3">
               <!-- select snippets  -->
-              <v-btn class="snippetsButton" density="compact" size="small" variant="text" prepend-icon="mdi-plus"
+              <v-btn class="snippetsButton" density="compact" variant="plain" prepend-icon="mdi-plus"
                      :tabindex="isSelected(comment) ? 0 : -1"
                      @keydown="handleTextKeydown()"
                      @click="openSnippets"
@@ -258,17 +258,13 @@ watch(() => snippetsStore.selection_open, handleSnippet);
 
             <!-- enter points -->
             <v-col cols="3">
-              <span v-if="criteriaStore.getCorrectorHasCommentCriteria(comment.corrector_key)"
-                    v-show="comment.key == commentsStore.selectedKey || pointsStore.getCommentHasPoints(comment.key)"
-              >
-                  <span tabindex="0"
+              <span v-if="criteriaStore.getCorrectorHasCommentCriteria(comment.corrector_key)">
+                  <span tabindex="0" class="pointsSum"
                         :id="'pointsInput' + comment.key"
                         @keydown="handleSumOfPointsKeydown()"
-                  ><span class="pointsInput">{{ getPointsDisplay(comment) }}</span>&nbsp;{{ getPointsLabel(comment) }}</span>
+                  >{{ $t('markingCommentSum')}} {{ getPointsDisplay(comment) }} {{ getPointsLabel(comment) }}</span>
               </span>
-              <span v-if="!criteriaStore.getCorrectorHasCommentCriteria(comment.corrector_key)"
-                    v-show="comment.key == commentsStore.selectedKey || comment.points > 0"
-              >
+              <span v-if="!criteriaStore.getCorrectorHasCommentCriteria(comment.corrector_key)">
                 <input class="pointsInput"
                        type="number"
                        min="0"
@@ -338,7 +334,10 @@ watch(() => snippetsStore.selection_open, handleSnippet);
             <v-col cols=3>
             </v-col>
             <v-col cols=3>
-              <span v-show="getPointsDisplay(comment) > 0">
+              <span v-if="criteriaStore.getCorrectorHasCommentCriteria(comment.corrector_key)" v-show="getPointsDisplay(comment) > 0">
+                <span class="pointsSum">{{ $t('markingCommentSum')}} {{ getPointsDisplay(comment) }} {{ getPointsLabel(comment) }}</span>
+              </span>
+              <span v-if="!criteriaStore.getCorrectorHasCommentCriteria(comment.corrector_key)" v-show="getPointsDisplay(comment) > 0">
                 <span class="pointsInput">{{ getPointsDisplay(comment) }}</span>&nbsp;{{ getPointsLabel(comment) }}
               </span>
             </v-col>
@@ -433,16 +432,35 @@ i {
   margin-top: -2px;
 }
 
+.pointsSum {
+  display: inline-block;
+  text-align: left;
+  color: #606060;
+  padding-left: 3px;
+  padding-top: 4px;
+}
+
 .pointsInput {
   display: inline-block;
   width: 3rem;
   text-align: left;
   color: #606060;
+  padding-left: 3px;
+}
+
+input.pointsInput {
+  border: 1px solid #aaaaaa;
+  border-radius: 5px;
+  padding: 3px;
 }
 
 .ratingInput {
   display: inline-block;
   width: 1rem;
+}
+
+input.ratingInput {
+  margin-top: 5px;
 }
 
 .trashColumn {

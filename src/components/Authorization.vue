@@ -193,10 +193,11 @@ function editSummary() {
 
 .appPoints {
   width: 4em;
-  border: 0;
+  border: 1px solid #aaaaaa;
+  border-radius: 5px;
+  padding: 3px;
   margin-left: 5px;
   margin-right: 5px;
-  padding: 5px;
 }
 
 .appText {
@@ -204,5 +205,6 @@ function editSummary() {
   overflow-y: scroll;
   border: 1px solid lightgray;
 }
+
 
 </style>

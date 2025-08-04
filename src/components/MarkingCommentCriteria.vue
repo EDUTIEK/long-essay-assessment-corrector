@@ -118,10 +118,9 @@ th, td {
 
 .appPoints {
   width: 4em;
-  border: 0;
-  margin-left: 5px;
-  margin-right: 5px;
-  padding: 5px;
+  border: 1px solid #aaaaaa;
+  border-radius: 5px;
+  padding: 3px;
 }
 
 .col-left {

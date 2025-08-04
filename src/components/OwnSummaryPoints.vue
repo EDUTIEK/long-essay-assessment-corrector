@@ -64,5 +64,9 @@ const layoutStore = useLayoutStore();
 
 .appPoints {
   width: 4em;
+  border: 1px solid #aaaaaa;
+  border-radius: 5px;
+  padding: 3px;
 }
+
 </style>
