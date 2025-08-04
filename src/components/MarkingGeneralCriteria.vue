@@ -62,7 +62,7 @@ async function handleKeyDown(event) {
       <thead>
       <tr>
         <th class="col-left">
-          <span id="appMarkingCommentCriteriaStart" tabindex="0" @keydown="handleKeyDown">Kriterium</span>
+          <span id="appMarkingCommentCriteriaStart" tabindex="0" @keydown="handleKeyDown">{{ $t('markingGeneralCriteriaCriterion') }}</span>
         </th>
         <th class="col-mid text-right">
           {{ $t('allPoints', 0) }}

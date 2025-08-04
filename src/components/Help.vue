@@ -8,8 +8,8 @@ const layoutStore = useLayoutStore();
 
 <template>
   <v-btn class="app-header-item" @click="layoutStore.showHelp=true">
-    <v-icon left icon="mdi-help"></v-icon>
-    Hilfe
+    <v-icon left icon="mdi-keyboard-outline"></v-icon>
+    {{ $t('helpButton') }}
   </v-btn>
 
   <v-dialog v-model="layoutStore.showHelp" max-width="1000">

@@ -29,7 +29,7 @@ const layoutStore = useLayoutStore();
           <label for="appOwnSummaryPoints"><strong>{{ $t('OwnSummaryPointsRating') }}</strong></label>
           &nbsp;
           <input :disabled="summariesStore.isOwnDisabled" id="appOwnSummaryPoints" class="appPoints" type="number" min="0"
-                 :max="settingsStore.max_points" v-model="summariesStore.editSummary.points"/> {{ $t('allPoints') }}
+                 :max="settingsStore.max_points" v-model="summariesStore.editSummary.points"/> {{ $t('allPoints', summariesStore.editSummary.points) }}
           &nbsp;
           <strong>{{ $t('OwnSummaryPointsGrade') }}</strong> {{ summariesStore.currentGradeTitle }}
         </v-col>
