@@ -86,7 +86,7 @@ async function handleKeyDown(event) {
           <label tabindex="0" @keydown="handleKeyDown" :for="'app-points-input-' + criterion.key">{{ criterion.title }}</label>
         </td>
         <td class="col-mid text-right">
-          <input class="appPoints" type="number" min="0" v-model="criteriaPoints[criterion.key]"
+          <input class="appPoints" type="number" v-model="criteriaPoints[criterion.key]"
                  :id="'app-points-input-' + criterion.key"
                  :disabled="summariesStore.isOwnDisabled || comment_key == '' || corrector_key != apiStore.correctorKey"
                  :max="criterion.points"

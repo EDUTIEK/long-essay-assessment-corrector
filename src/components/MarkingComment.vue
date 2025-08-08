@@ -267,7 +267,6 @@ watch(() => snippetsStore.selection_open, handleSnippet);
               <span v-if="!criteriaStore.getCorrectorHasCommentCriteria(comment.corrector_key)">
                 <input class="pointsInput"
                        type="number"
-                       min="0"
                        :style=getPointsInputStyle(comment)
                        :id="'pointsInput' + comment.key"
                        :max="settingsStore.max_points"
