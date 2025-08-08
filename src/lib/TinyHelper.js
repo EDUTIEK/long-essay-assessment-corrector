@@ -99,7 +99,6 @@ export default class TinyHelper {
             { title: t('settingsHeading2'), format: 'h2' },
             { title: t('settingsHeading3'), format: 'h3' },
             { title: t('settingsTypewriter'), format: 'pre' },
-            { title: t('settingsListElement'), block: 'li' },
         ];
     }
 
