@@ -124,7 +124,7 @@ function expansionClass() {
 }
 
 .full {
-  height: 100% - 30px;
+  height: calc(100% - 40px);
 }
 
 .half {
