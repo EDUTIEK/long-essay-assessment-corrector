@@ -103,7 +103,7 @@ class Summary {
       this.text = data.text.toString()
     }
     if (data.points !== undefined && data.points !== null) {
-      this.points = parseInt(data.points);
+      this.points = parseFloat(data.points);
     }
     if (data.grade_key !== undefined && data.grade_key !== null) {
       this.grade_key = data.grade_key.toString()
