@@ -109,9 +109,9 @@ html {
 .appImageMarker svg text {
   fill: white;
   font-family: sans-serif;
-  font-size: 55px;
+  font-size: 35px;
   font-style: normal;
-  font-weight: normal;
+  font-weight: bold;
 }
 
 .appImageMarker svg .shape text.symbol {
