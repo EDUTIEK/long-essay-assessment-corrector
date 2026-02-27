@@ -28,11 +28,11 @@ function expansionClass() {
 <template>
   <div id="app-own-summary-wrapper">
     <div v-if="props.showCriteria" :class="expansionClass()">
-      <h2 class="headline">{{ $t('summaryOverview') }}</h2>
+      <h2 class="headline">{{ $t('summaryOverview')  + ' ' + correctorsStore.getPositionText(apiStore.correctorKey) }}</h2>
       <summary-criteria class="content" :corrector_key="apiStore.correctorKey"></summary-criteria>
     </div>
     <div v-if="props.showText" :class="expansionClass()">
-      <h2 class="headline">{{ $t('allSummary') }}</h2>
+      <h2 class="headline">{{ $t('allSummary')  + ' ' + correctorsStore.getPositionText(apiStore.correctorKey) }}</h2>
       <own-summary-text class="content" :editorId="'summary'"></own-summary-text>
     </div>
     <div id="app-own-summary-points">

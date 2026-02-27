@@ -27,12 +27,12 @@ function expansionClass() {
 
     <div v-if="props.showCriteria && summariesStore.getAuthorizationForCorrector(props.corrector_key)"
          :class="expansionClass()">
-      <div class="headline">{{ $t('summaryOverview') }}</div>
+      <div class="headline">{{ $t('summaryOverview') + ' ' + correctorsStore.getPositionText(props.corrector_key) }}</div>
       <summary-criteria class="content" :corrector_key="props.corrector_key"></summary-criteria>
     </div>
     <div v-if="props.showText && summariesStore.getAuthorizationForCorrector(props.corrector_key)"
          :class="expansionClass()">
-      <div class="headline">{{ $t('allSummary') }}</div>
+      <div class="headline">{{ $t('allSummary') + ' ' + correctorsStore.getPositionText(props.corrector_key) }}</div>
       <summary-text class="content" :corrector_key="props.corrector_key"></summary-text>
     </div>
     <div v-if="summariesStore.getAuthorizationForCorrector(props.corrector_key)">
