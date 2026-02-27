@@ -197,9 +197,9 @@ export const useSummariesStore = defineStore('summaries', {
         }
 
         if (settings.include_comment_ratings == Summary.INCLUDE_INFO) {
-          text = (text ? text + ', ' : '') + settingsStore.ratingLabels + ' (i)';
+          text = (text ? text + ', ' : '') + t('summariesIncludeRatings') + ' (i)';
         } else if (settings.include_comment_ratings == Summary.INCLUDE_RELEVANT) {
-          text = (text ? text + ', ' : '') + settingsStore.ratingLabels + ' (r)';
+          text = (text ? text + ', ' : '') + t('summariesIncludeRatings') + ' (r)';
         }
 
         if (settings.include_comment_points == Summary.INCLUDE_INFO) {

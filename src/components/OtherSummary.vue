@@ -3,9 +3,11 @@ import SummaryCriteria from '@/components/SummaryCriteria.vue';
 import SummaryPoints from "@/components/SummaryPoints.vue";
 import SummaryText from "@/components/SummaryText.vue";
 import { useSummariesStore } from '@/store/summaries';
+import { useCorrectorsStore } from '@/store/correctors';
 
 const props = defineProps(['corrector_key', 'showCriteria', 'showText']);
 const summariesStore = useSummariesStore();
+const correctorsStore = useCorrectorsStore();
 
 function expansionClass() {
   const sum = (props.showCriteria ? 1 : 0) + (props.showText ? 1 : 0);
@@ -25,7 +27,7 @@ function expansionClass() {
 
     <div v-if="props.showCriteria && summariesStore.getAuthorizationForCorrector(props.corrector_key)"
          :class="expansionClass()">
-      <div class="headline">{{ $t('allOverview') }}</div>
+      <div class="headline">{{ $t('summaryOverview') }}</div>
       <summary-criteria class="content" :corrector_key="props.corrector_key"></summary-criteria>
     </div>
     <div v-if="props.showText && summariesStore.getAuthorizationForCorrector(props.corrector_key)"
@@ -34,7 +36,7 @@ function expansionClass() {
       <summary-text class="content" :corrector_key="props.corrector_key"></summary-text>
     </div>
     <div v-if="summariesStore.getAuthorizationForCorrector(props.corrector_key)">
-      <div class="headline">{{ $t('allTotalRating') }}</div>
+      <div class="headline">{{ $t('allTotalRating') + ' ' + correctorsStore.getPositionText(props.corrector_key) }}</div>
       <summary-points class="content" :corrector_key="props.corrector_key"></summary-points>
     </div>
 

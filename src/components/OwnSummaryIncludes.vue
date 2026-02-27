@@ -77,7 +77,11 @@ function save() {
             </v-row>
             <v-row v-show="includes.include_comments > Summary.INCLUDE_NOT">
               <v-col>
-                <label for="appIncludeRatings">{{ settingsStore.ratingLabels }}</label>
+                <label for="appIncludeRatings">
+                  {{ $t('ownSummaryIncludesRatings') }}
+                  <br />
+                  {{ '(' + settingsStore.ratingLabels + ')' }}
+                </label>
               </v-col>
               <v-col>
                 <select id="appIncludeRatings" class="appIncludesSelect" v-model="includes.include_comment_ratings">
