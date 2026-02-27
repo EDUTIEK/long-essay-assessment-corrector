@@ -30,7 +30,6 @@ const pageMenuOpen = ref(false);
 const pageMenuInput = ref(0);
 const showLabels = ref(true);
 
-
 let marker;
 let shownUrl = '';
 let currentKeys = [];         // kys of all marks shown on the page
@@ -282,13 +281,20 @@ function zoomOut() {
   marker.setZoomLevel(preferencesStore.essay_page_zoom);
 }
 
-function selectTool() {
+function selectTool(tool = null) {
 
-  if (summariesStore.isOwnDisabled) {
+  if (tool) {
+    selectedTool.value = tool;
+  }
+
+  if (summariesStore.isOwnDisabled || !selectedTool.value) {
     selectedTool.value = 'scroll';
+    marker.scrollMode();
+    return;
   }
 
   switch (selectedTool.value) {
+
     case 'scroll':
       marker.scrollMode();
       break;
@@ -346,16 +352,16 @@ function toggleLabels() {
 
       &nbsp;
 
-      <v-btn-toggle density="comfortable" variant="outlined" divided v-model="selectedTool" @click="selectTool()">
-        <v-btn size="small" icon="mdi-cursor-move" value="scroll"></v-btn>
-        <v-btn :disabled="summariesStore.isOwnDisabled" size="small" icon="mdi-minus" value="line"></v-btn>
-        <v-btn :disabled="summariesStore.isOwnDisabled" size="small" icon="mdi-wave" value="wave"></v-btn>
-        <v-btn :disabled="summariesStore.isOwnDisabled" size="small" icon="mdi-check" value="check"></v-btn>
-        <v-btn :disabled="summariesStore.isOwnDisabled" size="small" icon="mdi-close" value="cross"></v-btn>
-        <v-btn :disabled="summariesStore.isOwnDisabled" size="small" icon="mdi-help" value="question"></v-btn>
+      <v-btn-toggle density="comfortable" variant="outlined" divided v-model="selectedTool">
+        <v-btn size="small" icon="mdi-cursor-move" value="scroll" @click="selectTool('scroll')"></v-btn>
+        <v-btn :disabled="summariesStore.isOwnDisabled" size="small" icon="mdi-minus" value="line" @click="selectTool('line')"></v-btn>
+        <v-btn :disabled="summariesStore.isOwnDisabled" size="small" icon="mdi-wave" value="wave" @click="selectTool('wave')"></v-btn>
+        <v-btn :disabled="summariesStore.isOwnDisabled" size="small" icon="mdi-check" value="check" @click="selectTool('check')"></v-btn>
+        <v-btn :disabled="summariesStore.isOwnDisabled" size="small" icon="mdi-close" value="cross" @click="selectTool('cross')"></v-btn>
+        <v-btn :disabled="summariesStore.isOwnDisabled" size="small" icon="mdi-help" value="question" @click="selectTool('question')"></v-btn>
         <v-btn :disabled="summariesStore.isOwnDisabled" size="small" icon="mdi-rectangle-outline"
-               value="rectangle"></v-btn>
-        <v-btn :disabled="summariesStore.isOwnDisabled" size="small" icon="mdi-vector-triangle" value="polygon"></v-btn>
+               value="rectangle" @click="selectTool('rectangle')"></v-btn>
+        <v-btn :disabled="summariesStore.isOwnDisabled" size="small" icon="mdi-vector-triangle" value="polygon" @click="selectTool('polygon')"></v-btn>
       </v-btn-toggle>
 
       &nbsp;
