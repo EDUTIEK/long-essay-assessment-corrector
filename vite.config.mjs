@@ -24,13 +24,7 @@ export default defineConfig({
     Vuetify(),
     Components(),
     ViteFonts({
-      google: {
-        families: [{
-          name: 'Roboto',
-          styles: 'wght@100;300;400;500;700;900',
-        }],
-      },
-    }),
+   }),
     VueI18nPlugin({
       /* options */
       module: 'petite-vue-i18n',
