@@ -18,37 +18,41 @@ const props = defineProps(['corrector_key']);
 watch(() => props, loadCriteria);
 watch(() => apiStore.itemKey, loadCriteria);
 
-const generalCriteriaPoints = reactive({});
-const commentCriteriaPoints = reactive({});
-
+const generalCriteriaPoints = reactive([]);
+const commentCriteriaPoints = reactive([]);
 
 async function loadCriteria() {
   await nextTick();
 
+  const commentByKey = {};
+  const generalByKey = {};
+
   criteriaStore.getCorrectorCommentCriteria(props.corrector_key).forEach(criterion => {
-    commentCriteriaPoints[criterion.key] = {
+    commentByKey[criterion.key] = {
       key: criterion.key,
       title: criterion.title,
       max_points: criterion.points,
       sum_points: 0
     }
+    commentCriteriaPoints.push(commentByKey[criterion.key]);
   });
 
   criteriaStore.getCorrectorGeneralCriteria(props.corrector_key).forEach(criterion => {
-    generalCriteriaPoints[criterion.key] = {
+    generalByKey[criterion.key] = {
       key: criterion.key,
       title: criterion.title,
       max_points: criterion.points,
       sum_points: 0
     }
+    generalCriteriaPoints.push(generalByKey[criterion.key]);
   });
 
   pointsStore.getObjectsForCorrector(props['corrector_key']).forEach(points => {
-    if (commentCriteriaPoints[points.criterion_key] !== undefined) {
-      commentCriteriaPoints[points.criterion_key].sum_points += points.points;
+    if (commentByKey[points.criterion_key] !== undefined) {
+      commentByKey[points.criterion_key].sum_points += points.points;
     }
-    if (generalCriteriaPoints[points.criterion_key] !== undefined) {
-      generalCriteriaPoints[points.criterion_key].sum_points += points.points;
+    if (generalByKey[points.criterion_key] !== undefined) {
+      generalByKey[points.criterion_key].sum_points += points.points;
     }
   });
 }
