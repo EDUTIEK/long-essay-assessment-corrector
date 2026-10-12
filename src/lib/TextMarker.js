@@ -304,6 +304,95 @@ class TextMarker {
       return firstVisible || lastVisible;
     }
   }
+
+  /**
+   * Visual lines of a marked word range
+   * @param {integer} start
+   * @param {integer} end
+   * @return {array}
+   */
+  visualLines(start, end) {
+    if (!this.el) {
+      return [];
+    }
+    const nodes = [];
+    this.el.querySelectorAll('w-p').forEach(node => {
+      const word = parseInt(node.getAttribute('w'), 10);
+      if (word >= start && word <= end) {
+        nodes.push({ word, rect: node.getBoundingClientRect() });
+      }
+    });
+
+    const lines = [];
+    for (const node of nodes) {
+      const rect = node.rect;
+      if (!rect.height && !rect.width) {
+        continue;
+      }
+      const previous = lines[lines.length - 1];
+      const threshold = Math.max(4, rect.height * 0.6);
+      if (previous && Math.abs(rect.top - previous.top) <= threshold) {
+        previous.end = node.word;
+        previous.left = Math.min(previous.left, rect.left);
+        previous.right = Math.max(previous.right, rect.right);
+        previous.top = Math.min(previous.top, rect.top);
+        previous.bottom = Math.max(previous.bottom, rect.bottom);
+      } else {
+        lines.push({
+          start: node.word,
+          end: node.word,
+          left: rect.left,
+          right: rect.right,
+          top: rect.top,
+          bottom: rect.bottom,
+        });
+      }
+    }
+    return lines;
+  }
+
+  /**
+   * Words to wich a menu stays attached
+   * The last line when the whole marking is on screen, otherwise the first line,
+   * so the menu sits below the marking and does not jump while scrolling.
+   * @param {integer} start
+   * @param {integer} end
+   * @return {{start: integer, end: integer}|null}
+   */
+  chooseMenuWords(start, end) {
+    if (!this.el) {
+      return null;
+    }
+    const lines = this.visualLines(start, end);
+    if (!lines.length) {
+      return null;
+    }
+    const essayRect = this.el.getBoundingClientRect();
+    const last = lines[lines.length - 1];
+    const lastFits = last.top >= essayRect.top && last.bottom <= essayRect.bottom;
+    const line = lastFits ? last : lines[0];
+    return { start: line.start, end: line.end };
+  }
+
+  /**
+   * Bounding box of the marked words on the first visual line
+   * @param {integer} start
+   * @param {integer} end
+   * @return {object|null}
+   */
+  firstLineRect(start, end) {
+    const line = this.visualLines(start, end)[0];
+    if (!line) {
+      return null;
+    }
+    return {
+      left: line.left,
+      right: line.right,
+      top: line.top,
+      bottom: line.bottom,
+      width: line.right - line.left,
+    };
+  }
 }
 
 export default TextMarker;

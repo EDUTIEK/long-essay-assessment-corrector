@@ -117,7 +117,7 @@ function menuLocationStrategy(data, _props, contentStyles) {
       return;
     }
 
-    const line = firstLineRect(essay, menuWords.start, menuWords.end);
+    const line = marker?.firstLineRect(menuWords.start, menuWords.end);
     const menuWidth = content.offsetWidth;
     if (!line || !menuWidth) {
       if (line && retries++ < 8) {
@@ -164,80 +164,12 @@ function menuLocationStrategy(data, _props, contentStyles) {
 
 /**
  * Words the menu stays attached to.
- * The last line when the whole marking is on screen, otherwise the first line,
- * so the menu sits below the marking and does not jump while scrolling.
  */
 function chooseMenuWords(comment) {
-  const essay = document.getElementById('app-essay');
-  const lines = visualLines(essay, comment.start_position, comment.end_position);
-  if (!lines.length) {
+  if (!marker) {
     return null;
   }
-  const essayRect = essay.getBoundingClientRect();
-  const last = lines[lines.length - 1];
-  const lastFits = last.top >= essayRect.top && last.bottom <= essayRect.bottom;
-  const line = lastFits ? last : lines[0];
-  return { start: line.start, end: line.end };
-}
-
-/**
- * Visual lines of a marked word range
- */
-function visualLines(essay, start, end) {
-  if (!essay) {
-    return [];
-  }
-  const nodes = [];
-  essay.querySelectorAll('w-p').forEach(node => {
-    const word = parseInt(node.getAttribute('w'), 10);
-    if (word >= start && word <= end) {
-      nodes.push({ word, rect: node.getBoundingClientRect() });
-    }
-  });
-
-  const lines = [];
-  for (const node of nodes) {
-    const rect = node.rect;
-    if (!rect.height && !rect.width) {
-      continue;
-    }
-    const previous = lines[lines.length - 1];
-    const threshold = Math.max(4, rect.height * 0.6);
-    if (previous && Math.abs(rect.top - previous.top) <= threshold) {
-      previous.end = node.word;
-      previous.left = Math.min(previous.left, rect.left);
-      previous.right = Math.max(previous.right, rect.right);
-      previous.top = Math.min(previous.top, rect.top);
-      previous.bottom = Math.max(previous.bottom, rect.bottom);
-    } else {
-      lines.push({
-        start: node.word,
-        end: node.word,
-        left: rect.left,
-        right: rect.right,
-        top: rect.top,
-        bottom: rect.bottom,
-      });
-    }
-  }
-  return lines;
-}
-
-/**
- * Bounding box of the marked words on the first visual line
- */
-function firstLineRect(essay, start, end) {
-  const line = visualLines(essay, start, end)[0];
-  if (!line) {
-    return null;
-  }
-  return {
-    left: line.left,
-    right: line.right,
-    top: line.top,
-    bottom: line.bottom,
-    width: line.right - line.left,
-  };
+  return marker.chooseMenuWords(comment.start_position, comment.end_position);
 }
 
 function ensureTextMark(comment) {
