@@ -27,6 +27,7 @@ const canEditSelected = computed(() => {
 // gap between last line of a mark and the menu
 const menu_gap = 4;
 
+// function will be set in menuLocationStrategy (property of v-menu)
 let updateMenuLocation = () => {};
 let essayResizeObserver;
 let menuWords = null;
@@ -266,6 +267,9 @@ async function onSelection(selected) {
       commentsStore.createComment(selected.firstWord, selected.lastWord, selected.parentNumber);
     }
   }
+  else {
+    commentsStore.selectComment('', true);
+  }
 }
 
 /**
@@ -333,15 +337,15 @@ function applyZoom() {
             :location-strategy="menuLocationStrategy">
       <v-sheet class="app-essay-menu" elevation="8" rounded @mousedown.prevent>
         <v-btn-group density="comfortable" divided variant="text">
-          <v-btn size="small" icon="mdi-marker"
+          <v-btn size="small" class="app-essay-menu-shape" icon="mdi-marker"
                  :disabled="!canEditSelected"
                  :class="{ 'app-essay-menu-active': selectedShape === Mark.SHAPE_TEXT_MARKER }"
                  @click="applyShape(Mark.SHAPE_TEXT_MARKER)"></v-btn>
-          <v-btn size="small" icon="mdi-format-underline"
+          <v-btn size="small" class="app-essay-menu-shape" icon="mdi-format-underline"
                  :disabled="!canEditSelected"
                  :class="{ 'app-essay-menu-active': selectedShape === Mark.SHAPE_TEXT_UNDERLINE }"
                  @click="applyShape(Mark.SHAPE_TEXT_UNDERLINE)"></v-btn>
-          <v-btn size="small" icon="mdi-format-underline-wavy"
+          <v-btn size="small" class="app-essay-menu-shape" icon="mdi-format-underline-wavy"
                  :disabled="!canEditSelected"
                  :class="{ 'app-essay-menu-active': selectedShape === Mark.SHAPE_TEXT_WAVE }"
                  @click="applyShape(Mark.SHAPE_TEXT_WAVE)"></v-btn>
@@ -400,6 +404,10 @@ function applyZoom() {
 .app-essay-menu {
   width: max-content;
   background: #fff;
+}
+
+.app-essay-menu-shape {
+  min-width: 40px;
 }
 
 .app-essay-menu-symbol {
