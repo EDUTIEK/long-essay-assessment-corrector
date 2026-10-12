@@ -2,7 +2,7 @@
 import {stores} from "@/store";
 import TextMarker from '@/lib/TextMarker';
 import Comment from "@/data/Comment";
-import { onMounted,  nextTick, watch } from 'vue';
+import { ref, onMounted,  nextTick, watch } from 'vue';
 
 const essayStore = stores.essay();
 const commentsStore = stores.comments();
@@ -12,6 +12,8 @@ const settingsStore = stores.settings();
 const layoutStore = stores.layout();
 const configStore = stores.config();
 
+const showMenu = ref(false);
+
 let marker;
 
 onMounted(() => {
@@ -19,6 +21,12 @@ onMounted(() => {
   marker = new TextMarker(document.getElementById('app-essay'), onSelection, onIntersection);
   commentsStore.activeComments.forEach(comment => updateMark(comment));
 });
+
+watch(() => layoutStore.focusChange, handleFocusChange);
+watch(() => commentsStore.markerChange, refreshMarks);
+watch(() => commentsStore.filterChange, refreshMarks);
+watch(() => commentsStore.selectionChange, refreshSelection);
+watch(() => commentsStore.caretRequest, setCaretToSelectedComment);
 
 function handleBeforeinput(event) {
   event.preventDefault();
@@ -32,15 +40,11 @@ async function handleFocusChange() {
   }
 }
 handleFocusChange();
-watch(() => layoutStore.focusChange, handleFocusChange);
 
 function refreshMarks() {
   marker.hideAllMarksAndLabels();
   commentsStore.activeComments.forEach(comment => updateMark(comment));
 }
-
-watch(() => commentsStore.markerChange, refreshMarks);
-watch(() => commentsStore.filterChange, refreshMarks);
 
 function refreshSelection() {
   refreshMarks();
@@ -55,15 +59,11 @@ function refreshSelection() {
   }
 }
 
-watch(() => commentsStore.selectionChange, refreshSelection);
-
 function setCaretToSelectedComment()
 {
   let comment = commentsStore.getComment(commentsStore.selectedKey);
   marker.setCaretToMark(comment.start_position);
 }
-
-watch(() => commentsStore.caretRequest, setCaretToSelectedComment);
 
 
 /**
@@ -162,6 +162,18 @@ function applyZoom() {
          :class="'xlas-content ' + settingsStore.contentClass"
          v-html="'<style>' + configStore.commentStyles + '</style>' + essayStore.text">
     </div>
+
+    <v-menu v-model="showMenu">
+        <v-btn-group>
+          <v-btn icon="mdi-marker" @click=""></v-btn>
+          <v-btn icon="mdi-format-underline" @click=""></v-btn>
+          <v-btn icon="mdi-format-underline-wavy" @click=""></v-btn>
+          <v-btn @click="">✓</v-btn>
+          <v-btn @click="">✗</v-btn>
+          <v-btn @click="">?</v-btn>
+          <v-btn @click="">⩝</v-btn>
+        </v-btn-group>
+    </v-menu>
   </div>
 </template>
 
@@ -195,7 +207,7 @@ function applyZoom() {
   overflow-y: scroll;
 }
 
-#app-essay-menu {
+#app-essay-menu1 {
   position: absolute;
   width: 150px;
 }
