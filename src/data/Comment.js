@@ -351,9 +351,13 @@ export default class Comment {
 
 
   /**
-   * Calculate the start position as lowest y position of all marks
+   * Calculate the start position as lowest y position of all marks.
+   * Text comments keep the word index in start_position (end_position is set).
    */
   calculateStartPositon() {
+    if (this.end_position > 0) {
+      return;
+    }
     let pos = null;
     for (const mark of this.marks) {
       if (pos === null || mark.pos.y < pos) {
