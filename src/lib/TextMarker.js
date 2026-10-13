@@ -93,6 +93,15 @@ class TextMarker {
    */
   selectionHandler(event) {
     let data = this.getSelectionData();
+    // label clicked
+    if (data.isCollapsed && event.target.localName == 'w-p' && event.target.classList?.contains('labelled')) {
+      data= {
+        firstWord: event.target.getAttribute('w'),
+        lastWord: event.target.getAttribute('w'),
+        parentNumber: event.target.getAttribute('p'),
+        isCollapsed: true
+      };
+    }
     data.mouseX = event.clientX;
     data.mouseY = event.clientY;
     if (data.firstWord > 0 && data.lastWord > 0) {
