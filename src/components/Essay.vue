@@ -15,7 +15,7 @@ const configStore = stores.config();
 const correctionsStore = stores.corrections();
 
 const showMenu = ref(false);
-const defaultShape = ref(Mark.SHAPE_TEXT_MARKER);
+const defaultShape = ref('');
 const selectedShape = computed(() => commentsStore.selectedComment?.marks?.[0]?.shape ?? '');
 const selectedSymbol = computed(() => commentsStore.selectedComment?.marks?.[0]?.symbol ?? '');
 const canEditSelected = computed(() => commentsStore.canEditSelectedComment);
@@ -194,12 +194,17 @@ function ensureTextMark(comment) {
 }
 
 function selectDefaultShape(shape) {
-  defaultShape.value = shape;
-  if (shape?.length && preferencesStore.default_shape !== defaultShape.value) {
-    preferencesStore.default_shape = defaultShape.value;
-    preferencesStore.update();
+  if (Mark.TEXT_SHAPES.includes(shape)) {
+    defaultShape.value = shape;
+    if (preferencesStore.default_shape !== defaultShape.value) {
+      preferencesStore.default_shape = defaultShape.value;
+      preferencesStore.update();
+    }
+    applyShape(shape);
   }
-  applyShape(shape);
+  else {
+    defaultShape.value = '';
+  }
 }
 
 async function applyShape(shape) {
@@ -289,10 +294,9 @@ async function onSelection(selected) {
     return;
   }
 
-  marker.removeSelection();
-
   // just clicked a position => select the overlapping comment or deselect all comments
   if (selected.isCollapsed) {
+    marker.removeSelection();
     const comments = commentsStore.getActiveCommentsInRange(selected.firstWord, selected.lastWord);
 
     if (comments.length) {
@@ -306,8 +310,8 @@ async function onSelection(selected) {
   }
 
   // selected some text => create a new comment
-  if (!summariesStore.isOwnDisabled) {
-
+  if (!summariesStore.isOwnDisabled && Mark.TEXT_SHAPES.includes(defaultShape.value)) {
+    marker.removeSelection();
     let key = await commentsStore.createComment(selected.firstWord, selected.lastWord, selected.parentNumber);
     let comment = commentsStore.getComment(key);
     ensureTextMark(comment);
@@ -363,34 +367,48 @@ function applyZoom() {
     <div class="appTextButtons">
       <div class="appTextButtonsGroup">
         <label class="appTextButtonsLabel" for="appEssayFunctions">{{ $t('essayLabelFunctions') }}</label>
-        <v-btn-group id="appEssayFunctions" density="comfortable" variant="outlined" divided>
-          <v-btn :title="$t('essayZoomOut')" size="small" icon="mdi-magnify-minus-outline" @click="zoomOut()"></v-btn>
-          <v-btn :title="$t('essayZoomIn')" size="small" icon="mdi-magnify-plus-outline" @click="zoomIn()"></v-btn>
+        <v-btn-group id="appEssayFunctions" density="comfortable" variant="outlined" divided v-model="defaultShape">
+          <v-tooltip max-width="200" location="bottom" :text ="$t('essayZoomOut')">
+            <template v-slot:activator="{props}">
+              <v-btn v-bind="props" size="small" icon="mdi-magnify-minus-outline" @click="zoomOut()"></v-btn>
+            </template>
+          </v-tooltip>
+          <v-tooltip max-width="200" location="bottom" :text ="$t('essayZoomIn')">
+            <template v-slot:activator="{props}">
+              <v-btn v-bind="props" size="small" icon="mdi-magnify-plus-outline" @click="zoomIn()"></v-btn>
+            </template>
+          </v-tooltip>
+          <v-tooltip max-width="200" location="bottom" :text ="$t('essaySelectForCopyInfo')">
+            <template v-slot:activator="{props}">
+            <v-btn v-bind="props" size="small" icon="mdi-content-copy"
+                   :active="defaultShape == ''" @click="selectDefaultShape('')"></v-btn>
+            </template>
+          </v-tooltip>
         </v-btn-group>
       </div>
 
       <div class="appTextButtonsGroup" v-if="stores.settings().Task.enable_comments">
         <label class="appTextButtonsLabel" for="appTextShapesToggle">{{ $t('essayLabelTextShapes') }}</label>
         <v-btn-toggle id="appTextShapesToggle" density="comfortable" variant="outlined" divided v-model="defaultShape">
-          <v-tooltip max-width="200" location="bottom" :text ="$t('essayPdfShapeTextMarkerInfo')">
+          <v-tooltip max-width="200" location="bottom" :text ="$t('essayShapeTextMarkerInfo')">
             <template v-slot:activator="{props}">
               <v-btn :disabled="summariesStore.isOwnDisabled" v-bind="props" size="small" icon="mdi-marker"
                      :value="Mark.SHAPE_TEXT_MARKER" @click="selectDefaultShape(Mark.SHAPE_TEXT_MARKER)"></v-btn>
             </template>
           </v-tooltip>
-          <v-tooltip max-width="200" location="bottom" :text ="$t('essayPdfShapeTextUnderlineInfo')">
+          <v-tooltip max-width="200" location="bottom" :text ="$t('essayShapeTextUnderlineInfo')">
             <template v-slot:activator="{props}">
               <v-btn :disabled="summariesStore.isOwnDisabled" v-bind="props" size="small" icon="mdi-format-underline"
                      :value="Mark.SHAPE_TEXT_UNDERLINE" @click="selectDefaultShape(Mark.SHAPE_TEXT_UNDERLINE)"></v-btn>
             </template>
           </v-tooltip>
-          <v-tooltip max-width="200" location="bottom" :text ="$t('essayPdfShapeTextWaveInfo')">
+          <v-tooltip max-width="200" location="bottom" :text ="$t('essayShapeTextWaveInfo')">
             <template v-slot:activator="{props}">
               <v-btn :disabled="summariesStore.isOwnDisabled" v-bind="props" size="small" icon="mdi-format-underline-wavy"
                      :value="Mark.SHAPE_TEXT_WAVE" @click="selectDefaultShape(Mark.SHAPE_TEXT_WAVE)"></v-btn>
             </template>
           </v-tooltip>
-          <v-tooltip max-width="200" location="bottom" :text ="$t('essayPdfShapeTextVlineInfo')">
+          <v-tooltip max-width="200" location="bottom" :text ="$t('essayShapeTextVlineInfo')">
             <template v-slot:activator="{props}">
               <v-btn :disabled="summariesStore.isOwnDisabled" v-bind="props" size="small" icon="mdi-align-horizontal-left"
                      :value="Mark.SHAPE_TEXT_VLINE" @click="selectDefaultShape(Mark.SHAPE_TEXT_VLINE)"></v-btn>
