@@ -15,6 +15,7 @@ const configStore = stores.config();
 const correctionsStore = stores.corrections();
 
 const showMenu = ref(false);
+const defaultShape = ref(Mark.SHAPE_TEXT_MARKER);
 const selectedShape = computed(() => commentsStore.selectedComment?.marks?.[0]?.shape ?? '');
 const selectedSymbol = computed(() => commentsStore.selectedComment?.marks?.[0]?.symbol ?? '');
 const canEditSelected = computed(() => {
@@ -84,23 +85,23 @@ function refreshSelection() {
 
   let comment = commentsStore.getComment(commentsStore.selectedKey);
   if (comment) {
-    const style = configStore.getCommentStyle(comment.correction_position, true, true);
-    marker.showMark(Comment.CLASS_SELECTED, style, comment.start_position, comment.end_position);
-    marker.addLabel('labelled', comment.getLabelWithSymbol(), comment.start_position);
-    marker.addLabel('selected', comment.getLabelWithSymbol(), comment.start_position);
     marker.scrollToMark(comment.start_position, comment.end_position);
-    menuWords = chooseMenuWords(comment);
-    showMenu.value = !!menuWords;
-    if (showMenu.value) {
-      nextTick(() => {
-        updateMenuLocation();
-        requestAnimationFrame(updateMenuLocation);
-      });
+
+    if (comment.correction_key == correctionsStore.ownKey && !summariesStore.isOwnDisabled) {
+      menuWords = chooseMenuWords(comment);
+      showMenu.value = !!menuWords;
+      if (showMenu.value) {
+        nextTick(() => {
+          updateMenuLocation();
+          requestAnimationFrame(updateMenuLocation);
+        });
+      }
+      return;
     }
-  } else {
-    menuWords = null;
-    showMenu.value = false;
   }
+
+  menuWords = null;
+  showMenu.value = false;
 }
 
 /**
@@ -181,6 +182,9 @@ function ensureTextMark(comment) {
     });
     comment.marks.push(mark);
   }
+  if (!mark.shape) {
+    mark.shape = Mark.SHAPE_TEXT_MARKER;
+  }
   return mark;
 }
 
@@ -195,6 +199,7 @@ async function applyShape(shape) {
   }
   mark.shape = shape;
   await commentsStore.updateComment(comment);
+  refreshSelection();
 }
 
 async function applySymbol(symbol) {
@@ -222,18 +227,39 @@ function setCaretToSelectedComment()
  * Update the marking of a comment
  */
 function updateMark(comment) {
-  for (const css_class of Comment.CORRECTOR_CSS_CLASSES) {
-    marker.hideMark(css_class, comment.start_position, comment.end_position);
-  }
-  const style = configStore.getCommentStyle(
-      comment.correction_position,
-      comment.key == commentsStore.selectedKey, true);
-  marker.showMark(comment.getCssClass(), style, comment.start_position, comment.end_position);
+  marker.showMark('comment', getMarkingStyle(comment), comment.start_position, comment.end_position);
   marker.addLabel('labelled', comment.getLabelWithSymbol(), comment.start_position);
   if (comment.key == commentsStore.selectedKey) {
     marker.addLabel('selected', comment.getLabelWithSymbol(), comment.start_position);
   }
 }
+
+/**
+ * Get the Style for marking text
+ * @param comment
+ * @returns {string}
+ */
+function getMarkingStyle(comment) {
+  let style = '';
+
+  const mark = ensureTextMark(comment);
+  const color = configStore.getCommentColor(comment.correction_position, comment.key == commentsStore.selectedKey, mark.isFilled());
+
+  switch (mark.shape) {
+    case Mark.SHAPE_TEXT_MARKER:
+      style = 'background-color: ' +  color + ';';
+      break;
+    case Mark.SHAPE_TEXT_UNDERLINE:
+      style = 'border-bottom: 2px solid ' +  color + ';'
+      break;
+    case Mark.SHAPE_TEXT_WAVE:
+      style = 'text-decoration: underline 2px wavy ' +  color + ';'
+      break;
+  }
+
+  return style;
+}
+
 
 /**
  * Handle the click into the text or a selection of a text range
@@ -338,20 +364,6 @@ function applyZoom() {
             :location-strategy="menuLocationStrategy">
       <v-sheet class="app-essay-menu" elevation="8" rounded @mousedown.prevent>
         <v-btn-group density="compact" divided border="sm" rounded="0" variant="text">
-          <v-btn size="small" class="app-essay-menu-shape" icon="mdi-marker"
-                 :disabled="!canEditSelected"
-                 :class="{ 'app-essay-menu-active': selectedShape === Mark.SHAPE_TEXT_MARKER }"
-                 @click="applyShape(Mark.SHAPE_TEXT_MARKER)"></v-btn>
-          <v-btn size="small" class="app-essay-menu-shape" icon="mdi-format-underline"
-                 :disabled="!canEditSelected"
-                 :class="{ 'app-essay-menu-active': selectedShape === Mark.SHAPE_TEXT_UNDERLINE }"
-                 @click="applyShape(Mark.SHAPE_TEXT_UNDERLINE)"></v-btn>
-          <v-btn size="small" class="app-essay-menu-shape" icon="mdi-format-underline-wavy"
-                 :disabled="!canEditSelected"
-                 :class="{ 'app-essay-menu-active': selectedShape === Mark.SHAPE_TEXT_WAVE }"
-                 @click="applyShape(Mark.SHAPE_TEXT_WAVE)"></v-btn>
-          </v-btn-group>
-          <v-btn-group density="compact" divided border="sm" rounded="0" variant="text">
           <v-btn size="small" class="app-essay-menu-symbol" :title="$t('symbolCheck')"
                  :disabled="!canEditSelected"
                  :class="{ 'app-essay-menu-active': selectedSymbol === Mark.SYMBOL_CHECK }"
@@ -369,6 +381,21 @@ function applyZoom() {
                  :class="{ 'app-essay-menu-active': selectedSymbol === Mark.SYMBOL_MISSING }"
                  @click="applySymbol(Mark.SYMBOL_MISSING)">{{ Mark.SYMBOL_MISSING }}</v-btn>
         </v-btn-group>
+        <v-btn-group density="compact" divided border="sm" rounded="0" variant="text">
+          <v-btn size="small" class="app-essay-menu-shape" icon="mdi-marker"
+                 :disabled="!canEditSelected"
+                 :class="{ 'app-essay-menu-active': selectedShape === Mark.SHAPE_TEXT_MARKER }"
+                 @click="applyShape(Mark.SHAPE_TEXT_MARKER)"></v-btn>
+          <v-btn size="small" class="app-essay-menu-shape" icon="mdi-format-underline"
+                 :disabled="!canEditSelected"
+                 :class="{ 'app-essay-menu-active': selectedShape === Mark.SHAPE_TEXT_UNDERLINE }"
+                 @click="applyShape(Mark.SHAPE_TEXT_UNDERLINE)"></v-btn>
+          <v-btn size="small" class="app-essay-menu-shape" icon="mdi-format-underline-wavy"
+                 :disabled="!canEditSelected"
+                 :class="{ 'app-essay-menu-active': selectedShape === Mark.SHAPE_TEXT_WAVE }"
+                 @click="applyShape(Mark.SHAPE_TEXT_WAVE)"></v-btn>
+        </v-btn-group>
+
       </v-sheet>
     </v-menu>
   </div>

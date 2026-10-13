@@ -8,31 +8,10 @@ import {stores} from "@/store";
  */
 export default class Comment {
 
-  static CLASS_SELECTED = 'xlas-comment-selected'
-  static CLASS_CORRECTOR1 = 'xlas-corrector1';
-  static CLASS_CORRECTOR2 = 'xlas-corrector2';
-  static CLASS_CORRECTOR3 = 'xlas-corrector3';
-  static CLASS_CORRECTORX = 'xlas-correctorX';
-
-  static CORRECTOR_CSS_CLASSES = [Comment.CLASS_CORRECTOR1, Comment.CLASS_CORRECTOR2, Comment.CLASS_CORRECTOR3,  Comment.CLASS_CORRECTORX];
-
   static RATING_CARDINAL = 'cardinal';
   static RAITNG_EXCELLENT = 'excellent';
 
   static ALLOWED_RATING = [Comment.RATING_CARDINAL, Comment.RAITNG_EXCELLENT];
-
-  static cssClassByCorrectionPosition(position) {
-    switch(position) {
-      case 0:
-        return Comment.CLASS_CORRECTOR1;
-      case 1:
-        return Comment.CLASS_CORRECTOR2;
-      case 2:
-        return Comment.CLASS_CORRECTOR3;
-      default:
-        return Comment.CLASS_CORRECTORX;
-    }
-  }
 
   /**
    * Compare two comments for sorting
@@ -213,15 +192,6 @@ export default class Comment {
     if (!this.correction_key && this.task_id && this.writer_id && this.corrector_id) {
       this.correction_key = Correction.buildKey(this.task_id, this.writer_id, this.corrector_id)
     }
-  }
-
-  /**
-   * Get the CSS class for this comment
-   * @returns {string}
-   */
-  getCssClass()
-  {
-      return Comment.cssClassByCorrectionPosition(this.correction_position);
   }
 
   /**
