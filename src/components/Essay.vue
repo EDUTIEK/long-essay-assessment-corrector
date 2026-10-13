@@ -37,7 +37,7 @@ onMounted(() => {
   commentsStore.activeComments.forEach(comment => updateMark(comment));
   marker.reserveLabelSpace();
 
-  if (summariesStore.isOwnDisabled) {
+  if (summariesStore.isOwnDisabled || !stores.settings().Task.enable_comments) {
     selectDefaultShape('');
   } else {
     selectDefaultShape(preferencesStore.default_shape);
@@ -378,7 +378,8 @@ function applyZoom() {
               <v-btn v-bind="props" size="small" icon="mdi-magnify-plus-outline" @click="zoomIn()"></v-btn>
             </template>
           </v-tooltip>
-          <v-tooltip max-width="200" location="bottom" :text ="$t('essaySelectForCopyInfo')">
+          <v-tooltip max-width="200" location="bottom" :text ="$t('essaySelectForCopyInfo')"
+                     v-if="stores.settings().Task.enable_comments">
             <template v-slot:activator="{props}">
             <v-btn v-bind="props" size="small" icon="mdi-content-copy"
                    :active="defaultShape == ''" @click="selectDefaultShape('')"></v-btn>

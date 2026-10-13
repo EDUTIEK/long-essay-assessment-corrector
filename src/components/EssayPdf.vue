@@ -43,7 +43,7 @@ onMounted(() => {
   pdfjs.enableTypeButtons(true);
 
   loadMarks();
-  if (summariesStore.isOwnDisabled) {
+  if (summariesStore.isOwnDisabled || !stores.settings().Task.enable_comments) {
     selectShape('');
   } else {
     selectShape(preferencesStore.default_shape);
@@ -367,7 +367,7 @@ async function download(marked)
   <div class ="appEssayWrapper">
     <div class="appTextButtons">
 
-      <div class="appTextButtonsGroup">
+      <div class="appTextButtonsGroup"  v-if="stores.settings().Task.enable_comments">
         <label class="appTextButtonsLabel" for="appTextShapesToggle">{{ $t('essayPdfTextCopy') }}</label>
         <v-btn-toggle id="appTextSelection" density="comfortable" variant="outlined" divided v-model="defaultShape">
           <v-tooltip max-width="200" location="bottom" :text ="$t('essaySelectForCopyInfo')">
