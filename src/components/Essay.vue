@@ -336,7 +336,7 @@ function applyZoom() {
             scroll-strategy="reposition"
             :location-strategy="menuLocationStrategy">
       <v-sheet class="app-essay-menu" elevation="8" rounded @mousedown.prevent>
-        <v-btn-group density="comfortable" divided variant="text">
+        <v-btn-group density="compact" divided border="sm" rounded="0" variant="text">
           <v-btn size="small" class="app-essay-menu-shape" icon="mdi-marker"
                  :disabled="!canEditSelected"
                  :class="{ 'app-essay-menu-active': selectedShape === Mark.SHAPE_TEXT_MARKER }"
@@ -349,6 +349,8 @@ function applyZoom() {
                  :disabled="!canEditSelected"
                  :class="{ 'app-essay-menu-active': selectedShape === Mark.SHAPE_TEXT_WAVE }"
                  @click="applyShape(Mark.SHAPE_TEXT_WAVE)"></v-btn>
+          </v-btn-group>
+          <v-btn-group density="compact" divided border="sm" rounded="0" variant="text">
           <v-btn size="small" class="app-essay-menu-symbol" :title="$t('symbolCheck')"
                  :disabled="!canEditSelected"
                  :class="{ 'app-essay-menu-active': selectedSymbol === Mark.SYMBOL_CHECK }"
@@ -403,7 +405,6 @@ function applyZoom() {
 
 .app-essay-menu {
   width: max-content;
-  background: #fff;
 }
 
 .app-essay-menu-shape {
