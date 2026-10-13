@@ -226,3 +226,26 @@
 .xlas-content.headlines-edutiek h6::before {
     content: "(" counter(xlas-h6, decimal) ") ";
 }
+
+/**
+ * Vertical line in the page margin beside a text_vline mark.
+ * Each marked word paints one line-height segment. Wrapped lines share the
+ * same x and overlap by 1px, so the segments read as one continuous stroke.
+ * The word sets border-color, which this line inherits, and the marker --text-vline.
+ * top stays auto so dompdf keeps each segment on its text line.
+ * left: -8mm sits in the page margin. The browser overrides left and draws
+ * a single bar for the whole mark, because labelled words are position: relative.
+ */
+[style*="--text-vline:"]::after {
+    content: "";
+    display: block;
+    position: absolute;
+    left: -8mm;
+    width: 0;
+    height: calc(1.5em + 1px);
+    margin-top: 0;
+    border-left-width: 4px;
+    border-left-style: solid;
+    border-left-color: inherit;
+    pointer-events: none;
+}

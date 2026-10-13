@@ -43,6 +43,7 @@ onMounted(() => {
   marker.reserveLabelSpace();
 
   essayResizeObserver = new ResizeObserver(() => {
+    marker?.placeVlines();
     const comment = commentsStore.selectedComment;
     if (showMenu.value && comment) {
       menuWords = chooseMenuWords(comment);
@@ -257,6 +258,11 @@ function getMarkingStyle(comment) {
     case Mark.SHAPE_TEXT_WAVE:
       style = 'text-decoration: underline 2px wavy ' +  color + ';'
       break;
+    case Mark.SHAPE_TEXT_VLINE:
+      // --text-vline marks the word for the margin line in content.css.
+      // border-color is inherited by that line, so dompdf needs no CSS variables.
+      style = '--text-vline: ' + color + '; border-color: ' + color + '; border-style: none;';
+      break;
   }
 
   return style;
@@ -326,6 +332,7 @@ function zoomOut() {
 function applyZoom() {
   document.getElementById('app-essay').style.fontSize = (preferencesStore.essay_text_zoom) + 'rem';
   nextTick(() => {
+    marker?.placeVlines();
     const comment = commentsStore.selectedComment;
     if (showMenu.value && comment) {
       menuWords = chooseMenuWords(comment);
@@ -396,6 +403,10 @@ function applyZoom() {
                  :disabled="!canEditSelected"
                  :class="{ 'app-essay-menu-active': selectedShape === Mark.SHAPE_TEXT_WAVE }"
                  @click="applyShape(Mark.SHAPE_TEXT_WAVE)"></v-btn>
+          <v-btn size="small" class="app-essay-menu-shape" icon="mdi-align-horizontal-left"
+                 :disabled="!canEditSelected"
+                 :class="{ 'app-essay-menu-active': selectedShape === Mark.SHAPE_TEXT_VLINE }"
+                 @click="applyShape(Mark.SHAPE_TEXT_VLINE)"></v-btn>
         </v-btn-group>
 
       </v-sheet>
@@ -426,11 +437,28 @@ function applyZoom() {
 }
 
 #app-essay {
+  position: relative;
   flex-grow: 1;
   width: 100%;
   padding: 20px;
   padding-left: 15mm;
   overflow-y: scroll;
+}
+
+/*
+ * The margin line is absolutely positioned. Labelled words are already
+ * position: relative, so every vline word must be too. TextMarker places
+ * one continuous bar on the first word of each mark.
+ */
+#app-essay [style*="--text-vline:"] {
+  position: relative;
+}
+
+#app-essay [style*="--text-vline:"]::after {
+  left: var(--text-vline-left, 1.5mm);
+  top: 0;
+  height: var(--text-vline-height, 1.5em);
+  display: var(--text-vline-show, block);
 }
 
 .app-essay-menu {

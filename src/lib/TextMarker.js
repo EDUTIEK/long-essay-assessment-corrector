@@ -195,6 +195,55 @@ class TextMarker {
     nodes.forEach((node, index) => {
       node.style.marginLeft = (widths[index] + 5) + 'px';
     });
+    this.placeVlines();
+  }
+
+  /**
+   * Place text_vline marks as one vertical bar per mark in the essay's left margin.
+   * Each marked word is position: relative, so the line's left offset differs per word.
+   * dompdf does not run this and stacks the per-line segments from content.css.
+   */
+  placeVlines() {
+    if (!this.el) {
+      return;
+    }
+    const essayRect = this.el.getBoundingClientRect();
+    if (!essayRect.width) {
+      return;
+    }
+    const inset = 1.5 * 96 / 25.4;
+    const nodes = Array.from(this.el.querySelectorAll('w-p[style*="--text-vline:"]'));
+    const byWord = new Map();
+
+    nodes.forEach(node => {
+      const wordLeft = node.getBoundingClientRect().left;
+      node.style.setProperty('--text-vline-left', (essayRect.left + inset - wordLeft) + 'px');
+      node.style.setProperty('--text-vline-show', 'none');
+      node.style.removeProperty('--text-vline-height');
+      byWord.set(parseInt(node.getAttribute('w'), 10), node);
+    });
+
+    this.marks.forEach(mark => {
+      let first = null;
+      let last = null;
+      for (let word = mark.firstWord; word <= mark.lastWord; word++) {
+        const node = byWord.get(word);
+        if (!node) {
+          continue;
+        }
+        if (!first) {
+          first = node;
+        }
+        last = node;
+      }
+      if (!first || !last) {
+        return;
+      }
+      const top = first.getBoundingClientRect().top;
+      const bottom = last.getBoundingClientRect().bottom;
+      first.style.setProperty('--text-vline-show', 'block');
+      first.style.setProperty('--text-vline-height', (bottom - top) + 'px');
+    });
   }
 
   /**
