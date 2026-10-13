@@ -18,12 +18,7 @@ const showMenu = ref(false);
 const defaultShape = ref(Mark.SHAPE_TEXT_MARKER);
 const selectedShape = computed(() => commentsStore.selectedComment?.marks?.[0]?.shape ?? '');
 const selectedSymbol = computed(() => commentsStore.selectedComment?.marks?.[0]?.symbol ?? '');
-const canEditSelected = computed(() => {
-  const comment = commentsStore.selectedComment;
-  return !!comment
-      && comment.correction_key == correctionsStore.ownKey
-      && !summariesStore.isOwnDisabled;
-});
+const canEditSelected = computed(() => commentsStore.canEditSelectedComment);
 
 // gap between last line of a mark and the menu
 const menu_gap = 4;
@@ -97,7 +92,7 @@ function refreshSelection() {
   if (comment) {
     marker.scrollToMark(comment.start_position, comment.end_position);
 
-    if (comment.correction_key == correctionsStore.ownKey && !summariesStore.isOwnDisabled) {
+    if (commentsStore.canEditSelectedComment) {
       menuWords = chooseMenuWords(comment);
       showMenu.value = !!menuWords;
       if (showMenu.value) {
@@ -332,6 +327,13 @@ function onIntersection(firstWord) {
   }
 }
 
+function deleteComment() {
+  if (commentsStore.canEditSelectedComment) {
+    commentsStore.deleteComment(commentsStore.selectedKey);
+  }
+}
+
+
 function zoomIn() {
   preferencesStore.zoomEssayTextIn();
   applyZoom();
@@ -453,6 +455,11 @@ function applyZoom() {
                  :disabled="!canEditSelected"
                  :class="{ 'app-essay-menu-active': selectedShape === Mark.SHAPE_TEXT_VLINE }"
                  @click="applyShape(Mark.SHAPE_TEXT_VLINE)"></v-btn>
+        </v-btn-group>
+        <v-btn-group density="compact" divided border="sm" rounded="0" variant="text">
+          <v-btn size="small" class="app-essay-menu-shape" icon="mdi-delete-outline"
+                 :disabled="!canEditSelected"
+                 @click="deleteComment"></v-btn>
         </v-btn-group>
 
       </v-sheet>

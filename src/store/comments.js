@@ -38,6 +38,12 @@ export const useCommentsStore = defineStore('comments', {
    */
   getters: {
 
+    canEditSelectedComment(state) {
+      return state.selectedKey !== ''
+        && state.selectedComment?.correction_key == stores.corrections().ownKey
+        && !stores.summaries().isOwnDisabled;
+    },
+
     selectedComment(state) {
       return state.getComment(state.selectedKey);
     },
