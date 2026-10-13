@@ -277,7 +277,7 @@ export default class Comment {
   getLabelWithSymbol() {
     for (const mark of this.marks) {
       if (mark.symbol) {
-        return this.label + '   ' + Mark.symbolToLabel(mark.symbol);
+        return this.label + ' ' + Mark.symbolToLabel(mark.symbol);
       }
     }
     return this.label ?? '';

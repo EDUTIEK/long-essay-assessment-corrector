@@ -86,8 +86,8 @@ function refreshSelection() {
   if (comment) {
     const style = configStore.getCommentStyle(comment.correction_position, true, true);
     marker.showMark(Comment.CLASS_SELECTED, style, comment.start_position, comment.end_position);
-    marker.addLabel('labelled', comment.label, comment.start_position);
-    marker.addLabel('selected', comment.label, comment.start_position);
+    marker.addLabel('labelled', comment.getLabelWithSymbol(), comment.start_position);
+    marker.addLabel('selected', comment.getLabelWithSymbol(), comment.start_position);
     marker.scrollToMark(comment.start_position, comment.end_position);
     menuWords = chooseMenuWords(comment);
     showMenu.value = !!menuWords;
@@ -208,6 +208,7 @@ async function applySymbol(symbol) {
   }
   mark.symbol = symbol;
   await commentsStore.updateComment(comment);
+  refreshSelection();
 }
 
 function setCaretToSelectedComment()
@@ -228,9 +229,9 @@ function updateMark(comment) {
       comment.correction_position,
       comment.key == commentsStore.selectedKey, true);
   marker.showMark(comment.getCssClass(), style, comment.start_position, comment.end_position);
-  marker.addLabel('labelled', comment.label, comment.start_position);
+  marker.addLabel('labelled', comment.getLabelWithSymbol(), comment.start_position);
   if (comment.key == commentsStore.selectedKey) {
-    marker.addLabel('selected', comment.label, comment.start_position);
+    marker.addLabel('selected', comment.getLabelWithSymbol(), comment.start_position);
   }
 }
 
