@@ -42,8 +42,15 @@ onMounted(() => {
   commentsStore.activeComments.forEach(comment => updateMark(comment));
   marker.reserveLabelSpace();
 
+  if (summariesStore.isOwnDisabled) {
+    selectDefaultShape('');
+  } else {
+    selectDefaultShape(preferencesStore.default_shape);
+  }
+
   essayResizeObserver = new ResizeObserver(() => {
     marker?.placeVlines();
+    marker.reserveLabelSpace();
     const comment = commentsStore.selectedComment;
     if (showMenu.value && comment) {
       menuWords = chooseMenuWords(comment);
@@ -186,9 +193,18 @@ function ensureTextMark(comment) {
     comment.marks.push(mark);
   }
   if (!mark.shape) {
-    mark.shape = Mark.SHAPE_TEXT_MARKER;
+    mark.shape = defaultShape.value;
   }
   return mark;
+}
+
+function selectDefaultShape(shape) {
+  defaultShape.value = shape;
+  if (shape?.length && preferencesStore.default_shape !== defaultShape.value) {
+    preferencesStore.default_shape = defaultShape.value;
+    preferencesStore.update();
+  }
+  applyShape(shape);
 }
 
 async function applyShape(shape) {
@@ -278,32 +294,29 @@ async function onSelection(selected) {
     return;
   }
 
-  // check if new selection overlaps with own comments
-  let comments = commentsStore.getActiveCommentsInRange(selected.firstWord, selected.lastWord);
-  if (comments.length) {
-    // get the first overlapping comment
-    let comment = comments.shift();
+  marker.removeSelection();
 
-    if (selected.isCollapsed) {
-      // just clicked at a position => select the overlapping comment
-      marker.removeSelection();
+  // just clicked a position => select the overlapping comment or deselect all comments
+  if (selected.isCollapsed) {
+    const comments = commentsStore.getActiveCommentsInRange(selected.firstWord, selected.lastWord);
+
+    if (comments.length) {
+      // get the first overlapping comment
+      const comment = comments.shift();
       commentsStore.selectComment(comment.key);
     } else {
-      // always create a new comment, even if it overlaps (VC 26.5.2023)
-      marker.removeSelection();
-      if (!summariesStore.isOwnDisabled) {
-        commentsStore.createComment(selected.firstWord, selected.lastWord, selected.parentNumber);
-      }
+      commentsStore.selectComment('', true);
     }
-  } else if (!selected.isCollapsed) {
-    // no overlapping => create a new comment
-    marker.removeSelection();
-    if (!summariesStore.isOwnDisabled) {
-      commentsStore.createComment(selected.firstWord, selected.lastWord, selected.parentNumber);
-    }
+    return;
   }
-  else {
-    commentsStore.selectComment('', true);
+
+  // selected some text => create a new comment
+  if (!summariesStore.isOwnDisabled) {
+
+    let key = await commentsStore.createComment(selected.firstWord, selected.lastWord, selected.parentNumber);
+    let comment = commentsStore.getComment(key);
+    ensureTextMark(comment);
+    commentsStore.updateComment(comment);
   }
 }
 
@@ -346,10 +359,43 @@ function applyZoom() {
 <template>
   <div id="app-essay-wrapper">
     <div class="appTextButtons">
-      <v-btn-group density="comfortable" variant="outlined" divided>
-        <v-btn :title="$t('essayZoomOut')" size="small" icon="mdi-magnify-minus-outline" @click="zoomOut()"></v-btn>
-        <v-btn :title="$t('essayZoomIn')" size="small" icon="mdi-magnify-plus-outline" @click="zoomIn()"></v-btn>
-      </v-btn-group>
+      <div class="appTextButtonsGroup">
+        <label class="appTextButtonsLabel" for="appEssayFunctions">{{ $t('essayLabelFunctions') }}</label>
+        <v-btn-group id="appEssayFunctions" density="comfortable" variant="outlined" divided>
+          <v-btn :title="$t('essayZoomOut')" size="small" icon="mdi-magnify-minus-outline" @click="zoomOut()"></v-btn>
+          <v-btn :title="$t('essayZoomIn')" size="small" icon="mdi-magnify-plus-outline" @click="zoomIn()"></v-btn>
+        </v-btn-group>
+      </div>
+
+      <div class="appTextButtonsGroup" v-if="stores.settings().Task.enable_comments">
+        <label class="appTextButtonsLabel" for="appTextShapesToggle">{{ $t('essayLabelTextShapes') }}</label>
+        <v-btn-toggle id="appTextShapesToggle" density="comfortable" variant="outlined" divided v-model="defaultShape">
+          <v-tooltip max-width="200" location="bottom" :text ="$t('essayPdfShapeTextMarkerInfo')">
+            <template v-slot:activator="{props}">
+              <v-btn :disabled="summariesStore.isOwnDisabled" v-bind="props" size="small" icon="mdi-marker"
+                     :value="Mark.SHAPE_TEXT_MARKER" @click="selectDefaultShape(Mark.SHAPE_TEXT_MARKER)"></v-btn>
+            </template>
+          </v-tooltip>
+          <v-tooltip max-width="200" location="bottom" :text ="$t('essayPdfShapeTextUnderlineInfo')">
+            <template v-slot:activator="{props}">
+              <v-btn :disabled="summariesStore.isOwnDisabled" v-bind="props" size="small" icon="mdi-format-underline"
+                     :value="Mark.SHAPE_TEXT_UNDERLINE" @click="selectDefaultShape(Mark.SHAPE_TEXT_UNDERLINE)"></v-btn>
+            </template>
+          </v-tooltip>
+          <v-tooltip max-width="200" location="bottom" :text ="$t('essayPdfShapeTextWaveInfo')">
+            <template v-slot:activator="{props}">
+              <v-btn :disabled="summariesStore.isOwnDisabled" v-bind="props" size="small" icon="mdi-format-underline-wavy"
+                     :value="Mark.SHAPE_TEXT_WAVE" @click="selectDefaultShape(Mark.SHAPE_TEXT_WAVE)"></v-btn>
+            </template>
+          </v-tooltip>
+          <v-tooltip max-width="200" location="bottom" :text ="$t('essayPdfShapeTextVlineInfo')">
+            <template v-slot:activator="{props}">
+              <v-btn :disabled="summariesStore.isOwnDisabled" v-bind="props" size="small" icon="mdi-align-horizontal-left"
+                     :value="Mark.SHAPE_TEXT_VLINE" @click="selectDefaultShape(Mark.SHAPE_TEXT_VLINE)"></v-btn>
+            </template>
+          </v-tooltip>
+        </v-btn-toggle>
+      </div>
     </div>
     <component :is="'style'">
       {{ configStore.commentStyles }}
@@ -476,6 +522,25 @@ function applyZoom() {
 
 .app-essay-menu .v-btn.app-essay-menu-active {
   background-color: rgba(25, 118, 210, 0.16);
+}
+
+.appTextButtons {
+  padding-bottom: 5px;
+  height: 70px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.appTextButtonsGroup {
+  padding: 0 10px 0 10px;
+  margin: 0;
+}
+
+.appTextButtonsLabel {
+  display:block;
+  font-size: 12px;
+  color: #555555;
 }
 
 w-p.labelled {
