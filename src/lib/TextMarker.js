@@ -183,6 +183,21 @@ class TextMarker {
   }
 
   /**
+   * Reserve the space for the labels as left margin of the labelled words
+   * Must be called after all marks and labels are set, because showMark() overwrites the style of the words
+   */
+  reserveLabelSpace() {
+    const nodes = Array.from(this.el.querySelectorAll('w-p.labelled'));
+    const widths = nodes.map(node => {
+      const style = getComputedStyle(node, '::before');
+      return (parseFloat(style.width) || 0) + (parseFloat(style.paddingLeft) || 0) + (parseFloat(style.paddingRight) || 0);
+    });
+    nodes.forEach((node, index) => {
+      node.style.marginLeft = (widths[index] + 5) + 'px';
+    });
+  }
+
+  /**
    * Show a mark
    * @param {string} cssClass  - css class to add to the mark
    * @param {integer} firstWord

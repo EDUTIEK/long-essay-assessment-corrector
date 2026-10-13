@@ -40,6 +40,7 @@ onMounted(() => {
   const essay = document.getElementById('app-essay');
   marker = new TextMarker(essay, onSelection, onIntersection);
   commentsStore.activeComments.forEach(comment => updateMark(comment));
+  marker.reserveLabelSpace();
 
   essayResizeObserver = new ResizeObserver(() => {
     const comment = commentsStore.selectedComment;
@@ -78,6 +79,7 @@ handleFocusChange();
 function refreshMarks() {
   marker.hideAllMarksAndLabels();
   commentsStore.activeComments.forEach(comment => updateMark(comment));
+  marker.reserveLabelSpace();
 }
 
 function refreshSelection() {
@@ -448,11 +450,22 @@ function applyZoom() {
   background-color: rgba(25, 118, 210, 0.16);
 }
 
-w-p.labelled:before {
-  content: attr(label); /* value that that refers to CSS 'content' */
+w-p.labelled {
   position: relative;
-  left: -3px;
+}
+
+/*
+ * The label is taken out of the flow so that the styles of the marked word (background, border, text-decoration)
+ * are neither applied to the label nor to its space. The space is reserved by TextMarker.reserveLabelSpace()
+ * as margin of the word, which is outside its styled box.
+ */
+w-p.labelled:before {
+  all: initial;
+  content: attr(label); /* value that that refers to CSS 'content' */
+  position: absolute;
+  right: calc(100% + 3px);
   top: -7px;
+  white-space: nowrap;
   padding: 3px;
   z-index: 10000;
   background-color: #aaaaaaaa;
