@@ -32,6 +32,7 @@ export const useSettingsStore = defineStore('settings', {
       },
       Task: {
         pdf_marking: 'images',                            // type of PDF marking function
+        free_marking: false,
         positive_rating: t('settingsRatingPositive'),     // label of a positive rating
         negative_rating: t('settingsRatingNegative'),     // label of a negative rating
         enable_comments: false,                           // enable comments on the text

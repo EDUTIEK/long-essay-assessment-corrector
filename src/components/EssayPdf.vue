@@ -215,6 +215,11 @@ async function createMark(event) {
     pos: {x: annotation.pos.x * 1000, y: annotation.pos.y * 1000}
   }
 
+  if (Mark.FREE_SHAPES.includes(data.shape) && !stores.settings().Task.free_marking) {
+    pdfjs.delete(data.key);
+    return;
+  }
+
   if (!commentsStore.getCommentByMarkKey(data.key)) {
     // new mark will create a new comment
     const newComment = new Comment({parent_number: event.detail.page + 1});
@@ -404,7 +409,7 @@ async function download(marked)
         </v-btn-toggle>
       </div>
 
-      <div class="appTextButtonsGroup" v-if="stores.settings().Task.enable_comments" >
+      <div class="appTextButtonsGroup" v-if="stores.settings().Task.enable_comments && stores.settings().Task.free_marking">
         <label class="appTextButtonsLabel" for="appFreeShapesToggle">{{ $t('essayPdfFreeShapes') }}</label>
         <v-btn-toggle id="appFreeShapesToggle" density="comfortable" variant="outlined" divided v-model="defaultShape">
           <v-tooltip max-width="200" location="bottom" :text ="$t('essayShapeFreeLineInfo')">
