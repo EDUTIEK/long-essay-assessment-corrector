@@ -229,7 +229,7 @@ export const useSummariesStore = defineStore('summaries', {
             return t('summariesProcedureConsultingNeeded', [reason]);
         }
         // a stitch decision can be required without a procedure
-        if (stores.settings().Assessment.stitch_after_procedure) {
+        if (stores.settings().Assessment.stitch_when_distance) {
           return t('summariesProcedureStitchNeeded', [reason]);
         }
       }
@@ -243,7 +243,7 @@ export const useSummariesStore = defineStore('summaries', {
     stitchNeededAfterRevisionText(state) {
       const reason = state.pointsDifferText;
       if (reason) {
-        if (stores.settings().Assessment.stitch_after_procedure) {
+        if (stores.settings().Assessment.stitch_when_distance) {
           return t('summariesProcedureStitchNeeded', [reason]);
         }
       }
@@ -277,8 +277,8 @@ export const useSummariesStore = defineStore('summaries', {
         return '';
       }
 
-      if (Math.abs(own_points - other_points) > stores.settings().Assessment.max_auto_distance) {
-        return t('summariesPointsDifferText', stores.settings().Assessment.max_auto_distance);
+      if (Math.abs(own_points - other_points) > stores.settings().Assessment.max_no_procedure_distance) {
+        return t('summariesPointsDifferText', stores.settings().Assessment.max_no_procedure_distance);
       }
 
       return '';

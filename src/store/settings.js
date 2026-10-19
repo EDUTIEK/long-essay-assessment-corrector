@@ -22,9 +22,9 @@ export const useSettingsStore = defineStore('settings', {
         mutual_visibility: false,       // correction sees other corrections
         procedure_when_distance: false, // should a revision procedure follow when points differ
         procedure: Procedure.NONE,      // type of procedure that follows
-        max_auto_distance: 0,           // maximum distance between points to allow an automated points calculation
+        max_no_procedure_distance: 0,   // maximum distance between points where no procedure is needed
         revision_between: false,        // points given in a revision must be between the original points of both corrections
-        stitch_after_procedure: false,  // the procedure is followed by a stich decision when needed
+        stitch_when_distance: false,    // should a stitch decision follow when points differ
         max_points: 0,                  // maximum points that can be given
         no_manual_decimals: false,      // manually given points must not have decimals
         download_writing: false,        // enable a download of the writing
