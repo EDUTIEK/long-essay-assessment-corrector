@@ -25,6 +25,7 @@ export const useSettingsStore = defineStore('settings', {
         max_no_procedure_distance: 0,   // maximum distance between points where no procedure is needed
         revision_between: false,        // points given in a revision must be between the original points of both corrections
         stitch_when_distance: false,    // should a stitch decision follow when points differ
+        max_no_stitch_distance: 0,      // maximum distance between points where no stitch decision is needed
         max_points: 0,                  // maximum points that can be given
         no_manual_decimals: false,      // manually given points must not have decimals
         download_writing: false,        // enable a download of the writing

@@ -216,45 +216,11 @@ export const useSummariesStore = defineStore('summaries', {
     },
 
     /**
-     * Text to be shown for an authorization if a procedure ot stitch decision is needed afterward
-     * @returns {string}
-     */
-    procedureNeededText(state) {
-      const reason = state.pointsDifferText;
-      if (reason) {
-        switch (stores.settings().Assessment.procedure) {
-          case Procedure.APPROXIMATION:
-            return t('summariesProcedureApproximationNeeded', [reason]);
-          case Procedure.CONSULTING:
-            return t('summariesProcedureConsultingNeeded', [reason]);
-        }
-        // a stitch decision can be required without a procedure
-        if (stores.settings().Assessment.stitch_when_distance) {
-          return t('summariesProcedureStitchNeeded', [reason]);
-        }
-      }
-      return '';
-    },
-
-    /**
-     * Text to be shown for an revision if a stitch decision is needed afterward
-     * @returns {string}
-     */
-    stitchNeededAfterRevisionText(state) {
-      const reason = state.pointsDifferText;
-      if (reason) {
-        if (stores.settings().Assessment.stitch_when_distance) {
-          return t('summariesProcedureStitchNeeded', [reason]);
-        }
-      }
-     return '';
-    },
-
-    /**
-     * Text why a procedure or stitch decision is needed for the current item
+     * Text if a procedure or stitch decision is needed for the current item
      * @returns {string}
      */
     pointsDifferText(state) {
+      const settings = stores.settings().Assessment;
       const ownSummary = state.ownSummary;
       const otherSummary = state.otherSummary;
 
@@ -268,7 +234,8 @@ export const useSummariesStore = defineStore('summaries', {
       if (stores.items().canAuthorize) {
         own_points = ownSummary.points;
         other_points = otherSummary.points;
-      } else if (stores.items().canRevise) {
+      }
+      if (stores.items().canRevise) {
         own_points = ownSummary.revision_points ?? ownSummary.points;
         other_points = otherSummary.revision_points ?? otherSummary.points;
       }
@@ -277,8 +244,22 @@ export const useSummariesStore = defineStore('summaries', {
         return '';
       }
 
-      if (Math.abs(own_points - other_points) > stores.settings().Assessment.max_no_procedure_distance) {
-        return t('summariesPointsDifferText', stores.settings().Assessment.max_no_procedure_distance);
+      if (stores.items().canAuthorize
+        && settings.procedure_when_distance
+        && Math.abs(own_points - other_points) > settings.max_no_procedure_distance
+      ) {
+        switch (settings.procedure) {
+          case Procedure.APPROXIMATION:
+            return t('summariesProcedureApproximationNeeded') + t('summariesPointsDifferText', settings.max_no_procedure_distance);
+          case Procedure.CONSULTING:
+            return t('summariesProcedureConsultingNeeded') + t('summariesPointsDifferText', settings.max_no_procedure_distance);
+        }
+      }
+
+      if ( settings.stitch_when_distance
+        && Math.abs(own_points - other_points) > settings.max_no_stitch_distance
+      ) {
+        return t('summariesProcedureStitchNeeded') + t('summariesPointsDifferText', settings.max_no_stitch_distance);
       }
 
       return '';

@@ -35,7 +35,7 @@ function dialogTitle() {
 function requireOtherRevisionPossible() {
   return settingsStore.Assessment.procedure === Procedure.APPROXIMATION
     && correctionsStore.ownCorrection?.position === Correction.POSITION_FIRST
-      && summariesStore.stitchNeededAfterRevisionText !== '';
+      && summariesStore.pointsDifferText !== '';
 }
 
 function cancel() {
@@ -105,12 +105,12 @@ async function setRevisedAndContinue() {
               {{ summariesStore.pointsOutsideCorridorText }}
             </v-alert>
 
-            <v-alert v-show="summariesStore.stitchNeededAfterRevisionText !== ''"
+            <v-alert v-show="summariesStore.pointsDifferText !== ''"
                      color="#0000A0" type="info" variant="text" density="compact">
-              {{ summariesStore.stitchNeededAfterRevisionText }}
+              {{ summariesStore.pointsDifferText }}
             </v-alert>
 
-            <v-alert v-show="summariesStore.stitchNeededAfterRevisionText === ''"
+            <v-alert v-show="summariesStore.pointsDifferText === ''"
                      color="#0000A0" type="info" variant="text" density="compact">
               {{ settingsStore.Assessment.procedure === Procedure.APPROXIMATION
                 ? $t('revisionApproximationFinalizes')

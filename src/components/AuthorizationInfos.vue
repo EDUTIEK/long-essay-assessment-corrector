@@ -61,9 +61,9 @@ function getPartialPointsMessage() {
       {{getPartialPointsMessage()}}
     </v-alert>
 
-    <v-alert v-show="summariesStore.areOthersAuthorized && summariesStore.procedureNeededText != '' "
+    <v-alert v-show="summariesStore.areOthersAuthorized && summariesStore.pointsDifferText != '' "
              color="#0000A0" type="info" variant="text" density="compact">
-      {{ summariesStore.procedureNeededText }}
+      {{ summariesStore.pointsDifferText }}
     </v-alert>
 
     <v-alert v-show="itemsStore.isInStitch && summariesStore.pointsOutsideCorridorText !== ''"
