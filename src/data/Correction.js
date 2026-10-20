@@ -106,7 +106,7 @@ export default class Correction {
   position = 0;
 
   /**
-   * The corrctor position and procedure allows to enter a revision text
+   * The corrector position and procedure allows to enter a revision text
    * @type {boolean}
    */
   can_enter_revision_text = false;

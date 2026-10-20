@@ -228,22 +228,22 @@ export const useSummariesStore = defineStore('summaries', {
         return '';
       }
 
+      // get the points
       let own_points = null;
       let other_points = null;
-
       if (stores.items().canAuthorize) {
         own_points = ownSummary.points;
         other_points = otherSummary.points;
       }
-      else if (stores.items().canRevise && otherSummary.isRevised()) {
+      else if (stores.items().canRevise) {
         own_points = ownSummary.revision_points ?? ownSummary.points;
         other_points = otherSummary.revision_points ?? otherSummary.points;
       }
-
       if (own_points === null || other_points === null) {
         return '';
       }
 
+      // get a procedure message if needed
       if (stores.items().canAuthorize
         && settings.procedure_when_distance
         && Math.abs(own_points - other_points) > settings.max_no_procedure_distance
@@ -255,7 +255,13 @@ export const useSummariesStore = defineStore('summaries', {
             return t('summariesProcedureConsultingNeeded') + t('summariesPointsDifferText', settings.max_no_procedure_distance);
         }
       }
+      else if (stores.items().canRevise) {
+        if ( settings.procedure === Procedure.CONSULTING && !otherSummary.isRevised()) {
+          return '';
+        }
+      }
 
+      // get a stitch message if needed
       if ( settings.stitch_when_distance
         && Math.abs(own_points - other_points) > settings.max_no_stitch_distance
       ) {
