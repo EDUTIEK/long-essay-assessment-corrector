@@ -110,12 +110,23 @@ async function setRevisedAndContinue() {
               {{ summariesStore.pointsDifferText }}
             </v-alert>
 
-            <v-alert v-show="summariesStore.pointsDifferText === ''"
+            <v-alert v-show="settingsStore.Assessment.procedure === Procedure.APPROXIMATION
+                  && summariesStore.pointsDifferText === ''"
                      color="#0000A0" type="info" variant="text" density="compact">
-              {{ settingsStore.Assessment.procedure === Procedure.APPROXIMATION
-                ? $t('revisionApproximationFinalizes')
-                : $t('revisionConsultingFinalizes')
-              }}
+              {{ $t('revisionApproximationFinalizes') }}
+            </v-alert>
+
+            <v-alert v-show="settingsStore.Assessment.procedure === Procedure.CONSULTING
+                  && !summariesStore.otherSummary?.isRevised()"
+                     color="#0000A0" type="info" variant="text" density="compact">
+              {{ $t('revisionConsultingContinues') }}
+            </v-alert>
+
+            <v-alert v-show="settingsStore.Assessment.procedure === Procedure.CONSULTING
+                  && summariesStore.otherSummary?.isRevised()
+                  && summariesStore.pointsDifferText === ''"
+                     color="#0000A0" type="info" variant="text" density="compact">
+              {{ $t('revisionConsultingFinalizes') }}
             </v-alert>
           </div>
 

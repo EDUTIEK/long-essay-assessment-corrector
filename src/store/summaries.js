@@ -235,7 +235,7 @@ export const useSummariesStore = defineStore('summaries', {
         own_points = ownSummary.points;
         other_points = otherSummary.points;
       }
-      if (stores.items().canRevise) {
+      else if (stores.items().canRevise && otherSummary.isRevised()) {
         own_points = ownSummary.revision_points ?? ownSummary.points;
         other_points = otherSummary.revision_points ?? otherSummary.points;
       }
