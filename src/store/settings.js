@@ -29,7 +29,8 @@ export const useSettingsStore = defineStore('settings', {
         max_points: 0,                  // maximum points that can be given
         no_manual_decimals: false,      // manually given points must not have decimals
         download_writing: false,        // enable a download of the writing
-        download_correction: false      // enable a download of the correction
+        download_correction: false,     // enable a download of the correction
+        fixed_items_order: false        // keep the order which is delivered from the backend
       },
       Task: {
         pdf_marking: 'images',                            // type of PDF marking function

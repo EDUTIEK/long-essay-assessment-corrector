@@ -43,14 +43,17 @@ export const useItemsStore = defineStore('items', {
     },
 
     sortedItems(state) {
+      let items = Object.values(state.items);
+
       if (stores.api().itemKey && !!state.items[stores.api().itemKey]) {
         const task_id = Item.extractTaskId(stores.api().itemKey)
-        return Object.values(state.items)
-            .filter(item => item.task_id == task_id)
-            .toSorted(Item.order);
-      } else {
-        return Object.values(state.items).toSorted(Item.order);
+        items = items.filter(item => item.task_id == task_id)
       }
+
+      if (stores.settings().Assessment.fixed_items_order) {
+        return items;
+      }
+      return items.toSorted(Item.order);
     },
 
     canAct(state) {
