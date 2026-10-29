@@ -390,6 +390,10 @@ export const useApiStore = defineStore('api', {
         return;
       }
 
+      if (!stores.user().accepted) {
+        stores.layout().showAgreement = true;
+        return;
+      }
 
     },
 
@@ -662,20 +666,48 @@ export const useApiStore = defineStore('api', {
           this.getStartRequestConfig
         );
 
-        this.loginToken = response.data.token;
-        localStorage.setItem('xlasCorrectorLoginToken', this.loginToken);
+        this.setSending(false);
         stores.layout().showLogin = false;
 
+        this.loginToken = response.data.token;
+        this.userId = response.data.user_id;
+        localStorage.setItem('xlasCorrectorUserId', this.userId);
+        localStorage.setItem('xlasCorrectorLoginToken', this.loginToken);
+        await stores.user().loadFromBackend(response.data);
+        this.initStart();
+
       } catch (error) {
+        this.setSending(false);
         if (error.response?.status === 401) {
           stores.layout().loginMessage = error.response.data?.failed_message;
         } else {
           stores.layout().loginMessage = t('apiLoginFailed');
         }
       }
-
-      this.setSending(false);
     },
+
+    /**
+     * Send acceptance of the user agreement
+     */
+    async sendAgreement() {
+
+      try {
+        this.setSending(true);
+        const response = await axios.put(
+          '/corrector/start/agreement',
+          null,
+          this.getStartRequestConfig
+        );
+
+        this.setSending(false);
+        stores.layout().showAgreement = false;
+        await stores.user().setAccepted();
+        this.initStart();
+
+      } catch (error) {
+      }
+    },
+
 
     /**
      * Send a summary pdf file

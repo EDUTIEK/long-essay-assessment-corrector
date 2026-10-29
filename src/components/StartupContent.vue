@@ -4,14 +4,19 @@ import {stores} from "@/store";
 
 const login = ref('');
 const password = ref('');
+const accepted = ref(false);
 
 function submitLogin() {
   stores.api().sendLogin(login.value, password.value);
 }
 
-const showReturn = computed(() =>
-    !!stores.api().returnUrl
-)
+function submitAgreement() {
+  if (accepted.value) {
+    stores.api().sendAgreement();
+  }
+}
+
+const showReturn = computed(() => !!stores.api().returnUrl)
 
 </script>
 
@@ -58,6 +63,32 @@ const showReturn = computed(() =>
             ></v-text-field>
             <v-btn type="submit" :color="stores.config().primaryColorCss">
               <span>{{ $t('startupContentLogin') }}</span>
+            </v-btn>
+          </v-card-text>
+        </v-form>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog persistent  max-width="60em" v-model="stores.layout().showAgreement">
+      <v-card>
+        <v-form @submit.prevent="submitAgreement">
+          <v-card-title>
+            {{ $t('startupContentAgreementTitle') }}
+          </v-card-title>
+          <v-card-text>
+            <v-alert v-if="!stores.user().accepted" type="warning" variant="text" color="#0000A0">
+              {{ $t('startupContentAgreementMessage')}}
+            </v-alert>
+
+            <div class="agreement" v-html="stores.user().agreement"></div>
+
+            <v-checkbox
+                v-model="accepted"
+                :label="$t('startupContentAgreementCheckbox')"
+            ></v-checkbox>
+
+            <v-btn type="submit" :disabled="!accepted" :color="stores.config().primaryColorCss">
+              <span>{{ $t('startupContentAgreementButton') }}</span>
             </v-btn>
           </v-card-text>
         </v-form>
@@ -153,4 +184,8 @@ const showReturn = computed(() =>
 
 <style scoped>
 
+  .agreement {
+    padding: 1em;
+
+  }
 </style>
