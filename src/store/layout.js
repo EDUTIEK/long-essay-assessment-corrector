@@ -41,8 +41,10 @@ export const useLayoutStore = defineStore('layout', {
       showIncludesPopup: false,            // show the popup to set the included elements
 
       initFailure: '',                    // failure from app initialisation
+      loginMessage: '',                   // failure from the login
 
       initialized: false,                 // used to switch from startup screen to the editing view
+      showLogin: false,                   // show the login form
       showItemLoadFailure: false,         // show a message that the loading if an item failed
       showSendFailure: false,             // show a message about a sending failure
       showDataReplaceConfirmation: false, // show a confirmation that the stored data should be replaced by another task or user

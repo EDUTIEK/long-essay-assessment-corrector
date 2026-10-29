@@ -45,8 +45,34 @@ export const useApiStore = defineStore('api', {
   getters: {
 
     isLoading: state => state.lastLoadingTry > 0,
+    isSending: state => state.lastSendingTry > 0,
 
     storedItemKey: state => localStorage.getItem('xlasCorrectorItemKey'),
+
+    getStartRequestConfig(state) {
+
+      let baseURL = state.backendUrl;
+      let params = new URLSearchParams();
+
+      // cut query string and set it as params
+      // a REST path is added as url to the baseURL by axios calls
+      let position = baseURL.search(/\?+/);
+      if (position != -1) {
+        params = new URLSearchParams(baseURL.substr(position))
+        baseURL = baseURL.substr(0, position);
+      }
+
+      return {
+        baseURL: baseURL,
+        params: params,
+        timeout: 30000,             // milliseconds
+        responseType: 'json',       // default
+        responseEncoding: 'utf8',   // default
+        headers: {
+          'Authorization': 'Bearer ' + state.loginToken
+        }
+      }
+    },
 
     getRequestConfig(state) {
 
@@ -61,7 +87,7 @@ export const useApiStore = defineStore('api', {
         let params = new URLSearchParams();
 
         // cut query string and set it as params
-        // a REST path is added as url to the baseURL by axias calls
+        // a REST path is added as url to the baseURL by axios calls
         let position = baseURL.search(/\?+/);
         if (position != -1) {
           params = new URLSearchParams(baseURL.substr(position))
@@ -289,9 +315,6 @@ export const useApiStore = defineStore('api', {
       if (Cookies.get('xlasReturnUrl') != undefined && Cookies.get('xlasReturnUrl') != this.returnUrl) {
         this.returnUrl = Cookies.get('xlasReturnUrl');
       }
-      if (Cookies.get('xlasLoginToken') != undefined && Cookies.get('xlasLoginToken') != this.loginToken) {
-        this.loginToken = Cookies.get('xlasLoginToken');
-      }
       if (Cookies.get('xlasDataToken') != undefined && Cookies.get('xlasDataToken') != this.dataToken) {
         this.dataToken = Cookies.get('xlasDataToken');
       }
@@ -299,10 +322,14 @@ export const useApiStore = defineStore('api', {
         this.fileToken = Cookies.get('xlasFileToken');
       }
 
-      if (!this.backendUrl || !this.returnUrl
-          || !this.userId || !this.assId || !this.contextId
+      if (!this.backendUrl) {
+        stores.layout().initFailure = t('apiMissingBackendUrl');
+        return;
+      }
+
+      if (!this.userId || !this.assId || !this.contextId
           || !this.dataToken || !this.fileToken) {
-        stores.layout().initFailure = t('apiMissingParams');
+        this.initStart();
         return;
       }
 
@@ -316,7 +343,6 @@ export const useApiStore = defineStore('api', {
       Cookies.remove('xlasAsAdmin');
       Cookies.remove('xlasTaskId');
       Cookies.remove('xlasWriterId');
-      Cookies.remove('xlasLoginToken');
       Cookies.remove('xlasDataToken');
       Cookies.remove('xlasFileToken');
 
@@ -328,7 +354,6 @@ export const useApiStore = defineStore('api', {
       localStorage.setItem('xlasCorrectorContextId', this.contextId);
       localStorage.setItem('xlasCorrectorAsAdmin', this.asAdmin);
       localStorage.setItem('xlasCorrectorItemKey', this.itemKey);
-      localStorage.setItem('xlasCorrectorLoginToken', this.loginToken);
       localStorage.setItem('xlasCorrectorDataToken', this.dataToken);
       localStorage.setItem('xlasCorrectorFileToken', this.fileToken);
 
@@ -353,6 +378,19 @@ export const useApiStore = defineStore('api', {
         console.log('init: no open saving');
         this.initAfterReplaceDataConfirmed();
       }
+    },
+
+    /**
+     * Init when the app is started directly without cookies from an assesment
+     */
+    async initStart() {
+      if (!this.loginToken || !this.userId) {
+        stores.layout().loginMessage = '';
+        stores.layout().showLogin = true;
+        return;
+      }
+
+
     },
 
     /**
@@ -573,7 +611,7 @@ export const useApiStore = defineStore('api', {
 
       if (changesStore.countChanges > 0) {
         // don't interfer with a running request
-        if (!(await this.isSending(true))) {
+        if (!(await this.checkSending(true))) {
 
           this.setSending(true);
           try {
@@ -604,6 +642,39 @@ export const useApiStore = defineStore('api', {
         }
       }
       return changesStore.countChanges == 0;
+    },
+
+    /**
+     * Post a login request
+     */
+    async sendLogin(login, password) {
+
+      try {
+        const formData = new FormData();
+        formData.append('login', login);
+        formData.append('password', password);
+
+        stores.layout().loginMessage = '';
+        this.setSending(true);
+        const response = await axios.post(
+          '/corrector/start/login',
+          formData,
+          this.getStartRequestConfig
+        );
+
+        this.loginToken = response.data.token;
+        localStorage.setItem('xlasCorrectorLoginToken', this.loginToken);
+        stores.layout().showLogin = false;
+
+      } catch (error) {
+        if (error.response?.status === 401) {
+          stores.layout().loginMessage = error.response.data?.failed_message;
+        } else {
+          stores.layout().loginMessage = t('apiLoginFailed');
+        }
+      }
+
+      this.setSending(false);
     },
 
     /**
@@ -760,17 +831,15 @@ export const useApiStore = defineStore('api', {
 
     /**
      * Check if a sending of changes is still running
+     * Wait up to 5 seconds for a sending to complete
      *
-     * @param {boolean} wait - wait up to 5 seconds for a sending to complete
-     * @return boolean  sending is still going on
+     * @return boolean sending is still going on
      */
-    async isSending(wait = false) {
-      if (wait) {
-        let tries = 0;
-        while (tries < 5 && this.lastSendingTry > 0) {
-          tries++;
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        }
+    async checkSending() {
+      let tries = 0;
+      while (tries < 5 && this.lastSendingTry > 0) {
+        tries++;
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
       return this.lastSendingTry > 0;
     },
