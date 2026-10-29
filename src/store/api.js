@@ -27,6 +27,7 @@ export const useApiStore = defineStore('api', {
       contextId: '',                      // identifying id of the context for permission checks
       asAdmin: '',                        // app is opened for administrator (permission will be checked in the backend)
       itemKey: '',                        // identifying key of the correction item
+      loginToken: '',                     // authentication token for login
       dataToken: '',                      // authentication token for transmission if data
       fileToken: '',                      // authentication token for loading files
       timeOffset: 0,                      // difference between server time and client time (ms)
@@ -244,6 +245,7 @@ export const useApiStore = defineStore('api', {
       this.contextId = localStorage.getItem('xlasCorrectorContextId') ?? '';
       this.asAdmin = localStorage.getItem('xlasCorrectorAsAdmin') ?? '';
       this.itemKey = localStorage.getItem('xlasCorrectorItemKey') ?? '';
+      this.loginToken = localStorage.getItem('xlasCorrectorLoginToken') ?? '';
       this.dataToken = localStorage.getItem('xlasCorrectorDataToken') ?? '';
       this.fileToken = localStorage.getItem('xlasCorrectorFileToken') ?? '';
       this.timeOffset = Math.floor(localStorage.getItem('xlasCorrectorTimeOffset') ?? 0);
@@ -287,6 +289,9 @@ export const useApiStore = defineStore('api', {
       if (Cookies.get('xlasReturnUrl') != undefined && Cookies.get('xlasReturnUrl') != this.returnUrl) {
         this.returnUrl = Cookies.get('xlasReturnUrl');
       }
+      if (Cookies.get('xlasLoginToken') != undefined && Cookies.get('xlasLoginToken') != this.loginToken) {
+        this.loginToken = Cookies.get('xlasLoginToken');
+      }
       if (Cookies.get('xlasDataToken') != undefined && Cookies.get('xlasDataToken') != this.dataToken) {
         this.dataToken = Cookies.get('xlasDataToken');
       }
@@ -311,6 +316,7 @@ export const useApiStore = defineStore('api', {
       Cookies.remove('xlasAsAdmin');
       Cookies.remove('xlasTaskId');
       Cookies.remove('xlasWriterId');
+      Cookies.remove('xlasLoginToken');
       Cookies.remove('xlasDataToken');
       Cookies.remove('xlasFileToken');
 
@@ -322,6 +328,7 @@ export const useApiStore = defineStore('api', {
       localStorage.setItem('xlasCorrectorContextId', this.contextId);
       localStorage.setItem('xlasCorrectorAsAdmin', this.asAdmin);
       localStorage.setItem('xlasCorrectorItemKey', this.itemKey);
+      localStorage.setItem('xlasCorrectorLoginToken', this.loginToken);
       localStorage.setItem('xlasCorrectorDataToken', this.dataToken);
       localStorage.setItem('xlasCorrectorFileToken', this.fileToken);
 
@@ -735,6 +742,11 @@ export const useApiStore = defineStore('api', {
      * Within this time a new REST call must be made to get a new valid token
      */
     refreshToken(response) {
+      if (response.headers['xlaslogintoken']) {
+        this.loginToken = response.headers['xlaslogintoken'];
+        localStorage.setItem('xlasCorrectorLoginToken', this.loginToken);
+      }
+
       if (response.headers['xlasdatatoken']) {
         this.dataToken = response.headers['xlasdatatoken'];
         localStorage.setItem('xlasCorrectorDataToken', this.dataToken);
