@@ -84,12 +84,12 @@ const showLogoutButton = computed(() => !stores.config().returnUrl && stores.api
                 autocomplete="current-password"
                 @change="stores.layout().loginMessage = ''"
             ></v-text-field>
-            <v-btn type="submit" :color="stores.config().primaryColorCss">
-              <span>{{ $t('startupContentLogin') }}</span>
-            </v-btn>
+
           </v-card-text>
           <v-card-actions>
-
+            <v-btn type="submit" variant="flat" color="primary">
+              <span>{{ $t('startupContentLogin') }}</span>
+            </v-btn>
             <v-btn @click="hideLogin">
               <span>{{ $t('allCancel') }}</span>
             </v-btn>
@@ -115,14 +115,15 @@ const showLogoutButton = computed(() => !stores.config().returnUrl && stores.api
                 v-model="accepted"
                 :label="$t('startupContentAgreementCheckbox')"
             ></v-checkbox>
-
-            <v-btn type="submit" :disabled="!accepted" :color="stores.config().primaryColorCss">
+          </v-card-text>
+          <v-card-actions>
+            <v-btn type="submit" variant="flat" :disabled="!accepted" color="primary">
               <span>{{ $t('startupContentAgreementButton') }}</span>
             </v-btn>
             <v-btn type="submit" @click="sendLogout">
               <span>{{ $t('startupContentLogout') }}</span>
             </v-btn>
-          </v-card-text>
+          </v-card-actions>
         </v-form>
       </v-card>
     </v-dialog>

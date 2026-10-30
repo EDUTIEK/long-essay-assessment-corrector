@@ -8,6 +8,7 @@ import {defineStore} from 'pinia';
 import Comment from "@/data/Comment";
 import Correction from "@/data/Correction";
 import {stores} from "@/store/index";
+import vuetify from '@/plugins/vuetify';
 
 const storage = getStorage('config');
 
@@ -18,7 +19,6 @@ const startState = {
   backendUrl: null,                  // url to be used for REST calls
   returnUrl: null,                   // url to be called when the correction is closed
   primary_color: null,            // color for the background of primary actions
-  primary_text_color: null,       // color for the text of primary actions
   corrector1_color: null,         // marking color of corrector 1
   corrector2_color: null,         // marking color of corrector 2
   corrector3_color: null          // marking color of corrector 3
@@ -40,27 +40,6 @@ export const useConfigStore = defineStore('config', {
   },
 
   getters: {
-
-    primaryColorCss (state) {
-      if (state.primary_color) {
-        return '#' + state.primary_color
-      }
-      return '';
-    },
-
-    primaryTextColorCss(state) {
-      if (state.primary_text_color) {
-        return '#' + state.primary_text_color
-      }
-      return '';
-    },
-
-    primaryTextColorFullCss(state) {
-      if (state.primary_text_color) {
-        return 'color: #' + state.primary_text_color + ';'
-      }
-      return '';
-    },
 
     getDefaultCommentColor(state) {
 
@@ -164,7 +143,6 @@ export const useConfigStore = defineStore('config', {
         const response = await fetch(`${import.meta.env.BASE_URL}config.json`, { cache: 'no-store' });
         if (response.ok) {
           this.applyData(await response.json());
-          this.saveToStorage();
         }
       } catch (err) {
         console.log(err);
@@ -173,7 +151,7 @@ export const useConfigStore = defineStore('config', {
 
     async loadFromStorage() {
       try {
-        this.applyData(await storage.getItem('config'));
+        //this.applyData(await storage.getItem('config'));
       }
       catch (err) {
         console.log(err);
@@ -202,6 +180,11 @@ export const useConfigStore = defineStore('config', {
         }
       }
       this.$patch(patch);
+
+      // apply to the theme
+      if (this.primary_color !== null) {
+        vuetify.theme.themes.value.light.colors.primary = '#' + this.primary_color;
+      }
     },
 
     async saveToStorage() {
