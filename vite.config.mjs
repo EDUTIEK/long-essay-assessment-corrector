@@ -6,11 +6,33 @@ import ViteFonts from 'unplugin-fonts/vite'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 import path from 'path'
+import fs from 'node:fs'
 
 // Utilities
 import { defineConfig } from 'vite'
 import { fileURLToPath, URL } from 'node:url'
 import { resolve, dirname } from 'node:path'
+
+// In development, serve dev.config.json as config.json when it exists.
+// The build copies public/config.json unchanged and does not see this file.
+function preferDevConfig() {
+  const devConfigPath = path.resolve(__dirname, 'dev.config.json')
+  return {
+    name: 'prefer-dev-config',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const url = req.url?.split('?')[0]
+        if (url !== '/config.json' || !fs.existsSync(devConfigPath)) {
+          next()
+          return
+        }
+        res.setHeader('Content-Type', 'application/json')
+        res.setHeader('Cache-Control', 'no-store')
+        fs.createReadStream(devConfigPath).pipe(res)
+      })
+    }
+  }
+}
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -19,6 +41,7 @@ export default defineConfig({
   base: './',
   // edu.
   plugins: [
+    preferDevConfig(),
     vue({
       template: { transformAssetUrls }
     }),

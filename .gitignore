@@ -9,6 +9,9 @@ node_modules
 /src/dev
 # edu.
 
+# local backend URL for the dev server; public/config.json is the committed default
+/dev.config.json
+
 # local env files
 .env.local
 .env.*.local

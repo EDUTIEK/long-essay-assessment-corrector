@@ -15,6 +15,28 @@ import Snippet from '@/data/Snippet';
 const { t } = i18n.global;
 const sendInterval = 1000;      // time (ms) to wait for sending open savings to the backend
 
+/**
+ * Read the static backend URL from config.json next to index.html.
+ * Used when the app is opened directly and no cookie or stored URL exists.
+ * In development, the dev server serves dev.config.json at this URL when that file exists.
+ * @returns {Promise<string>}
+ */
+async function loadBackendUrlFromConfig() {
+  try {
+    const response = await fetch(`${import.meta.env.BASE_URL}config.json`, { cache: 'no-store' });
+    if (!response.ok) {
+      return '';
+    }
+    const data = await response.json();
+    if (typeof data.backendUrl === 'string' && data.backendUrl !== '') {
+      return data.backendUrl;
+    }
+  } catch (err) {
+    console.log(err);
+  }
+  return '';
+}
+
 export const useApiStore = defineStore('api', {
 
   state: () => {
@@ -320,6 +342,11 @@ export const useApiStore = defineStore('api', {
       }
       if (Cookies.get('xlasFileToken') != undefined && Cookies.get('xlasFileToken') != this.dataToken) {
         this.fileToken = Cookies.get('xlasFileToken');
+      }
+
+      // direct call of index.html: static URL from config.json next to the page
+      if (!this.backendUrl) {
+        this.backendUrl = await loadBackendUrlFromConfig();
       }
 
       if (!this.backendUrl) {
