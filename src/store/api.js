@@ -15,35 +15,11 @@ import Snippet from '@/data/Snippet';
 const { t } = i18n.global;
 const sendInterval = 1000;      // time (ms) to wait for sending open savings to the backend
 
-/**
- * Read the static backend URL from config.json next to index.html.
- * Used when the app is opened directly and no cookie or stored URL exists.
- * In development, the dev server serves dev.config.json at this URL when that file exists.
- * @returns {Promise<string>}
- */
-async function loadBackendUrlFromConfig() {
-  try {
-    const response = await fetch(`${import.meta.env.BASE_URL}config.json`, { cache: 'no-store' });
-    if (!response.ok) {
-      return '';
-    }
-    const data = await response.json();
-    if (typeof data.backendUrl === 'string' && data.backendUrl !== '') {
-      return data.backendUrl;
-    }
-  } catch (err) {
-    console.log(err);
-  }
-  return '';
-}
-
 export const useApiStore = defineStore('api', {
 
   state: () => {
     return {
       // saved in storage
-      backendUrl: '',                     // url to be used for REST calls
-      returnUrl: '',                      // url to be called when the correction is closed
       userId: '',                         // identifying id of the current user
       assId: '',                          // identifying id of the assessment
       contextId: '',                      // identifying id of the context for permission checks
@@ -73,7 +49,7 @@ export const useApiStore = defineStore('api', {
 
     getStartRequestConfig(state) {
 
-      let baseURL = state.backendUrl;
+      let baseURL = stores.config().backendUrl;
       let params = new URLSearchParams();
 
       // cut query string and set it as params
@@ -105,7 +81,7 @@ export const useApiStore = defineStore('api', {
        * @returns {{baseURL: (string|*), responseType: string, responseEncoding: string, params: URLSearchParams, timeout: number}}
        */
       const fn = function (token) {
-        let baseURL = state.backendUrl;
+        let baseURL = stores.config().backendUrl;
         let params = new URLSearchParams();
 
         // cut query string and set it as params
@@ -285,9 +261,11 @@ export const useApiStore = defineStore('api', {
       let newContext = false;
       let newItem = false;
 
+      const configStore = stores.config();
+      await configStore.loadFromConfig();
+      await configStore.loadFromStorage();
+
       // take values formerly stored
-      this.backendUrl = localStorage.getItem('xlasCorrectorBackendUrl') ?? '';
-      this.returnUrl = localStorage.getItem('xlasCorrectorReturnUrl') ?? '';
       this.userId = localStorage.getItem('xlasCorrectorUserId') ?? '';
       this.assId = localStorage.getItem('xlasCorrectorAssId') ?? '';
       this.contextId = localStorage.getItem('xlasCorrectorContextId') ?? '';
@@ -331,33 +309,17 @@ export const useApiStore = defineStore('api', {
       }
 
       // these values can be changed without forcing a whole reload
-      if (Cookies.get('xlasBackendUrl') != undefined && Cookies.get('xlasBackendUrl') != this.backendUrl) {
-        this.backendUrl = Cookies.get('xlasBackendUrl');
+      if (Cookies.get('xlasBackendUrl') != undefined && Cookies.get('xlasBackendUrl') != configStore.backendUrl) {
+        configStore.backendUrl = Cookies.get('xlasBackendUrl');
       }
-      if (Cookies.get('xlasReturnUrl') != undefined && Cookies.get('xlasReturnUrl') != this.returnUrl) {
-        this.returnUrl = Cookies.get('xlasReturnUrl');
+      if (Cookies.get('xlasReturnUrl') != undefined && Cookies.get('xlasReturnUrl') != configStore.returnUrl) {
+        configStore.returnUrl = Cookies.get('xlasReturnUrl');
       }
       if (Cookies.get('xlasDataToken') != undefined && Cookies.get('xlasDataToken') != this.dataToken) {
         this.dataToken = Cookies.get('xlasDataToken');
       }
       if (Cookies.get('xlasFileToken') != undefined && Cookies.get('xlasFileToken') != this.dataToken) {
         this.fileToken = Cookies.get('xlasFileToken');
-      }
-
-      // direct call of index.html: static URL from config.json next to the page
-      if (!this.backendUrl) {
-        this.backendUrl = await loadBackendUrlFromConfig();
-      }
-
-      if (!this.backendUrl) {
-        stores.layout().initFailure = t('apiMissingBackendUrl');
-        return;
-      }
-
-      if (!this.userId || !this.assId || !this.contextId
-          || !this.dataToken || !this.fileToken) {
-        this.initStart();
-        return;
       }
 
       // remove the cookies
@@ -374,8 +336,7 @@ export const useApiStore = defineStore('api', {
       Cookies.remove('xlasFileToken');
 
       // save the state
-      localStorage.setItem('xlasCorrectorBackendUrl', this.backendUrl);
-      localStorage.setItem('xlasCorrectorReturnUrl', this.returnUrl);
+      configStore.saveToStorage();
       localStorage.setItem('xlasCorrectorUserId', this.userId);
       localStorage.setItem('xlasCorrectorAssId', this.assId);
       localStorage.setItem('xlasCorrectorContextId', this.contextId);
@@ -383,6 +344,17 @@ export const useApiStore = defineStore('api', {
       localStorage.setItem('xlasCorrectorItemKey', this.itemKey);
       localStorage.setItem('xlasCorrectorDataToken', this.dataToken);
       localStorage.setItem('xlasCorrectorFileToken', this.fileToken);
+
+      if (!configStore.backendUrl) {
+        stores.layout().initFailure = t('apiMissingBackendUrl');
+        return;
+      }
+
+      if (!this.userId || !this.assId || !this.contextId
+        || !this.dataToken || !this.fileToken) {
+        this.initStart();
+        return;
+      }
 
       const changesStore = stores.changes();
       await changesStore.loadFromStorage();

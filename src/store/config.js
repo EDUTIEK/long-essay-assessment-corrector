@@ -1,6 +1,6 @@
 /**
  * Config Store
- * handles the editor config of the assessment
+ * handles the editor config of the assessment and the connection urls
  */
 import {getStorage} from "@/lib/Storage";
 import i18n from "@/plugins/i18n";
@@ -15,6 +15,8 @@ const { t } = i18n.global
 
 const startState = {
   // saved in storage
+  backendUrl: '',                  // url to be used for REST calls
+  returnUrl: '',                   // url to be called when the correction is closed
   primary_color: null,            // color for the background of primary actions
   primary_text_color: null,       // color for the text of primary actions
   corrector1_color: null,         // marking color of corrector 1
@@ -154,18 +156,30 @@ export const useConfigStore = defineStore('config', {
   actions: {
 
     async clearStorage() {
+      // Don't clear the config store because these values need to be kept for a page reload
+    },
+
+    async loadFromConfig() {
       try {
-        this.$reset();
-        await storage.clear();
-      }
-      catch (err) {
+        const response = await fetch(`${import.meta.env.BASE_URL}config.json`, { cache: 'no-store' });
+        if (response.ok) {
+          const data = await response.json();
+          if (data) {
+            this.$patch(data);
+            this.saveToStorage();
+          }
+        }
+      } catch (err) {
         console.log(err);
       }
     },
 
     async loadFromStorage() {
       try {
-        this.$patch(await storage.getItem('config'));
+        const data = await storage.getItem('config');
+        if (data) {
+          this.$patch(data);
+        }
       }
       catch (err) {
         console.log(err);
@@ -174,18 +188,17 @@ export const useConfigStore = defineStore('config', {
 
     async loadFromBackend(data = {}) {
       try {
-        this.$patch({
-          primary_color: data.primary_color ?? null,
-          primary_text_color: data.primary_text_color ?? null,
-          corrector1_color: data.corrector1_color ?? null,
-          corrector2_color: data.corrector2_color ?? null,
-          corrector3_color: data.corrector3_color ?? null,
-        });
-        await storage.setItem('config',  Object.assign({}, this.$state));
+        this.$patch(data);
+        this.saveToStorage();
       }
       catch (err) {
         console.log(err);
       }
+    },
+
+    async saveToStorage() {
+      const persisted = Object.assign({}, this.$state);
+      await storage.setItem('config', persisted);
     }
   }
 });

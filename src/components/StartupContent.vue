@@ -31,9 +31,9 @@ function sendLogout() {
   stores.api().sendLogout();
 }
 
-const showWelcome = computed(() => !stores.api().returnUrl && (!stores.api().userId || stores.user().hasToAccept));
-const showReturnButton = computed(() => !!stores.api().returnUrl);
-const showLogoutButton = computed(() => !stores.api().returnUrl && stores.api().userId);
+const showWelcome = computed(() => !stores.config().returnUrl && (!stores.api().userId || stores.user().hasToAccept));
+const showReturnButton = computed(() => !!stores.config().returnUrl);
+const showLogoutButton = computed(() => !stores.config().returnUrl && stores.api().userId);
 
 </script>
 
@@ -44,7 +44,7 @@ const showLogoutButton = computed(() => !stores.api().returnUrl && stores.api().
       <v-app-bar-title v-show="stores.api().isLoading">{{ $t('startupContentLoadData') }}</v-app-bar-title>
       <v-app-bar-title v-show="stores.api().isSending">{{ $t('startupContentSendData') }}</v-app-bar-title>
       <v-spacer></v-spacer>
-      <v-btn v-if="showReturnButton" :href="stores.api().returnUrl">
+      <v-btn v-if="showReturnButton" :href="stores.config().returnUrl">
         <v-icon left icon="mdi-logout-variant"></v-icon>
         <span>{{ $t('startupContentMyCorrections') }}</span>
       </v-btn>
@@ -138,7 +138,7 @@ const showLogoutButton = computed(() => !stores.api().returnUrl && stores.api().
           </v-alert>
         </v-card-text>
         <v-card-actions>
-          <v-btn v-show="showReturnButton" :href="stores.api().returnUrl">
+          <v-btn v-show="showReturnButton" :href="stores.config().returnUrl">
             <v-icon left icon="mdi-logout-variant"></v-icon>
             <span>{{ $t('allEnd') }}</span>
           </v-btn>
@@ -152,7 +152,7 @@ const showLogoutButton = computed(() => !stores.api().returnUrl && stores.api().
           <p>{{ $t('startupContentLoadItemError') }}</p>
         </v-card-text>
         <v-card-actions>
-          <v-btn v-show="showReturnButton" :href="stores.api().returnUrl">
+          <v-btn v-show="showReturnButton" :href="stores.config().returnUrl">
             <v-icon left icon="mdi-logout-variant"></v-icon>
             <span>{{ $t('allEnd') }}</span>
           </v-btn>
@@ -176,7 +176,7 @@ const showLogoutButton = computed(() => !stores.api().returnUrl && stores.api().
             <v-icon left icon="mdi-reload"></v-icon>
             <span>{{ $t('startupContentDeleteAndLoad') }}</span>
           </v-btn>
-          <v-btn v-show="showReturn" :href="stores.api().returnUrl">
+          <v-btn v-show="showReturn" :href="stores.config().returnUrl">
             <v-icon left icon="mdi-logout-variant"></v-icon>
             <span>{{ $t('allCancel') }}</span>
           </v-btn>
@@ -203,7 +203,7 @@ const showLogoutButton = computed(() => !stores.api().returnUrl && stores.api().
             <v-icon left icon="mdi-trash-can-outline"></v-icon>
             <span>{{ $t('startupContentDeleteLocalData') }}</span>
           </v-btn>
-          <v-btn v-show="showReturnButton" :href="stores.api().returnUrl">
+          <v-btn v-show="showReturnButton" :href="stores.config().returnUrl">
             <v-icon left icon="mdi-logout-variant"></v-icon>
             <span>{{ $t('allCancel') }}</span>
           </v-btn>

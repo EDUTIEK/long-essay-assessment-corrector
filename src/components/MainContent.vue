@@ -12,7 +12,7 @@ import Snippets from "@/components/Snippets.vue";
 import SnippetList from "@/components/SnippetList.vue";
 import { nextTick, watch } from 'vue';
 
-const apiStore = stores.api();
+const configStore = stores.config();
 const essayStore = stores.essay();
 const layoutStore = stores.layout();
 const itemsStore = stores.items();
@@ -300,7 +300,7 @@ document.addEventListener('keydown', layoutStore.handleKeyDown);
           <v-icon left icon="mdi-close"></v-icon>
           <span>{{ $t('allCloseMessage') }}</span>
         </v-btn>
-        <v-btn :href="apiStore.returnUrl">
+        <v-btn :href="configStore.returnUrl">
           <v-icon left icon="mdi-logout-variant"></v-icon>
           <span>{{ $t('mainContentStopCorrection') }}</span>
         </v-btn>

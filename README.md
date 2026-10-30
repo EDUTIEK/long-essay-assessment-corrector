@@ -26,9 +26,9 @@ npm run dev
 npm run build
 ```
 
-### Backend URL for a direct start
+### Open the application
 
-When the app is opened from `index.html` without cookies from the assessment backend, `backendUrl` is read from `config.json` next to `index.html`.
+When the app is opened from `index.html` without cookies from the assessment backend, `backendUrl` and `returnUrl` are read from `config.json` next to `index.html`. Cookies named `xlasBackendUrl` and `xlasReturnUrl` override those values.
 
 `public/config.json` holds the default values. It is committed and copied to `dist/config.json` on build. In an installation, replace that file without rebuilding.
 

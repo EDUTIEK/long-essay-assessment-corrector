@@ -8,13 +8,8 @@ import Tasks from "@/components/Tasks.vue";
 import {stores} from "@/store";
 import { nextTick, watch } from 'vue';
 
-const apiStore = stores.api();
-const taskStore = stores.tasks();
-const changesStore = stores.changes();
-const layoutStore = stores.layout();
-
 async function handleFocusChange() {
-  if (layoutStore.focusTarget == 'header') {
+  if (stores.layout().focusTarget == 'header') {
     await nextTick();
     for (const element of document.getElementsByClassName('app-header-item')) {
       if (!element.disabled) {
@@ -25,12 +20,17 @@ async function handleFocusChange() {
   }
 }
 
-watch(() => layoutStore.focusChange, handleFocusChange);
+watch(() => stores.layout().focusChange, handleFocusChange);
 
 
 async function returnToBackend() {
-  if (stores.changes().countChanges == 0 || await apiStore.saveChangesToBackend(true)) {
-    window.location = apiStore.returnUrl;
+  if (stores.changes().countChanges == 0 || await stores.api().saveChangesToBackend(true)) {
+    if (stores.config().returnUrl) {
+      window.location = stores.config().returnUrl;
+    } else {
+      stores.api().sendLogout();
+    }
+
   } else {
     stores.layout().showSendFailure = true;
   }
