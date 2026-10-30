@@ -65,6 +65,29 @@ h1 {
   font-size: 1.05rem;
 }
 
+.login {
+  margin-top: 1.35rem;
+  padding: 0.55rem 1.15rem;
+  border: 0;
+  border-radius: 6px;
+  background: var(--welcome-accent);
+  color: #ffffff;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.login:hover {
+  background: #2f3c4a;
+}
+
+.login:focus-visible {
+  outline: 2px solid var(--welcome-accent);
+  outline-offset: 3px;
+}
+
 .steps {
   list-style: none;
   counter-reset: step;

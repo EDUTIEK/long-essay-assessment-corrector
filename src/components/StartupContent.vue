@@ -58,7 +58,7 @@ const showLogoutButton = computed(() => !stores.api().returnUrl && stores.api().
       </v-btn>
     </v-app-bar>
 
-    <welcome/>
+    <welcome @login="showLogin"/>
 
     <v-dialog max-width="60em" v-model="stores.layout().showLogin">
       <v-card>
