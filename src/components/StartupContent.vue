@@ -31,8 +31,8 @@ function sendLogout() {
   stores.api().sendLogout();
 }
 
+const showWelcome = computed(() => !stores.api().returnUrl && (!stores.api().userId || stores.user().hasToAccept));
 const showReturnButton = computed(() => !!stores.api().returnUrl);
-const showLoginButton = computed(() => !stores.api().returnUrl && !stores.api().userId);
 const showLogoutButton = computed(() => !stores.api().returnUrl && stores.api().userId);
 
 </script>
@@ -40,7 +40,7 @@ const showLogoutButton = computed(() => !stores.api().returnUrl && stores.api().
 <template>
   <v-main fill-height>
 
-    <v-app-bar elevation="1" color="white" density="compact">
+    <v-app-bar v-if="!showWelcome" elevation="1" color="white" density="compact">
       <v-app-bar-title v-show="stores.api().isLoading">{{ $t('startupContentLoadData') }}</v-app-bar-title>
       <v-app-bar-title v-show="stores.api().isSending">{{ $t('startupContentSendData') }}</v-app-bar-title>
       <v-spacer></v-spacer>
@@ -48,17 +48,13 @@ const showLogoutButton = computed(() => !stores.api().returnUrl && stores.api().
         <v-icon left icon="mdi-logout-variant"></v-icon>
         <span>{{ $t('startupContentMyCorrections') }}</span>
       </v-btn>
-      <v-btn v-if="showLoginButton" @click="showLogin">
-        <v-icon left icon="mdi-login-variant"></v-icon>
-        <span>{{ $t('startupContentLogin') }}</span>
-      </v-btn>
       <v-btn v-if="showLogoutButton" @click="sendLogout">
         <v-icon left icon="mdi-logout-variant"></v-icon>
         <span>{{ $t('startupContentLogout') }}</span>
       </v-btn>
     </v-app-bar>
 
-    <welcome @login="showLogin"/>
+    <welcome v-if = "showWelcome" @login="showLogin"/>
 
     <v-dialog max-width="60em" v-model="stores.layout().showLogin">
       <v-card>
