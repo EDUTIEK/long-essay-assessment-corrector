@@ -1,6 +1,7 @@
 <script setup>
 import {ref, computed} from "vue";
 import {stores} from "@/store";
+import Welcome from "@/components/Welcome.vue";
 
 const login = ref('');
 const password = ref('');
@@ -56,6 +57,8 @@ const showLogoutButton = computed(() => !stores.api().returnUrl && stores.api().
         <span>{{ $t('startupContentLogout') }}</span>
       </v-btn>
     </v-app-bar>
+
+    <welcome/>
 
     <v-dialog max-width="60em" v-model="stores.layout().showLogin">
       <v-card>

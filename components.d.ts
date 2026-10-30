@@ -48,5 +48,6 @@ declare module 'vue' {
     SummaryText: typeof import('./src/components/SummaryText.vue')['default']
     SumOfPoints: typeof import('./src/components/SumOfPoints.vue')['default']
     Tasks: typeof import('./src/components/Tasks.vue')['default']
+    Welcome: typeof import('./src/components/Welcome.vue')['default']
   }
 }
