@@ -15,8 +15,8 @@ const { t } = i18n.global
 
 const startState = {
   // saved in storage
-  backendUrl: '',                  // url to be used for REST calls
-  returnUrl: '',                   // url to be called when the correction is closed
+  backendUrl: null,                  // url to be used for REST calls
+  returnUrl: null,                   // url to be called when the correction is closed
   primary_color: null,            // color for the background of primary actions
   primary_text_color: null,       // color for the text of primary actions
   corrector1_color: null,         // marking color of corrector 1
@@ -163,11 +163,8 @@ export const useConfigStore = defineStore('config', {
       try {
         const response = await fetch(`${import.meta.env.BASE_URL}config.json`, { cache: 'no-store' });
         if (response.ok) {
-          const data = await response.json();
-          if (data) {
-            this.$patch(data);
-            this.saveToStorage();
-          }
+          this.applyData(await response.json());
+          this.saveToStorage();
         }
       } catch (err) {
         console.log(err);
@@ -176,24 +173,35 @@ export const useConfigStore = defineStore('config', {
 
     async loadFromStorage() {
       try {
-        const data = await storage.getItem('config');
-        if (data) {
-          this.$patch(data);
-        }
+        this.applyData(await storage.getItem('config'));
       }
       catch (err) {
         console.log(err);
       }
     },
 
-    async loadFromBackend(data = {}) {
+    async loadFromBackend(data) {
       try {
-        this.$patch(data);
+        this.applyData(data);
         this.saveToStorage();
       }
       catch (err) {
         console.log(err);
       }
+    },
+
+    applyData(data) {
+      if (data == null) {
+        return;
+      }
+
+      const patch = {};
+      for (const key of Object.keys(this.$state)) {
+        if (data[key] !== undefined && data[key] !== null) {
+          patch[key] = data[key];
+        }
+      }
+      this.$patch(patch);
     },
 
     async saveToStorage() {
