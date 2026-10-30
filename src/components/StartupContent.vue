@@ -6,17 +6,33 @@ const login = ref('');
 const password = ref('');
 const accepted = ref(false);
 
-function submitLogin() {
+function showLogin() {
+  stores.layout().showLogin = true;
+  stores.layout().loginMessage = '';
+}
+
+function hideLogin() {
+  stores.layout().showLogin = false;
+}
+
+function sendLogin() {
   stores.api().sendLogin(login.value, password.value);
 }
 
-function submitAgreement() {
+function sendAgreement() {
   if (accepted.value) {
     stores.api().sendAgreement();
   }
 }
 
-const showReturn = computed(() => !!stores.api().returnUrl)
+function sendLogout() {
+  stores.layout().showAgreement = false;
+  stores.api().sendLogout();
+}
+
+const showReturnButton = computed(() => !!stores.api().returnUrl);
+const showLoginButton = computed(() => !stores.api().returnUrl && !stores.api().userId);
+const showLogoutButton = computed(() => !stores.api().returnUrl && stores.api().userId);
 
 </script>
 
@@ -27,15 +43,23 @@ const showReturn = computed(() => !!stores.api().returnUrl)
       <v-app-bar-title v-show="stores.api().isLoading">{{ $t('startupContentLoadData') }}</v-app-bar-title>
       <v-app-bar-title v-show="stores.api().isSending">{{ $t('startupContentSendData') }}</v-app-bar-title>
       <v-spacer></v-spacer>
-      <v-btn v-show="showReturn" :href="stores.api().returnUrl">
+      <v-btn v-if="showReturnButton" :href="stores.api().returnUrl">
         <v-icon left icon="mdi-logout-variant"></v-icon>
         <span>{{ $t('startupContentMyCorrections') }}</span>
       </v-btn>
+      <v-btn v-if="showLoginButton" @click="showLogin">
+        <v-icon left icon="mdi-login-variant"></v-icon>
+        <span>{{ $t('startupContentLogin') }}</span>
+      </v-btn>
+      <v-btn v-if="showLogoutButton" @click="sendLogout">
+        <v-icon left icon="mdi-logout-variant"></v-icon>
+        <span>{{ $t('startupContentLogout') }}</span>
+      </v-btn>
     </v-app-bar>
 
-    <v-dialog persistent  max-width="60em" v-model="stores.layout().showLogin">
+    <v-dialog max-width="60em" v-model="stores.layout().showLogin">
       <v-card>
-        <v-form @submit.prevent="submitLogin">
+        <v-form @submit.prevent="sendLogin">
           <v-card-title>
             {{ $t('startupContentLoginTitle') }}
           </v-card-title>
@@ -65,13 +89,19 @@ const showReturn = computed(() => !!stores.api().returnUrl)
               <span>{{ $t('startupContentLogin') }}</span>
             </v-btn>
           </v-card-text>
+          <v-card-actions>
+
+            <v-btn @click="hideLogin">
+              <span>{{ $t('allCancel') }}</span>
+            </v-btn>
+          </v-card-actions>
         </v-form>
       </v-card>
     </v-dialog>
 
     <v-dialog persistent  max-width="60em" v-model="stores.layout().showAgreement">
       <v-card>
-        <v-form @submit.prevent="submitAgreement">
+        <v-form @submit.prevent="sendAgreement">
           <v-card-title>
             {{ $t('startupContentAgreementTitle') }}
           </v-card-title>
@@ -90,6 +120,9 @@ const showReturn = computed(() => !!stores.api().returnUrl)
             <v-btn type="submit" :disabled="!accepted" :color="stores.config().primaryColorCss">
               <span>{{ $t('startupContentAgreementButton') }}</span>
             </v-btn>
+            <v-btn type="submit" @click="sendLogout">
+              <span>{{ $t('startupContentLogout') }}</span>
+            </v-btn>
           </v-card-text>
         </v-form>
       </v-card>
@@ -106,7 +139,7 @@ const showReturn = computed(() => !!stores.api().returnUrl)
           </v-alert>
         </v-card-text>
         <v-card-actions>
-          <v-btn v-show="showReturn" :href="stores.api().returnUrl">
+          <v-btn v-show="showReturnButton" :href="stores.api().returnUrl">
             <v-icon left icon="mdi-logout-variant"></v-icon>
             <span>{{ $t('allEnd') }}</span>
           </v-btn>
@@ -120,7 +153,7 @@ const showReturn = computed(() => !!stores.api().returnUrl)
           <p>{{ $t('startupContentLoadItemError') }}</p>
         </v-card-text>
         <v-card-actions>
-          <v-btn v-show="showReturn" :href="stores.api().returnUrl">
+          <v-btn v-show="showReturnButton" :href="stores.api().returnUrl">
             <v-icon left icon="mdi-logout-variant"></v-icon>
             <span>{{ $t('allEnd') }}</span>
           </v-btn>
@@ -171,7 +204,7 @@ const showReturn = computed(() => !!stores.api().returnUrl)
             <v-icon left icon="mdi-trash-can-outline"></v-icon>
             <span>{{ $t('startupContentDeleteLocalData') }}</span>
           </v-btn>
-          <v-btn v-show="showReturn" :href="stores.api().returnUrl">
+          <v-btn v-show="showReturnButton" :href="stores.api().returnUrl">
             <v-icon left icon="mdi-logout-variant"></v-icon>
             <span>{{ $t('allCancel') }}</span>
           </v-btn>

@@ -27,6 +27,7 @@ export const useUserStore = defineStore('user', {
 
   getters: {
 
+    hasToAccept: state => !!state.agreement && !state.accepted
 
 
   },

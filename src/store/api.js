@@ -384,17 +384,12 @@ export const useApiStore = defineStore('api', {
      * Init when the app is started directly without cookies from an assesment
      */
     async initStart() {
-      if (!this.loginToken || !this.userId) {
-        stores.layout().loginMessage = '';
-        stores.layout().showLogin = true;
-        return;
-      }
+      await stores.user().loadFromStorage();
 
-      if (!stores.user().accepted) {
+      if (!!this.userId && stores.user().hasToAccept) {
         stores.layout().showAgreement = true;
         return;
       }
-
     },
 
     /**
@@ -683,6 +678,34 @@ export const useApiStore = defineStore('api', {
         } else {
           stores.layout().loginMessage = t('apiLoginFailed');
         }
+      }
+    },
+
+    /**
+     * Send acceptance of the user agreement
+     */
+    async sendLogout() {
+
+      try {
+        this.setSending(true);
+        const response = await axios.put(
+          '/corrector/start/logout',
+          null,
+          this.getStartRequestConfig
+        );
+
+        this.setSending(false);
+
+        this.userId = '';
+        this.loginToken = '';
+        localStorage.setItem('xlasCorrectorUserId', '');
+        localStorage.setItem('xlasCorrectorLoginToken', '');
+        stores.user().clearStorage();
+        stores.layout().initialized = false;
+
+        this.initStart();
+
+      } catch (error) {
       }
     },
 
