@@ -11,6 +11,7 @@ import md5 from 'md5';
 import Change from '@/data/Change';
 import Item from '@/data/Item';
 import Snippet from '@/data/Snippet';
+import ApiResult from '@/data/ApiResult';
 
 const { t } = i18n.global;
 const sendInterval = 1000;      // time (ms) to wait for sending open savings to the backend
@@ -352,7 +353,7 @@ export const useApiStore = defineStore('api', {
 
       if (!this.userId || !this.assId || !this.contextId
         || !this.dataToken || !this.fileToken) {
-        this.initStart();
+        await stores.user().loadFromStorage();
         return;
       }
 
@@ -376,18 +377,6 @@ export const useApiStore = defineStore('api', {
       } else {
         console.log('init: no open saving');
         this.initAfterReplaceDataConfirmed();
-      }
-    },
-
-    /**
-     * Init when the app is started directly without cookies from an assesment
-     */
-    async initStart() {
-      await stores.user().loadFromStorage();
-
-      if (!!this.userId && stores.user().hasToAccept) {
-        stores.layout().showAgreement = true;
-        return;
       }
     },
 
@@ -644,9 +633,9 @@ export const useApiStore = defineStore('api', {
 
     /**
      * Post a login request
+     * @return {ApiResult}
      */
     async sendLogin(login, password) {
-
       try {
         const formData = new FormData();
         formData.append('login', login);
@@ -661,21 +650,20 @@ export const useApiStore = defineStore('api', {
         );
 
         this.setSending(false);
-        stores.layout().showLogin = false;
 
         this.loginToken = response.data.token;
         this.userId = response.data.user_id;
         localStorage.setItem('xlasCorrectorUserId', this.userId);
         localStorage.setItem('xlasCorrectorLoginToken', this.loginToken);
         await stores.user().loadFromBackend(response.data);
-        this.initStart();
+        return new ApiResult(true);
 
       } catch (error) {
         this.setSending(false);
         if (error.response?.status === 401) {
-          stores.layout().loginMessage = error.response.data?.failed_message;
+          return new ApiResult(false, 401, error.response.data?.failed_message);
         } else {
-          stores.layout().loginMessage = t('apiLoginFailed');
+          return new ApiResult(false, error.response?.status, error.response.data);
         }
       }
     },
@@ -684,7 +672,6 @@ export const useApiStore = defineStore('api', {
      * Send acceptance of the user agreement
      */
     async sendLogout() {
-
       try {
         this.setSending(true);
         const response = await axios.put(
@@ -699,12 +686,13 @@ export const useApiStore = defineStore('api', {
         this.loginToken = '';
         localStorage.setItem('xlasCorrectorUserId', '');
         localStorage.setItem('xlasCorrectorLoginToken', '');
-        stores.user().clearStorage();
+        await stores.user().clearStorage();
         stores.layout().initialized = false;
-
-        this.initStart();
+        return new ApiResult(true);
 
       } catch (error) {
+        stores.layout().initialized = false;
+        return new ApiResult(false, error.response?.status, error.response.data);
       }
     },
 
@@ -712,7 +700,6 @@ export const useApiStore = defineStore('api', {
      * Send acceptance of the user agreement
      */
     async sendAgreement() {
-
       try {
         this.setSending(true);
         const response = await axios.put(
@@ -724,9 +711,10 @@ export const useApiStore = defineStore('api', {
         this.setSending(false);
         stores.layout().showAgreement = false;
         await stores.user().setAccepted();
-        this.initStart();
+        return new ApiResult(true);
 
       } catch (error) {
+        return new ApiResult(false, error.response?.status, error.response.data);
       }
     },
 

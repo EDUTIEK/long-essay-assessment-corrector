@@ -312,7 +312,7 @@
     "snippetsImportNoExcel": "Die ausgewählte Datei ist keine Excel-Datei",
     "snippetsImportError": "Die Textbausteine konnten nicht importiert werden!",
     "startupContentAgreementTitle": "Nutzungsvereinbarung",
-    "startupContentAgreementMessage": "Bitte lesen bestätigen Sie die Nutzungsvereinbarung.",
+    "startupContentAgreementMessage": "Bitte lesen und bestätigen Sie die Nutzungsvereinbarung.",
     "startupContentAgreementCheckbox": "Ich habe die Nutzungsvereinbarung gelesen und stimme ihr zu.",
     "startupContentAgreementButton": "Zustimmung senden",
     "startupContentLogin": "Anmelden",

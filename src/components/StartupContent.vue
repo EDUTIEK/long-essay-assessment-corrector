@@ -7,28 +7,47 @@ const login = ref('');
 const password = ref('');
 const accepted = ref(false);
 
-function showLogin() {
-  stores.layout().showLogin = true;
-  stores.layout().loginMessage = '';
+const loginDialog = ref(false);
+const loginMessage = ref('');
+
+const agreementDialog = ref(false);
+const agreementSending = ref(false);
+
+function showLogin(show) {
+  loginDialog.value = show;
+  loginMessage.value = '';
 }
 
-function hideLogin() {
-  stores.layout().showLogin = false;
+function showAgreement(show) {
+  agreementDialog.value = show;
 }
 
-function sendLogin() {
-  stores.api().sendLogin(login.value, password.value);
-}
-
-function sendAgreement() {
-  if (accepted.value) {
-    stores.api().sendAgreement();
+async function sendLogin() {
+  const result = await stores.api().sendLogin(login.value, password.value);
+  if (result.ok) {
+    showLogin(false);
+    if (stores.user().hasToAccept) {
+      showAgreement(true);
+    }
+  } else {
+    loginMessage.value = result.message;
   }
 }
 
-function sendLogout() {
-  stores.layout().showAgreement = false;
-  stores.api().sendLogout();
+async function sendAgreement() {
+  if (accepted.value) {
+    agreementSending.value = true;
+    const result = await stores.api().sendAgreement();
+    agreementSending.value = false;
+    if (result.ok) {
+      showAgreement(false);
+    }
+  }
+}
+
+async function sendLogout() {
+  await stores.api().sendLogout();
+  showAgreement(false);
 }
 
 const showWelcome = computed(() => !stores.config().returnUrl && (!stores.api().userId || stores.user().hasToAccept));
@@ -42,30 +61,29 @@ const showLogoutButton = computed(() => !stores.config().returnUrl && stores.api
 
     <v-app-bar v-if="!showWelcome" elevation="1" color="white" density="compact">
       <v-app-bar-title v-show="stores.api().isLoading">{{ $t('startupContentLoadData') }}</v-app-bar-title>
-      <v-app-bar-title v-show="stores.api().isSending">{{ $t('startupContentSendData') }}</v-app-bar-title>
       <v-spacer></v-spacer>
       <v-btn v-if="showReturnButton" :href="stores.config().returnUrl">
         <v-icon left icon="mdi-logout-variant"></v-icon>
         <span>{{ $t('startupContentMyCorrections') }}</span>
       </v-btn>
-      <v-btn v-if="showLogoutButton" @click="sendLogout">
+      <v-btn v-if="showLogoutButton" @click="sendLogout" :loading="stores.api().isSending">
         <v-icon left icon="mdi-logout-variant"></v-icon>
         <span>{{ $t('startupContentLogout') }}</span>
       </v-btn>
     </v-app-bar>
 
-    <welcome v-if = "showWelcome" @login="showLogin"/>
+    <welcome v-if = "showWelcome" @login="showLogin(true)"/>
 
-    <v-dialog max-width="60em" v-model="stores.layout().showLogin">
+    <!--
+      Login
+    -->
+    <v-dialog max-width="60em" v-model="loginDialog">
       <v-card>
         <v-form @submit.prevent="sendLogin">
           <v-card-title>
             {{ $t('startupContentLoginTitle') }}
           </v-card-title>
           <v-card-text>
-            <v-alert v-if="stores.api().isSending" type="info" variant="text" color="#0000A0">
-              {{ $t('startupContentSendLogin') }}
-            </v-alert>
             <v-alert v-if="stores.layout().loginMessage" type="warning" variant="text" color="#0000A0">
               {{ stores.layout().loginMessage }}
             </v-alert>
@@ -87,10 +105,10 @@ const showLogoutButton = computed(() => !stores.config().returnUrl && stores.api
 
           </v-card-text>
           <v-card-actions>
-            <v-btn type="submit" variant="flat" color="primary">
+            <v-btn type="submit" variant="flat" color="primary" :loading="stores.api().isSending">
               <span>{{ $t('startupContentLogin') }}</span>
             </v-btn>
-            <v-btn @click="hideLogin">
+            <v-btn @click="showLogin(false)">
               <span>{{ $t('allCancel') }}</span>
             </v-btn>
           </v-card-actions>
@@ -98,7 +116,10 @@ const showLogoutButton = computed(() => !stores.config().returnUrl && stores.api
       </v-card>
     </v-dialog>
 
-    <v-dialog persistent  max-width="60em" v-model="stores.layout().showAgreement">
+    <!--
+      Agreement
+    -->
+    <v-dialog persistent  max-width="60em" v-model="agreementDialog">
       <v-card>
         <v-form @submit.prevent="sendAgreement">
           <v-card-title>
@@ -117,10 +138,10 @@ const showLogoutButton = computed(() => !stores.config().returnUrl && stores.api
             ></v-checkbox>
           </v-card-text>
           <v-card-actions>
-            <v-btn type="submit" variant="flat" :disabled="!accepted" color="primary">
+            <v-btn type="submit" variant="flat" :disabled="!accepted" color="primary" :loading="agreementSending">
               <span>{{ $t('startupContentAgreementButton') }}</span>
             </v-btn>
-            <v-btn type="submit" @click="sendLogout">
+            <v-btn type="submit" @click="sendLogout" :loading="stores.api().isSending && !agreementSending">
               <span>{{ $t('startupContentLogout') }}</span>
             </v-btn>
           </v-card-actions>
